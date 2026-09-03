@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../src/app";
+import { prisma } from "./db";
 
 export const api = request(app);
 
@@ -55,7 +56,13 @@ export const createCompany = async (owner: TestUser) => {
   if (res.status !== 201) {
     throw new Error(`company create failed: ${res.status} ${JSON.stringify(res.body)}`);
   }
-  return res.body.data as { id: string; name: string };
+  // Grant the company a credit balance directly so publish flows can be tested.
+  const company = res.body.data as { id: string; name: string };
+  await prisma.company.update({
+    where: { id: company.id },
+    data: { credits: 10 },
+  });
+  return { ...company, credits: 10 };
 };
 
 export const createProblem = async (
@@ -105,7 +112,17 @@ export const createAssessment = async (user: TestUser) => {
       `assessment create failed: ${res.status} ${JSON.stringify(res.body)}`,
     );
   }
-  return res.body.data as { id: string };
+  const assessment = res.body.data as { id: string };
+  // Publish the assessment so candidates can start attempts.
+  const publish = await api
+    .post(`/api/v1/assessments/${assessment.id}/publish`)
+    .set("Authorization", `Bearer ${user.accessToken}`);
+  if (publish.status !== 200) {
+    throw new Error(
+      `assessment publish failed: ${publish.status} ${JSON.stringify(publish.body)}`,
+    );
+  }
+  return assessment;
 };
 
 export const expectSuccess = (body: { success: boolean }) => {

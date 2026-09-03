@@ -3,7 +3,7 @@ import { prisma } from "../../lib/prisma";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
-import { AssessmentServices } from "../assessments/assessments.service";
+
 import { AttemptStatus, InvitationStatus } from "../../../generated/prisma/enums";
 
 const assertAttemptOwnership = async (user: IAuthUser, attemptId: string) => {
@@ -25,10 +25,7 @@ const assertAttemptOwnership = async (user: IAuthUser, attemptId: string) => {
         return attempt;
       }
     }
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "You do not have access to this attempt",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this attempt");
   }
   return attempt;
 };
@@ -75,10 +72,7 @@ const start = async (
     },
   });
   if (!invitation) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "You are not invited to this assessment",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "You are not invited to this assessment");
   }
   if (
     invitation.status !== InvitationStatus.ACCEPTED &&
@@ -135,7 +129,8 @@ const start = async (
   });
 
   return attempt;
-};const autoSubmitIfExpired = async (attemptId: string) => {
+};
+const autoSubmitIfExpired = async (attemptId: string) => {
   const attempt = await prisma.attempt.findUnique({ where: { id: attemptId } });
   if (!attempt) return attempt;
   if (
@@ -230,10 +225,7 @@ const saveAnswer = async (
 ) => {
   const attempt = await assertAttemptOwnership(user, attemptId);
   if (attempt.candidateId !== user.id) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Only the candidate can save answers",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "Only the candidate can save answers");
   }
   const current = await autoSubmitIfExpired(attemptId);
   if (TERMINAL_STATUSES.includes(current!.status)) {
@@ -282,7 +274,8 @@ const saveAnswer = async (
   });
 
   return answer;
-};const updateAnswer = async (
+};
+const updateAnswer = async (
   user: IAuthUser,
   attemptId: string,
   answerId: string,
@@ -290,10 +283,7 @@ const saveAnswer = async (
 ) => {
   const attempt = await assertAttemptOwnership(user, attemptId);
   if (attempt.candidateId !== user.id) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Only the candidate can update answers",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "Only the candidate can update answers");
   }
   const current = await autoSubmitIfExpired(attemptId);
   if (TERMINAL_STATUSES.includes(current!.status)) {
@@ -368,7 +358,11 @@ const submit = async (
   try {
     // Deferred import to avoid a circular dependency at module scope.
     const { EvaluationServices } = await import("../evaluations/evaluations.service");
-    await EvaluationServices.autoEvaluateMcq(attemptId);
+    try {
+      await EvaluationServices.autoEvaluateMcq(attemptId);
+    } catch {
+      // A failure in automatic MCQ evaluation must not block submission.
+    }
     await EvaluationServices.recalculateResult(attemptId);
     result = await prisma.result.findUnique({
       where: { attemptId },

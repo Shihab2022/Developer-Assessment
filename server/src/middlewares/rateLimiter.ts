@@ -1,10 +1,14 @@
 import rateLimit from "express-rate-limit";
+import config from "../config";
+
+const skipInTest = () => config.node_env === "test";
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many login attempts. Please try again later.",
@@ -17,6 +21,7 @@ export const registerRateLimiter = rateLimit({
   limit: 20,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many registration attempts. Please try again later.",
@@ -29,6 +34,7 @@ export const passwordRateLimiter = rateLimit({
   limit: 15,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many password requests. Please try again later.",
@@ -41,6 +47,7 @@ export const paymentRateLimiter = rateLimit({
   limit: 20,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many payment requests. Please try again later.",
@@ -53,6 +60,7 @@ export const submissionRateLimiter = rateLimit({
   limit: 30,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many submissions. Please try again later.",
@@ -65,6 +73,7 @@ export const invitationRateLimiter = rateLimit({
   limit: 100,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many invitation requests. Please try again later.",
@@ -77,6 +86,7 @@ export const generalRateLimiter = rateLimit({
   limit: 300,
   standardHeaders: "draft-7",
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: "Too many requests. Please try again later.",

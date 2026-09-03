@@ -5,11 +5,7 @@ export const paginate = (page?: number, limit?: number) => {
   return { page: safePage, limit: safeLimit, skip, take: safeLimit };
 };
 
-export const buildPaginationMeta = (
-  page: number,
-  limit: number,
-  total: number,
-) => {
+export const buildPaginationMeta = (page: number, limit: number, total: number) => {
   return {
     page,
     limit,

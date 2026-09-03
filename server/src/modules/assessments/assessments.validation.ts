@@ -46,7 +46,14 @@ export const assessmentQuerySchema = z.object({
       page: z.coerce.number().int().min(1).optional(),
       limit: z.coerce.number().int().min(1).max(100).optional(),
       sortBy: z
-        .enum(["createdAt", "updatedAt", "title", "status", "durationMinutes", "startDate"])
+        .enum([
+          "createdAt",
+          "updatedAt",
+          "title",
+          "status",
+          "durationMinutes",
+          "startDate",
+        ])
         .default("createdAt"),
       sortOrder: z.enum(["asc", "desc"]).default("desc"),
       q: z.string().optional(),

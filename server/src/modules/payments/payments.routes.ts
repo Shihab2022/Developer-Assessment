@@ -30,18 +30,8 @@ router.post("/cancel", PaymentController.cancel);
 router.get("/cancel", PaymentController.cancel);
 router.post("/ipn", PaymentController.ipn);
 
-router.get(
-  "/",
-  auth(),
-  validate(paymentListQuerySchema),
-  PaymentController.list,
-);
+router.get("/", auth(), validate(paymentListQuerySchema), PaymentController.list);
 
-router.get(
-  "/:id",
-  auth(),
-  validate(paymentParamsSchema),
-  PaymentController.getById,
-);
+router.get("/:id", auth(), validate(paymentParamsSchema), PaymentController.getById);
 
 export const PaymentRouter = router;

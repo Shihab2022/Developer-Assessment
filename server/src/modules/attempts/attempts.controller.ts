@@ -84,25 +84,20 @@ const submit = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
-const candidatesMeAttempts = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const { page, limit } = paginate(
-      Number(req.query.page),
-      Number(req.query.limit),
-    );
-    const result = await AttemptServices.candidatesMeAttempts(req.user!, {
-      page,
-      limit,
-      status: req.query.status as string,
-    });
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "My attempts retrieved successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  },
-);
+const candidatesMeAttempts = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await AttemptServices.candidatesMeAttempts(req.user!, {
+    page,
+    limit,
+    status: req.query.status as string,
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "My attempts retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 export const AttemptController = {
   start,

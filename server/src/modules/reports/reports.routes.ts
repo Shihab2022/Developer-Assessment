@@ -8,7 +8,7 @@ import {
 } from "./reports.validation";
 
 // Assessment-scoped: GET /assessments/:id/report
-export const assessmentReportRouter = express.Router();
+export const assessmentReportRouter = express.Router({ mergeParams: true });
 
 assessmentReportRouter.get(
   "/",
@@ -18,7 +18,7 @@ assessmentReportRouter.get(
 );
 
 // Company-scoped: GET /companies/:id/reports
-export const companyReportRouter = express.Router();
+export const companyReportRouter = express.Router({ mergeParams: true });
 
 companyReportRouter.get(
   "/",

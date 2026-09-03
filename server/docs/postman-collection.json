@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "Developer Assessment & Coding Platform API",
+    "description": "Postman collection for the Developer Assessment & Coding Platform backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "assessmentId", "value": "" },
+    { "key": "problemId", "value": "" },
+    { "key": "attemptId", "value": "" },
+    { "key": "submissionId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "companyId", "value": "" },
+    { "key": "invitationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        { "name": "Register (Candidate)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/auth/register", "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@example.com\",\n  \"password\": \"Passw0rd123\",\n  \"role\": \"CANDIDATE\"\n}" } } },
+        { "name": "Register (Recruiter)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/auth/register", "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rina Recruiter\",\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Passw0rd123\",\n  \"role\": \"RECRUITER\"\n}" } } },
+        { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/auth/login", "body": { "mode": "raw", "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Passw0rd123\"\n}" } } },
+        { "name": "Refresh Token", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/auth/refresh-token", "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" } } },
+        { "name": "Logout", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/auth/logout", "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" } } },
+        { "name": "Me", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/auth/me" } }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "Get Me", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/users/me" } },
+        { "name": "Update Me", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/users/me", "body": { "mode": "raw", "raw": "{\n  \"bio\": \"Updated bio\",\n  \"skills\": [\"typescript\", \"nodejs\"],\n  \"jobTitle\": \"Senior Engineer\"\n}" } } },
+        { "name": "Change Password", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/users/me/password", "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Passw0rd123\",\n  \"newPassword\": \"NewPassw0rd123\"\n}" } } },
+        { "name": "My Activity", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/users/me/activity" } }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        { "name": "Create Company", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/companies", "body": { "mode": "raw", "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"A software company\",\n  \"website\": \"https://techcorp.example.com\",\n  \"industry\": \"Software\",\n  \"location\": \"Dhaka\"\n}" } } },
+        { "name": "Get Company", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/companies/{{companyId}}" } },
+        { "name": "Update Company", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/companies/{{companyId}}", "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\"\n}" } } },
+        { "name": "List Members", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/companies/{{companyId}}/members" } }
+      ]
+    },    {
+      "name": "Problems",
+      "item": [
+        { "name": "Create MCQ Problem", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/problems", "body": { "mode": "raw", "raw": "{\n  \"title\": \"JS Event Loop\",\n  \"description\": \"Which statement is true about the event loop?\",\n  \"type\": \"MCQ\",\n  \"difficulty\": \"EASY\",\n  \"points\": 5,\n  \"category\": \"javascript\",\n  \"options\": [\n    { \"text\": \"It runs immediately\", \"isCorrect\": false, \"order\": 0 },\n    { \"text\": \"Microtask queue\", \"isCorrect\": true, \"order\": 1 },\n    { \"text\": \"Macrotask queue\", \"isCorrect\": false, \"order\": 2 }\n  ]\n}" } } },
+        { "name": "Create Coding Problem", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/problems", "body": { "mode": "raw", "raw": "{\n  \"title\": \"Two Sum\",\n  \"description\": \"Return indices of two numbers that add up to target.\",\n  \"type\": \"CODING\",\n  \"difficulty\": \"EASY\",\n  \"points\": 15,\n  \"timeLimit\": 15,\n  \"memoryLimit\": 256,\n  \"testCases\": [\n    { \"input\": \"[2,7,11,15]\\n9\", \"expectedOutput\": \"[0,1]\", \"isHidden\": false, \"order\": 0 },\n    { \"input\": \"[3,2,4]\\n6\", \"expectedOutput\": \"[1,2]\", \"isHidden\": true, \"order\": 1 }\n  ]\n}" } } },
+        { "name": "List Problems", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/problems?page=1&limit=10&sortBy=createdAt&sortOrder=desc" } },
+        { "name": "Search Problems", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/problems/search?q=javascript" } },
+        { "name": "Get Problem", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/problems/{{problemId}}" } },
+        { "name": "Update Problem", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/problems/{{problemId}}", "body": { "mode": "raw", "raw": "{\n  \"points\": 10\n}" } } },
+        { "name": "Delete Problem", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/problems/{{problemId}}" } }
+      ]
+    },
+    {
+      "name": "Assessments",
+      "item": [
+        { "name": "Create Assessment", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/assessments", "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Developer Assessment\",\n  \"description\": \"Screening assessment\",\n  \"instructions\": \"Answer all questions. Timer is server-side.\",\n  \"durationMinutes\": 45,\n  \"passingScore\": 15,\n  \"maxAttempts\": 1,\n  \"showResults\": true\n}" } } },
+        { "name": "List Assessments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments?page=1&limit=10&status=PUBLISHED" } },
+        { "name": "Get Assessment", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}" } },
+        { "name": "Update Assessment", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}", "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated instructions\"\n}" } } },
+        { "name": "Publish Assessment", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/publish" } },
+        { "name": "Close Assessment", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/close" } },
+        { "name": "Assessment History", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/history" } },
+        { "name": "Add Problem", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems", "body": { "mode": "raw", "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"points\": 10,\n  \"order\": 1\n}" } } },
+        { "name": "List Problems", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems" } },
+        { "name": "Update Problem", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems/{{problemId}}", "body": { "mode": "raw", "raw": "{\n  \"points\": 12,\n  \"section\": \"Core\"\n}" } } },
+        { "name": "Remove Problem", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems/{{problemId}}" } }
+      ]
+    },    {
+      "name": "Invitations",
+      "item": [
+        { "name": "Invite Candidates", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations", "body": { "mode": "raw", "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@example.com\" }\n  ]\n}" } } },
+        { "name": "List Invitations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations" } },
+        { "name": "Resend Invitation", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/invitations/{{invitationId}}/resend" } },
+        { "name": "Accept Invitation", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/invitations/{{invitationId}}/accept" } },
+        { "name": "Reject Invitation", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/invitations/{{invitationId}}/reject" } },
+        { "name": "My Invitations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidates/invitations" } }
+      ]
+    },
+    {
+      "name": "Attempts",
+      "item": [
+        { "name": "Start Attempt", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/attempts/start" } },
+        { "name": "Get Attempt", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}" } },
+        { "name": "Get Questions", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/questions" } },
+        { "name": "Save Answer", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/answers", "body": { "mode": "raw", "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"answer\": { \"selectedOptionId\": \"OPTION_UUID\" }\n}" } } },
+        { "name": "Update Answer", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/answers/ANSWER_UUID", "body": { "mode": "raw", "raw": "{\n  \"answer\": { \"selectedOptionId\": \"OPTION_UUID\" }\n}" } } },
+        { "name": "Submit Attempt", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/submit" } },
+        { "name": "My Attempts", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidates/me/attempts" } }
+      ]
+    },
+    {
+      "name": "Submissions",
+      "item": [
+        { "name": "Create Submission", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/submissions", "body": { "mode": "raw", "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"code\": \"console.log(1+2);\",\n  \"programmingLanguage\": \"javascript\"\n}" } } },
+        { "name": "Get Submission", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/submissions/{{submissionId}}" } },
+        { "name": "Evaluate Submission", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/submissions/{{submissionId}}/evaluate" } },
+        { "name": "List Attempt Submissions", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/submissions" } }
+      ]
+    },
+    {
+      "name": "Evaluations",
+      "item": [
+        { "name": "Evaluate Written", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/evaluations/written", "body": { "mode": "raw", "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"score\": 8,\n  \"feedback\": \"Good answer with minor gaps.\"\n}" } } },
+        { "name": "List Attempt Evaluations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/evaluations" } }
+      ]
+    },    {
+      "name": "Results",
+      "item": [
+        { "name": "Get Result", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/results/RESULT_UUID" } },
+        { "name": "My Results", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/candidates/me/results" } },
+        { "name": "Assessment Results", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/results" } }
+      ]
+    },
+    {
+      "name": "Reports & Analytics",
+      "item": [
+        { "name": "Assessment Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/report" } },
+        { "name": "Assessment Analytics", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/assessments/{{assessmentId}}/analytics" } },
+        { "name": "Company Reports", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/companies/{{companyId}}/reports" } }
+      ]
+    },    {
+      "name": "Anti-Cheating",
+      "item": [
+        { "name": "Record Event", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events", "body": { "mode": "raw", "raw": "{\n  \"eventType\": \"TAB_SWITCH\",\n  \"metadata\": { \"detail\": \"user switched tab\" }\n}" } } },
+        { "name": "List Events", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events" } }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        { "name": "List Packages", "request": { "method": "GET", "url": "{{baseUrl}}/payments/packages" } },
+        { "name": "Initiate Payment", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/payments/initiate", "body": { "mode": "raw", "raw": "{\n  \"packageId\": \"PACKAGE_UUID\",\n  \"companyId\": \"{{companyId}}\"\n}" } } },
+        { "name": "Success Callback", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/payments/success", "body": { "mode": "raw", "raw": "{\n  \"tran_id\": \"TX-...\"\n}" } } },
+        { "name": "Fail Callback", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/payments/fail", "body": { "mode": "raw", "raw": "{\n  \"tran_id\": \"TX-...\"\n}" } } },
+        { "name": "Cancel Callback", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/payments/cancel", "body": { "mode": "raw", "raw": "{\n  \"tran_id\": \"TX-...\"\n}" } } },
+        { "name": "IPN Callback", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/payments/ipn", "body": { "mode": "raw", "raw": "{\n  \"tran_id\": \"TX-...\",\n  \"status\": \"VALID\"\n}" } } },
+        { "name": "Get Payment", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/payments/{{paymentId}}" } },
+        { "name": "List Payments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/payments" } }
+      ]
+    },    {
+      "name": "Admin",
+      "item": [
+        { "name": "Dashboard Stats", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/dashboard-stats" } },
+        { "name": "List Users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/users?page=1&limit=10" } },
+        { "name": "Get User", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/users/USER_UUID" } },
+        { "name": "Update User Status", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/admin/users/USER_UUID/status", "body": { "mode": "raw", "raw": "{\n  \"status\": \"SUSPENDED\"\n}" } } },
+        { "name": "Update User Role", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" }], "url": "{{baseUrl}}/admin/users/USER_UUID/role", "body": { "mode": "raw", "raw": "{\n  \"role\": \"RECRUITER\"\n}" } } },
+        { "name": "List Companies", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/companies" } },
+        { "name": "List Assessments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/assessments" } },
+        { "name": "List Problems", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/problems" } },
+        { "name": "List Payments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/payments" } },
+        { "name": "Audit Logs", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }], "url": "{{baseUrl}}/admin/audit-logs?page=1&limit=20" } }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,6 @@ import {
   createCompany,
   createProblem,
   createAssessment,
-  uniqueEmail,
 } from "./helpers";
 
 describe("Invitations", () => {
@@ -26,22 +25,21 @@ describe("Invitations", () => {
       .post(`/api/v1/assessments/${assessmentId}/problems`)
       .set("Authorization", `Bearer ${recruiter.accessToken}`)
       .send({ problemId: problem.id, points: 10 });
-  });
 
-  it("creates invitations and prevents duplicates", async () => {
-    const email = uniqueEmail("invitee");
-    const first = await api
+    // Invite the registered candidate so they can accept it later.
+    const invite = await api
       .post(`/api/v1/assessments/${assessmentId}/invitations`)
       .set("Authorization", `Bearer ${recruiter.accessToken}`)
-      .send({ candidates: [{ email }] });
-    expect(first.status).toBe(201);
-    expect(first.body.data.length).toBe(1);
-    invitationId = first.body.data[0].id;
+      .send({ candidates: [{ email: candidate.email }] });
+    expect(invite.status).toBe(201);
+    invitationId = invite.body.data[0].id;
+  });
 
+  it("prevents duplicate invitations for the same email", async () => {
     const duplicate = await api
       .post(`/api/v1/assessments/${assessmentId}/invitations`)
       .set("Authorization", `Bearer ${recruiter.accessToken}`)
-      .send({ candidates: [{ email }] });
+      .send({ candidates: [{ email: candidate.email }] });
     expect(duplicate.status).toBe(409);
   });
 

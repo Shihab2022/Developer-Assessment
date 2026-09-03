@@ -6,9 +6,7 @@ export const swaggerDocument = {
       "Backend REST API for a multi-role developer assessment platform.\n\n## Authentication\nUse `POST /api/v1/auth/login` to obtain an access token, then send it as:\n\n`Authorization: Bearer <accessToken>`\n\n## Roles\n- **CANDIDATE** - register, take assessments, submit answers, view own results.\n- **RECRUITER** - manage company, problems, assessments, invitations, evaluations, reports, payments.\n- **ADMIN** - manage users, companies, platform statistics, audit logs.",
     version: "1.0.0",
   },
-  servers: [
-    { url: "http://localhost:5000/api/v1", description: "Local development" },
-  ],
+  servers: [{ url: "http://localhost:5000/api/v1", description: "Local development" }],
   tags: [
     { name: "Auth" },
     { name: "Users" },
@@ -108,7 +106,12 @@ Object.assign(swaggerDocument.paths, {
         },
       },
       responses: {
-        "201": { description: "Registered", content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } } },
+        "201": {
+          description: "Registered",
+          content: {
+            "application/json": { schema: { $ref: "#/components/schemas/Success" } },
+          },
+        },
         "409": { description: "Email already registered" },
         "422": { description: "Validation failed" },
       },
@@ -246,7 +249,10 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "200": { description: "Password changed" }, "400": { description: "Wrong current password" } },
+      responses: {
+        "200": { description: "Password changed" },
+        "400": { description: "Wrong current password" },
+      },
     },
   },
   "/users/me/activity": {
@@ -294,11 +300,21 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/companies/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Companies"],
       summary: "Get company by id (members only)",
-      responses: { "200": { description: "Company" }, "403": { description: "No access" } },
+      responses: {
+        "200": { description: "Company" },
+        "403": { description: "No access" },
+      },
     },
     patch: {
       tags: ["Companies"],
@@ -312,7 +328,14 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/companies/{id}/members": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Companies"],
       summary: "List company members",
@@ -320,7 +343,14 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/companies/{id}/reports": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Reports"],
       summary: "List assessment reports for a company",
@@ -352,7 +382,8 @@ Object.assign(swaggerDocument.paths, {
                 expectedAnswer: { description: "Required for WRITTEN" },
                 testCases: {
                   type: "array",
-                  description: "Required for CODING. Hidden cases are never exposed to candidates.",
+                  description:
+                    "Required for CODING. Hidden cases are never exposed to candidates.",
                   items: {
                     type: "object",
                     properties: {
@@ -380,7 +411,10 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "201": { description: "Problem created" }, "422": { description: "Validation failed" } },
+      responses: {
+        "201": { description: "Problem created" },
+        "422": { description: "Validation failed" },
+      },
     },
     get: {
       tags: ["Problems"],
@@ -388,14 +422,31 @@ Object.assign(swaggerDocument.paths, {
       parameters: [
         { name: "page", in: "query", schema: { type: "integer" } },
         { name: "limit", in: "query", schema: { type: "integer" } },
-        { name: "type", in: "query", schema: { type: "string", enum: ["CODING", "MCQ", "WRITTEN"] } },
-        { name: "difficulty", in: "query", schema: { type: "string", enum: ["EASY", "MEDIUM", "HARD"] } },
+        {
+          name: "type",
+          in: "query",
+          schema: { type: "string", enum: ["CODING", "MCQ", "WRITTEN"] },
+        },
+        {
+          name: "difficulty",
+          in: "query",
+          schema: { type: "string", enum: ["EASY", "MEDIUM", "HARD"] },
+        },
         { name: "category", in: "query", schema: { type: "string" } },
         { name: "status", in: "query", schema: { type: "string" } },
-        { name: "tags", in: "query", schema: { type: "string" }, description: "Comma separated" },
+        {
+          name: "tags",
+          in: "query",
+          schema: { type: "string" },
+          description: "Comma separated",
+        },
         { name: "q", in: "query", schema: { type: "string" } },
         { name: "sortBy", in: "query", schema: { type: "string" } },
-        { name: "sortOrder", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
+        {
+          name: "sortOrder",
+          in: "query",
+          schema: { type: "string", enum: ["asc", "desc"] },
+        },
       ],
       responses: { "200": { description: "Paginated problems" } },
     },
@@ -413,11 +464,22 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/problems/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Problems"],
-      summary: "Get a problem. Candidates receive a sanitized view (no hidden test cases, no correct options).",
-      responses: { "200": { description: "Problem" }, "404": { description: "Not found" } },
+      summary:
+        "Get a problem. Candidates receive a sanitized view (no hidden test cases, no correct options).",
+      responses: {
+        "200": { description: "Problem" },
+        "404": { description: "Not found" },
+      },
     },
     patch: { tags: ["Problems"], summary: "Update a problem" },
     delete: { tags: ["Problems"], summary: "Soft-delete a problem" },
@@ -456,26 +518,48 @@ Object.assign(swaggerDocument.paths, {
     },
     get: {
       tags: ["Assessments"],
-      summary: "List assessments (recruiter sees own company; candidates see published/active)",
+      summary:
+        "List assessments (recruiter sees own company; candidates see published/active)",
       parameters: [
         { name: "page", in: "query", schema: { type: "integer" } },
         { name: "limit", in: "query", schema: { type: "integer" } },
         { name: "status", in: "query", schema: { type: "string" } },
         { name: "q", in: "query", schema: { type: "string" } },
         { name: "sortBy", in: "query", schema: { type: "string" } },
-        { name: "sortOrder", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
+        {
+          name: "sortOrder",
+          in: "query",
+          schema: { type: "string", enum: ["asc", "desc"] },
+        },
       ],
       responses: { "200": { description: "Paginated assessments" } },
     },
   },
   "/assessments/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Assessments"], summary: "Get assessment details" },
-    patch: { tags: ["Assessments"], summary: "Update assessment (restricted once attempts exist)" },
+    patch: {
+      tags: ["Assessments"],
+      summary: "Update assessment (restricted once attempts exist)",
+    },
     delete: { tags: ["Assessments"], summary: "Soft-delete assessment" },
   },
   "/assessments/{id}/publish": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Assessments"],
       summary: "Publish assessment (consumes 1 company credit)",
@@ -487,15 +571,36 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/assessments/{id}/close": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: { tags: ["Assessments"], summary: "Close assessment" },
   },
   "/assessments/{id}/history": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Assessments"], summary: "Attempt history for the assessment" },
   },
   "/assessments/{id}/problems": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Assessments"],
       summary: "Add a problem to the assessment",
@@ -517,22 +622,45 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "201": { description: "Problem added" }, "409": { description: "Duplicate or attempts active" } },
+      responses: {
+        "201": { description: "Problem added" },
+        "409": { description: "Duplicate or attempts active" },
+      },
     },
     get: { tags: ["Assessments"], summary: "List assessment problems (ordered)" },
   },
   "/assessments/{id}/problems/{problemId}": {
     parameters: [
-      { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } },
-      { name: "problemId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+      {
+        name: "problemId",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
     ],
-    patch: { tags: ["Assessments"], summary: "Update order/points/section of a problem" },
+    patch: {
+      tags: ["Assessments"],
+      summary: "Update order/points/section of a problem",
+    },
     delete: { tags: ["Assessments"], summary: "Remove problem from assessment" },
   },
 });
 Object.assign(swaggerDocument.paths, {
   "/assessments/{id}/invitations": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Invitations"],
       summary: "Invite candidates (prevents duplicates)",
@@ -559,7 +687,10 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "201": { description: "Invitations created" }, "409": { description: "Duplicate invitation" } },
+      responses: {
+        "201": { description: "Invitations created" },
+        "409": { description: "Duplicate invitation" },
+      },
     },
     get: {
       tags: ["Invitations"],
@@ -573,15 +704,36 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/invitations/{id}/resend": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: { tags: ["Invitations"], summary: "Resend/regenerate an invitation" },
   },
   "/invitations/{id}/accept": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: { tags: ["Invitations"], summary: "Candidate accepts an invitation" },
   },
   "/invitations/{id}/reject": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: { tags: ["Invitations"], summary: "Candidate rejects an invitation" },
   },
   "/candidates/invitations": {
@@ -597,7 +749,14 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/assessments/{id}/attempts/start": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Attempts"],
       summary: "Start a timed attempt (server is the source of truth for the timer)",
@@ -611,18 +770,43 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/attempts/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-    get: { tags: ["Attempts"], summary: "Get attempt (owner, recruiter of the company, or admin)" },
-  },
-  "/attempts/{id}/questions": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Attempts"],
-      summary: "Get the questions for this attempt (sanitized: no hidden test cases or correct answers)",
+      summary: "Get attempt (owner, recruiter of the company, or admin)",
+    },
+  },
+  "/attempts/{id}/questions": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Attempts"],
+      summary:
+        "Get the questions for this attempt (sanitized: no hidden test cases or correct answers)",
     },
   },
   "/attempts/{id}/answers": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Attempts"],
       summary: "Save an answer (MCQ/written/coding draft)",
@@ -636,28 +820,60 @@ Object.assign(swaggerDocument.paths, {
               properties: {
                 problemId: { type: "string", format: "uuid" },
                 answer: {
-                  description: "MCQ: {selectedOptionId} or {selectedOptionIndex}. Written: {text}",
+                  description:
+                    "MCQ: {selectedOptionId} or {selectedOptionIndex}. Written: {text}",
                   example: { selectedOptionId: "uuid" },
                 },
                 code: { type: "string" },
-                programmingLanguage: { type: "string", enum: ["javascript", "python", "java", "cpp", "typescript", "go", "rust"] },
+                programmingLanguage: {
+                  type: "string",
+                  enum: [
+                    "javascript",
+                    "python",
+                    "java",
+                    "cpp",
+                    "typescript",
+                    "go",
+                    "rust",
+                  ],
+                },
               },
             },
           },
         },
       },
-      responses: { "201": { description: "Answer saved" }, "409": { description: "Attempt ended" } },
+      responses: {
+        "201": { description: "Answer saved" },
+        "409": { description: "Attempt ended" },
+      },
     },
   },
   "/attempts/{id}/answers/{answerId}": {
     parameters: [
-      { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } },
-      { name: "answerId", in: "path", required: true, schema: { type: "string", format: "uuid" } },
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+      {
+        name: "answerId",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
     ],
     patch: { tags: ["Attempts"], summary: "Update a saved answer" },
   },
   "/attempts/{id}/submit": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Attempts"],
       summary: "Submit the attempt (idempotent, race-safe)",
@@ -696,15 +912,32 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "201": { description: "Submission created (status PENDING)" }, "409": { description: "Already processing / attempt ended" } },
+      responses: {
+        "201": { description: "Submission created (status PENDING)" },
+        "409": { description: "Already processing / attempt ended" },
+      },
     },
   },
   "/submissions/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Submissions"], summary: "Get a submission" },
   },
   "/submissions/{id}/evaluate": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Submissions"],
       summary: "Run evaluation for a submission (RECRUITER/ADMIN)",
@@ -714,7 +947,14 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/attempts/{id}/submissions": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Submissions"], summary: "List submissions for an attempt" },
   },
   "/evaluations/written": {
@@ -742,40 +982,88 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/attempts/{id}/evaluations": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Evaluations"], summary: "List evaluations for an attempt" },
   },
   "/results/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Results"],
       summary: "Get a result (candidates only when released)",
-      responses: { "200": { description: "Result with per-question items" }, "403": { description: "Not released" } },
+      responses: {
+        "200": { description: "Result with per-question items" },
+        "403": { description: "Not released" },
+      },
     },
   },
   "/candidates/me/results": {
     get: { tags: ["Results"], summary: "My results (CANDIDATE)" },
   },
   "/assessments/{id}/results": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-    get: { tags: ["Results"], summary: "All results for an assessment (RECRUITER/ADMIN)" },
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Results"],
+      summary: "All results for an assessment (RECRUITER/ADMIN)",
+    },
   },
   "/assessments/{id}/report": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Reports"],
       summary: "Generate a detailed assessment report (cached 10 min)",
     },
   },
   "/assessments/{id}/analytics": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: {
       tags: ["Analytics"],
       summary: "Assessment analytics (cached 5 min, invalidated on result changes)",
     },
   },
   "/attempts/{id}/anti-cheating-events": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     post: {
       tags: ["Anti-Cheating"],
       summary: "Record a proctoring event",
@@ -789,7 +1077,16 @@ Object.assign(swaggerDocument.paths, {
               properties: {
                 eventType: {
                   type: "string",
-                  enum: ["TAB_SWITCH", "WINDOW_BLUR", "WINDOW_FOCUS", "FULLSCREEN_EXIT", "COPY", "PASTE", "MULTIPLE_SESSION", "SUSPICIOUS_ACTIVITY"],
+                  enum: [
+                    "TAB_SWITCH",
+                    "WINDOW_BLUR",
+                    "WINDOW_FOCUS",
+                    "FULLSCREEN_EXIT",
+                    "COPY",
+                    "PASTE",
+                    "MULTIPLE_SESSION",
+                    "SUSPICIOUS_ACTIVITY",
+                  ],
                 },
                 metadata: {},
               },
@@ -797,14 +1094,20 @@ Object.assign(swaggerDocument.paths, {
           },
         },
       },
-      responses: { "201": { description: "Event recorded (IP + user-agent captured server-side)" } },
+      responses: {
+        "201": { description: "Event recorded (IP + user-agent captured server-side)" },
+      },
     },
     get: { tags: ["Anti-Cheating"], summary: "List proctoring events for the attempt" },
   },
 });
 Object.assign(swaggerDocument.paths, {
   "/payments/packages": {
-    get: { tags: ["Payments"], summary: "List available credit packages", security: [] },
+    get: {
+      tags: ["Payments"],
+      summary: "List available credit packages",
+      security: [],
+    },
   },
   "/payments/initiate": {
     post: {
@@ -834,10 +1137,14 @@ Object.assign(swaggerDocument.paths, {
   "/payments/success": {
     post: {
       tags: ["Payments"],
-      summary: "Gateway success callback (verifies with SSLCommerz before marking PAID; idempotent)",
+      summary:
+        "Gateway success callback (verifies with SSLCommerz before marking PAID; idempotent)",
       security: [],
       parameters: [{ name: "tran_id", in: "query", schema: { type: "string" } }],
-      responses: { "200": { description: "Payment marked PAID and credits granted" }, "502": { description: "Verification failed" } },
+      responses: {
+        "200": { description: "Payment marked PAID and credits granted" },
+        "502": { description: "Verification failed" },
+      },
     },
   },
   "/payments/fail": {
@@ -855,27 +1162,63 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/payments": {
-    get: { tags: ["Payments"], summary: "List my payments (recruiter: company payments)" },
+    get: {
+      tags: ["Payments"],
+      summary: "List my payments (recruiter: company payments)",
+    },
   },
   "/payments/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Payments"], summary: "Get payment details" },
   },
   "/admin/users": {
-    get: { tags: ["Admin"], summary: "List users with filters (ADMIN)", parameters: [
-      { name: "page", in: "query", schema: { type: "integer" } },
-      { name: "limit", in: "query", schema: { type: "integer" } },
-      { name: "q", in: "query", schema: { type: "string" } },
-      { name: "role", in: "query", schema: { type: "string", enum: ["CANDIDATE", "RECRUITER", "ADMIN"] } },
-      { name: "status", in: "query", schema: { type: "string", enum: ["ACTIVE", "SUSPENDED", "DELETED"] } },
-    ] },
+    get: {
+      tags: ["Admin"],
+      summary: "List users with filters (ADMIN)",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        { name: "q", in: "query", schema: { type: "string" } },
+        {
+          name: "role",
+          in: "query",
+          schema: { type: "string", enum: ["CANDIDATE", "RECRUITER", "ADMIN"] },
+        },
+        {
+          name: "status",
+          in: "query",
+          schema: { type: "string", enum: ["ACTIVE", "SUSPENDED", "DELETED"] },
+        },
+      ],
+    },
   },
   "/admin/users/{id}": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     get: { tags: ["Admin"], summary: "Get user details (ADMIN)" },
   },
   "/admin/users/{id}/status": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     patch: {
       tags: ["Admin"],
       summary: "Suspend/activate/delete a user",
@@ -886,7 +1229,9 @@ Object.assign(swaggerDocument.paths, {
             schema: {
               type: "object",
               required: ["status"],
-              properties: { status: { type: "string", enum: ["ACTIVE", "SUSPENDED", "DELETED"] } },
+              properties: {
+                status: { type: "string", enum: ["ACTIVE", "SUSPENDED", "DELETED"] },
+              },
             },
           },
         },
@@ -894,7 +1239,14 @@ Object.assign(swaggerDocument.paths, {
     },
   },
   "/admin/users/{id}/role": {
-    parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
     patch: {
       tags: ["Admin"],
       summary: "Change a user's role",
@@ -905,21 +1257,28 @@ Object.assign(swaggerDocument.paths, {
             schema: {
               type: "object",
               required: ["role"],
-              properties: { role: { type: "string", enum: ["CANDIDATE", "RECRUITER", "ADMIN"] } },
+              properties: {
+                role: { type: "string", enum: ["CANDIDATE", "RECRUITER", "ADMIN"] },
+              },
             },
           },
         },
       },
     },
   },
-  "/admin/companies": { get: { tags: ["Admin"], summary: "List all companies (ADMIN)" } },
-  "/admin/assessments": { get: { tags: ["Admin"], summary: "List all assessments (ADMIN)" } },
+  "/admin/companies": {
+    get: { tags: ["Admin"], summary: "List all companies (ADMIN)" },
+  },
+  "/admin/assessments": {
+    get: { tags: ["Admin"], summary: "List all assessments (ADMIN)" },
+  },
   "/admin/payments": { get: { tags: ["Admin"], summary: "List all payments (ADMIN)" } },
   "/admin/problems": { get: { tags: ["Admin"], summary: "List all problems (ADMIN)" } },
   "/admin/dashboard-stats": {
     get: {
       tags: ["Admin"],
-      summary: "Platform statistics: users, candidates, recruiters, companies, assessments, attempts, revenue",
+      summary:
+        "Platform statistics: users, candidates, recruiters, companies, assessments, attempts, revenue",
     },
   },
   "/admin/audit-logs": {

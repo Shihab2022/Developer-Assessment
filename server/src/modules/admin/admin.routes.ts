@@ -17,11 +17,7 @@ router.use(auth("ADMIN"));
 
 router.get("/users", validate(adminListQuerySchema), AdminController.listUsers);
 
-router.get(
-  "/users/:id",
-  validate(adminUserParamsSchema),
-  AdminController.getUserById,
-);
+router.get("/users/:id", validate(adminUserParamsSchema), AdminController.getUserById);
 
 router.patch(
   "/users/:id/status",
@@ -43,11 +39,7 @@ router.get(
   AdminController.listAssessments,
 );
 
-router.get(
-  "/payments",
-  validate(adminListQuerySchema),
-  AdminController.listPayments,
-);
+router.get("/payments", validate(adminListQuerySchema), AdminController.listPayments);
 
 router.get("/dashboard-stats", AdminController.dashboardStats);
 
@@ -57,10 +49,6 @@ router.get(
   AdminController.listAuditLogs,
 );
 
-router.get(
-  "/problems",
-  validate(adminListQuerySchema),
-  AdminController.listProblems,
-);
+router.get("/problems", validate(adminListQuerySchema), AdminController.listProblems);
 
 export const AdminRouter = router;

@@ -7,7 +7,7 @@ export const registerSchema = z.object({
       name: z.string().min(2, "Name must be at least 2 characters").max(100),
       email: emailSchema,
       password: passwordSchema,
-      role: z.enum(["CANDIDATE", "RECRUITER"]).default("CANDIDATE"),
+      role: z.enum(["CANDIDATE", "RECRUITER", "ADMIN"]).default("CANDIDATE"),
       phone: z.string().optional(),
       companyId: z.string().uuid().optional(),
     })

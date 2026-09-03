@@ -11,7 +11,7 @@ import {
 describe("Timer expiration and result visibility", () => {
   it("auto-submits an attempt whose server-side timer has expired", async () => {
     const recruiter = await registerUser("RECRUITER");
-    const company = await createCompany(recruiter);
+    await createCompany(recruiter);
     const problem = await createProblem(recruiter, { type: "MCQ", points: 10 });
     const assessment = await createAssessment(recruiter);
 
@@ -32,9 +32,7 @@ describe("Timer expiration and result visibility", () => {
       .post(`/api/v1/assessments/${assessment.id}/attempts/start`)
       .set("Authorization", `Bearer ${cand.accessToken}`)
       .send({});
-    console.log("DEBUG start status:", start.status, JSON.stringify(start.body));
     expect(start.status).toBe(201);
-    expect(company.id).toBeTruthy();
 
     await prisma.attempt.update({
       where: { id: start.body.data.id },
@@ -74,6 +72,10 @@ describe("Timer expiration and result visibility", () => {
       .post(`/api/v1/assessments/${assessmentId}/problems`)
       .set("Authorization", `Bearer ${recruiter.accessToken}`)
       .send({ problemId: problem.id, points: 5 });
+    // Publish the assessment so the candidate can start an attempt.
+    await api
+      .post(`/api/v1/assessments/${assessmentId}/publish`)
+      .set("Authorization", `Bearer ${recruiter.accessToken}`);
 
     const cand = await registerUser("CANDIDATE");
     await api

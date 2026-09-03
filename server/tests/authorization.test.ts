@@ -12,7 +12,7 @@ describe("Role authorization", () => {
         description: "Should not be allowed at all.",
         type: "MCQ",
       });
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
   it("blocks recruiters from admin endpoints", async () => {
@@ -20,7 +20,7 @@ describe("Role authorization", () => {
     const res = await api
       .get("/api/v1/admin/users")
       .set("Authorization", `Bearer ${recruiter.accessToken}`);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(403);
   });
 
   it("allows admins into admin endpoints", async () => {

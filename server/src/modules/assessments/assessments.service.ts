@@ -6,10 +6,7 @@ import { writeAuditLog } from "../../lib/audit";
 import { AssessmentStatus } from "../../../generated/prisma/enums";
 
 const VALID_TRANSITIONS: Record<AssessmentStatus, AssessmentStatus[]> = {
-  [AssessmentStatus.DRAFT]: [
-    AssessmentStatus.PUBLISHED,
-    AssessmentStatus.ARCHIVED,
-  ],
+  [AssessmentStatus.DRAFT]: [AssessmentStatus.PUBLISHED, AssessmentStatus.ARCHIVED],
   [AssessmentStatus.PUBLISHED]: [AssessmentStatus.ACTIVE, AssessmentStatus.CLOSED],
   [AssessmentStatus.ACTIVE]: [AssessmentStatus.CLOSED],
   [AssessmentStatus.CLOSED]: [AssessmentStatus.ARCHIVED],
@@ -63,7 +60,8 @@ const assertAssessmentAccess = async (
       );
     }
   }
-};const create = async (
+};
+const create = async (
   payload: {
     title: string;
     description?: string;
@@ -81,7 +79,7 @@ const assertAssessmentAccess = async (
   user: IAuthUser,
   meta: { ip?: string; userAgent?: string },
 ) => {
-  let companyId: string | null = null;
+  let companyId: string | null;
   if (user.role === "RECRUITER") {
     if (!user.companyId) {
       throw new ApiError(
@@ -109,10 +107,7 @@ const assertAssessmentAccess = async (
   const startDate = payload.startDate ? new Date(payload.startDate) : null;
   const endDate = payload.endDate ? new Date(payload.endDate) : null;
   if (startDate && endDate && endDate <= startDate) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "endDate must be after startDate",
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, "endDate must be after startDate");
   }
 
   const assessment = await prisma.assessment.create({
@@ -128,7 +123,7 @@ const assertAssessmentAccess = async (
       shuffleProblems: payload.shuffleProblems ?? false,
       showResults: payload.showResults ?? true,
       antiCheatingEnabled: payload.antiCheatingEnabled ?? true,
-      status: AssessmentStatus.PUBLISHED,
+      status: AssessmentStatus.DRAFT,
       companyId,
       createdBy: user.id,
     },
@@ -145,7 +140,8 @@ const assertAssessmentAccess = async (
   });
 
   return assessment;
-};const list = async (
+};
+const list = async (
   user: IAuthUser,
   query: {
     page?: number;
@@ -280,7 +276,8 @@ const getHistory = async (user: IAuthUser, id: string) => {
     orderBy: { createdAt: "desc" },
   });
   return attempts;
-};const update = async (
+};
+const update = async (
   user: IAuthUser,
   id: string,
   payload: Record<string, unknown>,
@@ -473,7 +470,8 @@ const close = async (
   });
 
   return updated;
-};const addProblem = async (
+};
+const addProblem = async (
   user: IAuthUser,
   assessmentId: string,
   payload: {
@@ -493,7 +491,10 @@ const close = async (
 
   if (assessment.status !== "DRAFT") {
     const activeAttempts = await prisma.attempt.count({
-      where: { assessmentId, status: { in: ["IN_PROGRESS", "SUBMITTED", "EVALUATING", "COMPLETED"] } },
+      where: {
+        assessmentId,
+        status: { in: ["IN_PROGRESS", "SUBMITTED", "EVALUATING", "COMPLETED"] },
+      },
     });
     if (activeAttempts > 0) {
       throw new ApiError(
@@ -536,7 +537,7 @@ const close = async (
       points: payload.points ?? problem.points,
       isRequired: payload.isRequired ?? true,
       section: payload.section,
-      order: payload.order ?? ((maxOrder._max.order ?? -1) + 1),
+      order: payload.order ?? (maxOrder._max.order ?? -1) + 1,
     },
   });
 
@@ -613,7 +614,8 @@ const updateProblem = async (
   const link = await prisma.assessmentProblem.findUnique({
     where: { assessmentId_problemId: { assessmentId, problemId } },
   });
-  if (!link) throw new ApiError(httpStatus.NOT_FOUND, "Problem is not part of this assessment");
+  if (!link)
+    throw new ApiError(httpStatus.NOT_FOUND, "Problem is not part of this assessment");
 
   const updated = await prisma.assessmentProblem.update({
     where: { id: link.id },
@@ -653,7 +655,8 @@ const removeProblem = async (
   const link = await prisma.assessmentProblem.findUnique({
     where: { assessmentId_problemId: { assessmentId, problemId } },
   });
-  if (!link) throw new ApiError(httpStatus.NOT_FOUND, "Problem is not part of this assessment");
+  if (!link)
+    throw new ApiError(httpStatus.NOT_FOUND, "Problem is not part of this assessment");
 
   await prisma.assessmentProblem.delete({ where: { id: link.id } });
 

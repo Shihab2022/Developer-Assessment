@@ -11,6 +11,8 @@
     "noUncheckedIndexedAccess": true,
     "strict": true,
     "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
   },

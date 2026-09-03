@@ -21,10 +21,7 @@ const create = catchAsync(async (req: AuthRequest, res: Response) => {
 });
 
 const list = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { page, limit } = paginate(
-    Number(req.query.page),
-    Number(req.query.limit),
-  );
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
   const q = req.query.q as string | undefined;
   const result = await CompanyServices.list(q, page, limit);
   sendResponse(res, {

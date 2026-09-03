@@ -28,7 +28,11 @@ export interface ExecutionResult {
 }
 
 export interface CodeRunner {
-  execute(code: string, language: string, testCases: TestCaseInput[]): Promise<ExecutionResult>;
+  execute(
+    code: string,
+    language: string,
+    testCases: TestCaseInput[],
+  ): Promise<ExecutionResult>;
 }
 
 /**
@@ -111,14 +115,8 @@ class LocalSandboxRunner implements CodeRunner {
     }
 
     const status: ExecutionResult["status"] =
-      passed === testCases.length
-        ? "PASSED"
-        : passed === 0
-          ? "FAILED"
-          : "PARTIAL";
-    const score = testCases.length
-      ? Math.round((passed / testCases.length) * 100)
-      : 0;
+      passed === testCases.length ? "PASSED" : passed === 0 ? "FAILED" : "PARTIAL";
+    const score = testCases.length ? Math.round((passed / testCases.length) * 100) : 0;
 
     return {
       status,
@@ -163,7 +161,7 @@ const runJavaScriptInSandbox = (code: string, input: string): SandboxOutput => {
     gets: (() => {
       const lines = input.split("\n");
       let index = 0;
-      return () => (index < lines.length ? lines[index++] ?? "" : "");
+      return () => (index < lines.length ? (lines[index++] ?? "") : "");
     })(),
     parseInt,
     parseFloat,

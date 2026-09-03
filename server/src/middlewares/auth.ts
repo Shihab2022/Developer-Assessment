@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status";
-import { UnauthorizedError } from "../helpers/ApiError";
+import { ForbiddenError, UnauthorizedError } from "../helpers/ApiError";
 import config from "../config";
 import { verifyJwtToken } from "../helpers/jwtHelpers";
 import { IAuthUser } from "../types";
@@ -45,9 +44,7 @@ const auth = (...roles: Array<"CANDIDATE" | "RECRUITER" | "ADMIN">) => {
       }
 
       if (roles.length > 0 && !roles.includes(user.role)) {
-        throw new UnauthorizedError(
-          "You do not have permission to access this resource",
-        );
+        throw new ForbiddenError("You do not have permission to access this resource");
       }
 
       req.user = {
@@ -76,7 +73,14 @@ export const optionalAuth = async (
       const payload = verifyJwtToken(token, config.jwt.access_secret);
       const user = await prisma.user.findUnique({
         where: { id: payload.id as string },
-        select: { id: true, email: true, name: true, role: true, status: true, companyId: true },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          status: true,
+          companyId: true,
+        },
       });
       if (user && user.status === "ACTIVE") {
         req.user = {

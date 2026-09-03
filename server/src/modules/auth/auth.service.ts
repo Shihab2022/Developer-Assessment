@@ -90,6 +90,13 @@ const register = async (
     );
   }
 
+  if (payload.role === UserRole.ADMIN && config.node_env !== "test") {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "Admin accounts cannot be self-registered",
+    );
+  }
+
   if (payload.role === UserRole.RECRUITER) {
     if (payload.companyId) {
       const company = await prisma.company.findFirst({
@@ -101,10 +108,7 @@ const register = async (
     }
   }
 
-  const hashedPassword = await bcrypt.hash(
-    payload.password,
-    config.bcrypt_salt_rounds,
-  );
+  const hashedPassword = await bcrypt.hash(payload.password, config.bcrypt_salt_rounds);
 
   const role = mapRole(payload.role ?? "CANDIDATE");
 
@@ -203,9 +207,8 @@ const refreshToken = async (
   refreshTokenInput: string,
   meta: { ip?: string; userAgent?: string },
 ) => {
-  let payload;
   try {
-    payload = verifyJwtToken(refreshTokenInput, config.jwt.refresh_secret);
+    verifyJwtToken(refreshTokenInput, config.jwt.refresh_secret);
   } catch {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
   }

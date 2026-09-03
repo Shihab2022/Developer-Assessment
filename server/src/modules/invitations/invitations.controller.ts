@@ -11,45 +11,38 @@ const getMeta = (req: Request) => ({
   userAgent: req.headers["user-agent"] ?? undefined,
 });
 
-const createForAssessment = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const result = await InvitationServices.create(
-      req.user!,
-      String(req.params.id),
-      req.body,
-      getMeta(req),
-    );
-    sendResponse(res, {
-      statusCode: httpStatus.CREATED,
-      message: "Invitations created successfully",
-      data: result,
-    });
-  },
-);
+const createForAssessment = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InvitationServices.create(
+    req.user!,
+    String(req.params.id),
+    req.body,
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Invitations created successfully",
+    data: result,
+  });
+});
 
-const listForAssessment = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const { page, limit } = paginate(
-      Number(req.query.page),
-      Number(req.query.limit),
-    );
-    const result = await InvitationServices.listForAssessment(
-      req.user!,
-      String(req.params.id),
-      {
-        page,
-        limit,
-        status: req.query.status as string,
-      },
-    );
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "Invitations retrieved successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  },
-);
+const listForAssessment = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await InvitationServices.listForAssessment(
+    req.user!,
+    String(req.params.id),
+    {
+      page,
+      limit,
+      status: req.query.status as string,
+    },
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Invitations retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 const resend = catchAsync(async (req: AuthRequest, res: Response) => {
   const result = await InvitationServices.resend(
@@ -90,25 +83,20 @@ const reject = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
-const listForCandidate = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const { page, limit } = paginate(
-      Number(req.query.page),
-      Number(req.query.limit),
-    );
-    const result = await InvitationServices.listForCandidate(req.user!, {
-      page,
-      limit,
-      status: req.query.status as string,
-    });
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "My invitations retrieved successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  },
-);
+const listForCandidate = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await InvitationServices.listForCandidate(req.user!, {
+    page,
+    limit,
+    status: req.query.status as string,
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "My invitations retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 export const InvitationController = {
   createForAssessment,

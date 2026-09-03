@@ -12,11 +12,7 @@ const getMeta = (req: Request) => ({
 });
 
 const create = catchAsync(async (req: AuthRequest, res: Response) => {
-  const result = await AssessmentServices.create(
-    req.body,
-    req.user!,
-    getMeta(req),
-  );
+  const result = await AssessmentServices.create(req.body, req.user!, getMeta(req));
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     message: "Assessment created successfully",

@@ -26,7 +26,7 @@ candidateResultRouter.get(
 );
 
 // Assessment-scoped: GET /assessments/:id/results
-export const assessmentResultRouter = express.Router();
+export const assessmentResultRouter = express.Router({ mergeParams: true });
 
 assessmentResultRouter.get(
   "/",

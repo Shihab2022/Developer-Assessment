@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import httpStatus from "http-status";
 import catchAsync from "../../helpers/catchAsync";
 import sendResponse from "../../helpers/sendResponse";
@@ -15,46 +15,32 @@ const getById = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
-const candidatesMeResults = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const { page, limit } = paginate(
-      Number(req.query.page),
-      Number(req.query.limit),
-    );
-    const result = await ResultServices.candidatesMeResults(
-      req.user!,
-      page,
-      limit,
-    );
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "My results retrieved successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  },
-);
+const candidatesMeResults = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await ResultServices.candidatesMeResults(req.user!, page, limit);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "My results retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
-const listForAssessment = catchAsync(
-  async (req: AuthRequest, res: Response) => {
-    const { page, limit } = paginate(
-      Number(req.query.page),
-      Number(req.query.limit),
-    );
-    const result = await ResultServices.listForAssessment(
-      req.user!,
-      String(req.params.id),
-      page,
-      limit,
-    );
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "Assessment results retrieved successfully",
-      meta: result.meta,
-      data: result.data,
-    });
-  },
-);
+const listForAssessment = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await ResultServices.listForAssessment(
+    req.user!,
+    String(req.params.id),
+    page,
+    limit,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Assessment results retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 export const ResultController = {
   getById,

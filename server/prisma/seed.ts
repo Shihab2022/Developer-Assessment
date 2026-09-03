@@ -17,7 +17,8 @@ async function main() {
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "Admin123!";
   const recruiterEmail = process.env.SEED_RECRUITER_EMAIL ?? "recruiter@techcorp.dev";
   const recruiterPassword = process.env.SEED_RECRUITER_PASSWORD ?? "Recruit123!";
-  const candidateEmail = process.env.SEED_CANDIDATE_EMAIL ?? "candidate@devassess.local";
+  const candidateEmail =
+    process.env.SEED_CANDIDATE_EMAIL ?? "candidate@devassess.local";
   const candidatePassword = process.env.SEED_CANDIDATE_PASSWORD ?? "Candid8te!";
 
   console.log("Seeding database...");
@@ -88,7 +89,6 @@ async function main() {
     },
   });
 
-
   // ---------- Problems ----------
   const mcqProblem = await prisma.problem.upsert({
     where: { id: "00000000-0000-4000-8000-000000000001" },
@@ -107,7 +107,11 @@ async function main() {
       companyId: company.id,
       options: {
         create: [
-          { text: "It runs immediately in the current tick", isCorrect: false, order: 0 },
+          {
+            text: "It runs immediately in the current tick",
+            isCorrect: false,
+            order: 0,
+          },
           { text: "It is queued in the microtask queue", isCorrect: true, order: 1 },
           { text: "It is queued in the macrotask queue", isCorrect: false, order: 2 },
           { text: "It runs after the process exits", isCorrect: false, order: 3 },
@@ -165,7 +169,6 @@ async function main() {
       },
     },
   });
-
 
   // ---------- Assessment ----------
   const assessment = await prisma.assessment.upsert({
@@ -225,7 +228,9 @@ async function main() {
   });
 
   await prisma.invitation.upsert({
-    where: { assessmentId_email: { assessmentId: assessment.id, email: candidateEmail } },
+    where: {
+      assessmentId_email: { assessmentId: assessment.id, email: candidateEmail },
+    },
     update: {},
     create: {
       assessmentId: assessment.id,
@@ -253,4 +258,3 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
-

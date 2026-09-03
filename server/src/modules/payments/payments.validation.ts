@@ -18,9 +18,7 @@ export const paymentListQuerySchema = z.object({
     .object({
       page: z.coerce.number().int().min(1).optional(),
       limit: z.coerce.number().int().min(1).max(100).optional(),
-      status: z
-        .enum(["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"])
-        .optional(),
+      status: z.enum(["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"]).optional(),
     })
     .strict(),
 });

@@ -75,10 +75,10 @@ CandidateAttemptRouter.get(
   AttemptController.candidatesMeAttempts,
 );
 
-export const startAttemptRouter = express.Router();
+export const startAttemptRouter = express.Router({ mergeParams: true });
 
 startAttemptRouter.post(
-  "/:id/attempts/start",
+  "/start",
   auth("CANDIDATE"),
   validate(assessmentParams),
   AttemptController.start,

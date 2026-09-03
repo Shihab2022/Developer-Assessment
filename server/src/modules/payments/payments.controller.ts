@@ -21,7 +21,8 @@ const initiate = catchAsync(async (req: AuthRequest, res: Response) => {
 });
 
 const success = catchAsync(async (req: Request, res: Response) => {
-  const result = await PaymentServices.handleSuccess(req.query as never);
+  const payload = { ...req.body, ...req.query };
+  const result = await PaymentServices.handleSuccess(payload as never);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Payment completed successfully",
@@ -30,7 +31,8 @@ const success = catchAsync(async (req: Request, res: Response) => {
 });
 
 const fail = catchAsync(async (req: Request, res: Response) => {
-  const result = await PaymentServices.handleFail(req.query as never);
+  const payload = { ...req.body, ...req.query };
+  const result = await PaymentServices.handleFail(payload as never);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Payment failed",
@@ -39,7 +41,8 @@ const fail = catchAsync(async (req: Request, res: Response) => {
 });
 
 const cancel = catchAsync(async (req: Request, res: Response) => {
-  const result = await PaymentServices.handleCancel(req.query as never);
+  const payload = { ...req.body, ...req.query };
+  const result = await PaymentServices.handleCancel(payload as never);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Payment cancelled",

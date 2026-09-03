@@ -8,10 +8,7 @@ const assertResultVisibleToCandidate = (
   assessment: { showResults: boolean },
 ) => {
   if (!assessment.showResults && result.releasedAt === null) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Results have not been released yet",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "Results have not been released yet");
   }
 };
 
@@ -44,10 +41,7 @@ const getById = async (user: IAuthUser, resultId: string) => {
 
   if (user.role === "CANDIDATE") {
     if (result.candidateId !== user.id) {
-      throw new ApiError(
-        httpStatus.FORBIDDEN,
-        "You do not have access to this result",
-      );
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this result");
     }
     assertResultVisibleToCandidate(result, result.assessment);
   } else if (user.role === "RECRUITER") {
@@ -57,25 +51,18 @@ const getById = async (user: IAuthUser, resultId: string) => {
     });
     const hasAccess =
       assessment !== null &&
-      (assessment.companyId === user.companyId ||
-        assessment.createdBy === user.id);
+      (assessment.companyId === user.companyId || assessment.createdBy === user.id);
     if (!hasAccess) {
-      throw new ApiError(
-        httpStatus.FORBIDDEN,
-        "You do not have access to this result",
-      );
+      throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this result");
     }
   }
 
   return result;
 };
 
-const candidatesMeResults = async (
-  user: IAuthUser,
-  page = 1,
-  limit = 10,
-) => {
-  const where = { candidateId: user.id };
+const candidatesMeResults = async (user: IAuthUser, page = 1, limit = 10) => {
+  // Only show results that have been released to the candidate.
+  const where = { candidateId: user.id, releasedAt: { not: null } };
   const [total, data] = await Promise.all([
     prisma.result.count({ where }),
     prisma.result.findMany({
@@ -112,8 +99,7 @@ const listForAssessment = async (
 
   if (user.role === "RECRUITER") {
     const hasAccess =
-      assessment.companyId === user.companyId ||
-      assessment.createdBy === user.id;
+      assessment.companyId === user.companyId || assessment.createdBy === user.id;
     if (!hasAccess) {
       throw new ApiError(
         httpStatus.FORBIDDEN,

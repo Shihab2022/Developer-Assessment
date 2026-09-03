@@ -21,10 +21,7 @@ const create = catchAsync(async (req: AuthRequest, res: Response) => {
 });
 
 const list = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { page, limit } = paginate(
-    Number(req.query.page),
-    Number(req.query.limit),
-  );
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
   const result = await ProblemServices.list(req.user!, {
     page,
     limit,
@@ -82,10 +79,7 @@ const remove = catchAsync(async (req: AuthRequest, res: Response) => {
 });
 
 const search = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { page, limit } = paginate(
-    Number(req.query.page),
-    Number(req.query.limit),
-  );
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
   const result = await ProblemServices.search(
     req.user!,
     (req.query.q as string) ?? "",

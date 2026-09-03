@@ -17,10 +17,7 @@ const assertAccess = async (user: IAuthUser, assessmentId: string) => {
       "Only recruiters and admins can view analytics",
     );
   }
-  if (
-    assessment.companyId !== user.companyId &&
-    assessment.createdBy !== user.id
-  ) {
+  if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this assessment",
@@ -32,9 +29,7 @@ const calculateMedian = (values: number[]): number => {
   if (values.length === 0) return 0;
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 !== 0
-    ? sorted[mid]!
-    : (sorted[mid - 1]! + sorted[mid]!) / 2;
+  return sorted.length % 2 !== 0 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
 };
 
 const getAnalytics = async (user: IAuthUser, assessmentId: string) => {

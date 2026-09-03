@@ -6,8 +6,7 @@ import { ValidationError } from "../helpers/ApiError";
  * Validates request body, query and params against a Zod schema.
  */
 export const validate =
-  (schema: z.ZodType) =>
-  (req: Request, _res: Response, next: NextFunction) => {
+  (schema: z.ZodType) => (req: Request, _res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse({
         body: req.body,
@@ -18,22 +17,26 @@ export const validate =
         query?: Record<string, string>;
         params?: Record<string, string>;
       };
-      // Only overwrite body when the schema actually validated a body field;
-      // otherwise a params/query-only schema would wipe a previously-parsed body.
+      // Only overwrite each part when the schema actually validated it;
+      // otherwise params-only/query-only/body-only schemas would wipe the
+      // data validated by earlier middleware (or merged parent params).
       if (parsed.body !== undefined) {
         req.body = parsed.body;
       }
-      // Express 5 makes req.query / req.params getter-only, so redefine them.
-      Object.defineProperty(req, "query", {
-        value: parsed.query ?? {},
-        writable: true,
-        configurable: true,
-      });
-      Object.defineProperty(req, "params", {
-        value: parsed.params ?? {},
-        writable: true,
-        configurable: true,
-      });
+      if (parsed.query !== undefined) {
+        Object.defineProperty(req, "query", {
+          value: parsed.query,
+          writable: true,
+          configurable: true,
+        });
+      }
+      if (parsed.params !== undefined) {
+        Object.defineProperty(req, "params", {
+          value: parsed.params,
+          writable: true,
+          configurable: true,
+        });
+      }
       next();
     } catch (error) {
       if (error instanceof ZodError) {

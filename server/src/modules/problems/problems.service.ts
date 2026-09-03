@@ -17,7 +17,12 @@ type ProblemCreatePayload = {
   tags?: string[];
   status?: string;
   expectedAnswer?: unknown;
-  testCases?: { input: string; expectedOutput: string; isHidden: boolean; order: number }[];
+  testCases?: {
+    input: string;
+    expectedOutput: string;
+    isHidden: boolean;
+    order: number;
+  }[];
   options?: { text: string; isCorrect: boolean; order: number }[];
 };
 
@@ -34,10 +39,7 @@ const assertProblemAccess = async (
   ) {
     return;
   }
-  throw new ApiError(
-    httpStatus.FORBIDDEN,
-    "You do not have access to this problem",
-  );
+  throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this problem");
 };
 
 const create = async (
@@ -47,10 +49,12 @@ const create = async (
 ) => {
   const companyId =
     user.role === "RECRUITER"
-      ? user.companyId ?? null
+      ? (user.companyId ?? null)
       : user.role === "CANDIDATE"
         ? null
-        : (payload.category ? null : null); // admin may create without company
+        : payload.category
+          ? null
+          : null; // admin may create without company
 
   const problem = await prisma.$transaction(async (tx) => {
     const created = await tx.problem.create({
@@ -112,7 +116,8 @@ const create = async (
   });
 
   return problem;
-};const list = async (
+};
+const list = async (
   user: IAuthUser,
   query: {
     page?: number;
@@ -153,10 +158,7 @@ const create = async (
     if (query.status) {
       where.status = query.status;
     } else {
-      where.OR = [
-        { companyId: user.companyId ?? null },
-        { createdBy: user.id },
-      ];
+      where.OR = [{ companyId: user.companyId ?? null }, { createdBy: user.id }];
     }
   } else {
     if (query.status) where.status = query.status;
@@ -242,7 +244,8 @@ const getById = async (user: IAuthUser, id: string) => {
 
   await assertProblemAccess(user, problem);
   return problem;
-};const update = async (
+};
+const update = async (
   user: IAuthUser,
   id: string,
   payload: Record<string, unknown>,
@@ -371,12 +374,7 @@ const remove = async (
   return updated;
 };
 
-const search = async (
-  user: IAuthUser,
-  q: string,
-  page = 1,
-  limit = 10,
-) => {
+const search = async (user: IAuthUser, q: string, page = 1, limit = 10) => {
   const where: Record<string, unknown> = {
     deletedAt: null,
     OR: [

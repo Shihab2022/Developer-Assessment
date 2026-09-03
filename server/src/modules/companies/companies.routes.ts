@@ -20,12 +20,7 @@ router.post(
 
 router.get("/", auth(), validate(getAllQuerySchema), CompanyController.list);
 
-router.get(
-  "/:id",
-  auth(),
-  validate(idParamSchema),
-  CompanyController.getById,
-);
+router.get("/:id", auth(), validate(idParamSchema), CompanyController.getById);
 
 router.patch(
   "/:id",

@@ -29,10 +29,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
 });
 
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthServices.refreshToken(
-    req.body.refreshToken,
-    getMeta(req),
-  );
+  const result = await AuthServices.refreshToken(req.body.refreshToken, getMeta(req));
   sendResponse(res, {
     statusCode: httpStatus.OK,
     message: "Tokens refreshed successfully",

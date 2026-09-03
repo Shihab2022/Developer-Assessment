@@ -17,20 +17,15 @@ const assertAssessmentAccess = async (user: IAuthUser, assessmentId: string) => 
       "Only recruiters and admins can view reports",
     );
   }
-  if (
-    assessment.companyId !== user.companyId &&
-    assessment.createdBy !== user.id
-  ) {
+  if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       "You do not have access to this assessment",
     );
   }
   return assessment;
-};const generateAssessmentReport = async (
-  user: IAuthUser,
-  assessmentId: string,
-) => {
+};
+const generateAssessmentReport = async (user: IAuthUser, assessmentId: string) => {
   const assessment = await assertAssessmentAccess(user, assessmentId);
 
   const cacheKey = `report:assessment:${assessmentId}`;
@@ -204,9 +199,7 @@ const assertAssessmentAccess = async (user: IAuthUser, assessmentId: string) => 
       uniqueCandidates,
       startedAttempts: startedAttempts.length,
       completedAttempts: completedAttempts.length,
-      completionRate: invitations
-        ? (completedAttempts.length / invitations) * 100
-        : 0,
+      completionRate: invitations ? (completedAttempts.length / invitations) * 100 : 0,
       averageScore: Math.round(averageScore * 100) / 100,
       highestScore,
       lowestScore,
@@ -221,7 +214,8 @@ const assertAssessmentAccess = async (user: IAuthUser, assessmentId: string) => 
 
   await cacheSet(cacheKey, report, 600);
   return report;
-};const generateCompanyReport = async (user: IAuthUser, companyId: string) => {
+};
+const generateCompanyReport = async (user: IAuthUser, companyId: string) => {
   if (user.role === "ADMIN") {
     // ok
   } else if (user.role === "RECRUITER") {
@@ -295,10 +289,7 @@ const listForCompany = async (
   limit = 10,
 ) => {
   if (user.role === "RECRUITER" && user.companyId !== companyId) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "You do not have access to this company",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this company");
   }
   const where = { companyId, deletedAt: null };
   const [total, data] = await Promise.all([

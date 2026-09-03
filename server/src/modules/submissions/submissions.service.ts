@@ -8,7 +8,12 @@ import { ProblemType, SubmissionStatus } from "../../../generated/prisma/enums";
 
 const create = async (
   user: IAuthUser,
-  payload: { attemptId: string; problemId: string; code: string; programmingLanguage: string },
+  payload: {
+    attemptId: string;
+    problemId: string;
+    code: string;
+    programmingLanguage: string;
+  },
   meta: { ip?: string; userAgent?: string },
 ) => {
   const attempt = await AttemptServices.assertAttemptOwnership(user, payload.attemptId);
@@ -112,7 +117,8 @@ const create = async (
   });
 
   return submission;
-};const getById = async (user: IAuthUser, submissionId: string) => {
+};
+const getById = async (user: IAuthUser, submissionId: string) => {
   const submission = await prisma.submission.findUnique({
     where: { id: submissionId },
     include: {
@@ -130,8 +136,7 @@ const create = async (
     });
     canAccess =
       assessment !== null &&
-      (assessment.companyId === user.companyId ||
-        assessment.createdBy === user.id);
+      (assessment.companyId === user.companyId || assessment.createdBy === user.id);
   }
 
   if (!canAccess) {
@@ -170,25 +175,17 @@ const evaluate = async (
   });
   if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
   if (user.role === "RECRUITER") {
-    if (
-      assessment.companyId !== user.companyId &&
-      assessment.createdBy !== user.id
-    ) {
+    if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
       throw new ApiError(
         httpStatus.FORBIDDEN,
         "You do not have access to this submission",
       );
     }
   } else if (user.role === "CANDIDATE") {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "Candidates cannot trigger evaluation",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "Candidates cannot trigger evaluation");
   }
 
-  const { EvaluationServices } = await import(
-    "../evaluations/evaluations.service"
-  );
+  const { EvaluationServices } = await import("../evaluations/evaluations.service");
   const { submission: evaluated, result } =
     await EvaluationServices.evaluateCodingSubmission(submissionId);
 

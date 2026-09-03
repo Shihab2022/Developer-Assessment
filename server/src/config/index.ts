@@ -44,9 +44,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  const issues = parsed.error.issues.map(
-    (i) => `${i.path.join(".")}: ${i.message}`,
-  );
+  const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
   throw new Error(`Invalid environment variables:\n${issues.join("\n")}`);
 }
 
@@ -72,8 +70,7 @@ export default {
   api_url: env.API_URL,
   sslcommerz: {
     store_id: env.SSLCOMMERZ_STORE_ID || process.env.STORE_ID || "",
-    store_password:
-      env.SSLCOMMERZ_STORE_PASSWORD || process.env.STORE_PASS || "",
+    store_password: env.SSLCOMMERZ_STORE_PASSWORD || process.env.STORE_PASS || "",
     is_live: env.SSLCOMMERZ_IS_LIVE,
     payment_api:
       env.SSLCOMMERZ_PAYMENT_API ||

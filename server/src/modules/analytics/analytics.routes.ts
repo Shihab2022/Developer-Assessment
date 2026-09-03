@@ -4,7 +4,7 @@ import auth from "../../middlewares/auth";
 import { validate } from "../../middlewares/validate";
 import { analyticsParamsSchema } from "./analytics.validation";
 
-export const assessmentAnalyticsRouter = express.Router();
+export const assessmentAnalyticsRouter = express.Router({ mergeParams: true });
 
 assessmentAnalyticsRouter.get(
   "/",

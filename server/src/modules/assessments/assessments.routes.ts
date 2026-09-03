@@ -10,7 +10,6 @@ import {
   updateAssessmentSchema,
 } from "./assessments.validation";
 import { assessmentInvitationRouter } from "../invitations/invitations.routes";
-import { idParamSchema } from "../../helpers/zodSchemas";
 import { z } from "zod";
 
 const assessmentProblemParams = assessmentParams.extend({
@@ -54,12 +53,7 @@ router.post(
   AssessmentController.create,
 );
 
-router.get(
-  "/",
-  auth(),
-  validate(assessmentQuerySchema),
-  AssessmentController.list,
-);
+router.get("/", auth(), validate(assessmentQuerySchema), AssessmentController.list);
 
 router.patch(
   "/:id",
@@ -131,11 +125,6 @@ router.delete(
 // NOTE: /:id must be registered AFTER specific sub-routes
 router.use("/:id/invitations", validate(assessmentParams), assessmentInvitationRouter);
 
-router.get(
-  "/:id",
-  auth(),
-  validate(assessmentParams),
-  AssessmentController.getById,
-);
+router.get("/:id", auth(), validate(assessmentParams), AssessmentController.getById);
 
 export const AssessmentRouter = router;

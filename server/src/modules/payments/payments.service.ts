@@ -11,6 +11,12 @@ import config from "../../config";
 const generateTransactionId = () =>
   `TX-${Date.now()}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
 
+/** Mock mode is used in tests, or when SSLCommerz credentials are not configured. */
+const isMockMode = () =>
+  config.node_env === "test" ||
+  !config.sslcommerz.store_id ||
+  !config.sslcommerz.store_password;
+
 const initiate = async (
   user: IAuthUser,
   payload: { packageId: string; companyId?: string },
@@ -75,8 +81,8 @@ const initiate = async (
     value_a: payment.id,
   };
 
-  // In test/dev mode with no credentials, return a mock gateway URL for local flows.
-  if (!config.sslcommerz.store_id || !config.sslcommerz.store_password) {
+  // In mock mode (tests or missing credentials), return a mock gateway URL.
+  if (isMockMode()) {
     return {
       payment,
       gatewayUrl: `${config.app_url}/api/v1/payments/mock?transactionId=${transactionId}`,
@@ -84,7 +90,7 @@ const initiate = async (
     };
   }
 
-  let gatewayUrl = "";
+  let gatewayUrl: string;
   try {
     const form = new URLSearchParams();
     for (const [key, value] of Object.entries(gatewayPayload)) {
@@ -132,14 +138,14 @@ const initiate = async (
   });
 
   return { payment, gatewayUrl };
-};// ------------------- Gateway callbacks (idempotent) -------------------
+}; // ------------------- Gateway callbacks (idempotent) -------------------
 
 /**
  * Verifies a transaction with the SSLCommerz validation API.
  * NEVER trust the frontend/success-URL visit alone.
  */
 const verifyWithGateway = async (transactionId: string) => {
-  if (!config.sslcommerz.store_id || !config.sslcommerz.store_password) {
+  if (isMockMode()) {
     // Mock mode: treat any non-cancelled transaction as validated.
     return { status: "VALID", verified: true };
   }
@@ -220,9 +226,11 @@ const markPaid = async (transactionId: string) => {
     }
     return { payment: updated, credited: true };
   });
-};const handleSuccess = async (query: Record<string, unknown>) => {
+};
+const handleSuccess = async (query: Record<string, unknown>) => {
   const transactionId = (query.tran_id ?? query.transactionId) as string;
-  if (!transactionId) throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
+  if (!transactionId)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
   // Verify with gateway before marking paid.
   const verification = await verifyWithGateway(transactionId);
   if (!verification.verified) {
@@ -233,11 +241,12 @@ const markPaid = async (transactionId: string) => {
 
 const handleFail = async (query: Record<string, unknown>) => {
   const transactionId = (query.tran_id ?? query.transactionId) as string;
-  if (!transactionId) throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
+  if (!transactionId)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
   const payment = await prisma.payment.findUnique({ where: { transactionId } });
   if (!payment) throw new ApiError(httpStatus.NOT_FOUND, "Payment not found");
   if (payment.status === PaymentStatus.PENDING) {
-    await prisma.payment.update({
+    return prisma.payment.update({
       where: { transactionId },
       data: { status: PaymentStatus.FAILED },
     });
@@ -247,11 +256,12 @@ const handleFail = async (query: Record<string, unknown>) => {
 
 const handleCancel = async (query: Record<string, unknown>) => {
   const transactionId = (query.tran_id ?? query.transactionId) as string;
-  if (!transactionId) throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
+  if (!transactionId)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
   const payment = await prisma.payment.findUnique({ where: { transactionId } });
   if (!payment) throw new ApiError(httpStatus.NOT_FOUND, "Payment not found");
   if (payment.status === PaymentStatus.PENDING) {
-    await prisma.payment.update({
+    return prisma.payment.update({
       where: { transactionId },
       data: { status: PaymentStatus.CANCELLED },
     });
@@ -262,7 +272,8 @@ const handleCancel = async (query: Record<string, unknown>) => {
 const handleIpn = async (body: Record<string, unknown>) => {
   // IPN comes from the gateway — verify before trusting.
   const transactionId = (body.tran_id ?? body.transactionId) as string;
-  if (!transactionId) throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
+  if (!transactionId)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Missing transaction id");
   const verification = await verifyWithGateway(transactionId);
   if (!verification.verified) {
     throw new ApiError(httpStatus.BAD_GATEWAY, "Payment verification failed");
@@ -283,7 +294,8 @@ const handleIpn = async (body: Record<string, unknown>) => {
     },
   });
   return payment;
-};const getById = async (user: IAuthUser, paymentId: string) => {
+};
+const getById = async (user: IAuthUser, paymentId: string) => {
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
     include: {
@@ -294,10 +306,7 @@ const handleIpn = async (body: Record<string, unknown>) => {
   if (!payment) throw new ApiError(httpStatus.NOT_FOUND, "Payment not found");
   if (user.role === "ADMIN") return payment;
   if (payment.userId !== user.id && payment.companyId !== user.companyId) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "You do not have access to this payment",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this payment");
   }
   return payment;
 };

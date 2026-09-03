@@ -37,18 +37,15 @@ const evaluateMcqForProblem = async (
     "selectedOptionId" in (selected as Record<string, unknown>)
   ) {
     isCorrect =
-      (selected as { selectedOptionId?: string }).selectedOptionId ===
-      correctOption.id;
+      (selected as { selectedOptionId?: string }).selectedOptionId === correctOption.id;
   } else if (typeof selected === "object" && selected !== null) {
     const record = selected as Record<string, unknown>;
     if ("selectedOptionIndex" in record) {
       const sorted = [...problem.options].sort((a, b) => a.order - b.order);
-      isCorrect =
-        sorted[Number(record.selectedOptionIndex)]?.id === correctOption.id;
+      isCorrect = sorted[Number(record.selectedOptionIndex)]?.id === correctOption.id;
     } else if ("answerIndex" in record) {
       const sorted = [...problem.options].sort((a, b) => a.order - b.order);
-      isCorrect =
-        sorted[Number(record.answerIndex)]?.id === correctOption.id;
+      isCorrect = sorted[Number(record.answerIndex)]?.id === correctOption.id;
     }
   }
 
@@ -103,7 +100,8 @@ const autoEvaluateMcq = async (attemptId: string) => {
     if (!answer || answer.answer === null) continue;
     await evaluateMcqForProblem(attemptId, ap.problemId, answer.answer, ap.points);
   }
-};const evaluateWritten = async (
+};
+const evaluateWritten = async (
   user: IAuthUser,
   payload: { attemptId: string; problemId: string; score: number; feedback?: string },
   meta: { ip?: string; userAgent?: string },
@@ -119,10 +117,7 @@ const autoEvaluateMcq = async (attemptId: string) => {
   if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
 
   if (user.role === "RECRUITER") {
-    if (
-      assessment.companyId !== user.companyId &&
-      assessment.createdBy !== user.id
-    ) {
+    if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
       throw new ApiError(
         httpStatus.FORBIDDEN,
         "You do not have access to this attempt",
@@ -163,7 +158,11 @@ const autoEvaluateMcq = async (attemptId: string) => {
   }
 
   const existing = await prisma.evaluation.findFirst({
-    where: { attemptId: payload.attemptId, problemId: payload.problemId, type: ProblemType.WRITTEN },
+    where: {
+      attemptId: payload.attemptId,
+      problemId: payload.problemId,
+      type: ProblemType.WRITTEN,
+    },
   });
 
   const evaluation = existing
@@ -216,7 +215,8 @@ const evaluateCodingSubmission = async (submissionId: string) => {
     },
   });
   if (!submission) throw new ApiError(httpStatus.NOT_FOUND, "Submission not found");
-  if (!submission.code) throw new ApiError(httpStatus.BAD_REQUEST, "Submission has no code");
+  if (!submission.code)
+    throw new ApiError(httpStatus.BAD_REQUEST, "Submission has no code");
 
   const ap = await prisma.assessmentProblem.findUnique({
     where: {
@@ -298,7 +298,8 @@ const evaluateCodingSubmission = async (submissionId: string) => {
 
   const result = await recalculateResult(submission.attemptId);
   return { submission: updated, result };
-};const recalculateResult = async (attemptId: string) => {
+};
+const recalculateResult = async (attemptId: string) => {
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
     include: {
@@ -311,7 +312,16 @@ const evaluateCodingSubmission = async (submissionId: string) => {
     where: { attemptId, status: EvaluationStatus.COMPLETED },
   });
   const submissions = await prisma.submission.findMany({
-    where: { attemptId, status: { in: [SubmissionStatus.PASSED, SubmissionStatus.PARTIAL, SubmissionStatus.FAILED] } },
+    where: {
+      attemptId,
+      status: {
+        in: [
+          SubmissionStatus.PASSED,
+          SubmissionStatus.PARTIAL,
+          SubmissionStatus.FAILED,
+        ],
+      },
+    },
   });
 
   const evaluationByProblem = new Map<
@@ -338,19 +348,17 @@ const evaluateCodingSubmission = async (submissionId: string) => {
   );
   let earnedPoints = 0;
   const items = attempt.assessment.problems.map((ap) => {
-    const earned = Math.min(evaluationByProblem.get(ap.problemId)?.score ?? 0, ap.points);
+    const earned = Math.min(
+      evaluationByProblem.get(ap.problemId)?.score ?? 0,
+      ap.points,
+    );
     earnedPoints += earned;
     const submission = submissions.find((s) => s.problemId === ap.problemId);
     return {
       problemId: ap.problemId,
       points: ap.points,
       earnedPoints: earned,
-      status:
-        earned === ap.points
-          ? "FULL"
-          : earned === 0
-            ? "EMPTY"
-            : "PARTIAL",
+      status: earned === ap.points ? "FULL" : earned === 0 ? "EMPTY" : "PARTIAL",
       feedback: evaluationByProblem.get(ap.problemId)?.feedback ?? null,
       submissionId: submission?.id ?? null,
     };
@@ -362,12 +370,14 @@ const evaluateCodingSubmission = async (submissionId: string) => {
     ? Math.max(
         0,
         Math.round(
-          (attempt.submittedAt.getTime() - (attempt.startedAt ?? attempt.submittedAt).getTime()) / 1000,
+          (attempt.submittedAt.getTime() -
+            (attempt.startedAt ?? attempt.submittedAt).getTime()) /
+            1000,
         ),
       )
     : null;
 
-  const result = await prisma.$transaction(async (tx) => {
+  const savedResult = await prisma.$transaction(async (tx) => {
     await tx.resultItem.deleteMany({ where: { result: { attemptId } } });
     const existing = await tx.result.findUnique({ where: { attemptId } });
     const saved = existing
@@ -410,17 +420,21 @@ const evaluateCodingSubmission = async (submissionId: string) => {
     return saved;
   });
 
-  if (attempt.status === AttemptStatus.SUBMITTED || attempt.status === AttemptStatus.AUTO_SUBMITTED) {
+  if (
+    attempt.status === AttemptStatus.SUBMITTED ||
+    attempt.status === AttemptStatus.AUTO_SUBMITTED
+  ) {
     await prisma.attempt.update({
       where: { id: attemptId },
-      data: { status: AttemptStatus.COMPLETED, score: earnedPoints, maxScore: totalPoints },
+      data: {
+        status: AttemptStatus.COMPLETED,
+        score: earnedPoints,
+        maxScore: totalPoints,
+      },
     });
   }
 
-  return prisma.result.findUnique({
-    where: { attemptId },
-    include: { items: true },
-  });
+  return savedResult;
 };
 
 const listForAttempt = async (user: IAuthUser, attemptId: string) => {

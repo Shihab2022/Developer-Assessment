@@ -11,11 +11,7 @@ const getMeta = (req: Request) => ({
 });
 
 const create = catchAsync(async (req: AuthRequest, res: Response) => {
-  const result = await SubmissionServices.create(
-    req.user!,
-    req.body,
-    getMeta(req),
-  );
+  const result = await SubmissionServices.create(req.user!, req.body, getMeta(req));
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     message: "Submission created successfully",

@@ -16,7 +16,7 @@ EvaluationRouter.post(
   EvaluationController.evaluateWritten,
 );
 
-export const attemptEvaluationRouter = express.Router();
+export const attemptEvaluationRouter = express.Router({ mergeParams: true });
 
 attemptEvaluationRouter.get(
   "/",

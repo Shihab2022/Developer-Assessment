@@ -104,7 +104,8 @@ const listForAssessment = async (
     data,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
   };
-};const resend = async (
+};
+const resend = async (
   user: IAuthUser,
   invitationId: string,
   meta: { ip?: string; userAgent?: string },
@@ -151,10 +152,7 @@ export const assertInvitationOwnership = (
     user.email.toLowerCase() === invitation.email.toLowerCase() ||
     (invitation.candidateId !== null && invitation.candidateId === user.id);
   if (!isOwner) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "This invitation does not belong to you",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "This invitation does not belong to you");
   }
 };
 

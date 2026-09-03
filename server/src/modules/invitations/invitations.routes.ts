@@ -44,7 +44,7 @@ CandidateInvitationRouter.get(
 );
 
 // Assessment-scoped invitation routes mounted inside the assessments module.
-export const assessmentInvitationRouter = express.Router();
+export const assessmentInvitationRouter = express.Router({ mergeParams: true });
 
 assessmentInvitationRouter.post(
   "/",

@@ -24,10 +24,7 @@ const assertCompanyAccess = async (
   if (user.role === "ADMIN") return;
   const membership = await getMembership(user.id, companyId);
   if (!membership) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      "You do not have access to this company",
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this company");
   }
   if (!allowRoles.includes(membership.role)) {
     throw new ApiError(
@@ -50,7 +47,7 @@ const create = async (
   user: IAuthUser,
   meta: { ip?: string; userAgent?: string },
 ) => {
-  let slug = slugify(payload.name);
+  const slug = slugify(payload.name);
   if (!slug) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Company name is invalid");
   }
@@ -102,7 +99,8 @@ const create = async (
   });
 
   return company;
-};const getById = async (id: string, user: IAuthUser) => {
+};
+const getById = async (id: string, user: IAuthUser) => {
   const company = await prisma.company.findFirst({
     where: { id, deletedAt: null },
     include: {

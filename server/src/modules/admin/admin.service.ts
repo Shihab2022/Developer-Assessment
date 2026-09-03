@@ -95,10 +95,7 @@ const updateUserStatus = async (
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   if (user.id === adminUser.id) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "You cannot change your own status",
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, "You cannot change your own status");
   }
 
   const updated = await prisma.user.update({
@@ -149,9 +146,8 @@ const updateUserRole = async (
   });
 
   return updated;
-};const listCompanies = async (
-  query: { page?: number; limit?: number; q?: string },
-) => {
+};
+const listCompanies = async (query: { page?: number; limit?: number; q?: string }) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
   const where: Record<string, unknown> = {};
@@ -178,9 +174,12 @@ const updateUserRole = async (
   };
 };
 
-const listAssessments = async (
-  query: { page?: number; limit?: number; q?: string; status?: string },
-) => {
+const listAssessments = async (query: {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: string;
+}) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
   const where: Record<string, unknown> = { deletedAt: null };
@@ -209,9 +208,11 @@ const listAssessments = async (
   };
 };
 
-const listPayments = async (
-  query: { page?: number; limit?: number; status?: string },
-) => {
+const listPayments = async (query: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
   const where: Record<string, unknown> = {};
@@ -235,7 +236,8 @@ const listPayments = async (
     data,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
   };
-};const dashboardStats = async () => {
+};
+const dashboardStats = async () => {
   const [
     totalUsers,
     candidates,
@@ -284,15 +286,13 @@ const listPayments = async (
   };
 };
 
-const listAuditLogs = async (
-  query: {
-    page?: number;
-    limit?: number;
-    action?: string;
-    entityType?: string;
-    actorId?: string;
-  },
-) => {
+const listAuditLogs = async (query: {
+  page?: number;
+  limit?: number;
+  action?: string;
+  entityType?: string;
+  actorId?: string;
+}) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(query.limit) || 20, 1), 100);
   const where: Record<string, unknown> = {};
@@ -319,9 +319,12 @@ const listAuditLogs = async (
   };
 };
 
-const listProblems = async (
-  query: { page?: number; limit?: number; q?: string; type?: string },
-) => {
+const listProblems = async (query: {
+  page?: number;
+  limit?: number;
+  q?: string;
+  type?: string;
+}) => {
   const page = Math.max(Number(query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
   const where: Record<string, unknown> = {};

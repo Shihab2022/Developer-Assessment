@@ -33,7 +33,7 @@ SubmissionRouter.post(
   SubmissionController.evaluate,
 );
 
-export const attemptSubmissionsRouter = express.Router();
+export const attemptSubmissionsRouter = express.Router({ mergeParams: true });
 
 attemptSubmissionsRouter.get(
   "/",
