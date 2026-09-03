@@ -17,6 +17,9 @@ type ProblemCreatePayload = {
   tags?: string[];
   status?: string;
   expectedAnswer?: unknown;
+  skills?: string[];
+  allowedLanguages?: string[];
+  examples?: unknown;
   testCases?: {
     input: string;
     expectedOutput: string;
@@ -68,6 +71,9 @@ const create = async (
         timeLimit: payload.timeLimit,
         memoryLimit: payload.memoryLimit,
         expectedAnswer: (payload.expectedAnswer as never) ?? undefined,
+        skills: payload.skills ?? [],
+        allowedLanguages: payload.allowedLanguages ?? [],
+        examples: (payload.examples as never) ?? undefined,
         createdBy: user.id,
         companyId,
         status: (payload.status ?? "DRAFT") as never,
@@ -130,6 +136,7 @@ const list = async (
     category?: string;
     status?: string;
     tags?: string;
+    skills?: string;
   },
 ): Promise<PaginatedResult<unknown>> => {
   const page = Math.max(Number(query.page) || 1, 1);
@@ -143,6 +150,9 @@ const list = async (
   if (query.category) where.category = query.category;
   if (query.tags) {
     where.tags = { some: { name: { in: query.tags.split(",") } } };
+  }
+  if (query.skills) {
+    where.skills = { hasSome: query.skills.split(",") };
   }
   if (query.q) {
     where.OR = [
@@ -270,6 +280,15 @@ const update = async (
     "memoryLimit",
     "status",
     "expectedAnswer",
+    "skills",
+    "allowedLanguages",
+    "examples",
+    "version",
+    "timesUsed",
+    "timesAttempted",
+    "timesSolved",
+    "successRate",
+    "averageScore",
   ];
   for (const field of scalarFields) {
     if (payload[field] !== undefined) data[field] = payload[field];

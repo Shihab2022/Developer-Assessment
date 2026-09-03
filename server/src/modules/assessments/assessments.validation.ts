@@ -12,8 +12,14 @@ export const createAssessmentSchema = z.object({
       endDate: z.string().datetime().optional().nullable(),
       maxAttempts: z.number().int().min(1).max(10).default(1),
       shuffleProblems: z.boolean().default(false),
+      shuffleOptions: z.boolean().default(false),
       showResults: z.boolean().default(true),
       antiCheatingEnabled: z.boolean().default(true),
+      showCandidateRanking: z.boolean().default(true),
+      resultStrategy: z.enum(["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"]).default("LATEST_SCORE"),
+      accessLevel: z.enum(["PUBLIC", "PRIVATE", "INVITATION_ONLY", "ACCESS_CODE"]).default("INVITATION_ONLY"),
+      accessCode: z.string().min(4).max(50).optional(),
+      templateId: z.string().uuid().optional(),
       companyId: z.string().uuid().optional(),
     })
     .strict(),
@@ -31,8 +37,13 @@ export const updateAssessmentSchema = z.object({
       endDate: z.string().datetime().optional().nullable(),
       maxAttempts: z.number().int().min(1).max(10).optional(),
       shuffleProblems: z.boolean().optional(),
+      shuffleOptions: z.boolean().optional(),
       showResults: z.boolean().optional(),
       antiCheatingEnabled: z.boolean().optional(),
+      showCandidateRanking: z.boolean().optional(),
+      resultStrategy: z.enum(["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"]).optional(),
+      accessLevel: z.enum(["PUBLIC", "PRIVATE", "INVITATION_ONLY", "ACCESS_CODE"]).optional(),
+      accessCode: z.string().min(4).max(50).optional().nullable(),
     })
     .strict()
     .refine((data) => Object.keys(data).length > 0, {

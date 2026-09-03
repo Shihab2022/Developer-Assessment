@@ -12,6 +12,13 @@ const baseProblemSchema = z.object({
   tags: z.array(z.string().min(1).max(50)).max(20).optional(),
   status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]).default("DRAFT"),
   expectedAnswer: z.any().optional(),
+  skills: z.array(z.string().min(1).max(100)).max(20).optional(),
+  allowedLanguages: z.array(z.enum(["javascript", "python", "java", "cpp", "typescript", "go", "rust"])).max(10).optional(),
+  examples: z.array(z.object({
+    input: z.string(),
+    output: z.string(),
+    explanation: z.string().max(1000).optional(),
+  })).max(10).optional(),
   testCases: z
     .array(
       z.object({
@@ -94,6 +101,7 @@ export const problemQuerySchema = z.object({
       category: z.string().optional(),
       status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]).optional(),
       tags: z.string().optional(),
+      skills: z.string().optional(),
     })
     .strict(),
 });

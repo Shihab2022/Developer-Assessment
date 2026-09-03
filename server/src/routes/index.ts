@@ -33,6 +33,10 @@ import {
 import { assessmentAnalyticsRouter } from "../modules/analytics/analytics.routes";
 import { PaymentRouter } from "../modules/payments/payments.routes";
 import { AdminRouter } from "../modules/admin/admin.routes";
+import { AssessmentTemplateRouter } from "../modules/assessment-templates/assessment-templates.routes";
+import { NoteRouter } from "../modules/notes/notes.routes";
+import { NotificationRouter } from "../modules/notifications/notifications.routes";
+import { DashboardRouter } from "../modules/dashboard/dashboard.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerDocument } from "../docs/swagger";
 
@@ -93,6 +97,18 @@ router.use("/payments", PaymentRouter);
 
 // Admin: /api/v1/admin
 router.use("/admin", AdminRouter);
+
+// Assessment Templates: /api/v1/assessment-templates
+router.use("/assessment-templates", AssessmentTemplateRouter);
+
+// Notes: /api/v1/notes
+router.use("/notes", NoteRouter);
+
+// Notifications: /api/v1/notifications
+router.use("/notifications", NotificationRouter);
+
+// Dashboard: /api/v1/dashboard
+router.use("/dashboard", DashboardRouter);
 
 // Swagger docs: /api/docs
 router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

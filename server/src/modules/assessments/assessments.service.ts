@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 import ApiError from "../../helpers/ApiError";
@@ -72,8 +73,14 @@ const create = async (
     endDate?: string | null;
     maxAttempts?: number;
     shuffleProblems?: boolean;
+    shuffleOptions?: boolean;
     showResults?: boolean;
     antiCheatingEnabled?: boolean;
+    showCandidateRanking?: boolean;
+    resultStrategy?: string;
+    accessLevel?: string;
+    accessCode?: string;
+    templateId?: string;
     companyId?: string;
   },
   user: IAuthUser,
@@ -123,6 +130,12 @@ const create = async (
       shuffleProblems: payload.shuffleProblems ?? false,
       showResults: payload.showResults ?? true,
       antiCheatingEnabled: payload.antiCheatingEnabled ?? true,
+      showCandidateRanking: payload.showCandidateRanking ?? true,
+      resultStrategy: (payload.resultStrategy ?? "LATEST_SCORE") as never,
+      accessLevel: (payload.accessLevel ?? "INVITATION_ONLY") as never,
+      accessCodeHash: payload.accessCode ? crypto.createHash("sha256").update(payload.accessCode).digest("hex") : null,
+      shuffleOptions: payload.shuffleOptions ?? false,
+      templateId: payload.templateId ?? null,
       status: AssessmentStatus.DRAFT,
       companyId,
       createdBy: user.id,
@@ -324,6 +337,10 @@ const update = async (
     "shuffleProblems",
     "showResults",
     "antiCheatingEnabled",
+    "showCandidateRanking",
+    "resultStrategy",
+    "accessLevel",
+    "shuffleOptions",
   ];
   for (const field of fields) {
     if (payload[field] !== undefined) data[field] = payload[field];
@@ -334,8 +351,12 @@ const update = async (
   if (payload.endDate !== undefined) {
     data.endDate = payload.endDate ? new Date(payload.endDate as string) : null;
   }
+  if (payload.accessCode !== undefined) {
+    const code = payload.accessCode as string | null;
+    data.accessCodeHash = code ? crypto.createHash("sha256").update(code).digest("hex") : null;
+  }
 
-  const updated = await prisma.assessment.update({ where: { id }, data });
+  const updated = await prisma.assessment.update({ where: { id }, data: data as never });
 
   await writeAuditLog({
     actorId: user.id,

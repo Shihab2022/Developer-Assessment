@@ -33,6 +33,7 @@ const list = catchAsync(async (req: AuthRequest, res: Response) => {
     category: req.query.category as string,
     status: req.query.status as string,
     tags: req.query.tags as string,
+    skills: req.query.skills as string,
   });
   sendResponse(res, {
     statusCode: httpStatus.OK,

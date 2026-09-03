@@ -112,6 +112,57 @@ enum AntiCheatingEventType {
   MULTIPLE_SESSION
   SUSPICIOUS_ACTIVITY
 }
+
+enum AssessmentAccessLevel {
+  PUBLIC
+  PRIVATE
+  INVITATION_ONLY
+  ACCESS_CODE
+}
+
+enum ResultStrategy {
+  BEST_SCORE
+  LATEST_SCORE
+  FIRST_SCORE
+}
+
+enum RecruitmentStatus {
+  INVITED
+  STARTED
+  COMPLETED
+  SHORTLISTED
+  INTERVIEW
+  HIRED
+  REJECTED
+}
+
+enum CreditTransactionCategory {
+  CREDIT_PURCHASE
+  INVITATION_USAGE
+  REFUND
+  ADMIN_ADJUSTMENT
+  EXPIRATION
+}
+
+enum NotificationType {
+  ASSESSMENT_INVITATION
+  ASSESSMENT_COMPLETED
+  RESULT_AVAILABLE
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  ASSESSMENT_EXPIRING
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+enum TemplateStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
 // ----------------------------- Models -----------------------------
 
 model User {
@@ -147,6 +198,10 @@ model User {
   payments           Payment[]
   evaluations        Evaluation[]    @relation("Evaluator")
   auditLogs          AuditLog[]
+  notesAuthored      CandidateNote[] @relation("NoteAuthor")
+  notifications      Notification[]
+  templatesCreated  AssessmentTemplate[]
+  candidateNotes    CandidateNote[]
 
   @@index([role])
   @@index([status])
@@ -191,6 +246,8 @@ model Company {
   attempts           Attempt[]
   payments           Payment[]
   creditTransactions CreditTransaction[]
+  templates          AssessmentTemplate[]
+  candidateNotes     CandidateNote[]
 
   @@index([name])
 }
@@ -228,6 +285,17 @@ model Problem {
   deletedAt      DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  // Advanced question bank fields
+  skills           String[]   @default([])
+  allowedLanguages String[]   @default([])
+  version         Int         @default(1)
+  examples         Json?
+  timesUsed       Int         @default(0)
+  timesAttempted  Int         @default(0)
+  timesSolved     Int         @default(0)
+  successRate     Float       @default(0)
+  averageScore    Float       @default(0)
 
   tags               ProblemTag[]
   testCases          CodingTestCase[]
@@ -298,6 +366,13 @@ model Assessment {
   shuffleProblems     Boolean          @default(false)
   showResults         Boolean          @default(true)
   antiCheatingEnabled Boolean          @default(true)
+  resultStrategy     ResultStrategy     @default(LATEST_SCORE)
+  accessLevel        AssessmentAccessLevel @default(INVITATION_ONLY)
+  accessCodeHash     String?
+  shuffleOptions     Boolean          @default(false)
+  questionConfig     Json?
+  templateId         String?
+  showCandidateRanking Boolean         @default(true)
   deletedAt           DateTime?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
@@ -307,6 +382,8 @@ model Assessment {
   attempts    Attempt[]
   submissions Submission[]
   results     Result[]
+  template    AssessmentTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  candidateNotes CandidateNote[]
 
   @@index([companyId])
   @@index([createdBy])
@@ -339,6 +416,7 @@ model Invitation {
   company      Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
   email        String
   status       InvitationStatus @default(PENDING)
+  recruitmentStatus RecruitmentStatus @default(INVITED)
   token        String?
   invitedBy    String?
   inviter      User?            @relation("InvitationSender", fields: [invitedBy], references: [id], onDelete: SetNull)
@@ -373,6 +451,9 @@ model Attempt {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
+  shuffledQuestionOrder Json?
+  shuffledOptions    Json?
+  sessions           AttemptSession[]
   answers            AttemptAnswer[]
   submissions        Submission[]
   antiCheatingEvents AntiCheatingEvent[]
@@ -471,7 +552,8 @@ model Result {
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
-  items ResultItem[]
+  rank       Int?
+  items       ResultItem[]
 
   @@index([candidateId])
   @@index([assessmentId])
@@ -556,6 +638,7 @@ model CreditTransaction {
   payment     Payment?              @relation(fields: [paymentId], references: [id], onDelete: SetNull)
   credits     Int
   type        CreditTransactionType
+  category    CreditTransactionCategory @default(CREDIT_PURCHASE)
   description String?
   createdAt   DateTime              @default(now())
 
@@ -578,4 +661,94 @@ model AuditLog {
   @@index([actorId])
   @@index([entityType, entityId])
   @@index([action])
+}
+
+// ----------------------------- New Models -----------------------------
+
+model AssessmentTemplate {
+  id                   String          @id @default(uuid())
+  companyId            String?
+  company              Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  createdBy            String?
+  creator              User?           @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  title                String
+  description          String?
+  durationMinutes      Int
+  passingScore         Int             @default(0)
+  maxAttempts          Int             @default(1)
+  shuffleProblems      Boolean         @default(false)
+  shuffleOptions       Boolean         @default(false)
+  showResults          Boolean         @default(true)
+  antiCheatingEnabled  Boolean         @default(true)
+  resultStrategy       ResultStrategy  @default(LATEST_SCORE)
+  accessLevel          AssessmentAccessLevel @default(INVITATION_ONLY)
+  questionConfig       Json?
+  skills               String[]        @default([])
+  difficultyDistribution Json?
+  antiCheatingSettings Json?
+  status               TemplateStatus  @default(DRAFT)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  assessments  Assessment[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model CandidateNote {
+  id          String   @id @default(uuid())
+  candidateId String
+  candidate   User     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessmentId String?
+  assessment  Assessment? @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  companyId   String?
+  company     Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  authorId    String
+  author      User     @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  content     String
+  isPrivate   Boolean  @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([candidateId])
+  @@index([assessmentId])
+  @@index([companyId])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          NotificationType
+  status        NotificationStatus @default(UNREAD)
+  title         String
+  message       String
+  data          Json?
+  readAt        DateTime?
+  createdAt     DateTime         @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+}
+
+model AttemptSession {
+  id           String   @id @default(uuid())
+  attemptId    String
+  attempt      Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  sessionId    String
+  ipAddress    String?
+  userAgent    String?
+  deviceInfo   String?
+  startedAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  endedAt      DateTime?
+  isSuspicious Boolean  @default(false)
+  eventCount   Int      @default(0)
+
+  @@index([attemptId])
+  @@index([sessionId])
+  @@index([ipAddress])
 }
