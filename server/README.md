@@ -211,6 +211,7 @@ The API container runs migrations, seeds, and starts the dev server automaticall
 
 - **Swagger UI:** `http://localhost:5000/api/docs`
 - **Postman:** import `docs/postman-collection.json`
+- **REST reference:** see [`api.md`](api.md) — full endpoint reference, enums, env vars & DB models
 - **Health check:** `GET /health`
 │       ├── <domain>.routes.ts
 │       ├── <domain>.validation.ts
