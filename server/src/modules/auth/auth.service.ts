@@ -3,13 +3,10 @@ import { prisma } from "../../lib/prisma";
 import { IAuthUser, RegisterUserPayload } from "../../types";
 import config from "../../config";
 import { UserStatus } from "../../../generated/prisma/enums";
-import { SignOptions } from "jsonwebtoken";
-import { generateJwtToken } from "../../helpars/jwtHelpers";
-import ApiError from "../../helpars/ApiError";
+import { generateJwtToken } from "../../helpers/jwtHelpers";
+import ApiError from "../../helpers/ApiError";
 import httpStatus from "http-status";
-import transporter from "../../utils/nodemailer";
 import { createToken } from "../../utils/auth";
-import { emailSenderMessages } from "../../constant";
 // import { formatHtml } from "../../utils/formatHtml";
 import crypto from "crypto";
 const register = async (payload: RegisterUserPayload) => {
@@ -51,8 +48,8 @@ const register = async (payload: RegisterUserPayload) => {
   };
   const token = createToken(
     jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expire_in as number | undefined,
+    config.jwt_access_secret,
+    config.jwt_access_expire_in,
   );
   //   const html = await formatHtml("src/templates/confirmAccount.ejs", {
   //     name: name,
@@ -103,12 +100,12 @@ const login = async (payload: { email: string; password: string }) => {
   const accessToken = generateJwtToken(
     tokenData,
     config.jwt_access_secret,
-    config.jwt_access_expire_in as SignOptions,
+    config.jwt_access_expire_in,
   );
   const refreshToken = generateJwtToken(
     tokenData,
     config.jwt_refresh_secret,
-    config.jwt_refresh_expire_in as SignOptions,
+    config.jwt_refresh_expire_in,
   );
 
   return { accessToken, refreshToken };
@@ -170,8 +167,8 @@ const forgetPassword = async (payload: { email: string }) => {
   };
   const token = createToken(
     jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expire_in as number | undefined,
+    config.jwt_access_secret,
+    config.jwt_access_expire_in,
   );
   const pin = crypto.randomInt(100000, 999999).toString();
   //   const html = await formatHtml("src/templates/forgotPassword.ejs", {

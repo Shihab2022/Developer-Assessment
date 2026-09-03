@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import ApiError from "../helpars/ApiError";
+import ApiError from "../helpers/ApiError";
 import config from "../config";
-import { verifyJwtToken } from "../helpars/jwtHelpers";
+import { verifyJwtToken } from "../helpers/jwtHelpers";
 
 const auth = (...roles: string[]) => {
   const errorMessage = "You are not authorized";
@@ -12,10 +12,7 @@ const auth = (...roles: string[]) => {
     next: NextFunction,
   ) => {
     try {
-      const tokenw = req.cookies.accessToken;
       const { accessToken: token } = req.cookies;
-      // console.log("token", token);
-      // console.log("tokenw", req);
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, errorMessage);
       }

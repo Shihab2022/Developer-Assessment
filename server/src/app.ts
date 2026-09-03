@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import { rootRouter } from "./routes/index";
 import { corsAllowOrigin } from "./constant";
 import { notFound, testingRoute } from "./middlewares/notFound";
-import { globalErrorHandler } from "./middlewares/globalErrorHandllers";
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 const app = express();
 
 app.use(cors(corsAllowOrigin));

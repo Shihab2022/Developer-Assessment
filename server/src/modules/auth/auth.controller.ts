@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import catchAsync from "../../helpars/catchAsync";
-import sendResponse from "../../helpars/sendResponse";
+import catchAsync from "../../helpers/catchAsync";
+import sendResponse from "../../helpers/sendResponse";
 import { AuthServices } from "./auth.service";
 import { IAuthUser } from "../../types";
 import config from "../../config";
@@ -28,9 +28,10 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: false,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 day
+    // sameSite "none" requires secure: true; use "lax" for local http dev.
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+    secure: config.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
   });
   sendResponse(res, {
     statusCode: httpStatus.OK,
