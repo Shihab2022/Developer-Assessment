@@ -2,7 +2,12 @@ node_modules
 dist
 generated
 .env
+.env.*
+!.env.example
 /generated/prisma
+coverage
+_val.txt
+*.log
 
 package-lock.json
 .vercel

@@ -1,25 +1,22 @@
 import { Response } from "express";
+import { PaginationMeta } from "../types";
 
-const sendResponse = <T>(
-  res: Response,
-  jsonData: {
-    statusCode: number;
-    success: boolean;
-    message: string;
-    meta?: {
-      page: number;
-      limit: number;
-      total: number;
-    };
-    data: T | null | undefined;
-  },
-) => {
-  res.status(jsonData.statusCode).json({
-    success: jsonData.success,
-    message: jsonData.message,
-    meta: jsonData.meta || null || undefined,
-    data: jsonData.data || null || undefined,
-  });
+export interface SendResponseOptions<T> {
+  statusCode: number;
+  message: string;
+  meta?: PaginationMeta;
+  data?: T | null;
+}
+
+const sendResponse = <T>(res: Response, options: SendResponseOptions<T>) => {
+  const { statusCode, message, meta, data } = options;
+  const body: Record<string, unknown> = {
+    success: statusCode < 400,
+    message,
+  };
+  if (meta) body.meta = meta;
+  body.data = data ?? null;
+  res.status(statusCode).json(body);
 };
 
 export default sendResponse;

@@ -3,37 +3,579 @@ datasource db {
 }
 
 generator client {
-  provider    = "prisma-client"
-  output      = "../generated/prisma"
-  runtime     = "nodejs"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  runtime      = "nodejs"
   moduleFormat = "cjs"
 }
 
-model User {
-  id                 String             @id @default(uuid())
-  email              String             @unique
-  name               String
-  password           String
-  role               String
-  phone              String?
-  address            String?
-  status             UserStatus         @default(ACTIVE)
-  technicianProfile  TechnicianProfile?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-}
+// ----------------------------- Enums -----------------------------
 
-model TechnicianProfile {
-  id        String   @id @default(uuid())
-  experience Int
-  skills    String[]
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum UserRole {
+  CANDIDATE
+  RECRUITER
+  ADMIN
 }
 
 enum UserStatus {
   ACTIVE
-  BANNED
+  SUSPENDED
+  DELETED
+}
+
+enum CompanyMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProblemType {
+  CODING
+  MCQ
+  WRITTEN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProblemStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum AssessmentStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  COMPLETED
+}
+
+enum AttemptStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  AUTO_SUBMITTED
+  EVALUATING
+  COMPLETED
+  EXPIRED
+}
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  PASSED
+  FAILED
+  PARTIAL
+  ERROR
+  MANUAL_REVIEW
+  COMPLETED
+}
+
+enum EvaluationStatus {
+  PENDING
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum CreditTransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum AntiCheatingEventType {
+  TAB_SWITCH
+  WINDOW_BLUR
+  WINDOW_FOCUS
+  FULLSCREEN_EXIT
+  COPY
+  PASTE
+  MULTIPLE_SESSION
+  SUSPICIOUS_ACTIVITY
+}
+// ----------------------------- Models -----------------------------
+
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  name            String
+  password        String
+  role            UserRole   @default(CANDIDATE)
+  status          UserStatus @default(ACTIVE)
+  phone           String?
+  bio             String?
+  skills          String[]   @default([])
+  experience      Int?
+  education       Json?
+  profileImageUrl String?
+  resumeUrl       String?
+  jobTitle        String?
+  companyId       String?
+  company         Company?   @relation("Employer", fields: [companyId], references: [id], onDelete: SetNull)
+  deletedAt       DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  refreshTokens      RefreshToken[]
+  memberships        CompanyMember[]
+  problems           Problem[]       @relation("ProblemCreator")
+  assessmentsCreated Assessment[]    @relation("AssessmentCreator")
+  invitationsSent    Invitation[]    @relation("InvitationSender")
+  invitations        Invitation[]    @relation("InvitedCandidate")
+  attempts           Attempt[]
+  submissions        Submission[]
+  results            Result[]
+  payments           Payment[]
+  evaluations        Evaluation[]    @relation("Evaluator")
+  auditLogs          AuditLog[]
+
+  @@index([role])
+  @@index([status])
+  @@index([companyId])
+}
+
+model RefreshToken {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash       String    @unique
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  replacedByToken String?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Company {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  logo        String?
+  description String?
+  website     String?
+  industry    String?
+  location    String?
+  size        String?
+  credits     Int       @default(0)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  members            CompanyMember[]
+  users              User[]              @relation("Employer")
+  problems           Problem[]
+  assessments        Assessment[]
+  invitations        Invitation[]
+  attempts           Attempt[]
+  payments           Payment[]
+  creditTransactions CreditTransaction[]
+
+  @@index([name])
+}
+
+model CompanyMember {
+  id        String            @id @default(uuid())
+  companyId String
+  company   Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      CompanyMemberRole @default(MEMBER)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+model Problem {
+  id             String        @id @default(uuid())
+  title          String
+  description    String
+  type           ProblemType
+  difficulty     Difficulty    @default(MEDIUM)
+  category       String?
+  points         Int           @default(10)
+  timeLimit      Int?
+  memoryLimit    Int?
+  expectedAnswer Json?
+  createdBy      String
+  creator        User          @relation("ProblemCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  companyId      String?
+  company        Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  status         ProblemStatus @default(DRAFT)
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tags               ProblemTag[]
+  testCases          CodingTestCase[]
+  options            MCQOption[]
+  assessmentProblems AssessmentProblem[]
+  attemptAnswers     AttemptAnswer[]
+  submissions        Submission[]
+  evaluations        Evaluation[]
+  resultItems        ResultItem[]
+
+  @@index([type])
+  @@index([difficulty])
+  @@index([category])
+  @@index([status])
+  @@index([companyId])
+  @@index([createdBy])
+}
+
+model ProblemTag {
+  id        String   @id @default(uuid())
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+
+  @@unique([problemId, name])
+  @@index([name])
+}
+
+model CodingTestCase {
+  id             String  @id @default(uuid())
+  problemId      String
+  problem        Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(false)
+  order          Int     @default(0)
+
+  @@index([problemId])
+}
+
+model MCQOption {
+  id        String  @id @default(uuid())
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  text      String
+  isCorrect Boolean @default(false)
+  order     Int     @default(0)
+
+  @@index([problemId])
+}
+
+model Assessment {
+  id                  String           @id @default(uuid())
+  companyId           String
+  company             Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdBy           String
+  creator             User             @relation("AssessmentCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  title               String
+  description         String?
+  instructions        String?
+  durationMinutes     Int
+  passingScore        Int              @default(0)
+  status              AssessmentStatus @default(DRAFT)
+  startDate           DateTime?
+  endDate             DateTime?
+  maxAttempts         Int              @default(1)
+  shuffleProblems     Boolean          @default(false)
+  showResults         Boolean          @default(true)
+  antiCheatingEnabled Boolean          @default(true)
+  deletedAt           DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  problems    AssessmentProblem[]
+  invitations Invitation[]
+  attempts    Attempt[]
+  submissions Submission[]
+  results     Result[]
+
+  @@index([companyId])
+  @@index([createdBy])
+  @@index([status])
+}
+
+model AssessmentProblem {
+  id           String     @id @default(uuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  problemId    String
+  problem      Problem    @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  order        Int        @default(0)
+  points       Int
+  isRequired   Boolean    @default(true)
+  section      String?
+
+  @@unique([assessmentId, problemId])
+  @@index([assessmentId])
+  @@index([problemId])
+}
+
+model Invitation {
+  id           String           @id @default(uuid())
+  assessmentId String
+  assessment   Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateId  String?
+  candidate    User?            @relation("InvitedCandidate", fields: [candidateId], references: [id], onDelete: SetNull)
+  companyId    String?
+  company      Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  email        String
+  status       InvitationStatus @default(PENDING)
+  token        String?
+  invitedBy    String?
+  inviter      User?            @relation("InvitationSender", fields: [invitedBy], references: [id], onDelete: SetNull)
+  invitedAt    DateTime         @default(now())
+  expiresAt    DateTime?
+  acceptedAt   DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([assessmentId, email])
+  @@index([assessmentId])
+  @@index([candidateId])
+  @@index([email])
+}
+
+model Attempt {
+  id            String        @id @default(uuid())
+  assessmentId  String
+  assessment    Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     User          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  companyId     String?
+  company       Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  attemptNumber Int           @default(1)
+  status        AttemptStatus @default(NOT_STARTED)
+  startedAt     DateTime?
+  expiresAt     DateTime?
+  submittedAt   DateTime?
+  score         Int?
+  maxScore      Int?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  answers            AttemptAnswer[]
+  submissions        Submission[]
+  antiCheatingEvents AntiCheatingEvent[]
+  evaluations        Evaluation[]
+  result             Result?
+
+  @@unique([assessmentId, candidateId, attemptNumber])
+  @@index([candidateId])
+  @@index([assessmentId])
+}
+
+model AttemptAnswer {
+  id                  String    @id @default(uuid())
+  attemptId           String
+  attempt             Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  problemId           String
+  problem             Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  answer              Json?
+  code                String?   @db.Text
+  programmingLanguage String?
+  submittedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([attemptId, problemId])
+  @@index([attemptId])
+}
+
+model Submission {
+  id                  String           @id @default(uuid())
+  attemptId           String
+  attempt             Attempt          @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  candidateId         String
+  candidate           User             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessmentId        String
+  assessment          Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  problemId           String
+  problem             Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  code                String?          @db.Text
+  programmingLanguage String?
+  status              SubmissionStatus @default(PENDING)
+  submittedAt         DateTime         @default(now())
+  score               Int?
+  executionTime       Int?
+  memoryUsed          Int?
+  evaluationResult    Json?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  evaluations Evaluation[]
+  resultItems ResultItem[]
+
+  @@index([attemptId])
+  @@index([candidateId])
+  @@index([assessmentId])
+  @@index([problemId])
+}
+
+model Evaluation {
+  id           String           @id @default(uuid())
+  submissionId String?
+  submission   Submission?      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  attemptId    String
+  attempt      Attempt          @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  problemId    String
+  problem      Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  type         ProblemType
+  status       EvaluationStatus @default(PENDING)
+  score        Int?
+  maxScore     Int?
+  feedback     String?
+  evaluatorId  String?
+  evaluator    User?            @relation("Evaluator", fields: [evaluatorId], references: [id], onDelete: SetNull)
+  evaluatedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([attemptId])
+  @@index([submissionId])
+}
+
+model Result {
+  id               String     @id @default(uuid())
+  attemptId        String     @unique
+  attempt          Attempt    @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  candidateId      String
+  candidate        User       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessmentId     String
+  assessment       Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  totalPoints      Int
+  earnedPoints     Int
+  percentage       Float
+  passed           Boolean
+  timeTakenSeconds Int?
+  releasedAt       DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  items ResultItem[]
+
+  @@index([candidateId])
+  @@index([assessmentId])
+}
+
+model ResultItem {
+  id           String      @id @default(uuid())
+  resultId     String
+  result       Result      @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  problemId    String
+  problem      Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  submissionId String?
+  submission   Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  points       Int
+  earnedPoints Int
+  status       String?
+  feedback     String?
+  createdAt    DateTime    @default(now())
+
+  @@index([resultId])
+  @@index([problemId])
+}
+
+model AntiCheatingEvent {
+  id        String                @id @default(uuid())
+  attemptId String
+  attempt   Attempt               @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  eventType AntiCheatingEventType
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime              @default(now())
+  createdAt DateTime              @default(now())
+
+  @@index([attemptId])
+}
+
+model Payment {
+  id                   String          @id @default(uuid())
+  userId               String
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  companyId            String?
+  company              Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  packageId            String?
+  package              PaymentPackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  transactionId        String          @unique
+  amount               Int
+  currency             String          @default("BDT")
+  status               PaymentStatus   @default(PENDING)
+  gateway              String          @default("SSLCOMMERZ")
+  gatewayTransactionId String?
+  metadata             Json?
+  paidAt               DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  creditTransactions CreditTransaction[]
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([status])
+}
+
+model PaymentPackage {
+  id          String   @id @default(uuid())
+  name        String
+  credits     Int
+  price       Int
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payments Payment[]
+}
+
+model CreditTransaction {
+  id          String                @id @default(uuid())
+  companyId   String
+  company     Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  paymentId   String?
+  payment     Payment?              @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  credits     Int
+  type        CreditTransactionType
+  description String?
+  createdAt   DateTime              @default(now())
+
+  @@index([companyId])
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  actorId       String?
+  actor         User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action        String
+  entityType    String?
+  entityId      String?
+  previousValue Json?
+  newValue      Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([action])
 }

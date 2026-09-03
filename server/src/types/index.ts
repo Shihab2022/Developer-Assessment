@@ -1,14 +1,33 @@
-export interface IAuthUser {
+import { JwtPayload } from "jsonwebtoken";
+
+export interface IAuthUser extends JwtPayload {
   id: string;
   name: string;
-  role: string;
+  email: string;
+  role: "CANDIDATE" | "RECRUITER" | "ADMIN";
+  companyId?: string;
 }
 
-export interface RegisterUserPayload {
-  email: string;
-  password: string;
-  name: string;
-  role: string;
-  phone?: string;
-  address?: string;
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  meta?: PaginationMeta;
+  data: T;
+}
+
+export interface ValidationErrorItem {
+  field: string;
+  message: string;
 }
