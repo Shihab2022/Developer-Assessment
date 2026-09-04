@@ -46,8 +46,19 @@ const listForCompany = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const exportAssessmentCsv = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { filename, csv } = await ReportServices.exportAssessmentCsv(
+    req.user!,
+    String(req.params.id),
+  );
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.status(httpStatus.OK).send(csv);
+});
+
 export const ReportController = {
   assessmentReport,
   companyReport,
   listForCompany,
+  exportAssessmentCsv,
 };

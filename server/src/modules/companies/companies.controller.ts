@@ -77,6 +77,45 @@ const getMembers = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const listCandidates = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
+  const result = await CompanyServices.listCandidates(req.user!, String(req.params.companyId), {
+    page,
+    limit,
+    status: req.query.status as string,
+    assessmentId: req.query.assessmentId as string,
+  });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Company candidates retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const updateCandidateStatus = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await CompanyServices.updateCandidateStatus(
+    req.user!,
+    String(req.params.id),
+    req.body.recruitmentStatus,
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Candidate recruitment status updated successfully",
+    data: result,
+  });
+});
+
+const companyAnalytics = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await CompanyServices.companyAnalytics(req.user!, String(req.params.id));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Company analytics retrieved successfully",
+    data: result,
+  });
+});
+
 export const CompanyController = {
   create,
   list,
@@ -84,4 +123,7 @@ export const CompanyController = {
   update,
   remove,
   getMembers,
+  listCandidates,
+  updateCandidateStatus,
+  companyAnalytics,
 };

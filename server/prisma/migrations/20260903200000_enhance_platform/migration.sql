@@ -1,3 +1,5 @@
+-- EnhancePlatform: advanced question bank, templates, pipeline, notifications, sessions
+
 -- CreateEnum
 CREATE TYPE "AssessmentAccessLevel" AS ENUM ('PUBLIC', 'PRIVATE', 'INVITATION_ONLY', 'ACCESS_CODE');
 
@@ -19,38 +21,38 @@ CREATE TYPE "NotificationStatus" AS ENUM ('UNREAD', 'READ');
 -- CreateEnum
 CREATE TYPE "TemplateStatus" AS ENUM ('DRAFT', 'ACTIVE', 'ARCHIVED');
 
--- AlterTable
-ALTER TABLE "Assessment" ADD COLUMN     "accessCodeHash" TEXT,
-ADD COLUMN     "accessLevel" "AssessmentAccessLevel" NOT NULL DEFAULT 'INVITATION_ONLY',
-ADD COLUMN     "questionConfig" JSONB,
-ADD COLUMN     "resultStrategy" "ResultStrategy" NOT NULL DEFAULT 'LATEST_SCORE',
-ADD COLUMN     "showCandidateRanking" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "shuffleOptions" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "templateId" TEXT;
+-- AlterTable: Problem advanced question bank fields
+ALTER TABLE "Problem" ADD COLUMN "skills" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Problem" ADD COLUMN "allowedLanguages" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Problem" ADD COLUMN "version" INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE "Problem" ADD COLUMN "examples" JSONB;
+ALTER TABLE "Problem" ADD COLUMN "timesUsed" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Problem" ADD COLUMN "timesAttempted" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Problem" ADD COLUMN "timesSolved" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Problem" ADD COLUMN "successRate" DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE "Problem" ADD COLUMN "averageScore" DOUBLE PRECISION NOT NULL DEFAULT 0;
 
--- AlterTable
-ALTER TABLE "Attempt" ADD COLUMN     "shuffledOptions" JSONB,
-ADD COLUMN     "shuffledQuestionOrder" JSONB;
+-- AlterTable: Assessment enhancements
+ALTER TABLE "Assessment" ADD COLUMN "resultStrategy" "ResultStrategy" NOT NULL DEFAULT 'LATEST_SCORE';
+ALTER TABLE "Assessment" ADD COLUMN "accessLevel" "AssessmentAccessLevel" NOT NULL DEFAULT 'INVITATION_ONLY';
+ALTER TABLE "Assessment" ADD COLUMN "accessCodeHash" TEXT;
+ALTER TABLE "Assessment" ADD COLUMN "shuffleOptions" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Assessment" ADD COLUMN "questionConfig" JSONB;
+ALTER TABLE "Assessment" ADD COLUMN "templateId" TEXT;
+ALTER TABLE "Assessment" ADD COLUMN "showCandidateRanking" BOOLEAN NOT NULL DEFAULT true;
 
--- AlterTable
-ALTER TABLE "CreditTransaction" ADD COLUMN     "category" "CreditTransactionCategory" NOT NULL DEFAULT 'CREDIT_PURCHASE';
+-- AlterTable: Attempt enhancements
+ALTER TABLE "Attempt" ADD COLUMN "shuffledQuestionOrder" JSONB;
+ALTER TABLE "Attempt" ADD COLUMN "shuffledOptions" JSONB;
 
--- AlterTable
-ALTER TABLE "Invitation" ADD COLUMN     "recruitmentStatus" "RecruitmentStatus" NOT NULL DEFAULT 'INVITED';
+-- AlterTable: Result ranking
+ALTER TABLE "Result" ADD COLUMN "rank" INTEGER;
 
--- AlterTable
-ALTER TABLE "Problem" ADD COLUMN     "allowedLanguages" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "averageScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-ADD COLUMN     "examples" JSONB,
-ADD COLUMN     "skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "successRate" DOUBLE PRECISION NOT NULL DEFAULT 0,
-ADD COLUMN     "timesAttempted" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "timesSolved" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "timesUsed" INTEGER NOT NULL DEFAULT 0,
-ADD COLUMN     "version" INTEGER NOT NULL DEFAULT 1;
+-- AlterTable: Invitation recruitment pipeline
+ALTER TABLE "Invitation" ADD COLUMN "recruitmentStatus" "RecruitmentStatus" NOT NULL DEFAULT 'INVITED';
 
--- AlterTable
-ALTER TABLE "Result" ADD COLUMN     "rank" INTEGER;
+-- AlterTable: CreditTransaction category
+ALTER TABLE "CreditTransaction" ADD COLUMN "category" "CreditTransactionCategory" NOT NULL DEFAULT 'CREDIT_PURCHASE';
 
 -- CreateTable
 CREATE TABLE "AssessmentTemplate" (
@@ -129,60 +131,25 @@ CREATE TABLE "AttemptSession" (
 
 -- CreateIndex
 CREATE INDEX "AssessmentTemplate_companyId_idx" ON "AssessmentTemplate"("companyId");
-
--- CreateIndex
 CREATE INDEX "AssessmentTemplate_status_idx" ON "AssessmentTemplate"("status");
-
--- CreateIndex
 CREATE INDEX "CandidateNote_candidateId_idx" ON "CandidateNote"("candidateId");
-
--- CreateIndex
 CREATE INDEX "CandidateNote_assessmentId_idx" ON "CandidateNote"("assessmentId");
-
--- CreateIndex
 CREATE INDEX "CandidateNote_companyId_idx" ON "CandidateNote"("companyId");
-
--- CreateIndex
 CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");
-
--- CreateIndex
 CREATE INDEX "Notification_status_idx" ON "Notification"("status");
-
--- CreateIndex
 CREATE INDEX "Notification_type_idx" ON "Notification"("type");
-
--- CreateIndex
+CREATE UNIQUE INDEX "AttemptSession_attemptId_sessionId_key" ON "AttemptSession"("attemptId", "sessionId");
 CREATE INDEX "AttemptSession_attemptId_idx" ON "AttemptSession"("attemptId");
-
--- CreateIndex
 CREATE INDEX "AttemptSession_sessionId_idx" ON "AttemptSession"("sessionId");
-
--- CreateIndex
 CREATE INDEX "AttemptSession_ipAddress_idx" ON "AttemptSession"("ipAddress");
 
 -- AddForeignKey
 ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_templateId_fkey" FOREIGN KEY ("templateId") REFERENCES "AssessmentTemplate"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "AssessmentTemplate" ADD CONSTRAINT "AssessmentTemplate_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "AssessmentTemplate" ADD CONSTRAINT "AssessmentTemplate_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "CandidateNote" ADD CONSTRAINT "CandidateNote_candidateId_fkey" FOREIGN KEY ("candidateId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "CandidateNote" ADD CONSTRAINT "CandidateNote_assessmentId_fkey" FOREIGN KEY ("assessmentId") REFERENCES "Assessment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "CandidateNote" ADD CONSTRAINT "CandidateNote_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "CandidateNote" ADD CONSTRAINT "CandidateNote_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "AttemptSession" ADD CONSTRAINT "AttemptSession_attemptId_fkey" FOREIGN KEY ("attemptId") REFERENCES "Attempt"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -9,6 +9,12 @@ import {
 
 export const EvaluationRouter = express.Router();
 
+EvaluationRouter.get(
+  "/pending",
+  auth("RECRUITER", "ADMIN"),
+  EvaluationController.listPending,
+);
+
 EvaluationRouter.post(
   "/written",
   auth("RECRUITER", "ADMIN"),

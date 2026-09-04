@@ -748,6 +748,7 @@ model AttemptSession {
   isSuspicious Boolean  @default(false)
   eventCount   Int      @default(0)
 
+  @@unique([attemptId, sessionId])
   @@index([attemptId])
   @@index([sessionId])
   @@index([ipAddress])

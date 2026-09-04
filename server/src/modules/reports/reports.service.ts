@@ -4,6 +4,50 @@ import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { cacheGet, cacheSet } from "../../lib/redis";
 
+const toCsv = (rows: Record<string, unknown>[]): string => {
+  if (rows.length === 0) return "";
+  const headers = Object.keys(rows[0] as Record<string, unknown>);
+  const escape = (value: unknown) => {
+    if (value === null || value === undefined) return "";
+    const str = String(value);
+    if (str.includes(",") || str.includes("\"") || str.includes("\n")) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+  const lines = [headers.join(",")];
+  for (const row of rows) {
+    lines.push(headers.map((header) => escape(row[header])).join(","));
+  }
+  return lines.join("\n");
+};
+
+const buildAssessmentCsv = async (assessmentId: string) => {
+  const results = await prisma.result.findMany({
+    where: { assessmentId },
+    include: {
+      candidate: { select: { name: true, email: true } },
+      attempt: { select: { attemptNumber: true, status: true } },
+    },
+    orderBy: { percentage: "desc" },
+  });
+
+  return toCsv(
+    results.map((result, index) => ({
+      rank: index + 1,
+      candidateName: result.candidate.name,
+      candidateEmail: result.candidate.email,
+      attemptNumber: result.attempt.attemptNumber,
+      attemptStatus: result.attempt.status,
+      earnedPoints: result.earnedPoints,
+      totalPoints: result.totalPoints,
+      percentage: result.percentage,
+      passed: result.passed,
+      timeTakenSeconds: result.timeTakenSeconds ?? "",
+    })),
+  );
+};
+
 const assertAssessmentAccess = async (user: IAuthUser, assessmentId: string) => {
   const assessment = await prisma.assessment.findFirst({
     where: { id: assessmentId, deletedAt: null },
@@ -314,8 +358,19 @@ const listForCompany = async (
   };
 };
 
+const exportAssessmentCsv = async (user: IAuthUser, assessmentId: string) => {
+  const assessment = await assertAssessmentAccess(user, assessmentId);
+  const csv = await buildAssessmentCsv(assessmentId);
+  return {
+    filename: `assessment-${assessmentId}-results.csv`,
+    csv,
+    assessmentTitle: assessment.title,
+  };
+};
+
 export const ReportServices = {
   generateAssessmentReport,
   generateCompanyReport,
   listForCompany,
+  exportAssessmentCsv,
 };

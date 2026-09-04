@@ -35,7 +35,20 @@ const listForAttempt = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const listPending = catchAsync(async (req: AuthRequest, res: Response) => {
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
+  const result = await EvaluationServices.listPending(req.user!, { page, limit });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Pending evaluations retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const EvaluationController = {
   evaluateWritten,
   listForAttempt,
+  listPending,
 };

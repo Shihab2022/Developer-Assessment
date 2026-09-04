@@ -99,6 +99,24 @@ const candidatesMeAttempts = catchAsync(async (req: AuthRequest, res: Response) 
   });
 });
 
+const getTime = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AttemptServices.getTime(req.user!, String(req.params.id));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Attempt timer retrieved successfully",
+    data: result,
+  });
+});
+
+const getAntiCheatReport = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AttemptServices.getAntiCheatReport(req.user!, String(req.params.id));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Anti-cheating report retrieved successfully",
+    data: result,
+  });
+});
+
 export const AttemptController = {
   start,
   getAttempt,
@@ -107,4 +125,6 @@ export const AttemptController = {
   updateAnswer,
   submit,
   candidatesMeAttempts,
+  getTime,
+  getAntiCheatReport,
 };

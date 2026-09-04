@@ -15,6 +15,15 @@ const getById = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const getSkillBreakdown = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await ResultServices.getSkillBreakdown(req.user!, String(req.params.id));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Skill breakdown retrieved successfully",
+    data: result,
+  });
+});
+
 const candidatesMeResults = catchAsync(async (req: AuthRequest, res: Response) => {
   const { page, limit } = paginate(Number(req.query.page), Number(req.query.limit));
   const result = await ResultServices.candidatesMeResults(req.user!, page, limit);
@@ -44,6 +53,7 @@ const listForAssessment = catchAsync(async (req: AuthRequest, res: Response) => 
 
 export const ResultController = {
   getById,
+  getSkillBreakdown,
   candidatesMeResults,
   listForAssessment,
 };

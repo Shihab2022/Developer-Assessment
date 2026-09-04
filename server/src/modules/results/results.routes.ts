@@ -15,6 +15,13 @@ ResultRouter.get(
   ResultController.getById,
 );
 
+ResultRouter.get(
+  "/:id/skills",
+  auth(),
+  validate(resultParamsSchema),
+  ResultController.getSkillBreakdown,
+);
+
 // Routes under /api/v1/candidates/me/results
 export const candidateResultRouter = express.Router();
 

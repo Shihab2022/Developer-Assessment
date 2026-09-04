@@ -165,6 +165,52 @@ const removeProblem = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const duplicate = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AssessmentServices.duplicate(req.user!, String(req.params.id), getMeta(req));
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Assessment duplicated successfully",
+    data: result,
+  });
+});
+
+const archive = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AssessmentServices.archive(req.user!, String(req.params.id), getMeta(req));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Assessment archived successfully",
+    data: result,
+  });
+});
+
+const restore = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AssessmentServices.restore(req.user!, String(req.params.id), getMeta(req));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Assessment restored successfully",
+    data: result,
+  });
+});
+
+const compareCandidates = catchAsync(async (req: AuthRequest, res: Response) => {
+  const candidateIds = String(req.query.candidateIds ?? "").split(",").filter(Boolean);
+  const result = await AssessmentServices.compareCandidates(req.user!, String(req.params.id), candidateIds);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Candidate comparison retrieved successfully",
+    data: result,
+  });
+});
+
+const recalculateResults = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await AssessmentServices.recalculateResults(req.user!, String(req.params.id), getMeta(req));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Results recalculated successfully",
+    data: result,
+  });
+});
+
 export const AssessmentController = {
   create,
   list,
@@ -178,4 +224,9 @@ export const AssessmentController = {
   listProblems,
   updateProblem,
   removeProblem,
+  duplicate,
+  archive,
+  restore,
+  compareCandidates,
+  recalculateResults,
 };

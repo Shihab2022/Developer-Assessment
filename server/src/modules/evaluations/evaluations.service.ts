@@ -451,10 +451,56 @@ const listForAttempt = async (user: IAuthUser, attemptId: string) => {
   return evaluations;
 };
 
+const listPending = async (
+  user: IAuthUser,
+  query: { page?: number; limit?: number },
+) => {
+  const page = Math.max(Number(query.page) || 1, 1);
+  const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
+
+  const where: Record<string, unknown> = {
+    status: "PENDING",
+    type: "WRITTEN",
+  };
+
+  // Recruiters only see pending evaluations for their own company's assessments.
+  if (user.role === "RECRUITER") {
+    const assessments = await prisma.assessment.findMany({
+      where: user.companyId ? { companyId: user.companyId } : {},
+      select: { id: true },
+    });
+    where.attempt = { assessmentId: { in: assessments.map((a) => a.id) } };
+  }
+
+  const [total, data] = await Promise.all([
+    prisma.evaluation.count({ where }),
+    prisma.evaluation.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "asc" },
+      include: {
+        problem: { select: { id: true, title: true, type: true } },
+        attempt: {
+          select: {
+            id: true,
+            candidateId: true,
+            candidate: { select: { id: true, name: true, email: true } },
+            assessment: { select: { id: true, title: true } },
+          },
+        },
+      },
+    }),
+  ]);
+
+  return { data, meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 } };
+};
+
 export const EvaluationServices = {
   autoEvaluateMcq,
   evaluateWritten,
   evaluateCodingSubmission,
   recalculateResult,
   listForAttempt,
+  listPending,
 };

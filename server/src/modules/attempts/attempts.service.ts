@@ -3,6 +3,7 @@ import { prisma } from "../../lib/prisma";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
+import crypto from "crypto";
 
 import { AttemptStatus, InvitationStatus } from "../../../generated/prisma/enums";
 
@@ -412,6 +413,119 @@ const candidatesMeAttempts = async (
   };
 };
 
+const getTime = async (user: IAuthUser, attemptId: string) => {
+  const attempt = await assertAttemptOwnership(user, attemptId);
+  if (attempt.candidateId === user.id) {
+    await autoSubmitIfExpired(attemptId);
+  }
+  const fresh = await prisma.attempt.findUnique({ where: { id: attemptId } });
+  if (!fresh) throw new ApiError(httpStatus.NOT_FOUND, "Attempt not found");
+
+  const now = Date.now();
+  const startedAt = fresh.startedAt?.getTime() ?? null;
+  const expiresAt = fresh.expiresAt?.getTime() ?? null;
+  const remainingTime =
+    expiresAt !== null && fresh.status === "IN_PROGRESS"
+      ? Math.max(0, Math.round((expiresAt - now) / 1000))
+      : 0;
+
+  return {
+    attemptId: fresh.id,
+    status: fresh.status,
+    startedAt: fresh.startedAt,
+    expiresAt: fresh.expiresAt,
+    submittedAt: fresh.submittedAt,
+    remainingTimeSeconds: remainingTime,
+    serverTime: new Date(now).toISOString(),
+  };
+};
+
+const getAntiCheatReport = async (user: IAuthUser, attemptId: string) => {
+  const attempt = await assertAttemptOwnership(user, attemptId);
+  void attempt;
+
+  const events = await prisma.antiCheatingEvent.findMany({
+    where: { attemptId },
+    orderBy: { timestamp: "asc" },
+  });
+
+  const sessions = await prisma.attemptSession.findMany({
+    where: { attemptId },
+    orderBy: { startedAt: "asc" },
+  });
+
+  // Risk score calculation (configurable weights)
+  const weights: Record<string, number> = {
+    TAB_SWITCH: 5,
+    FULLSCREEN_EXIT: 10,
+    IP_CHANGE: 20,
+    MULTIPLE_SESSION: 30,
+    WINDOW_BLUR: 3,
+    COPY: 2,
+    PASTE: 2,
+    SUSPICIOUS_ACTIVITY: 15,
+  };
+  let score = 0;
+  const eventCounts: Record<string, number> = {};
+  for (const event of events) {
+    eventCounts[event.eventType] = (eventCounts[event.eventType] ?? 0) + 1;
+    score += weights[event.eventType] ?? 0;
+  }
+  const uniqueIps = new Set(events.map((e) => e.ipAddress).filter(Boolean));
+  const uniqueAgents = new Set(events.map((e) => e.userAgent).filter(Boolean));
+  if (uniqueIps.size > 1) score += weights.IP_CHANGE ?? 20;
+  if (sessions.length > 1 || uniqueAgents.size > 1) score += weights.MULTIPLE_SESSION ?? 30;
+
+  const riskLevel = score >= 60 ? "HIGH" : score >= 25 ? "MEDIUM" : "LOW";
+
+  return {
+    attemptId,
+    riskScore: score,
+    riskLevel,
+    totalEvents: events.length,
+    eventCounts,
+    uniqueIpCount: uniqueIps.size,
+    uniqueDeviceCount: uniqueAgents.size,
+    sessionCount: sessions.length,
+    suspiciousSessions: sessions.filter((s) => s.isSuspicious).length,
+    timeline: events.map((e) => ({
+      id: e.id,
+      eventType: e.eventType,
+      timestamp: e.timestamp,
+      ipAddress: e.ipAddress,
+      userAgent: e.userAgent,
+      metadata: e.metadata,
+    })),
+    note: "Risk score is a signal, not proof of cheating.",
+  };
+};
+
+const recordSession = async (
+  attemptId: string,
+  sessionId: string,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  const existing = await prisma.attemptSession.findUnique({
+    where: { attemptId_sessionId: { attemptId, sessionId } },
+  });
+  if (existing) {
+    return prisma.attemptSession.update({
+      where: { id: existing.id },
+      data: { lastSeenAt: new Date() },
+    });
+  }
+  const sessionCount = await prisma.attemptSession.count({ where: { attemptId } });
+  return prisma.attemptSession.create({
+    data: {
+      attemptId,
+      sessionId,
+      ipAddress: meta.ip ?? null,
+      userAgent: meta.userAgent ?? null,
+      isSuspicious: sessionCount >= 1,
+    },
+  });
+};
+
 export const AttemptServices = {
   start,
   getAttempt,
@@ -420,6 +534,9 @@ export const AttemptServices = {
   updateAnswer,
   submit,
   candidatesMeAttempts,
+  getTime,
+  getAntiCheatReport,
+  recordSession,
   assertAttemptOwnership,
   autoSubmitIfExpired,
 };

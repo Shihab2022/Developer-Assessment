@@ -7,7 +7,23 @@ import {
   idParamSchema,
   updateCompanySchema,
 } from "./companies.validation";
+import { z } from "zod";
 import { getAllQuerySchema } from "../../helpers/zodSchemas";
+
+const candidateStatusSchema = z.object({
+  params: z.object({ id: z.string().uuid("Invalid candidate invitation id") }),
+  body: z.object({
+    recruitmentStatus: z.enum([
+      "INVITED",
+      "STARTED",
+      "COMPLETED",
+      "SHORTLISTED",
+      "INTERVIEW",
+      "HIRED",
+      "REJECTED",
+    ]),
+  }).strict(),
+});
 
 const router = express.Router();
 
@@ -42,6 +58,26 @@ router.get(
   auth(),
   validate(idParamSchema),
   CompanyController.getMembers,
+);
+
+router.get(
+  "/:id/analytics",
+  auth("RECRUITER", "ADMIN"),
+  validate(idParamSchema),
+  CompanyController.companyAnalytics,
+);
+
+router.get(
+  "/:companyId/candidates",
+  auth("RECRUITER", "ADMIN"),
+  CompanyController.listCandidates,
+);
+
+router.patch(
+  "/candidates/:id/status",
+  auth("RECRUITER", "ADMIN"),
+  validate(candidateStatusSchema),
+  CompanyController.updateCandidateStatus,
 );
 
 export const CompanyRouter = router;

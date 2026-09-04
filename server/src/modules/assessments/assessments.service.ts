@@ -5,7 +5,6 @@ import ApiError from "../../helpers/ApiError";
 import { IAuthUser, PaginatedResult } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
 import { AssessmentStatus } from "../../../generated/prisma/enums";
-
 const VALID_TRANSITIONS: Record<AssessmentStatus, AssessmentStatus[]> = {
   [AssessmentStatus.DRAFT]: [AssessmentStatus.PUBLISHED, AssessmentStatus.ARCHIVED],
   [AssessmentStatus.PUBLISHED]: [AssessmentStatus.ACTIVE, AssessmentStatus.CLOSED],
@@ -693,6 +692,228 @@ const removeProblem = async (
   return null;
 };
 
+const duplicate = async (
+  user: IAuthUser,
+  id: string,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id, deletedAt: null },
+    include: { problems: { orderBy: { order: "asc" } } },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  await assertAssessmentAccess(user, assessment, true);
+
+  const newAssessment = await prisma.$transaction(async (tx) => {
+    const created = await tx.assessment.create({
+      data: {
+        title: `${assessment.title} (Copy)`,
+        description: assessment.description,
+        instructions: assessment.instructions,
+        durationMinutes: assessment.durationMinutes,
+        passingScore: assessment.passingScore,
+        maxAttempts: assessment.maxAttempts,
+        shuffleProblems: assessment.shuffleProblems,
+        shuffleOptions: assessment.shuffleOptions,
+        showResults: assessment.showResults,
+        antiCheatingEnabled: assessment.antiCheatingEnabled,
+        showCandidateRanking: assessment.showCandidateRanking,
+        resultStrategy: assessment.resultStrategy,
+        accessLevel: assessment.accessLevel,
+        accessCodeHash: assessment.accessCodeHash,
+        templateId: assessment.templateId,
+        status: AssessmentStatus.DRAFT,
+        companyId: assessment.companyId,
+        createdBy: user.id,
+      },
+    });
+    if (assessment.problems.length > 0) {
+      await tx.assessmentProblem.createMany({
+        data: assessment.problems.map((ap) => ({
+          assessmentId: created.id,
+          problemId: ap.problemId,
+          order: ap.order,
+          points: ap.points,
+          isRequired: ap.isRequired,
+          section: ap.section,
+        })),
+      });
+    }
+    return created;
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "assessment.duplicate",
+    entityType: "Assessment",
+    entityId: newAssessment.id,
+    newValue: { sourceAssessmentId: id, title: newAssessment.title },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return newAssessment;
+};
+
+const archive = async (user: IAuthUser, id: string, meta: { ip?: string; userAgent?: string }) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id, deletedAt: null },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  await assertAssessmentAccess(user, assessment, true);
+
+  const updated = await prisma.assessment.update({
+    where: { id },
+    data: { status: AssessmentStatus.ARCHIVED },
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "assessment.archive",
+    entityType: "Assessment",
+    entityId: id,
+    previousValue: { status: assessment.status },
+    newValue: { status: AssessmentStatus.ARCHIVED },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return updated;
+};
+
+const restore = async (user: IAuthUser, id: string, meta: { ip?: string; userAgent?: string }) => {
+  const assessment = await prisma.assessment.findUnique({ where: { id } });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  await assertAssessmentAccess(user, assessment, true);
+
+  if (assessment.status !== AssessmentStatus.ARCHIVED) {
+    throw new ApiError(httpStatus.CONFLICT, `Cannot restore an assessment in ${assessment.status} status`);
+  }
+
+  const updated = await prisma.assessment.update({
+    where: { id },
+    data: { status: AssessmentStatus.DRAFT, deletedAt: null },
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "assessment.restore",
+    entityType: "Assessment",
+    entityId: id,
+    previousValue: { status: assessment.status },
+    newValue: { status: AssessmentStatus.DRAFT },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return updated;
+};
+
+const compareCandidates = async (user: IAuthUser, assessmentId: string, candidateIds: string[]) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id: assessmentId, deletedAt: null },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  await assertAssessmentAccess(user, assessment);
+
+  if (candidateIds.length < 2 || candidateIds.length > 10) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Provide between 2 and 10 candidate ids to compare");
+  }
+
+  const results = await prisma.result.findMany({
+    where: { assessmentId, candidateId: { in: candidateIds } },
+    include: {
+      candidate: { select: { id: true, name: true, email: true } },
+      attempt: { select: { attemptNumber: true } },
+      items: { include: { problem: { select: { id: true, title: true, skills: true, category: true } } } },
+    },
+  });
+
+  // Deterministic ranking: score desc, then time asc.
+  const ranked = [...results].sort((a, b) => {
+    if (b.percentage !== a.percentage) return b.percentage - a.percentage;
+    const timeA = a.timeTakenSeconds ?? Number.MAX_SAFE_INTEGER;
+    const timeB = b.timeTakenSeconds ?? Number.MAX_SAFE_INTEGER;
+    return timeA - timeB;
+  });
+  const rankMap = new Map(ranked.map((r, index) => [r.candidateId, index + 1]));
+
+  return candidateIds.map((candidateId) => {
+    const result = results.find((r) => r.candidateId === candidateId);
+    if (!result) {
+      return { candidateId, result: null, rank: null };
+    }
+    const skillMap = new Map<string, { skill: string; totalPoints: number; earnedPoints: number }>();
+    for (const item of result.items) {
+      const skills = item.problem.skills.length > 0 ? item.problem.skills : [item.problem.category ?? "Uncategorized"];
+      for (const skill of skills) {
+        const entry = skillMap.get(skill) ?? { skill, totalPoints: 0, earnedPoints: 0 };
+        entry.totalPoints += item.points;
+        entry.earnedPoints += item.earnedPoints;
+        skillMap.set(skill, entry);
+      }
+    }
+    return {
+      candidateId,
+      candidate: result.candidate,
+      attemptNumber: result.attempt.attemptNumber,
+      earnedPoints: result.earnedPoints,
+      totalPoints: result.totalPoints,
+      percentage: result.percentage,
+      passed: result.passed,
+      timeTakenSeconds: result.timeTakenSeconds,
+      rank: rankMap.get(candidateId) ?? null,
+      questionPerformance: result.items.map((item) => ({
+        problemId: item.problemId,
+        title: item.problem.title,
+        points: item.points,
+        earnedPoints: item.earnedPoints,
+        status: item.status,
+      })),
+      skills: Array.from(skillMap.values()).map((entry) => ({
+        ...entry,
+        percentage: entry.totalPoints > 0 ? Math.round((entry.earnedPoints / entry.totalPoints) * 100) : 0,
+      })),
+    };
+  });
+};
+
+const recalculateResults = async (user: IAuthUser, assessmentId: string, meta: { ip?: string; userAgent?: string }) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id: assessmentId, deletedAt: null },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  await assertAssessmentAccess(user, assessment, true);
+
+  const attempts = await prisma.attempt.findMany({
+    where: { assessmentId, status: { in: ["SUBMITTED", "AUTO_SUBMITTED", "COMPLETED", "EVALUATING"] } },
+    select: { id: true },
+  });
+
+  const { EvaluationServices } = await import("../evaluations/evaluations.service");
+  const recalculated: string[] = [];
+  for (const attempt of attempts) {
+    try {
+      await EvaluationServices.recalculateResult(attempt.id);
+      recalculated.push(attempt.id);
+    } catch {
+      // Skip failed recalculations and continue.
+    }
+  }
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "assessment.recalculateResults",
+    entityType: "Assessment",
+    entityId: assessmentId,
+    newValue: { recalculatedAttempts: recalculated.length },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return { assessmentId, recalculatedAttempts: recalculated.length, recalculated };
+};
+
 export const AssessmentServices = {
   create,
   list,
@@ -706,5 +927,10 @@ export const AssessmentServices = {
   listProblems,
   updateProblem,
   removeProblem,
+  duplicate,
+  archive,
+  restore,
+  compareCandidates,
+  recalculateResults,
   assertAssessmentAccess,
 };

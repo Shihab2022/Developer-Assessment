@@ -232,6 +232,155 @@ const getMembers = async (id: string, user: IAuthUser) => {
   return members;
 };
 
+const listCandidates = async (
+  user: IAuthUser,
+  companyId: string,
+  query: { page?: number; limit?: number; status?: string; assessmentId?: string },
+) => {
+  if (user.role === "RECRUITER" && user.companyId !== companyId) {
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this company");
+  }
+  const company = await prisma.company.findFirst({ where: { id: companyId, deletedAt: null } });
+  if (!company) throw new ApiError(httpStatus.NOT_FOUND, "Company not found");
+
+  const page = Math.max(Number(query.page) || 1, 1);
+  const limit = Math.min(Math.max(Number(query.limit) || 10, 1), 100);
+
+  const where: Record<string, unknown> = { companyId };
+  if (query.status) where.recruitmentStatus = query.status;
+  if (query.assessmentId) where.assessmentId = query.assessmentId;
+
+  const [total, invitations] = await Promise.all([
+    prisma.invitation.count({ where }),
+    prisma.invitation.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: {
+        candidate: { select: { id: true, name: true, email: true, jobTitle: true } },
+        assessment: { select: { id: true, title: true, status: true } },
+      },
+    }),
+  ]);
+
+  const candidateIds = invitations.map((i) => i.candidateId).filter((id): id is string => id !== null);
+  const results = candidateIds.length
+    ? await prisma.result.findMany({
+        where: { assessmentId: where.assessmentId ?? undefined, candidateId: { in: candidateIds } },
+        select: { id: true, candidateId: true, percentage: true, passed: true, timeTakenSeconds: true },
+      })
+    : [];
+  const resultByCandidate = new Map(results.map((r) => [r.candidateId, r]));
+
+  return {
+    data: invitations.map((invitation) => ({
+      invitationId: invitation.id,
+      candidateId: invitation.candidateId,
+      candidate: invitation.candidate,
+      email: invitation.email,
+      assessment: invitation.assessment,
+      recruitmentStatus: invitation.recruitmentStatus,
+      invitationStatus: invitation.status,
+      invitedAt: invitation.invitedAt,
+      result: invitation.candidateId ? resultByCandidate.get(invitation.candidateId) ?? null : null,
+    })),
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) || 1 },
+  };
+};
+
+const updateCandidateStatus = async (
+  user: IAuthUser,
+  invitationId: string,
+  recruitmentStatus: string,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  const invitation = await prisma.invitation.findUnique({
+    where: { id: invitationId },
+  });
+  if (!invitation) throw new ApiError(httpStatus.NOT_FOUND, "Candidate invitation not found");
+
+  if (user.role === "RECRUITER" && invitation.companyId !== user.companyId) {
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this candidate");
+  }
+
+  const previous = invitation.recruitmentStatus;
+  const updated = await prisma.invitation.update({
+    where: { id: invitationId },
+    data: { recruitmentStatus: recruitmentStatus as never },
+    include: {
+      candidate: { select: { id: true, name: true, email: true } },
+      assessment: { select: { id: true, title: true } },
+    },
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "candidate.recruitmentStatusChange",
+    entityType: "Invitation",
+    entityId: invitationId,
+    previousValue: { recruitmentStatus: previous },
+    newValue: { recruitmentStatus },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return updated;
+};
+
+const companyAnalytics = async (user: IAuthUser, companyId: string) => {
+  if (user.role === "RECRUITER" && user.companyId !== companyId) {
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this company");
+  }
+  const company = await prisma.company.findFirst({ where: { id: companyId, deletedAt: null } });
+  if (!company) throw new ApiError(httpStatus.NOT_FOUND, "Company not found");
+
+  const [
+    totalAssessments,
+    totalInvitations,
+    completedResults,
+    passedResults,
+    totalCandidates,
+    attempts,
+    payments,
+    creditsRemaining,
+  ] = await Promise.all([
+    prisma.assessment.count({ where: { companyId, deletedAt: null } }),
+    prisma.invitation.count({ where: { companyId } }),
+    prisma.result.count({ where: { assessment: { companyId } } }),
+    prisma.result.count({ where: { assessment: { companyId }, passed: true } }),
+    prisma.result.findMany({ where: { assessment: { companyId } }, select: { candidateId: true } }),
+    prisma.attempt.count({ where: { companyId } }),
+    prisma.payment.aggregate({ where: { companyId, status: "PAID" }, _sum: { amount: true } }),
+    prisma.company.findUnique({ where: { id: companyId }, select: { credits: true } }),
+  ]);
+
+  const uniqueCandidates = new Set(totalCandidates.map((c) => c.candidateId)).size;
+  const averageScore = completedResults
+    ? Math.round(
+        (await prisma.result.aggregate({
+          where: { assessment: { companyId } },
+          _avg: { percentage: true },
+        }))._avg.percentage ?? 0,
+      )
+    : 0;
+
+  return {
+    companyId,
+    companyName: company.name,
+    totalAssessments,
+    totalInvitations,
+    completedAssessments: completedResults,
+    passRate: completedResults ? Math.round((passedResults / completedResults) * 100) : 0,
+    averageScore,
+    candidateCount: uniqueCandidates,
+    totalAttempts: attempts,
+    creditsConsumed: null,
+    creditsRemaining: creditsRemaining?.credits ?? 0,
+    paymentTotals: payments._sum.amount ?? 0,
+  };
+};
+
 const list = async (q?: string, page = 1, limit = 10) => {
   const where = {
     deletedAt: null,
@@ -275,5 +424,8 @@ export const CompanyServices = {
   remove,
   getMembers,
   list,
+  listCandidates,
+  updateCandidateStatus,
+  companyAnalytics,
   assertCompanyAccess,
 };

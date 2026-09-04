@@ -17,6 +17,13 @@ assessmentReportRouter.get(
   ReportController.assessmentReport,
 );
 
+assessmentReportRouter.get(
+  "/export.csv",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentReportParamsSchema),
+  ReportController.exportAssessmentCsv,
+);
+
 // Company-scoped: GET /companies/:id/reports
 export const companyReportRouter = express.Router({ mergeParams: true });
 

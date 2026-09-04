@@ -84,6 +84,41 @@ router.post(
   AssessmentController.close,
 );
 
+router.post(
+  "/:id/duplicate",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentParams),
+  AssessmentController.duplicate,
+);
+
+router.post(
+  "/:id/archive",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentParams),
+  AssessmentController.archive,
+);
+
+router.post(
+  "/:id/restore",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentParams),
+  AssessmentController.restore,
+);
+
+router.post(
+  "/:id/recalculate-results",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentParams),
+  AssessmentController.recalculateResults,
+);
+
+router.get(
+  "/:id/candidates/compare",
+  auth("RECRUITER", "ADMIN"),
+  validate(assessmentParams),
+  AssessmentController.compareCandidates,
+);
+
 router.get(
   "/:id/history",
   auth("RECRUITER", "ADMIN"),

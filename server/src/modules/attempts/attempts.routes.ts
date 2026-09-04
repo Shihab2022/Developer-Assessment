@@ -23,6 +23,20 @@ AttemptRouter.get(
 );
 
 AttemptRouter.get(
+  "/:id/time",
+  auth(),
+  validate(attemptParamsSchema),
+  AttemptController.getTime,
+);
+
+AttemptRouter.get(
+  "/:id/anti-cheating-report",
+  auth(),
+  validate(attemptParamsSchema),
+  AttemptController.getAntiCheatReport,
+);
+
+AttemptRouter.get(
   "/:id/questions",
   auth(),
   validate(attemptParamsSchema),
