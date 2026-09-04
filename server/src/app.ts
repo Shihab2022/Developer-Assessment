@@ -8,8 +8,8 @@ import { rootRouter } from "./routes";
 import { notFound, testingRoute } from "./middlewares/notFound";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { generalRateLimiter } from "./middlewares/rateLimiter";
-import { prisma } from "./lib/prisma";
-import { getRedis, redisEnabled } from "./lib/redis";
+// import { prisma } from "./lib/prisma";
+// import { getRedis, redisEnabled } from "./lib/redis";
 
 const app = express();
 
@@ -61,36 +61,36 @@ app.use("/api/v1", generalRateLimiter);
 // ---------- Routes ----------
 app.get("/", testingRoute);
 
-app.get("/health", async (_req, res) => {
-  let database = "disconnected";
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    database = "connected";
-  } catch {
-    database = "disconnected";
-  }
+// app.get("/health", async (_req, res) => {
+//   let databaseStatus = "disconnected";
+//   try {
+//     await prisma.$queryRaw`SELECT 1`;
+//     databaseStatus = "connected";
+//   } catch {
+//     databaseStatus = "disconnected";
+//   }
 
-  let redis = "disabled";
-  if (redisEnabled()) {
-    const client = getRedis();
-    if (client && client.status === "ready") {
-      redis = "connected";
-    } else {
-      redis = "disconnected";
-    }
-  }
+//   let redisStatus = "disabled";
+//   if (redisEnabled()) {
+//     const client = getRedis();
+//     if (client && client.status === "ready") {
+//       redisStatus = "connected";
+//     } else {
+//       redisStatus = "disconnected";
+//     }
+//   }
 
-  const healthy = database === "connected";
-  res.status(healthy ? 200 : 503).json({
-    success: healthy,
-    message: healthy ? "API is healthy" : "API is degraded",
-    data: {
-      status: healthy ? "ok" : "degraded",
-      database,
-      redis,
-    },
-  });
-});
+//   const healthy = databaseStatus === "connected";
+//   res.status(healthy ? 200 : 503).json({
+//     success: healthy,
+//     message: healthy ? "API is healthy" : "API is degraded",
+//     data: {
+//       status: healthy ? "ok" : "degraded",
+//       database: databaseStatus,
+//       redis: redisStatus,
+//     },
+//   });
+// });
 
 app.use("/api/v1", rootRouter);
 

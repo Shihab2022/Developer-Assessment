@@ -3,7 +3,6 @@ import { prisma } from "../../lib/prisma";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
-import crypto from "crypto";
 
 import { AttemptStatus, InvitationStatus } from "../../../generated/prisma/enums";
 
@@ -422,7 +421,6 @@ const getTime = async (user: IAuthUser, attemptId: string) => {
   if (!fresh) throw new ApiError(httpStatus.NOT_FOUND, "Attempt not found");
 
   const now = Date.now();
-  const startedAt = fresh.startedAt?.getTime() ?? null;
   const expiresAt = fresh.expiresAt?.getTime() ?? null;
   const remainingTime =
     expiresAt !== null && fresh.status === "IN_PROGRESS"
