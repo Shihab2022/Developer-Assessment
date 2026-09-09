@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Developer Assessment & Coding Platform API",
-    "description": "Backend REST API for the Developer Assessment & Coding Platform.\n\n## Base URL\n{{baseUrl}}/api/v1 (default: http://localhost:5000/api/v1)\n\n## Authentication\nMost endpoints require a Bearer JWT access token in the Authorization header:\n`Authorization: Bearer {{accessToken}}`\n\n## Roles\n- **CANDIDATE** - Register, login, take assessments, submit answers, view own results\n- **RECRUITER** - Manage company, create problems/assessments, invite candidates, evaluate submissions, view reports/analytics\n- **ADMIN** - Platform-wide management: users, companies, problems, payments, audit logs\n\n## Flow\n1. Register or Login → get accessToken + refreshToken\n2. Create a Company\n3. Create Problems (MCQ, Coding, Written)\n4. Create an Assessment\n5. Add Problems to Assessment\n6. Invite Candidates\n7. Candidates Start Attempt → Save Answers → Submit\n8. System evaluates (MCQ auto, Written manual, Coding sandbox)\n9. Generate Reports & Analytics\n\n## Payment Endpoints\nSSLCommerz payment callbacks (/success, /fail, /cancel, /ipn) are public - no Bearer auth needed.\nIn test/mock mode without SSLCommerz credentials, use the mock gateway URL returned by initiate.\n\n## Postman Variables\nSet these after login/register: accessToken, refreshToken, userId, companyId, problemId, assessmentId, invitationId, attemptId, answerId, submissionId, paymentId, transactionId, resultId.\n\n## Environment\n- baseUrl: http://localhost:5000/api/v1\n- All UUIDs must be replaced with actual IDs from responses.",
+    "description": "Backend REST API for the Developer Assessment & Coding Platform.\n\n## Base URL\n{{baseUrl}}/api/v1 (default: http://localhost:5000/api/v1)\n\n## Authentication\nMost endpoints require a Bearer JWT access token in the Authorization header:\n`Authorization: Bearer {{accessToken}}`\n\n## Roles\n- **CANDIDATE** - Register, login, take assessments, submit answers, view own results\n- **RECRUITER** - Manage company, create problems/assessments, invite candidates, evaluate submissions, view reports/analytics\n- **ADMIN** - Platform-wide management: users, companies, problems, payments, audit logs\n\n## Flow\n1. Register or Login → get accessToken + refreshToken\n2. Create a Company\n3. Create Problems (MCQ, Coding, Written)\n4. Create an Assessment\n5. Add Problems to Assessment\n6. Invite Candidates\n7. Candidates Start Attempt → Save Answers → Submit\n8. System evaluates (MCQ auto, Written manual, Coding sandbox)\n9. Generate Reports & Analytics\n\n## Payment Endpoints\nSSLCommerz payment callbacks (/success, /fail, /cancel, /ipn) are public - no Bearer auth needed.\nIn test/mock mode without SSLCommerz credentials, use the mock gateway URL returned by initiate.\n\n## Postman Variables\nSet these after login/register: accessToken, refreshToken, userId, companyId, problemId, assessmentId, invitationId, attemptId, mcqOptionId, answerId, submissionId, paymentId, transactionId, resultId.\n\n## Environment\n- baseUrl: http://localhost:5000/api/v1\n- Run `npm run db:seed` first — the collection is pre-wired to the seeded users and the seeded payment package (`00000000-0000-4000-8000-000000000005`, Starter Pack — 10 credits / BDT 2000).\n- Seed users: admin@devassess.local / Admin123! · recruiter@techcorp.dev / Recruit123! · candidate@devassess.local / Candid8te!.\n- Dynamic IDs (problems, assessments, attempts, answers, results, payments) are captured into collection variables by test scripts; run requests top-to-bottom within each folder.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "devassess-platform-api"
   },
@@ -28,6 +28,10 @@
     },
     {
       "key": "attemptId",
+      "value": ""
+    },
+    {
+      "key": "mcqOptionId",
       "value": ""
     },
     {
@@ -80,7 +84,7 @@
             "url": "{{baseUrl}}/auth/register",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@example.com\",\n  \"password\": \"Passw0rd123\",\n  \"role\": \"CANDIDATE\"\n}"
+              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@devassess.local\",\n  \"password\": \"Candid8te!\",\n  \"role\": \"CANDIDATE\",\n  \"phone\": \"+8801700000000\"\n}"
             }
           },
           "auth": {
@@ -116,7 +120,7 @@
             "url": "{{baseUrl}}/auth/register",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rina Recruiter\",\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Passw0rd123\",\n  \"role\": \"RECRUITER\"\n}"
+              "raw": "{\n  \"name\": \"Rina Recruiter\",\n  \"email\": \"recruiter@techcorp.dev\",\n  \"password\": \"Recruit123!\",\n  \"role\": \"RECRUITER\"\n}"
             }
           },
           "auth": {
@@ -152,7 +156,7 @@
             "url": "{{baseUrl}}/auth/login",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"recruiter@example.com\",\n  \"password\": \"Passw0rd123\"\n}"
+              "raw": "{\n  \"email\": \"recruiter@techcorp.dev\",\n  \"password\": \"Recruit123!\"\n}"
             }
           },
           "auth": {
@@ -274,7 +278,7 @@
             "url": "{{baseUrl}}/users/me",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"bio\": \"Updated bio\",\n  \"skills\": [\"typescript\", \"nodejs\"],\n  \"jobTitle\": \"Senior Engineer\"\n}"
+              "raw": "{\n  \"bio\": \"Full-stack engineer focused on TypeScript, Node.js and PostgreSQL.\",\n  \"skills\": [\"typescript\", \"nodejs\", \"postgresql\"],\n  \"experience\": 3,\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"phone\": \"+8801711111111\"\n}"
             }
           }
         },
@@ -295,7 +299,7 @@
             "url": "{{baseUrl}}/users/me/password",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"Passw0rd123\",\n  \"newPassword\": \"NewPassw0rd123\"\n}"
+              "raw": "{\n  \"currentPassword\": \"Recruit123!\",\n  \"newPassword\": \"Recruit1234!\"\n}"
             }
           }
         },
@@ -334,7 +338,7 @@
             "url": "{{baseUrl}}/companies",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"A software company\",\n  \"website\": \"https://techcorp.example.com\",\n  \"industry\": \"Software\",\n  \"location\": \"Dhaka\"\n}"
+              "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"A software company hiring top developers.\",\n  \"website\": \"https://techcorp.example.com\",\n  \"industry\": \"Software Development\",\n  \"location\": \"Dhaka, Bangladesh\",\n  \"size\": \"50-100\"\n}"
             }
           },
           "event": [
@@ -381,7 +385,7 @@
             "url": "{{baseUrl}}/companies/{{companyId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Updated description\"\n}"
+              "raw": "{\n  \"description\": \"A software company hiring top Node.js and React developers.\",\n  \"industry\": \"Software Development\"\n}"
             }
           }
         },
@@ -420,7 +424,7 @@
             "url": "{{baseUrl}}/problems",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"JS Event Loop\",\n  \"description\": \"Which statement is true about the event loop?\",\n  \"type\": \"MCQ\",\n  \"difficulty\": \"EASY\",\n  \"points\": 5,\n  \"category\": \"javascript\",\n  \"options\": [\n    { \"text\": \"It runs immediately\", \"isCorrect\": false, \"order\": 0 },\n    { \"text\": \"Microtask queue\", \"isCorrect\": true, \"order\": 1 },\n    { \"text\": \"Macrotask queue\", \"isCorrect\": false, \"order\": 2 }\n  ]\n}"
+              "raw": "{\n  \"title\": \"JavaScript Event Loop Basics\",\n  \"description\": \"Which statement best describes how the JavaScript event loop handles a Promise.then callback?\",\n  \"type\": \"MCQ\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"javascript\",\n  \"points\": 5,\n  \"options\": [\n    { \"text\": \"It runs immediately in the current tick\", \"isCorrect\": false, \"order\": 0 },\n    { \"text\": \"It is queued in the microtask queue\", \"isCorrect\": true, \"order\": 1 },\n    { \"text\": \"It is queued in the macrotask queue\", \"isCorrect\": false, \"order\": 2 },\n    { \"text\": \"It runs after the process exits\", \"isCorrect\": false, \"order\": 3 }\n  ]\n}"
             }
           },
           "event": [
@@ -454,7 +458,7 @@
             "url": "{{baseUrl}}/problems",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Two Sum\",\n  \"description\": \"Return indices of two numbers that add up to target.\",\n  \"type\": \"CODING\",\n  \"difficulty\": \"EASY\",\n  \"points\": 15,\n  \"timeLimit\": 15,\n  \"memoryLimit\": 256,\n  \"testCases\": [\n    { \"input\": \"[2,7,11,15]\\n9\", \"expectedOutput\": \"[0,1]\", \"isHidden\": false, \"order\": 0 },\n    { \"input\": \"[3,2,4]\\n6\", \"expectedOutput\": \"[1,2]\", \"isHidden\": true, \"order\": 1 }\n  ]\n}"
+              "raw": "{\n  \"title\": \"Sum of Two Numbers\",\n  \"description\": \"Write a function `solve(a, b)` that returns the sum of a and b.\\n\\nThe sandbox calls your function with values read from the input and prints the result to stdout.\",\n  \"type\": \"CODING\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"algorithms\",\n  \"points\": 15,\n  \"timeLimit\": 15,\n  \"memoryLimit\": 256,\n  \"testCases\": [\n    { \"input\": \"1\\n2\", \"expectedOutput\": \"3\", \"isHidden\": false, \"order\": 0 },\n    { \"input\": \"10\\n20\", \"expectedOutput\": \"30\", \"isHidden\": true, \"order\": 1 },\n    { \"input\": \"-5\\n5\", \"expectedOutput\": \"0\", \"isHidden\": true, \"order\": 2 }\n  ]\n}"
             }
           },
           "event": [
@@ -566,7 +570,7 @@
             "url": "{{baseUrl}}/assessments",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Backend Developer Assessment\",\n  \"description\": \"Screening assessment\",\n  \"instructions\": \"Answer all questions. Timer is server-side.\",\n  \"durationMinutes\": 45,\n  \"passingScore\": 15,\n  \"maxAttempts\": 1,\n  \"showResults\": true\n}"
+              "raw": "{\n  \"title\": \"Junior Node.js Developer Assessment\",\n  \"description\": \"Baseline screening assessment for junior backend engineers.\",\n  \"instructions\": \"Answer all questions. The timer starts when you start the attempt and the server clock is the source of truth.\",\n  \"durationMinutes\": 45,\n  \"passingScore\": 15,\n  \"maxAttempts\": 1,\n  \"showResults\": true,\n  \"antiCheatingEnabled\": true\n}"
             }
           },
           "event": [
@@ -759,7 +763,7 @@
             "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@example.com\" }\n  ]\n}"
+              "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@devassess.local\" }\n  ]\n}"
             }
           },
           "event": [
@@ -898,7 +902,24 @@
               }
             ],
             "url": "{{baseUrl}}/attempts/{{attemptId}}/questions"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Questions retrieved\", () => pm.expect(pm.response.code).to.equal(200));",
+                  "const data = pm.response.json().data;",
+                  "if (!Array.isArray(data) || data.length === 0) return;",
+                  "const mcq = data.find((q) => q.problem && Array.isArray(q.problem.options) && q.problem.options.length > 0);",
+                  "if (!mcq) return;",
+                  "pm.collectionVariables.set(\"problemId\", mcq.problem.id);",
+                  "pm.collectionVariables.set(\"mcqOptionId\", mcq.problem.options[0].id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Save Answer",
@@ -917,7 +938,7 @@
             "url": "{{baseUrl}}/attempts/{{attemptId}}/answers",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"answer\": { \"selectedOptionId\": \"OPTION_UUID\" }\n}"
+              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"answer\": { \"selectedOptionId\": \"{{mcqOptionId}}\" }\n}"
             }
           },
           "event": [
@@ -948,10 +969,10 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/answers/ANSWER_UUID",
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/answers/{{answerId}}",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answer\": { \"selectedOptionId\": \"OPTION_UUID\" }\n}"
+              "raw": "{\n  \"answer\": { \"selectedOptionId\": \"{{mcqOptionId}}\" }\n}"
             }
           }
         },
@@ -1003,7 +1024,7 @@
             "url": "{{baseUrl}}/submissions",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"code\": \"console.log(1+2);\",\n  \"programmingLanguage\": \"javascript\"\n}"
+              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"code\": \"const a = parseInt(gets(), 10);\\nconst b = parseInt(gets(), 10);\\nconsole.log(a + b);\",\n  \"programmingLanguage\": \"javascript\"\n}"
             }
           },
           "event": [
@@ -1113,7 +1134,7 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/results/RESULT_UUID"
+            "url": "{{baseUrl}}/results/{{resultId}}"
           }
         },
         {
@@ -1127,7 +1148,22 @@
               }
             ],
             "url": "{{baseUrl}}/candidates/me/results"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"My results retrieved\", () => pm.expect(pm.response.code).to.equal(200));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data.length > 0 && data[0].id) {",
+                  "  pm.collectionVariables.set(\"resultId\", data[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Assessment Results",
@@ -1257,7 +1293,7 @@
             "url": "{{baseUrl}}/payments/initiate",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"packageId\": \"PACKAGE_UUID\",\n  \"companyId\": \"{{companyId}}\"\n}"
+              "raw": "{\n  \"packageId\": \"00000000-0000-4000-8000-000000000005\",\n  \"companyId\": \"{{companyId}}\"\n}"
             }
           },
           "event": [
@@ -1425,7 +1461,7 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/users/USER_UUID"
+            "url": "{{baseUrl}}/admin/users/{{userId}}"
           }
         },
         {
@@ -1442,7 +1478,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/admin/users/USER_UUID/status",
+            "url": "{{baseUrl}}/admin/users/{{userId}}/status",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
@@ -1463,7 +1499,7 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/admin/users/USER_UUID/role",
+            "url": "{{baseUrl}}/admin/users/{{userId}}/role",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"RECRUITER\"\n}"
