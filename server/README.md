@@ -87,6 +87,41 @@ npm run dev            # tsx watch src/server.ts
 
 ```bash
 npm run build          # tsup → dist/server.mjs
+```
+
+## Deploying to Vercel
+
+Vercel runs the API as a **serverless function**, not a long-lived server. `src/server.ts`
+(`app.listen()`) is only for Docker/Render/VM. The Vercel function entry point is
+**`api/index.ts`**, which exposes the Express app as the function's default export.
+
+Deployment configuration:
+- `vercel.json` — builds `api/index.ts` with `@vercel/node` and routes all paths to it.
+- `package.json` → `vercel-build` runs `npx prisma generate` during build (the Prisma
+  client in `generated/` is gitignored and is created on Vercel's build image).
+
+**Required environment variables in Vercel (Settings → Environment Variables):**
+
+| Variable | Required | Notes |
+|---|---|---|
+| `DATABASE_URL` | ✅ | Must be reachable from Vercel (public Postgres host) |
+| `JWT_ACCESS_SECRET` | ✅ | Secret, min 1 char |
+| `JWT_REFRESH_SECRET` | ✅ | Secret, min 1 char |
+| `NODE_ENV` | ✅ | Set to `production` |
+| `CORS_ORIGIN` | — | Comma-separated origins your frontend uses |
+| `APP_URL` / `API_URL` | — | Set to the deployed Vercel URL |
+| `REDIS_ENABLED` / `REDIS_URL` | — | `false` unless you add an external Redis (Upstash) |
+| `SSLCOMMERZ_*` / `CODE_RUNNER_URL` | — | Only if you use those integrations |
+
+Apply migrations before go-live:
+
+```bash
+npx prisma migrate deploy   # run locally against the production DATABASE_URL
+```
+
+The most common cause of HTTP 500 `FUNCTION_INVOCATION_FAILED` is a function module
+that doesn't export a handler, or a missing env var at boot (`src/config/index.ts`
+throws if `DATABASE_URL` / JWT secrets are absent).
 
 ## Authentication Flow
 
