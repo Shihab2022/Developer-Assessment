@@ -22,6 +22,10 @@ export const swaggerDocument = {
     { name: "Analytics" },
     { name: "Anti-Cheating" },
     { name: "Payments" },
+    { name: "AssessmentTemplates" },
+    { name: "Notes" },
+    { name: "Notifications" },
+    { name: "Dashboard" },
     { name: "Admin" },
   ],
   components: {
@@ -357,6 +361,102 @@ Object.assign(swaggerDocument.paths, {
       responses: { "200": { description: "Paginated assessment summaries" } },
     },
   },
+  "/companies/{id}/reports/summary": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Reports"],
+      summary: "Company report summary (candidate count, average score, pass rate)",
+    },
+  },
+});
+Object.assign(swaggerDocument.paths, {
+  "/companies/{id}/analytics": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Companies"],
+      summary:
+        "Company analytics: assessments, invitations, pass rate, average score, credits",
+    },
+  },
+  "/companies/{companyId}/candidates": {
+    parameters: [
+      {
+        name: "companyId",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Companies"],
+      summary:
+        "List a company's invited candidates (with recruitment status and result)",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        { name: "status", in: "query", schema: { type: "string" } },
+        {
+          name: "assessmentId",
+          in: "query",
+          schema: { type: "string", format: "uuid" },
+        },
+      ],
+    },
+  },
+  "/companies/candidates/{id}/status": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+        description: "Invitation ID",
+      },
+    ],
+    patch: {
+      tags: ["Companies"],
+      summary: "Update a candidate's recruitment status (RECRUITER/ADMIN)",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["recruitmentStatus"],
+              properties: {
+                recruitmentStatus: {
+                  type: "string",
+                  enum: [
+                    "INVITED",
+                    "STARTED",
+                    "COMPLETED",
+                    "SHORTLISTED",
+                    "INTERVIEW",
+                    "HIRED",
+                    "REJECTED",
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 });
 Object.assign(swaggerDocument.paths, {
   "/problems": {
@@ -652,6 +752,82 @@ Object.assign(swaggerDocument.paths, {
   },
 });
 Object.assign(swaggerDocument.paths, {
+  "/assessments/{id}/duplicate": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    post: {
+      tags: ["Assessments"],
+      summary: "Duplicate an assessment (DRAFT copy with problems, sections, settings)",
+    },
+  },
+  "/assessments/{id}/archive": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    post: { tags: ["Assessments"], summary: "Archive an assessment (→ ARCHIVED)" },
+  },
+  "/assessments/{id}/restore": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    post: {
+      tags: ["Assessments"],
+      summary: "Restore an archived assessment (→ DRAFT)",
+    },
+  },
+  "/assessments/{id}/recalculate-results": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    post: {
+      tags: ["Assessments"],
+      summary: "Recompute all results for the assessment (RECRUITER/ADMIN)",
+    },
+  },
+  "/assessments/{id}/candidates/compare": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+      {
+        name: "candidateIds",
+        in: "query",
+        required: true,
+        schema: { type: "string" },
+        description: "Comma-separated candidate user IDs",
+      },
+    ],
+    get: {
+      tags: ["Assessments"],
+      summary: "Compare candidate performance side-by-side (RECRUITER/ADMIN)",
+    },
+  },
+});
+Object.assign(swaggerDocument.paths, {
   "/assessments/{id}/invitations": {
     parameters: [
       {
@@ -781,6 +957,36 @@ Object.assign(swaggerDocument.paths, {
     get: {
       tags: ["Attempts"],
       summary: "Get attempt (owner, recruiter of the company, or admin)",
+    },
+  },
+  "/attempts/{id}/time": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Attempts"],
+      summary:
+        "Get server-authoritative remaining time (server clock is the source of truth)",
+    },
+  },
+  "/attempts/{id}/anti-cheating-report": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Anti-Cheating"],
+      summary:
+        "Anti-cheating report: risk score, level, event counts, sessions and timeline",
     },
   },
   "/attempts/{id}/questions": {
@@ -957,6 +1163,36 @@ Object.assign(swaggerDocument.paths, {
     ],
     get: { tags: ["Submissions"], summary: "List submissions for an attempt" },
   },
+  "/assessments/{id}/submissions": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Submissions"],
+      summary: "List submissions across an assessment's attempts (RECRUITER/ADMIN)",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        { name: "status", in: "query", schema: { type: "string" } },
+        { name: "problemId", in: "query", schema: { type: "string", format: "uuid" } },
+      ],
+    },
+  },
+  "/evaluations/pending": {
+    get: {
+      tags: ["Evaluations"],
+      summary: "List written evaluations pending manual scoring (RECRUITER/ADMIN)",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+      ],
+    },
+  },
   "/evaluations/written": {
     post: {
       tags: ["Evaluations"],
@@ -992,6 +1228,25 @@ Object.assign(swaggerDocument.paths, {
     ],
     get: { tags: ["Evaluations"], summary: "List evaluations for an attempt" },
   },
+  "/assessments/{id}/evaluations": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Evaluations"],
+      summary: "List evaluations across an assessment's attempts (RECRUITER/ADMIN)",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        { name: "status", in: "query", schema: { type: "string" } },
+      ],
+    },
+  },
   "/results/{id}": {
     parameters: [
       {
@@ -1008,6 +1263,20 @@ Object.assign(swaggerDocument.paths, {
         "200": { description: "Result with per-question items" },
         "403": { description: "Not released" },
       },
+    },
+  },
+  "/results/{id}/skills": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Results"],
+      summary: "Per-skill score breakdown for a result",
     },
   },
   "/candidates/me/results": {
@@ -1039,6 +1308,21 @@ Object.assign(swaggerDocument.paths, {
     get: {
       tags: ["Reports"],
       summary: "Generate a detailed assessment report (cached 10 min)",
+    },
+  },
+  "/assessments/{id}/report/export.csv": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Reports"],
+      summary: "Download the assessment report as a CSV file (RECRUITER/ADMIN)",
+      responses: { "200": { description: "text/csv attachment" } },
     },
   },
   "/assessments/{id}/analytics": {
@@ -1177,6 +1461,196 @@ Object.assign(swaggerDocument.paths, {
       },
     ],
     get: { tags: ["Payments"], summary: "Get payment details" },
+  },
+  "/assessment-templates": {
+    post: {
+      tags: ["AssessmentTemplates"],
+      summary: "Create a reusable assessment template (RECRUITER/ADMIN)",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["title", "durationMinutes"],
+              properties: {
+                title: { type: "string" },
+                description: { type: "string" },
+                durationMinutes: { type: "integer", minimum: 5, maximum: 1440 },
+                passingScore: { type: "integer" },
+                maxAttempts: { type: "integer" },
+                shuffleProblems: { type: "boolean" },
+                shuffleOptions: { type: "boolean" },
+                showResults: { type: "boolean" },
+                antiCheatingEnabled: { type: "boolean" },
+                resultStrategy: {
+                  type: "string",
+                  enum: ["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"],
+                },
+                accessLevel: {
+                  type: "string",
+                  enum: ["PUBLIC", "PRIVATE", "INVITATION_ONLY", "ACCESS_CODE"],
+                },
+                questionConfig: {},
+                skills: { type: "array", items: { type: "string" } },
+                difficultyDistribution: {},
+                antiCheatingSettings: {},
+                companyId: { type: "string", format: "uuid" },
+                status: { type: "string", enum: ["DRAFT", "ACTIVE", "ARCHIVED"] },
+              },
+            },
+          },
+        },
+      },
+    },
+    get: {
+      tags: ["AssessmentTemplates"],
+      summary: "List assessment templates",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        { name: "q", in: "query", schema: { type: "string" } },
+        { name: "status", in: "query", schema: { type: "string" } },
+        { name: "companyId", in: "query", schema: { type: "string", format: "uuid" } },
+      ],
+    },
+  },
+  "/assessment-templates/{id}": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: { tags: ["AssessmentTemplates"], summary: "Get a template" },
+    patch: { tags: ["AssessmentTemplates"], summary: "Update a template" },
+    delete: { tags: ["AssessmentTemplates"], summary: "Delete a template" },
+  },
+  "/assessment-templates/{id}/use": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    post: {
+      tags: ["AssessmentTemplates"],
+      summary: "Create an assessment from the template",
+      requestBody: {
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                companyId: { type: "string", format: "uuid" },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/notes": {
+    post: {
+      tags: ["Notes"],
+      summary: "Add a note to a candidate (RECRUITER/ADMIN)",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["candidateId", "content"],
+              properties: {
+                candidateId: { type: "string", format: "uuid" },
+                assessmentId: { type: "string", format: "uuid" },
+                companyId: { type: "string", format: "uuid" },
+                content: { type: "string" },
+                isPrivate: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/notes/candidate/{candidateId}": {
+    parameters: [
+      {
+        name: "candidateId",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    get: {
+      tags: ["Notes"],
+      summary: "List a candidate's notes",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        {
+          name: "assessmentId",
+          in: "query",
+          schema: { type: "string", format: "uuid" },
+        },
+      ],
+    },
+  },
+  "/notes/{noteId}": {
+    parameters: [
+      {
+        name: "noteId",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    patch: { tags: ["Notes"], summary: "Update a note (author or ADMIN)" },
+    delete: { tags: ["Notes"], summary: "Delete a note (author or ADMIN)" },
+  },
+  "/notifications": {
+    get: {
+      tags: ["Notifications"],
+      summary: "List my notifications",
+      parameters: [
+        { name: "page", in: "query", schema: { type: "integer" } },
+        { name: "limit", in: "query", schema: { type: "integer" } },
+        {
+          name: "status",
+          in: "query",
+          schema: { type: "string", enum: ["UNREAD", "READ"] },
+        },
+      ],
+    },
+  },
+  "/notifications/unread-count": {
+    get: { tags: ["Notifications"], summary: "Unread notification count" },
+  },
+  "/notifications/{id}/read": {
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    patch: { tags: ["Notifications"], summary: "Mark a notification as read" },
+  },
+  "/notifications/read-all": {
+    post: { tags: ["Notifications"], summary: "Mark all of my notifications as read" },
+  },
+  "/dashboard/recruiter": {
+    get: { tags: ["Dashboard"], summary: "Recruiter/Admin aggregate dashboard" },
+  },
+  "/dashboard/candidate": {
+    get: { tags: ["Dashboard"], summary: "Candidate aggregate dashboard" },
   },
   "/admin/users": {
     get: {

@@ -12,15 +12,19 @@ Complete REST API documentation for the Developer Assessment & Coding Platform.
 - [Companies](#companies)
 - [Problems](#problems)
 - [Assessments](#assessments)
+- [Assessment Problems](#assessment-problems)
 - [Invitations](#invitations)
 - [Attempts](#attempts)
+- [Anti-Cheating](#anti-cheating)
 - [Submissions](#submissions)
 - [Evaluations](#evaluations)
 - [Results](#results)
-- [Reports](#reports)
-- [Analytics](#analytics)
-- [Anti-Cheating](#anti-cheating)
+- [Reports & Analytics](#reports--analytics)
 - [Payments](#payments)
+- [Assessment Templates](#assessment-templates)
+- [Notes](#notes)
+- [Notifications](#notifications)
+- [Dashboard](#dashboard)
 - [Admin](#admin)
 - [Health Check](#health-check)
 - [Enums & Status Transitions](#enums--status-transitions)
@@ -234,6 +238,25 @@ List company-level reports.
 ### GET `/api/v1/companies/:id/reports/summary`
 Get company report summary (candidate count, average score, pass rate, etc.).
 
+### GET `/api/v1/companies/:id/analytics`
+Get company-level analytics. **Role:** RECRUITER (member of the company) or ADMIN.
+
+**Response data:** `companyId`, `companyName`, `totalAssessments`, `totalInvitations`, `completedAssessments`, `passRate`, `averageScore`, `candidateCount`, `totalAttempts`, `creditsConsumed`, `creditsRemaining`, `paymentTotals`.
+
+### GET `/api/v1/companies/:companyId/candidates`
+List candidates invited to a company's assessments (paginated). **Role:** RECRUITER or ADMIN.
+
+Query params: `page`, `limit`, `status` (recruitment status), `assessmentId`.
+
+Each row: `invitationId`, `candidateId`, `candidate`, `email`, `assessment`, `recruitmentStatus`, `invitationStatus`, `invitedAt`, `result`.
+
+### PATCH `/api/v1/companies/candidates/:id/status`
+Update a candidate's recruitment status by invitation ID. **Role:** RECRUITER or ADMIN.
+
+**Body:** `{ "recruitmentStatus": "SHORTLISTED" }`
+
+**Recruitment statuses:** `INVITED` → `STARTED` → `COMPLETED` → `SHORTLISTED` → `INTERVIEW` → `HIRED`, or `REJECTED`.
+
 ---
 
 ## Problems
@@ -352,8 +375,57 @@ Transition to PUBLISHED status.
 ### POST `/api/v1/assessments/:id/close`
 Transition to CLOSED status.
 
+### POST `/api/v1/assessments/:id/duplicate`
+Create a copy of an assessment (DRAFT status, includes problems, sections, and settings). **Role:** RECRUITER (owner/admin) or ADMIN.
+
+Returns the duplicated assessment (201).
+
+### POST `/api/v1/assessments/:id/archive`
+Archive an assessment (DRAFT/PUBLISHED/CLOSED → ARCHIVED). **Role:** RECRUITER (owner/admin) or ADMIN.
+
+### POST `/api/v1/assessments/:id/restore`
+Restore an ARCHIVED assessment back to DRAFT. **Role:** RECRUITER (owner/admin) or ADMIN.
+
+### POST `/api/v1/assessments/:id/recalculate-results`
+Recompute all results for the assessment from saved attempt answers and evaluations. **Role:** RECRUITER (owner/admin) or ADMIN.
+
+### GET `/api/v1/assessments/:id/candidates/compare`
+Compare candidate performance for the assessment. **Role:** RECRUITER or ADMIN.
+
+Query params: `candidateIds` — comma-separated list of candidate user IDs.
+
 ### GET `/api/v1/assessments/:id/history`
 Get assessment status change history (audit log).
+
+---
+
+## Assessment Problems
+
+### POST `/api/v1/assessments/:id/problems`
+Add an existing problem to the assessment. **Role:** RECRUITER (owner/admin) or ADMIN.
+
+**Body:**
+```json
+{
+  "problemId": "uuid",
+  "points": 15,
+  "isRequired": true,
+  "section": "Algorithms",
+  "order": 1
+}
+```
+All fields except `problemId` are optional. Returns the `AssessmentProblem` (201).
+
+### GET `/api/v1/assessments/:id/problems`
+List problems attached to the assessment (ordered by `order`/`section`).
+
+Query params: `page`, `limit`, `section`, `isRequired`.
+
+### PATCH `/api/v1/assessments/:id/problems/:problemId`
+Update an assessment problem's configuration (`points`, `isRequired`, `section`, `order`). **Role:** RECRUITER (owner/admin) or ADMIN. Only allowed while the assessment has no active attempts.
+
+### DELETE `/api/v1/assessments/:id/problems/:problemId`
+Remove a problem from the assessment. **Role:** RECRUITER (owner/admin) or ADMIN.
 
 ---
 
@@ -400,6 +472,29 @@ Returns attempt with `expiresAt` calculated server-side.
 
 ### GET `/api/v1/attempts/:id`
 Get attempt details by ID. Ownership enforced.
+
+**Response data:** `id`, `assessment`, `status`, `startedAt`, `expiresAt`, `submittedAt`, `answers` (your saved answers), `score`, `maxScore`.
+
+### GET `/api/v1/attempts/:id/time`
+Get the server-authoritative remaining time for an in-progress attempt. **Role:** CANDIDATE (owner), RECRUITER (company), or ADMIN.
+
+**Response data:**
+```json
+{
+  "attemptId": "uuid",
+  "status": "IN_PROGRESS",
+  "startedAt": "2026-09-01T09:00:00.000Z",
+  "expiresAt": "2026-09-01T09:45:00.000Z",
+  "submittedAt": null,
+  "remainingTimeSeconds": 2700,
+  "serverTime": "2026-09-01T09:00:00.000Z"
+}
+```
+
+### GET `/api/v1/attempts/:id/anti-cheating-report`
+Get the anti-cheating summary for an attempt (risk score + event timeline). Ownership enforced.
+
+**Response data:** `attemptId`, `riskScore`, `riskLevel` (`LOW`/`MEDIUM`/`HIGH`), `totalEvents`, `eventCounts` (per type), `uniqueIpCount`, `uniqueDeviceCount`, `sessionCount`, `suspiciousSessions`, `timeline` (event list), and a `note`.
 
 ### GET `/api/v1/attempts/:id/questions`
 Get all problems/questions for an in-progress attempt. Hidden test cases excluded.
@@ -457,6 +552,9 @@ Get a submission by ID. Ownership enforced.
 ### GET `/api/v1/attempts/:id/submissions`
 List all submissions for an attempt.
 
+### GET `/api/v1/assessments/:id/submissions`
+List submissions for an assessment's attempts. Query: `page`, `limit`, `status`, `problemId`.
+
 ### POST `/api/v1/submissions/:id/evaluate`
 Trigger evaluation of a submission. **Role:** RECRUITER or ADMIN.
 
@@ -466,6 +564,11 @@ Trigger evaluation of a submission. **Role:** RECRUITER or ADMIN.
 
 ## Evaluations
 
+### GET `/api/v1/evaluations/pending`
+List written evaluations that are still pending manual scoring. **Role:** RECRUITER or ADMIN.
+
+Query: `page`, `limit`. Response is paginated and includes the attempt, candidate, problem, and saved written answer.
+
 ### POST `/api/v1/evaluations/written`
 Manually evaluate a written answer. **Role:** RECRUITER or ADMIN.
 
@@ -473,6 +576,9 @@ Manually evaluate a written answer. **Role:** RECRUITER or ADMIN.
 
 ### GET `/api/v1/attempts/:id/evaluations`
 List evaluations for an attempt.
+
+### GET `/api/v1/assessments/:id/evaluations`
+List evaluations for an assessment's attempts. Query: `page`, `limit`, `status`.
 
 ---
 
@@ -482,7 +588,28 @@ List evaluations for an attempt.
 Get a result by ID. Ownership enforced; results hidden until `showResults` policy permits.
 
 ### GET `/api/v1/candidates/me/results`
-List the current candidate's results. Query: `page`, `limit`.
+List the current candidate's results. Query: `page`, `limit`. Only released results are returned.
+
+### GET `/api/v1/results/:id/skills`
+Get a per-skill scoring breakdown for a result. Ownership enforced; respects the `showResults` / `releasedAt` policy for candidates.
+
+**Response data:**
+```json
+{
+  "resultId": "uuid",
+  "overallPercentage": 72,
+  "passed": true,
+  "skills": [
+    { "skill": "algorithms", "totalPoints": 30, "earnedPoints": 22, "questions": 3, "percentage": 73 },
+    { "skill": "javascript", "totalPoints": 10, "earnedPoints": 10, "questions": 1, "percentage": 100 }
+  ]
+}
+```
+
+### GET `/api/v1/assessments/:id/results`
+List results for an assessment (paginated, ordered by `earnedPoints` desc). **Role:** RECRUITER or ADMIN.
+
+Query: `page`, `limit`. Each row includes `candidate` (`id`, `name`, `email`) and the linked `attempt`.
 
 **Result fields:** totalPoints, earnedPoints, percentage, passed, timeTakenSeconds, correctAnswers, incorrectAnswers, items (question-level), evaluationFeedback.
 
@@ -494,6 +621,11 @@ List the current candidate's results. Query: `page`, `limit`.
 Generate assessment report. **Role:** RECRUITER or ADMIN.
 
 Includes: candidate count, completed count, average/highest/lowest score, pass rate, average completion time, question performance, candidate ranking.
+
+### GET `/api/v1/assessments/:id/report/export.csv`
+Generate the assessment report as a downloadable CSV file. **Role:** RECRUITER or ADMIN.
+
+Returns `text/csv` with `Content-Disposition: attachment; filename="<assessment-title>.csv"` containing the candidate ranking and per-question scores.
 
 ### GET `/api/v1/companies/:id/reports`
 List company-level reports.
@@ -580,10 +712,128 @@ Query audit logs. Query: `page`, `limit`, `action`, `entityType`, `actorId`.
 
 ---
 
+## Assessment Templates
+
+Reusable assessment configurations. All endpoints require auth; write operations require **RECRUITER** or **ADMIN**.
+
+### POST `/api/v1/assessment-templates`
+Create a reusable assessment template.
+
+**Body:**
+```json
+{
+  "title": "Junior Backend Baseline",
+  "description": "Reusable screen for junior backend roles",
+  "durationMinutes": 45,
+  "passingScore": 60,
+  "maxAttempts": 1,
+  "shuffleProblems": true,
+  "shuffleOptions": false,
+  "showResults": true,
+  "antiCheatingEnabled": true,
+  "resultStrategy": "LATEST_SCORE",
+  "accessLevel": "INVITATION_ONLY",
+  "questionConfig": {},
+  "skills": ["nodejs", "sql"],
+  "difficultyDistribution": {},
+  "antiCheatingSettings": {},
+  "status": "DRAFT"
+}
+```
+
+### GET `/api/v1/assessment-templates`
+List templates (filtered by company for recruiters). Query: `page`, `limit`, `q`, `status`, `companyId`.
+
+### GET `/api/v1/assessment-templates/:id`
+Get a template by ID.
+
+### PATCH `/api/v1/assessment-templates/:id`
+Update any template field (partial). **Role:** RECRUITER (company) or ADMIN.
+
+### DELETE `/api/v1/assessment-templates/:id`
+Delete a template.
+
+### POST `/api/v1/assessment-templates/:id/use`
+Create a new assessment from the template (status `DRAFT`). **Role:** RECRUITER or ADMIN.
+
+**Body (optional):** `{ "title": "My New Assessment", "companyId": "uuid" }`
+
+---
+
+## Notes
+
+Recruiter/ADMIN comments attached to a candidate.
+
+### POST `/api/v1/notes`
+Create a note. **Role:** RECRUITER or ADMIN.
+
+**Body:**
+```json
+{
+  "candidateId": "uuid",
+  "assessmentId": "uuid-optional",
+  "companyId": "uuid-optional",
+  "content": "Strong JS fundamentals, recommend for interview.",
+  "isPrivate": true
+}
+```
+
+### GET `/api/v1/notes/candidate/:candidateId`
+List notes for a candidate. Query: `page`, `limit`, `assessmentId`.
+
+Privacy: recruiters see public notes + their own private notes; candidates only see notes authored by themselves; admins see all.
+
+### PATCH `/api/v1/notes/:noteId`
+Update a note (`content`, `isPrivate`). Author or ADMIN only.
+
+### DELETE `/api/v1/notes/:noteId`
+Soft-delete a note. Author or ADMIN only.
+
+---
+
+## Notifications
+
+Per-user in-app notifications. All endpoints are auth-protected and scoped to the current user.
+
+### GET `/api/v1/notifications`
+List my notifications. Query: `page`, `limit`, `status` (`UNREAD` | `READ`).
+
+### GET `/api/v1/notifications/unread-count`
+Get the unread count: `{ "unreadCount": 3 }`.
+
+### PATCH `/api/v1/notifications/:id/read`
+Mark a single notification as read. Owned by the current user.
+
+### POST `/api/v1/notifications/read-all`
+Mark all of my notifications as read. Returns `{ "updated": 5 }`.
+
+**Notification types:** `ASSESSMENT_INVITATION`, `ASSESSMENT_COMPLETED`, `RESULT_AVAILABLE`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `ASSESSMENT_EXPIRING`.
+
+---
+
+## Dashboard
+
+Aggregated summaries. Role-scoped.
+
+### GET `/api/v1/dashboard/recruiter`
+Recruiter (or ADMIN) dashboard.
+
+**Response:** `summary` (`totalAssessments`, `activeAssessments`, `draftAssessments`, `closedAssessments`, `totalInvitations`, `pendingInvitations`, `acceptedInvitations`, `totalAttempts`, `completedAttempts`, `inProgressAttempts`, `totalResults`, `passedResults`, `passRate`, `completionRate`, `totalProblems`, `activeProblems`, `pendingEvaluations`), `recentAssessments`, `recentResults`.
+
+### GET `/api/v1/dashboard/candidate`
+Candidate dashboard.
+
+**Response:** `summary` (`totalInvitations`, `pendingInvitations`, `acceptedInvitations`, `totalAttempts`, `completedAttempts`, `inProgressAttempts`, `totalResults`, `passedResults`, `passRate`), `upcomingAssessments`, `recentResults`.
+
+---
+
 ## Health Check
 
+### GET `/`
+Service banner / smoke test. No authentication required. Returns a small JSON payload describing the API.
+
 ### GET `/health`
-Health check endpoint. No authentication required.
+Health check endpoint (available when enabled in `app.ts`). No authentication required.
 
 **Response (200):**
 ```json
@@ -610,7 +860,7 @@ Suspended users cannot access protected resources.
 ```
 DRAFT → PUBLISHED → ACTIVE → CLOSED → ARCHIVED
 ```
-Invalid transitions (e.g., ARCHIVED → ACTIVE) are rejected.
+Invalid transitions (e.g., ARCHIVED → ACTIVE) are rejected. Archived assessments can be restored to `DRAFT`.
 
 ### AttemptStatus
 ```
@@ -649,6 +899,15 @@ PENDING → PAID | FAILED | CANCELLED | REFUNDED
 
 ### CreditTransactionType
 `CREDIT` | `DEBIT`
+
+### RecruitmentStatus
+`INVITED` → `STARTED` → `COMPLETED` → `SHORTLISTED` → `INTERVIEW` → `HIRED`, or `REJECTED`
+
+### NotificationStatus
+`UNREAD` | `READ`
+
+### NotificationType
+`ASSESSMENT_INVITATION` | `ASSESSMENT_COMPLETED` | `RESULT_AVAILABLE` | `PAYMENT_SUCCESS` | `PAYMENT_FAILED` | `ASSESSMENT_EXPIRING`
 
 ---
 
@@ -723,9 +982,13 @@ A complete Postman collection is available at **`docs/postman-collection.json`**
 | `MCQOption` | Multiple-choice options with correct flag & order |
 | `Assessment` | Assessment configuration, lifecycle status, timer, anti-cheat flags |
 | `AssessmentProblem` | Assessment↔problem link with points, order, section, required flag |
-| `Invitation` | Candidate invitation with status & expiry |
+| `AssessmentTemplate` | Reusable assessment configuration (config, skills, status, scoped to a company) |
+| `Invitation` | Candidate invitation with status, expiry & recruitment pipeline status |
 | `Attempt` | Timed candidate attempt (server-side `startedAt`/`expiresAt`) |
+| `AttemptSession` | Active device/browser sessions per attempt (suspicious = multiple sessions) |
 | `AttemptAnswer` | Saved MCQ/written/coding answers per problem |
+| `CandidateNote` | Recruiter comment on a candidate (private flag, soft delete) |
+| `Notification` | Per-user in-app notification (UNREAD/READ) |
 | `Submission` | Coding submission with execution status & metrics |
 | `Evaluation` | Per-problem evaluation (MCQ auto / written manual / coding sandbox) |
 | `Result` | Final computed result (points, percentage, pass, time taken) |
