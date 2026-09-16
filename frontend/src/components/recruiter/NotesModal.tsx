@@ -105,7 +105,7 @@ export function NotesModal({
                     </button>
                   </div>
                 </div>
-                <p className="mt-1 text-xs text-slate-400">{n.author?.name ?? "You"} · {formatDateTime(n.createdAt, true)}</p>
+                                <p className="mt-1 text-xs text-slate-400">{n.author?.name ?? "You"} · {formatDateTime(n.createdAt)}</p>
               </div>
             ))}
           </div>

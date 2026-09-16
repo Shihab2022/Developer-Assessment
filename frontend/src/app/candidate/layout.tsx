@@ -11,3 +11,4 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
     </RoleGuard>
   );
 }
+

@@ -1,4 +1,4 @@
-import type { AttemptAnswer, ProblemType } from "./types";
+import type { AttemptAnswer, ProblemType, AttemptStatus } from "./types";
 
 // ---------- Submissions ----------
 export type SubmissionStatus =

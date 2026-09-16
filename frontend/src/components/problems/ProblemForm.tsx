@@ -119,7 +119,7 @@ return (
             </Select>
           </Field>
           <Field label="Difficulty" required>
-            <Select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                        <Select value={difficulty} onChange={(e) => setDifficulty(e.target.value as "EASY" | "MEDIUM" | "HARD")}>
               {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
             </Select>
           </Field>
@@ -136,7 +136,7 @@ return (
             <Input value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="javascript, algorithms" />
           </Field>
           <Field label="Status">
-            <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+                        <Select value={status} onChange={(e) => setStatus(e.target.value as "DRAFT" | "ARCHIVED" | "ACTIVE")}>
               {PROBLEM_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </Select>
           </Field>
@@ -258,8 +258,7 @@ return (
       <div className="flex justify-end">
         <Button type="submit" size="lg">{submitLabel}</Button>
       </div>
-    </form>
+        </form>
   );
 }
 
-}
