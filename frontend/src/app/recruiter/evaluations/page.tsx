@@ -1,170 +1,119 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Attempt, Evaluation, Meta } from "@/lib/types";
-import { Card, CardHeader } from "@/components/ui/Card";
+import { useState } from "react";
+import { usePendingEvaluations, useEvaluateWritten } from "@/hooks/useEvaluations";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Field, Input, Textarea } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
-import { StatusBadge } from "@/components/ui/Badge";
+import { TextField, TextareaField } from "@/components/ui/Input";
+import { Modal, ModalContent, ModalHeader, ModalFooter } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Primitives";
+import { humanizeEnum } from "@/lib/utils";
+import type { Evaluation, WrittenEvaluationPayload } from "@/lib/types.platform";
 
 export default function EvaluationsPage() {
-  const [items, setItems] = useState<Evaluation[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState<string | null>(null);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    api
-      .get("/evaluations/pending", { params: { page, limit: 10 } })
-      .then((res) => {
-        setItems(res.data?.data ?? []);
-        setMeta(res.data?.meta ?? null);
-      })
-      .catch((err) => toast.error(getErrorMessage(err)))
-      .finally(() => setLoading(false));
-  }, [page]);
-
-  useEffect(() => load(), [load]);
+  const { data, isLoading } = usePendingEvaluations({ limit: 50 });
+  const [scoring, setScoring] = useState<Evaluation | null>(null);
+  const pending = data?.data ?? [];
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-900">Written Evaluations</h1>
-        <p className="mt-1 text-sm text-slate-500">Score written answers manually — MCQs are scored automatically.</p>
-      </div>
+    <>
+      <PageHeader
+        title="Evaluations"
+        subtitle="Written answers waiting for manual scoring"
+      />
+      {isLoading ? (
+        <Spinner className="mx-auto my-12" />
+      ) : pending.length === 0 ? (
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            Nothing waiting for evaluation. Coding submissions are scored automatically.
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {pending.map((item) => (
+            <Card key={item.id}>
+              <CardBody className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground">
+                    {item.attempt?.candidate?.name ?? "Candidate"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {item.problem?.title ?? "Problem"} ·{" "}
+                    {item.attempt?.assessment?.title ?? ""} ·{" "}
+                    {humanizeEnum(item.type)}
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => setScoring(item)}>
+                  Score
+                </Button>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      <Card>
-        <CardHeader title={`Pending evaluations (${meta?.total ?? items.length})`} subtitle="Oldest first" />
-        {loading ? (
-          <LoadingBlock />
-        ) : items.length === 0 ? (
-          <EmptyState title="Nothing to evaluate" description="Written answers appear here after candidates submit their attempts." />
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {items.map((ev) => (
-              <EvaluationRow
-                key={ev.id}
-                ev={ev}
-                expanded={expanded === ev.id}
-                onToggle={() => setExpanded(expanded === ev.id ? null : ev.id)}
-                onScored={load}
-              />
-            ))}
-          </div>
-        )}
-        {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onChange={setPage} />}
-      </Card>
-    </div>
+      <ScoreModal evaluation={scoring} onClose={() => setScoring(null)} />
+    </>
   );
 }
 
-function EvaluationRow({
-  ev, expanded, onToggle, onScored,
+function ScoreModal({
+  evaluation,
+  onClose,
 }: {
-  ev: Evaluation;
-  expanded: boolean;
-  onToggle: () => void;
-  onScored: () => void;
+  evaluation: Evaluation | null;
+  onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<{ score: number; feedback: string }>({
-    score: ev.score,
-    feedback: ev.feedback ?? "",
-  });
-  const [attempt, setAttempt] = useState<Attempt | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const evaluate = useEvaluateWritten();
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState("");
 
-  const loadAttempt = useCallback(() => {
-    if (!ev.attempt?.id) return;
-    api
-      .get(`/attempts/${ev.attempt.id}`)
-      .then((res) => setAttempt(res.data?.data))
-      .catch(() => {});
-  }, [ev.attempt?.id]);
+  if (!evaluation) return null;
 
-  useEffect(() => {
-    if (expanded) loadAttempt();
-  }, [expanded, loadAttempt]);
-
-  const savedAnswer =
-    attempt?.answers?.find((a) => a.problemId === ev.problemId)?.answer as
-      | { text?: string }
-      | undefined;
-
-  const score = async () => {
-    if (!ev.attempt?.id) return;
-    setSubmitting(true);
-    try {
-      await api.post("/evaluations/written", {
-        attemptId: ev.attempt.id,
-        problemId: ev.problemId,
-        score: Number(detail.score),
-        feedback: detail.feedback,
-      });
-      toast.success("Written answer scored");
-      onScored();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setSubmitting(false);
-    }
+  const maxScore = evaluation.maxScore ?? evaluation.problem?.points ?? 10;
+  const submit = () => {
+    const payload: WrittenEvaluationPayload = {
+      attemptId: evaluation.attemptId,
+      problemId: evaluation.problemId,
+      score,
+      feedback: feedback || undefined,
+    };
+    evaluate.mutate(payload, { onSuccess: onClose });
   };
 
   return (
-    <div className="pr-2">
-      <div
-        className="flex cursor-pointer items-center justify-between px-5 py-3"
-        onClick={onToggle}
-      >
-        <div className="min-w-0">
-          <p className="font-medium text-slate-800">{ev.problem?.title}</p>
-          <p className="text-xs text-slate-400">
-            {ev.attempt?.candidate?.name ?? "Candidate"} · {ev.attempt?.assessment?.title ?? "—"}
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent size="sm">
+        <ModalHeader title="Score written answer" />
+        <div className="space-y-4 p-4">
+          <p className="text-sm text-muted-foreground">
+            {evaluation.problem?.title} — max {maxScore} points
           </p>
+          <TextField
+            label={`Score (0–${maxScore})`}
+            type="number"
+            min={0}
+            max={maxScore}
+            required
+            value={score}
+            onChange={(e) => setScore(Number(e.target.value))}
+          />
+          <TextareaField
+            label="Feedback"
+            rows={4}
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="Shared with the candidate in their result"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge status={ev.status} />
-          {expanded ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
-        </div>
-      </div>
-
-      {expanded && (
-        <div className="border-t border-slate-100 px-5 py-4">
-          <div className="prose prose-sm max-w-none overflow-x-auto rounded-xl bg-slate-50 p-4 text-slate-800">
-            {savedAnswer?.text
-              ? savedAnswer.text.split("\n").map((l, i) => <p key={i}>{l || "\u00A0"}</p>)
-              : "Loading answer…"}
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3 sm:items-end">
-            <Field label="Score (points)">
-              <Input
-                type="number"
-                min={0}
-                value={detail.score}
-                onChange={(e) => setDetail((d) => ({ ...d, score: Number(e.target.value) }))}
-              />
-            </Field>
-            <Field label="Feedback" className="sm:col-span-2">
-              <Textarea
-                rows={3}
-                placeholder="What was good / what needs improvement…"
-                value={detail.feedback}
-                onChange={(e) => setDetail((d) => ({ ...d, feedback: e.target.value }))}
-              />
-            </Field>
-          </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={onToggle}>Collapse</Button>
-            <Button size="sm" loading={submitting} onClick={score}>Save evaluation</Button>
-          </div>
-        </div>
-      )}
-    </div>
+        <ModalFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit} disabled={evaluate.isPending || score < 0 || score > maxScore}>
+            {evaluate.isPending ? "Saving…" : "Save score"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
-

@@ -1,46 +1,61 @@
 "use client";
 
-import { useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useMe } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth";
-import api from "@/lib/api";
-import { dashboardPathForRole } from "@/lib/constants";
 import type { Role } from "@/lib/types";
-import { LoadingBlock } from "@/components/ui/Misc";
+import { dashboardPathForRole } from "@/lib/constants";
+
+interface RoleGuardProps {
+  /** Roles that are allowed to render children. If undefined, any authed user passes. */
+  allowedRoles?: Role[];
+  children: React.ReactNode;
+}
 
 /**
- * Client-side role guard. Waits for zustand persist hydration, redirects
- * unauthenticated users to /login and wrong-role users to their dashboard.
- * Also refreshes the profile (keeps companyId fresh for recruiter pages).
+ * Guards a route by role. While the session is hydrating it renders nothing;
+ * once the persisted session is loaded it resolves the user and redirects:
+ *  - no token  → /login
+ *  - wrong role → the dashboard for their actual role
  */
-export function RoleGuard({ role, children }: { role: Role; children: ReactNode }) {
+export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
   const router = useRouter();
-  const { user, accessToken, hydrated, setUser } = useAuthStore();
+  const { user, accessToken, hydrated } = useAuthStore(
+    (s) => ({ user: s.user, accessToken: s.accessToken, hydrated: s.hydrated }),
+  );
+  const { data: me, isError } = useMe();
+
+  const resolvedUser = user ?? me;
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!accessToken || !user) {
+    if (!accessToken || isError) {
       router.replace("/login");
       return;
     }
-    if (user.role !== role) {
-      router.replace(dashboardPathForRole(user.role));
-      return;
+    if (allowedRoles && resolvedUser && !allowedRoles.includes(resolvedUser.role)) {
+      router.replace(dashboardPathForRole(resolvedUser.role));
     }
-    // Refresh profile in background (non-blocking)
-    api
-      .get("/auth/me")
-      .then((res) => {
-        if (res.data?.data) setUser(res.data.data);
-      })
-      .catch(() => {
-        /* token refresh interceptor handles expiry */
-      });
-  }, [hydrated, accessToken, user, role, router, setUser]);
+  }, [hydrated, accessToken, resolvedUser, isError, router, allowedRoles]);
 
-  if (!hydrated || !accessToken || !user || user.role !== role) {
-    return <LoadingBlock label="Checking your session…" className="min-h-screen" />;
-  }
+  if (!hydrated || !accessToken) return null;
+  if (allowedRoles && resolvedUser && !allowedRoles.includes(resolvedUser.role)) return null;
 
   return <>{children}</>;
+}
+
+/** Convenience wrapper used inside layout files. */
+export function RoleLayout({
+  role,
+  children,
+}: {
+  role: Role | Role[];
+  children: React.ReactNode;
+}) {
+  return (
+    <RoleGuard allowedRoles={Array.isArray(role) ? role : [role]}>
+      {children}
+    </RoleGuard>
+  );
 }

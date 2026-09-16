@@ -1,121 +1,129 @@
-import { forwardRef, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import * as LabelPrimitive from "@radix-ui/react-label";
+import { forwardRef, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
+export const Label = forwardRef<
+  React.ElementRef<typeof LabelPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
+>(function Label({ className, ...props }, ref) {
+  return (
+    <LabelPrimitive.Root
+      ref={ref}
+      className={cn(
+        "mb-1.5 block text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+
+const fieldBase =
+  "w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/25 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70 aria-[invalid=true]:border-destructive aria-[invalid=true]:focus:ring-destructive/25";
+
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
-  function Input({ className, ...props }, ref) {
-    return (
-      <input
-        ref={ref}
-        className={cn(
-          "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:cursor-not-allowed disabled:bg-slate-50",
-          className,
-        )}
-        {...props}
-      />
-    );
+  function Input({ className, type = "text", ...props }, ref) {
+    return <input ref={ref} type={type} className={cn(fieldBase, "h-10", className)} {...props} />;
   },
 );
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
   function Textarea({ className, rows = 4, ...props }, ref) {
     return (
-      <textarea
-        ref={ref}
-        rows={rows}
-        className={cn(
-          "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:bg-slate-50",
-          className,
-        )}
-        {...props}
-      />
+      <textarea ref={ref} rows={rows} className={cn(fieldBase, "py-2 leading-relaxed", className)} {...props} />
     );
   },
 );
 
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
-  function Select({ className, children, ...props }, ref) {
-    return (
-      <select
-        ref={ref}
-        className={cn(
-          "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:bg-slate-50",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </select>
-    );
-  },
-);
+/** Visual, non-interactive input (e.g. a select rendered by Radix). */
+export const inputClasses = cn(fieldBase, "h-10");
 
+/** Input with an attached label — mirrors SelectField/CheckboxField ergonomics. */
+export function TextField({
+  label,
+  required,
+  error,
+  hint,
+  className,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label?: ReactNode;
+  error?: string | null;
+  hint?: ReactNode;
+}) {
+  return (
+    <Field label={label} required={required} error={error} hint={hint} className={className}>
+      <Input {...props} required={required} />
+    </Field>
+  );
+}
+
+/** Textarea with an attached label. */
+export function TextareaField({
+  label,
+  required,
+  error,
+  hint,
+  className,
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: ReactNode;
+  error?: string | null;
+  hint?: ReactNode;
+}) {
+  return (
+    <Field label={label} required={required} error={error} hint={hint} className={className}>
+      <Textarea {...props} required={required} />
+    </Field>
+  );
+}
+
+/** Label + control + hint/error wrapper. */
 export function Field({
   label,
   required,
   error,
   hint,
+  htmlFor,
   children,
   className,
 }: {
-  label?: string;
+  label?: ReactNode;
   required?: boolean;
   error?: string | null;
-  hint?: string;
+  hint?: ReactNode;
+  htmlFor?: string;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <div className={className}>
+    <div className={cn("min-w-0", className)}>
       {label && (
-        <label className="field-label">
+        <Label htmlFor={htmlFor}>
           {label}
-          {required && <span className="text-rose-500"> *</span>}
-        </label>
+          {required && <span className="ml-0.5 text-destructive">*</span>}
+        </Label>
       )}
       {children}
-      {hint && !error && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
-      {error && <p className="mt-1 text-xs text-rose-600">{error}</p>}
+      {hint && !error && <p className="field-hint">{hint}</p>}
+      {error && (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-export function Toggle({
-  checked,
-  onChange,
-  label,
-  description,
-  disabled,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-  description?: string;
-  disabled?: boolean;
-}) {
+/** Inline validation summary for forms with several failing fields. */
+export function FormError({ message }: { message?: string | null }) {
+  if (!message) return null;
   return (
-    <label className={cn("flex cursor-pointer items-start gap-3", disabled && "opacity-60")}>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          "relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors",
-          checked ? "bg-primary-600" : "bg-slate-300",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform",
-            checked ? "translate-x-4" : "translate-x-0.5",
-          )}
-        />
-      </button>
-      <span>
-        <span className="block text-sm font-medium text-slate-700">{label}</span>
-        {description && <span className="block text-xs text-slate-500">{description}</span>}
-      </span>
-    </label>
+    <div
+      role="alert"
+      className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+    >
+      {message}
+    </div>
   );
 }

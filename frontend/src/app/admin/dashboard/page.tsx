@@ -1,47 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { AdminStats } from "@/lib/types";
-import { PageHeader } from "@/components/ui/Card";
-import { StatCard, LoadingBlock, EmptyState } from "@/components/ui/Misc";
-import { toast } from "sonner";
+import { useAdminStats } from "@/hooks/useAdmin";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
+import { formatCurrency } from "@/lib/utils";
+import { Users, Building2, ClipboardList, CreditCard, ShieldCheck, TrendingUp } from "lucide-react";
+
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+}: {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+}) => (
+  <Card>
+    <CardBody className="flex items-center gap-4 p-5">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950/40">
+        <Icon className="size-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-2xl font-bold text-foreground">{value}</p>
+        <p className="text-sm text-muted-foreground">{title}</p>
+      </div>
+    </CardBody>
+  </Card>
+);
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, isError } = useAdminStats();
 
-  useEffect(() => {
-    api
-      .get("/admin/dashboard-stats")
-      .then((res) => setStats(res.data?.data))
-      .catch((err) => toast.error(getErrorMessage(err)))
-      .finally(() => setLoading(false));
-  }, []);
+  if (isLoading) {
+    return <div className="p-4 text-center">Loading admin dashboard…</div>;
+  }
 
-  if (loading) return <LoadingBlock label="Loading platform stats…" />;
-  if (!stats) return <EmptyState title="Could not load stats" />;
+  if (isError) {
+    return <div className="p-4 text-center text-destructive">Failed to load dashboard.</div>;
+  }
 
-  const cards: { label: string; value: string | number; tone: "primary" | "green" | "amber" | "red" | "blue" | "violet"; hint?: string }[] = [
-    { label: "Total users", value: stats.totalUsers, tone: "primary", hint: `${stats.activeUsers} active` },
-    { label: "Candidates", value: stats.totalCandidates, tone: "blue" },
-    { label: "Recruiters", value: stats.totalRecruiters, tone: "violet" },
-    { label: "Companies", value: stats.totalCompanies, tone: "amber" },
-    { label: "Assessments", value: stats.totalAssessments, tone: "primary" },
-    { label: "Completed attempts", value: stats.completedAttempts, tone: "green" },
-    { label: "Payments", value: stats.totalPayments, tone: "blue" },
-    { label: "Revenue", value: `${stats.totalRevenue ?? 0}`, tone: "green", hint: "Total collected" },
-    { label: "Suspended users", value: stats.suspendedUsers, tone: "red" },
-  ];
+  const s = data ?? {
+    totalUsers: 0, totalCompanies: 0, totalAssessments: 0,
+    totalPayments: 0, totalRevenue: 0, activeUsers: 0,
+  };
 
   return (
-    <div>
-      <PageHeader title="Platform Overview" subtitle="Key statistics across the entire platform." />
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-3">
-        {cards.map((c) => (
-          <StatCard key={c.label} label={c.label} value={c.value} tone={c.tone} hint={c.hint} />
-        ))}
+    <>
+      <PageHeader title="Admin Dashboard" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total users" value={s.totalUsers} icon={Users} />
+        <StatCard title="Total companies" value={s.totalCompanies} icon={Building2} />
+        <StatCard title="Total assessments" value={s.totalAssessments} icon={ClipboardList} />
+        <StatCard title="Total payments" value={s.totalPayments} icon={CreditCard} />
+        <StatCard title="Total revenue" value={formatCurrency(s.totalRevenue)} icon={TrendingUp} />
+        <StatCard title="Active users" value={s.activeUsers} icon={ShieldCheck} />
       </div>
-    </div>
+    </>
   );
 }

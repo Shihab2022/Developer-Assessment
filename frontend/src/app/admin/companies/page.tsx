@@ -1,68 +1,57 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Building2 } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Company, Meta } from "@/lib/types";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
-import { StatusBadge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
+import { useAdminCompanies } from "@/hooks/useAdmin";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
+import { Spinner } from "@/components/ui/Primitives";
+import { formatNumber, formatDateTime } from "@/lib/utils";
+import type { Company } from "@/lib/types";
 
 export default function AdminCompaniesPage() {
-  const [items, setItems] = useState<Company[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [q, setQ] = useState("");
+  const { data, isLoading } = useAdminCompanies({ limit: 100 });
+  const companies = data?.data ?? [];
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/companies", { params: { page, limit: 10, q } });
-      setItems(res.data?.data ?? []);
-      setMeta(res.data?.meta ?? null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [page, q]);
-
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <LoadingBlock />;
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <PageHeader title="Companies" subtitle="All companies on the platform." actions={<Button size="sm" variant="outline"><Building2 className="h-4 w-4" /></Button>} />
-      <div className="mb-4 max-w-md"><Input placeholder="Search companies…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} /></div>
+    <>
+      <PageHeader title="Companies" subtitle="All registered companies and their credit balances" />
       <Card>
         <CardBody className="p-0">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-5 py-3">Company</th>
-                <th className="px-5 py-3">Industry</th>
-                <th className="px-5 py-3">Credits</th>
-                <th className="px-5 py-3">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.map((c) => (
-                <tr key={c.id}>
-                  <td className="px-5 py-3 font-medium">{c.name}</td>
-                  <td className="px-5 py-3 text-slate-500">{c.industry ?? "—"}</td>
-                  <td className="px-5 py-3">{c.creditBalance ?? 0}</td>
-                  <td className="px-5 py-3 text-slate-500">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "—"}</td>
+          {isLoading ? (
+            <Spinner className="mx-auto my-10" />
+          ) : companies.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No companies yet.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Company</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Industry</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">Credits</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">Members</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">Assessments</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Created</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {companies.map((c: Company) => (
+                  <tr key={c.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-foreground">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.website ?? c.slug}</p>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{c.industry ?? "—"}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{formatNumber(c.credits)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{c._count?.members ?? 0}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{c._count?.assessments ?? 0}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {c.createdAt ? formatDateTime(c.createdAt) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </CardBody>
       </Card>
-      {meta && items.length === 0 && !loading ? <EmptyState title="No companies found" /> : <Pagination page={meta?.page ?? 1} totalPages={meta?.totalPages ?? 1} onChange={setPage} />}
-    </main>
+    </>
   );
 }

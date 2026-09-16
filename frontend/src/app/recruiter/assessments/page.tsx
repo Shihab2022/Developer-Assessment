@@ -1,149 +1,174 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
-import { Archive, Copy, Eye, Plus, RotateCcw, Search, Send, XCircle } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Assessment, Meta } from "@/lib/types";
-import { ASSESSMENT_STATUSES } from "@/lib/constants";
-import { Card, PageHeader } from "@/components/ui/Card";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useDebouncedValue } from "@/hooks/useUi";
+import { useAssessments, useDeleteAssessment, useAssessmentLifecycle } from "@/hooks/useAssessments";
+import { useState } from "react";
+import { Card, CardHeader, CardBody, PageHeader } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/Badge";
-import { Input, Select } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
-import { ConfirmDialog } from "@/components/ui/Modal";
-import { formatDateTime } from "@/lib/utils";
+import { SelectField } from "@/components/ui/Select";
+import { Trash2, Edit, RefreshCw, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { ASSESSMENT_STATUSES, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
-export default function AssessmentsPage() {
-  const [items, setItems] = useState<Assessment[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [page, setPage] = useState(1);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [confirm, setConfirm] = useState<{ action: string; row: Assessment } | null>(null);
-  const [busy, setBusy] = useState(false);
+function AssessmentActions({ assessmentId, status }: { assessmentId: string; status: string }) {
+  const lifecycle = useAssessmentLifecycle(assessmentId);
+  const del = useDeleteAssessment();
 
-  const load = useCallback(() => {
-    setLoading(true);
-    api
-      .get("/assessments", { params: { page, limit: 10, q: q || undefined, status: status || undefined } })
-      .then((res) => {
-        setItems(res.data?.data ?? []);
-        setMeta(res.data?.meta ?? null);
-      })
-      .catch((err) => toast.error(getErrorMessage(err)))
-      .finally(() => setLoading(false));
-  }, [page, q, status]);
-
-  useEffect(() => {
-    const t = setTimeout(load, q ? 350 : 0);
-    return () => clearTimeout(t);
-  }, [load, q]);
-
-  const runAction = async (action: string, row: Assessment) => {
-    setBusy(true);
-    try {
-      if (action === "delete") await api.delete(`/assessments/${row.id}`);
-      else if (action === "duplicate") {
-        await api.post(`/assessments/${row.id}/duplicate`);
-        toast.success("Assessment duplicated as draft");
-      } else await api.post(`/assessments/${row.id}/${action}`);
-      toast.success(`Assessment ${action}d successfully`);
-      setConfirm(null);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-const actionButtons = (row: Assessment) => (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <Link href={`/recruiter/assessments/${row.id}`} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-        <Eye className="h-3.5 w-3.5" /> Open
-      </Link>
-      {(row.status === "DRAFT" || row.status === "ACTIVE") && (
-        <button onClick={() => setConfirm({ action: "publish", row })} className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100">Publish</button>
-      )}
-      {row.status === "PUBLISHED" && (
-        <button onClick={() => setConfirm({ action: "close", row })} className="rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100">Close</button>
-      )}
-      {row.status !== "ARCHIVED" ? (
-        <button onClick={() => setConfirm({ action: "archive", row })} className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50">Archive</button>
-      ) : (
-        <button onClick={() => setConfirm({ action: "restore", row })} className="rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs font-medium text-sky-700 hover:bg-sky-100">Restore</button>
-      )}
-      <button onClick={() => setConfirm({ action: "duplicate", row })} className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50">Duplicate</button>
-    </div>
-  );
-
+  const nextAction =
+    status === "DRAFT" ? "publish"
+    : status === "PUBLISHED" ? "close"
+    : status === "ACTIVE" ? "close"
+    : status === "CLOSED" ? "archive"
+    : null;
 
   return (
-    <div>
-      <PageHeader
-        title="Assessments"
-        subtitle="Create, publish and monitor technical assessments."
-        actions={
-          <Link href="/recruiter/assessments/new" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700">
-            <Plus className="h-4 w-4" /> New assessment
-          </Link>
-        }
-      />
-
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input placeholder="Search by title…" className="pl-9" value={q} onChange={(e) => { setPage(1); setQ(e.target.value); }} />
-        </div>
-        <Select className="sm:w-52" value={status} onChange={(e) => { setPage(1); setStatus(e.target.value); }}>
-          <option value="">All statuses</option>
-          {ASSESSMENT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </Select>
-      </div>
-
-      {loading ? (
-        <LoadingBlock />
-      ) : items.length === 0 ? (
-        <EmptyState title="No assessments found" description="Try adjusting the filters or create a new assessment." />
-      ) : (
-        <div className="divide-y divide-slate-100">
-          {items.map((row) => (
-            <div key={row.id} className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/recruiter/assessments/${row.id}`} className="truncate font-semibold text-slate-900 hover:text-primary-700">
-                    {row.title}
-                  </Link>
-                  <StatusBadge status={row.status} />
-                </div>
-                <p className="mt-1 line-clamp-1 text-sm text-slate-500">{row.description || "No description"}</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  {row.durationMinutes} min · pass ≥ {row.passingScore} pts · max {row.maxAttempts} attempt(s)
-                  {row.company?.name ? ` · ${row.company.name}` : ""} · created {formatDateTime(row.createdAt)}
-                </p>
-              </div>
-              <div className="shrink-0">{actionButtons(row)}</div>
-            </div>
-          ))}
-        </div>
+    <>
+      <Button variant="ghost" size="sm" asChild>
+        <Link href={`/recruiter/assessments/${assessmentId}`}>
+          <ExternalLink className="size-4" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="sm" asChild>
+        <Link href={`/recruiter/assessments/${assessmentId}/edit`}>
+          <Edit className="size-4" />
+        </Link>
+      </Button>
+      {nextAction && (
+        <Button
+          variant="ghost" size="sm"
+          onClick={() => lifecycle.mutate(nextAction as "publish" | "close" | "archive" | "restore")}
+          disabled={lifecycle.isPending}
+        >
+          <RefreshCw className="size-4" />
+        </Button>
       )}
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onChange={setPage} />}
+      <Button
+        variant="ghost" size="sm"
+        onClick={() => { if (confirm("Archive this assessment? This cannot be undone.")) del.mutate(assessmentId); }}
+        disabled={del.isPending}
+      >
+        <Trash2 className="size-4 text-destructive" />
+      </Button>
+    </>
+    );
+}
 
-
-      <ConfirmDialog
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
-        onConfirm={() => confirm && runAction(confirm.action, confirm.row)}
-        title={`${confirm?.action[0].toUpperCase()}${confirm!.action.slice(1)} assessment?`}
-        message={confirm?.action === "duplicate"
-          ? `Create a draft copy of "${confirm.row.title}"?`
-          : `Are you sure you want to ${confirm?.action} "${confirm?.row.title}"?`}
-        confirmLabel={confirm?.action ?? "Confirm"}
-        danger={confirm?.action === "delete"}
-        loading={busy}
-      />
-    </div>
+export default function AssessmentsPage() {
+  return (
+    <Suspense fallback={null}>
+      <AssessmentsContent />
+    </Suspense>
   );
 }
+
+function AssessmentsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const q = searchParams.get("q") ?? "";
+  const statusFilter = searchParams.get("status") ?? "";
+  const page = Number(searchParams.get("page") ?? 1);
+  const limit = Number(searchParams.get("limit") ?? DEFAULT_PAGE_SIZE);
+
+  const debouncedQ = useDebouncedValue(q, 350);
+  const [searchInput, setSearchInput] = useState(q);
+
+  const updateUrl = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v) params.set(k, v);
+      else params.delete(k);
+    });
+    router.replace(`?${params.toString()}`);
+  };
+
+  const { data } = useAssessments({
+    q: debouncedQ,
+    status: statusFilter || undefined,
+    page,
+    limit,
+  });
+
+  const assessments = data?.data ?? [];
+  const meta = data?.meta;
+
+  return (
+    <>
+      <PageHeader
+        title="Assessments"
+        subtitle="Manage your coding and hiring assessments"
+        actions={<Button size="sm" asChild><Link href="/recruiter/assessments/new">Create assessment</Link></Button>}
+      />
+      <Card>
+        <CardHeader title="All assessments" />
+        <CardBody>
+          <div className="flex gap-3 mb-4">
+            <Input
+              placeholder="Search assessments..."
+              value={searchInput}
+              onChange={(e) => { setSearchInput(e.target.value); updateUrl({ q: e.target.value, page: "1" }); }}
+              className="max-w-sm"
+            />
+            <SelectField
+              placeholder="All statuses"
+              value={statusFilter || ""}
+              onValueChange={(v) => updateUrl({ status: v, page: "1" })}
+              options={ASSESSMENT_STATUSES.map((s) => ({ value: s, label: s }))}
+              className="w-40"
+            />
+          </div>
+          <div className="thin-scrollbar max-h-[500px] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="py-2 text-left font-medium text-muted-foreground">Name</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Status</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Duration</th>
+                  <th className="py-2 text-right font-medium text-muted-foreground">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assessments.map((a) => (
+                  <tr key={a.id} className="border-b border-border last:border-0">
+                    <td className="py-3">
+                      <Link href={`/recruiter/assessments/${a.id}`} className="font-medium text-foreground hover:underline">
+                        {a.title}
+                      </Link>
+                      {a._count && (
+                        <p className="text-xs text-muted-foreground">
+                          {a._count.problems ?? 0} problems · {a._count.invitations ?? 0} invitations
+                        </p>
+                      )}
+                    </td>
+                    <td className="py-3"><StatusBadge status={a.status} /></td>
+                    <td className="py-3 text-muted-foreground">{a.durationMinutes ? `${a.durationMinutes} min` : "—"}</td>
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <AssessmentActions assessmentId={a.id} status={a.status} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {assessments.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No assessments found. Create one to get started.
+            </p>
+          )}
+          {meta && meta.totalPages > 1 && (
+            <div className="mt-4 flex justify-between text-sm text-muted-foreground">
+              Page {meta.page} of {meta.totalPages}
+            </div>
+          )}
+        </CardBody>
+      </Card>
+    </>
+  );
+}
+

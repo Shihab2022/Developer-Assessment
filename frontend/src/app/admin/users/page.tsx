@@ -1,103 +1,120 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Search, Trash2, Shield, UserCheck } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { User, Meta } from "@/lib/types";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
-import { StatusBadge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { useState } from "react";
+import { useAdminUsers, useUpdateUserStatus, useUpdateUserRole } from "@/hooks/useAdmin";
+import { useDebouncedValue } from "@/hooks/useUi";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
+import { StatusBadge } from "@/components/ui/Badge";
+import { SelectField } from "@/components/ui/Select";
+import { Spinner } from "@/components/ui/Primitives";
+import { formatDateTime } from "@/lib/utils";
+import type { Role } from "@/lib/types";
+
+const ROLES = ["CANDIDATE", "RECRUITER", "ADMIN"];
 
 export default function AdminUsersPage() {
-  const [items, setItems] = useState<User[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
+  const [role, setRole] = useState("");
+  const debouncedQ = useDebouncedValue(q, 350);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/admin/users", { params: { page, limit: 10, q } });
-      setItems(res.data?.data ?? []);
-      setMeta(res.data?.meta ?? null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [page, q]);
+  const { data, isLoading } = useAdminUsers({
+    q: debouncedQ || undefined,
+    role: role || undefined,
+    limit: 50,
+  });
+  const updateStatus = useUpdateUserStatus();
+  const updateRole = useUpdateUserRole();
+  const users = data?.data ?? [];
 
-  useEffect(() => { load(); }, [load]);
-
-  const changeStatus = async (user: User, status: "ACTIVE" | "SUSPENDED") => {
-    try {
-      await api.patch(`/admin/users/${user.id}/status`, { status });
-      toast.success(`Status updated to ${status}`);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
-
-  const changeRole = async (user: User, role: "RECRUITER" | "CANDIDATE" | "ADMIN") => {
-    try {
-      await api.patch(`/admin/users/${user.id}/role`, { role });
-      toast.success(`Role updated to ${role}`);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
-
-  if (loading) return <LoadingBlock />;
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <PageHeader title="Users" subtitle="All platform users." actions={<Button size="sm" variant="outline"><UserCheck className="h-4 w-4" /></Button>} />
-      <div className="mb-4 max-w-md">
-        <Input placeholder="Search name or email…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />
-      </div>
+    <>
+      <PageHeader title="Users" subtitle="All platform users — manage roles and status" />
       <Card>
-        <CardBody className="p-0">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-5 py-3">User</th>
-                <th className="px-5 py-3">Email</th>
-                <th className="px-5 py-3">Role</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.map((u) => (
-                <tr key={u.id}>
-                  <td className="px-5 py-3 font-medium">{u.name}</td>
-                  <td className="px-5 py-3 text-slate-500">{u.email}</td>
-                  <td className="px-5 py-3"><StatusBadge status={u.role} /></td>
-                  <td className="px-5 py-3"><StatusBadge status={u.status} /></td>
-                  <td className="px-5 py-3 space-x-1">
-                    {u.role === "RECRUITER" ? (
-                      <button className="rounded-lg border border-slate-200 px-2 py-1 text-xs" onClick={() => changeRole(u, "CANDIDATE")}>→ Candidate</button>
-                    ) : u.role === "CANDIDATE" ? (
-                      <button className="rounded-lg border border-slate-200 px-2 py-1 text-xs" onClick={() => changeRole(u, "RECRUITER")}>→ Recruiter</button>
-                    ) : null}
-                    {u.status === "ACTIVE" ? (
-                      <button className="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-600" onClick={() => changeStatus(u, "SUSPENDED")}>Suspend</button>
-                    ) : (
-                      <button className="rounded-lg border border-emerald-200 px-2 py-1 text-xs text-emerald-600" onClick={() => changeStatus(u, "ACTIVE")}>Activate</button>
-                    )}
-                  </td>
+        <CardBody>
+          <div className="mb-4 flex flex-wrap gap-3">
+            <Input
+              placeholder="Search users..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="max-w-xs"
+            />
+            <SelectField
+              placeholder="All roles"
+              value={role}
+              onValueChange={setRole}
+              options={ROLES.map((r) => ({ value: r, label: r }))}
+              className="w-40"
+            />
+          </div>
+
+          {isLoading ? (
+            <Spinner className="mx-auto my-10" />
+          ) : users.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No users found.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="py-2 text-left font-medium text-muted-foreground">User</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Role</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Status</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Joined</th>
+                  <th className="py-2 text-right font-medium text-muted-foreground">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u.id} className="border-b border-border last:border-0">
+                    <td className="py-3">
+                      <p className="font-medium text-foreground">{u.name}</p>
+                      <p className="text-xs text-muted-foreground">{u.email}</p>
+                    </td>
+                    <td className="py-3">
+                      <SelectField
+                        value={u.role}
+                        onValueChange={(v) =>
+                          updateRole.mutate({
+                            id: u.id,
+                            payload: { role: v as Role },
+                          })
+                        }
+                        options={ROLES.map((r) => ({ value: r, label: r }))}
+                        className="w-36"
+                      />
+                    </td>
+                    <td className="py-3"><StatusBadge status={u.status} /></td>
+                    <td className="py-3 text-muted-foreground">
+                      {u.createdAt ? formatDateTime(u.createdAt) : "—"}
+                    </td>
+                    <td className="py-3 text-right">
+                      {u.status === "ACTIVE" ? (
+                        <button
+                          className="text-xs font-medium text-destructive hover:underline"
+                          onClick={() =>
+                            updateStatus.mutate({ id: u.id, payload: { status: "SUSPENDED" } })
+                          }
+                        >
+                          Suspend
+                        </button>
+                      ) : (
+                        <button
+                          className="text-xs font-medium text-primary-600 hover:underline"
+                          onClick={() =>
+                            updateStatus.mutate({ id: u.id, payload: { status: "ACTIVE" } })
+                          }
+                        >
+                          Reactivate
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </CardBody>
       </Card>
-      {meta && items.length === 0 && !loading ? <EmptyState title="No users match" /> : <Pagination page={meta?.page ?? 1} totalPages={meta?.totalPages ?? 1} onChange={setPage} />}
-    </main>
+    </>
   );
 }

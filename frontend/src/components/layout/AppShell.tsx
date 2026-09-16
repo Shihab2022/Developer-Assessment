@@ -1,166 +1,174 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Building2,
-  ClipboardList,
-  Coins,
-  CreditCard,
-  History,
-  Landmark,
-  LayoutDashboard,
-  LayoutTemplate,
-  Library,
-  LogOut,
-  Mail,
-  Menu,
-  PenLine,
-  ScrollText,
-  UserCircle,
-  Users,
-  X,
+  LayoutDashboard, ClipboardList, Users, Building2, Library,
+  FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
+  Coins, CreditCard, ShieldCheck, Lock, ScrollText, Menu,
+  LogOut, User as UserIcon, LayoutTemplate,
 } from "lucide-react";
-import { cn, initials } from "@/lib/utils";
-import type { NavItem } from "@/lib/constants";
-import { useAuthStore } from "@/store/auth";
-import api from "@/lib/api";
-import { NotificationBell } from "./NotificationBell";
+import { useLogout } from "@/hooks/useAuth";
+import { useRecruiterDashboard, useCandidateDashboard } from "@/hooks/useDashboard";
+import { useUiStore } from "@/store/ui";
+import { useCurrentUser } from "@/store/auth";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { navForRole, isNavActive, type NavItem } from "@/lib/constants";
+import type { Role } from "@/lib/types";
 
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  LayoutDashboard,
-  ClipboardList,
-  Library,
-  Users,
-  PenLine,
+const ICON_MAP: Record<string, React.ElementType> = {
+  LayoutDashboard, ClipboardList, Users, Building2, Library,
+  FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
+  Coins, CreditCard, ShieldCheck, Lock, ScrollText,
   LayoutTemplate,
-  Building2,
-  Coins,
-  Mail,
-  History,
-  CreditCard,
-  ScrollText,
 };
 
-export function AppShell({
-  nav,
-  children,
-}: {
-  nav: NavItem[];
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const user = useCurrentUser();
   const router = useRouter();
-  const { user, clear, refreshToken } = useAuthStore();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUiStore(
+    (s) => ({ sidebarOpen: s.sidebarOpen, toggleSidebar: s.toggleSidebar, setSidebarOpen: s.setSidebarOpen }),
+  );
+  const logout = useLogout();
 
-  const logout = async () => {
-    try {
-      await api.post("/auth/logout", { refreshToken });
-    } catch {
-      /* ignore */
+  if (!user) return null;
+
+  const nav = navForRole(user.role);
+  const primaryNav = nav.filter((n) => !n.secondary);
+  const secondaryNav = nav.filter((n) => n.secondary);
+
+  const recruiterDash = useRecruiterDashboard();
+  const candidateDash = useCandidateDashboard();
+
+  const badgeFor = (badgeType?: string): number | undefined => {
+    if (!badgeType) return undefined;
+    if (badgeType === "pendingInvitations") {
+      const summary = user.role === "CANDIDATE"
+        ? candidateDash.data?.summary
+        : recruiterDash.data?.summary;
+      return summary?.pendingInvitations;
     }
-    clear();
-    router.push("/login");
+    if (badgeType === "pendingEvaluations") {
+      return recruiterDash.data?.summary?.pendingEvaluations;
+    }
+    return undefined;
   };
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/recruiter/dashboard" && pathname.startsWith(href + "/"));
+  const handleLogout = () => {
+    logout.mutate();
+  };
 
-  const sidebar = (
-    <div className="flex h-full flex-col bg-slate-950 text-slate-300">
-      <div className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 font-black text-white">
-          D
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      {/* Mobile overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50 transition-opacity lg:hidden",
+          sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col overflow-y-auto border-r border-border bg-card transition-transform lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex h-14 items-center justify-between border-b border-border px-4">
+          <span className="font-semibold text-foreground">DevAssess</span>
+          <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+            ×
+          </Button>
         </div>
-        <div>
-          <p className="text-sm font-bold text-white">DevAssess</p>
-          <p className="text-[11px] text-slate-500">Assessment Platform</p>
-        </div>
-      </div>
-      <nav className="thin-scrollbar flex-1 space-y-1 overflow-y-auto px-3 py-2">
-        {nav.map((item) => {
-          const Icon = ICONS[item.icon] ?? Landmark;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive(item.href)
-                  ? "bg-primary-600/90 text-white"
-                  : "text-slate-400 hover:bg-slate-800/70 hover:text-white",
-              )}
-            >
-              <Icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="border-t border-slate-800/80 p-3">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-600/30 text-sm font-bold text-primary-300">
-            {initials(user?.name)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">{user?.name}</p>
-            <p className="truncate text-[11px] text-slate-500">{user?.email}</p>
-          </div>
-        </div>
-        <div className="mt-1 space-y-1">
-          <Link
-            href="/profile"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800/70 hover:text-white"
-          >
-            <UserCircle className="h-4 w-4" /> Profile & Settings
-          </Link>
+        <nav className="flex-1 space-y-1 p-2 thin-scrollbar overflow-y-auto">
+          {primaryNav.map((item) => (
+            <NavItem key={item.href} item={item} pathname={pathname} badge={badgeFor(item.badge)} />
+          ))}
+          {secondaryNav.length > 0 && (
+            <>
+              <div className="my-2 border-t border-border" />
+              {secondaryNav.map((item) => (
+                <NavItem key={item.href} item={item} pathname={pathname} badge={badgeFor(item.badge)} secondary />
+              ))}
+            </>
+          )}
+        </nav>
+        <div className="border-t border-border p-2">
           <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-rose-500/10 hover:text-rose-300"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
-            <LogOut className="h-4 w-4" /> Sign out
+            <LogOut className="size-4 shrink-0" />
+            <span>Sign out</span>
           </button>
         </div>
+      </aside>
+
+      {/* Main */}
+      <div className="flex flex-1 flex-col lg:pl-64">
+        <header className="h-14 flex items-center justify-between border-b border-border bg-card px-4">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" className="lg:hidden" onClick={toggleSidebar}>
+              <Menu className="size-4" />
+            </Button>
+            <h1 className="font-semibold text-foreground">
+              {nav.find((n) => isNavActive(pathname, n.href))?.label ?? "Dashboard"}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <ThemeToggle />
+            <Button variant="ghost" size="sm" onClick={() => router.push("/candidate/me")} className="h-9 w-9 rounded-full p-0">
+              {user.profileImageUrl ? (
+                <img src={user.profileImageUrl} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
+              ) : (
+                <UserIcon className="size-5" />
+              )}
+            </Button>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto thin-scrollbar">
+          <div className="container py-6">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );
+}
 
+function NavItem({ item, pathname, badge, secondary }: {
+  item: NavItem;
+  pathname: string;
+  badge?: number;
+  secondary?: boolean;
+}) {
+  const Icon = ICON_MAP[item.icon] ?? FileText;
+  const active = isNavActive(pathname, item.href);
   return (
-    <div className="flex min-h-screen">
-      {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">{sidebar}</aside>
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-slate-900/60" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64">{sidebar}</aside>
-        </div>
+    <Link
+      href={item.href}
+      className={cn(
+        "nav-link",
+        active
+          ? "bg-primary-50 text-primary-700 dark:bg-primary-950/40 dark:text-primary-300"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        secondary && "text-sm opacity-75",
       )}
-
-      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        {/* Topbar */}
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-6">
-          <button
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-          <div className="hidden text-xs text-slate-400 lg:block">
-            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-          </div>
-          <div className="flex items-center gap-1">
-            <NotificationBell />
-          </div>
-        </header>
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-      </div>
-    </div>
+    >
+      <Icon className="size-4 shrink-0" />
+      <span>{item.label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="ml-auto rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-950/50 dark:text-red-300">
+          {badge}
+        </span>
+      )}
+    </Link>
   );
 }

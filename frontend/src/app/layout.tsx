@@ -1,19 +1,31 @@
-import type { Metadata } from "next";
-import { Toaster } from "sonner";
-import "./globals.css";
+import "@/app/globals.css";
 
-export const metadata: Metadata = {
-  title: "DevAssess — Developer Assessment Platform",
-  description:
-    "Create coding, MCQ and written assessments, invite candidates, run server-timed attempts and analyze results.",
-};
+import { Inter } from "next/font/google";
+import { Providers } from "./providers";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const interMono = Inter({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-        <Toaster richColors position="top-right" />
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${interMono.variable} min-h-screen bg-background text-foreground font-sans antialiased`}
+      >
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,139 +1,190 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Meta, Problem } from "@/lib/types";
-import { DIFFICULTIES, PROBLEM_TYPES } from "@/lib/constants";
-import { Card, PageHeader } from "@/components/ui/Card";
-import { StatusBadge } from "@/components/ui/Badge";
-import { Input, Select } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
-import { ConfirmDialog } from "@/components/ui/Modal";
+import { useState } from "react";
+import { useProblems, useCreateProblem, useDeleteProblem } from "@/hooks/useProblems";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { DifficultyBadge, TypeBadge } from "@/components/ui/Badge";
+import { SelectField } from "@/components/ui/Select";
+import { TextField, TextareaField } from "@/components/ui/Input";
+import { Modal, ModalContent, ModalHeader, ModalFooter } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Primitives";
+import { Trash2, Plus } from "lucide-react";
+import type { ProblemInput } from "@/lib/types";
+
+const TYPES = ["CODING", "MCQ", "WRITTEN"];
+const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 
 export default function ProblemsPage() {
-  const [items, setItems] = useState<Problem[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
   const [type, setType] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [deleteRow, setDeleteRow] = useState<Problem | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    api
-      .get("/problems", {
-        params: { page, limit: 10, q: q || undefined, type: type || undefined, difficulty: difficulty || undefined },
-      })
-      .then((res) => {
-        setItems(res.data?.data ?? []);
-        setMeta(res.data?.meta ?? null);
-      })
-      .catch((err) => toast.error(getErrorMessage(err)))
-      .finally(() => setLoading(false));
-  }, [page, q, type, difficulty]);
-
-  useEffect(() => {
-    const t = setTimeout(load, q ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [load, q]);
-
-  const doDelete = async () => {
-    if (!deleteRow) return;
-    try {
-      await api.delete(`/problems/${deleteRow.id}`);
-      toast.success("Problem deleted");
-      setDeleteRow(null);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
+  const { data, isLoading } = useProblems({
+    q: q || undefined,
+    type: (type || undefined) as ProblemInput["type"],
+    difficulty: (difficulty || undefined) as ProblemInput["difficulty"],
+    limit: 50,
+  });
+  const del = useDeleteProblem();
+  const problems = data?.data ?? [];
 
   return (
-    <div>
+    <>
       <PageHeader
-        title="Problem Bank"
-        subtitle="Your reusable coding, MCQ and written questions."
+        title="Question bank"
+        subtitle="Coding, multiple-choice and written problems reused across assessments"
         actions={
-          <Link href="/recruiter/problems/new" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700">
-            <Plus className="h-4 w-4" /> New problem
-          </Link>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="size-4" /> New problem
+          </Button>
         }
       />
-
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input placeholder="Search problems…" className="pl-9" value={q} onChange={(e) => { setPage(1); setQ(e.target.value); }} />
-        </div>
-        <Select className="sm:w-40" value={type} onChange={(e) => { setPage(1); setType(e.target.value); }}>
-          <option value="">All types</option>
-          {PROBLEM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-        </Select>
-        <Select className="sm:w-40" value={difficulty} onChange={(e) => { setPage(1); setDifficulty(e.target.value); }}>
-          <option value="">All levels</option>
-          {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
-        </Select>
-      </div>
-
-      {loading ? (
-        <LoadingBlock />
-      ) : items.length === 0 ? (
-        <EmptyState title="No problems found" description="Create your first problem or adjust the filters." />
-      ) : (
-        <Card>
-          <div className="divide-y divide-slate-100">
-            {items.map((p) => (
-              <div key={p.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-slate-900">{p.title}</p>
-                    <StatusBadge status={p.type} />
-                    <StatusBadge status={p.difficulty} />
-                    <StatusBadge status={p.status} />
-                  </div>
-                  <p className="mt-1 line-clamp-1 text-sm text-slate-500">{p.description}</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    {p.points} pts{p.category ? ` · ${p.category}` : ""}
-                    {Array.isArray(p.tags) && p.tags.length > 0 ? ` · ${p.tags.map((t) => (typeof t === "string" ? t : t.name)).join(", ")}` : ""}
-                  </p>
-                </div>
-                <div className="flex shrink-0 gap-1.5">
-                  <Link href={`/recruiter/problems/${p.id}`} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </Link>
-                  <Button2 onClick={() => setDeleteRow(p)} />
-                </div>
-              </div>
-            ))}
+      <Card>
+        <CardBody>
+          <div className="mb-4 flex flex-wrap gap-3">
+            <Input
+              placeholder="Search problems..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="max-w-xs"
+            />
+            <SelectField
+              placeholder="All types"
+              value={type}
+              onValueChange={setType}
+              options={TYPES.map((t) => ({ value: t, label: t }))}
+              className="w-36"
+            />
+            <SelectField
+              placeholder="All difficulties"
+              value={difficulty}
+              onValueChange={setDifficulty}
+              options={DIFFICULTIES.map((d) => ({ value: d, label: d }))}
+              className="w-36"
+            />
           </div>
-        </Card>
-      )}
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onChange={setPage} />}
 
+          {isLoading ? (
+            <Spinner className="mx-auto my-10" />
+          ) : problems.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No problems found. Create your first problem.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="py-2 text-left font-medium text-muted-foreground">Title</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Type</th>
+                  <th className="py-2 text-left font-medium text-muted-foreground">Difficulty</th>
+                  <th className="py-2 text-right font-medium text-muted-foreground">Points</th>
+                  <th className="py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {problems.map((p) => (
+                  <tr key={p.id} className="border-b border-border last:border-0">
+                    <td className="py-3 font-medium text-foreground">{p.title}</td>
+                    <td className="py-3"><TypeBadge type={p.type} /></td>
+                    <td className="py-3"><DifficultyBadge difficulty={p.difficulty} /></td>
+                    <td className="py-3 text-right tabular-nums">{p.points}</td>
+                    <td className="py-3 text-right">
+                      <Button
+                        variant="ghost" size="sm"
+                        onClick={() => { if (confirm(`Delete "${p.title}"?`)) del.mutate(p.id); }}
+                        disabled={del.isPending}
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardBody>
+      </Card>
 
-      <ConfirmDialog
-        open={!!deleteRow}
-        onClose={() => setDeleteRow(null)}
-        onConfirm={doDelete}
-        title="Delete problem?"
-        message={`"${deleteRow?.title}" will be removed from the bank (soft delete).`}
-        confirmLabel="Delete"
-        danger
-      />
-    </div>
+      <CreateProblemModal open={createOpen} onOpenChange={setCreateOpen} />
+    </>
   );
 }
 
-function Button2({ onClick }: { onClick: () => void }) {
+function CreateProblemModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const create = useCreateProblem();
+  const [form, setForm] = useState<ProblemInput>({
+    title: "",
+    description: "",
+    type: "CODING",
+    difficulty: "MEDIUM",
+    points: 10,
+  });
+
+  const submit = () => {
+    create.mutate(form, {
+      onSuccess: () => {
+        onOpenChange(false);
+        setForm({ title: "", description: "", type: "CODING", difficulty: "MEDIUM", points: 10 });
+      },
+    });
+  };
+
   return (
-    <button onClick={onClick} className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Delete problem">
-      <Trash2 className="h-4 w-4" />
-    </button>
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent size="md">
+        <ModalHeader title="New problem" />
+        <div className="space-y-4 p-4">
+          <TextField
+            label="Title"
+            required
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+          />
+          <TextareaField
+            label="Description"
+            required
+            rows={4}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+          <div className="grid grid-cols-3 gap-3">
+            <SelectField
+              label="Type"
+              value={form.type}
+              onValueChange={(v) => setForm({ ...form, type: v as ProblemInput["type"] })}
+              options={TYPES.map((t) => ({ value: t, label: t }))}
+            />
+            <SelectField
+              label="Difficulty"
+              value={form.difficulty}
+              onValueChange={(v) => setForm({ ...form, difficulty: v as ProblemInput["difficulty"] })}
+              options={DIFFICULTIES.map((d) => ({ value: d, label: d }))}
+            />
+            <TextField
+              label="Points"
+              type="number"
+              min={1}
+              value={form.points ?? 10}
+              onChange={(e) => setForm({ ...form, points: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+        <ModalFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.title || !form.description || create.isPending}>
+            {create.isPending ? "Creating…" : "Create problem"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }

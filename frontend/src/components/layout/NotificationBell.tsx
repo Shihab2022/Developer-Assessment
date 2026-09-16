@@ -1,105 +1,105 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import api from "@/lib/api";
-import { Bell } from "lucide-react";
-import { cn, formatDateTime } from "@/lib/utils";
-import { NOTIFICATION_ICONS } from "@/lib/constants";
-import type { AppNotification } from "@/lib/types";
-import { EmptyState } from "@/components/ui/Misc";
+import { useState } from "react";
+import { Bell, BellDot } from "lucide-react";
+import { useNotifications, useUnreadNotificationCount, useMarkAllNotificationsRead } from "@/hooks/useNotifications";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Modal, ModalContent, ModalHeader } from "@/components/ui/Modal";
+import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
-export function NotificationBell() {
+export function NotificationBell({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
-  const [unread, setUnread] = useState(0);
-  const [items, setItems] = useState<AppNotification[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
+  const { data: notifications, isLoading } = useNotifications({ limit: 10 });
+  const { data: unreadData } = useUnreadNotificationCount(open);
+  const markAllRead = useMarkAllNotificationsRead();
 
-  const load = () => {
-    api
-      .get("/notifications", { params: { page: 1, limit: 6 } })
-      .then((res) => setItems(res.data?.data ?? []))
-      .catch(() => {});
-    api
-      .get("/notifications/unread-count")
-      .then((res) => setUnread(res.data?.data?.unreadCount ?? 0))
-      .catch(() => {});
-  };
-
-  useEffect(() => {
-    load();
-    const t = setInterval(load, 60_000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
-
-  const markRead = async (n: AppNotification) => {
-    if (n.status === "READ") return;
-    try {
-      await api.patch(`/notifications/${n.id}/read`);
-      setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, status: "READ" } : x)));
-      setUnread((u) => Math.max(0, u - 1));
-    } catch {
-      /* ignore */
-    }
-  };
+  const unreadCount = unreadData?.unreadCount ?? 0;
 
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        className={cn("relative h-9 w-9 rounded-lg p-0", className)}
         aria-label="Notifications"
+        onClick={() => setOpen(true)}
       >
-        <Bell className="h-5 w-5" />
-        {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-            {unread > 9 ? "9+" : unread}
-          </span>
+        {unreadCount > 0 ? (
+          <Bell className="size-4" />
+        ) : (
+          <BellDot className="size-4 text-muted-foreground" />
         )}
-      </button>
+        {unreadCount > 0 && (
+          <Badge
+            tone="red"
+            size="sm"
+            className="absolute -top-1 -right-1 h-5 min-w-[20px] rounded-full px-1"
+          >
+            {unreadCount}
+          </Badge>
+        )}
+      </Button>
 
-      {open && (
-        <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-            <p className="text-sm font-semibold text-slate-900">Notifications</p>
-            <Link href="/notifications" className="text-xs font-medium text-primary-600 hover:underline" onClick={() => setOpen(false)}>
-              View all
-            </Link>
-          </div>
-          <div className="thin-scrollbar max-h-80 overflow-y-auto">
-            {items.length === 0 ? (
-              <EmptyState title="No notifications yet" className="py-8" />
-            ) : (
-              items.map((n) => (
-                <button
-                  key={n.id}
-                  onClick={() => markRead(n)}
-                  className={cn(
-                    "flex w-full gap-3 border-b border-slate-50 px-4 py-3 text-left hover:bg-slate-50",
-                    n.status === "UNREAD" && "bg-primary-50/40",
-                  )}
+      <Modal open={open} onOpenChange={setOpen}>
+        <ModalContent size="sm" showClose={false} className="p-0">
+          <ModalHeader>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="font-semibold">Notifications</h3>
+              {unreadCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => markAllRead.mutate()}
+                  disabled={markAllRead.isPending}
                 >
-                  <span className="text-lg leading-none">{NOTIFICATION_ICONS[n.type] ?? "🔔"}</span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-slate-900">{n.title}</span>
-                    <span className="line-clamp-2 block text-xs text-slate-500">{n.message}</span>
-                    <span className="mt-1 block text-[11px] text-slate-400">{formatDateTime(n.createdAt)}</span>
-                  </span>
-                  {n.status === "UNREAD" && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary-500" />}
-                </button>
-              ))
+                  Mark all read
+                </Button>
+              )}
+            </div>
+          </ModalHeader>
+          <div className="max-h-80 overflow-y-auto thin-scrollbar">
+            {isLoading ? (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                Loading notifications...
+              </div>
+            ) : notifications?.data.length === 0 ? (
+              <div className="p-4 text-center text-sm text-muted-foreground">
+                No notifications
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {notifications?.data.map((n) => (
+                  <div
+                    key={n.id}
+                    className={cn(
+                      "flex items-start gap-3 p-4 hover:bg-muted/50",
+                      n.status === "UNREAD" && "bg-primary-50/60 dark:bg-primary-950/30",
+                    )}
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">
+                        {n.title}
+                      </p>
+                      {n.message && (
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+                          {n.message}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(n.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        </div>
-      )}
-    </div>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }

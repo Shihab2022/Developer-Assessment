@@ -1,105 +1,137 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import Link from "next/link";
-import { CalendarClock, Play } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Invitation, Meta } from "@/lib/types";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
-import { StatusBadge } from "@/components/ui/Badge";
+import { useMyInvitations, useAcceptInvitation, useRejectInvitation } from "@/hooks/useCandidate";
+import { useStartAttempt } from "@/hooks/useAttempts";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
+import { StatusBadge } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Primitives";
+import { useRouter } from "next/navigation";
 
-export default function InvitationsPage() {
-  const [items, setItems] = useState<Invitation[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+export default function CandidateInvitationsPage() {
+  const { data, isLoading } = useMyInvitations({ limit: 50 });
+  const accept = useAcceptInvitation();
+  const reject = useRejectInvitation();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/candidates/me/invitations", { params: { page, limit: 10 } });
-      setItems(res.data?.data ?? []);
-      setMeta(res.data?.meta ?? null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
+  const invitations = data?.data ?? [];
 
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <LoadingBlock />;
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 space-y-6">
-      <PageHeader title="My Invitations" subtitle="Assessments you've been invited to." />
-
-      <div className="space-y-3">
-        {items.length === 0 ? (
-          <EmptyState icon={<CalendarClock className="h-6 w-6" />} title="No invitations" description="When a recruiter invites you, it will appear here." />
-        ) : (
-          items.map((inv) => (
-            <InvitationsCard key={inv.id} inv={inv} onStarted={() => load()} />
-          ))
-        )}
-      </div>
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onChange={setPage} />}
-    </main>
+    <>
+      <PageHeader
+        title="My invitations"
+        subtitle="Assessments companies have invited you to take"
+      />
+      {isLoading ? (
+        <Spinner className="mx-auto my-12" />
+      ) : invitations.length === 0 ? (
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            No invitations yet. When a company invites you, it will appear here.
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {invitations.map((inv) => (
+            <InvitationCard
+              key={inv.id}
+              invitation={inv}
+              onAccept={() => accept.mutate(inv.id)}
+              onReject={() => reject.mutate(inv.id)}
+              accepting={accept.isPending}
+              rejecting={reject.isPending}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
-function InvitationsCard({
-  inv, onStarted,
-}: { inv: Invitation; onStarted: () => void }) {
+function InvitationCard({
+  invitation,
+  onAccept,
+  onReject,
+  accepting,
+  rejecting,
+}: {
+  invitation: import("@/lib/types").Invitation;
+  onAccept: () => void;
+  onReject: () => void;
+  accepting: boolean;
+  rejecting: boolean;
+}) {
+  const router = useRouter();
+  const start = useStartAttempt(invitation.assessment?.id ?? "");
   const [starting, setStarting] = useState(false);
 
-  const start = async () => {
-    setStarting(true);
-    try {
-      const res = await api.post(`/assessments/${inv.assessmentId}/start`);
-      const attemptId = res.data?.data?.attemptId ?? res.data?.data?.id;
-      if (attemptId) {
-        window.location.href = `/candidate/attempts/${attemptId}`;
-      } else {
-        toast("Could not start attempt", { description: "No attempt id returned" });
-      }
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setStarting(false);
-    }
-  };
+  const canStart =
+    invitation.status === "ACCEPTED" &&
+    invitation.assessment?.status === "PUBLISHED" &&
+    !invitation.attempts?.some((a) => a.status === "IN_PROGRESS" || a.status === "SUBMITTED");
 
-  const canStart = inv.status === "PENDING" || inv.status === "ACCEPTED";
+  const inProgress = invitation.attempts?.find((a) => a.status === "IN_PROGRESS");
+
+  const handleStart = () => {
+    if (inProgress) {
+      router.push(`/candidate/attempts/${inProgress.id}`);
+      return;
+    }
+    setStarting(true);
+    start.mutate(undefined, {
+      onSuccess: (attempt) => router.push(`/candidate/attempts/${attempt.id}`),
+      onError: () => setStarting(false),
+    });
+  };
 
   return (
     <Card>
-      <CardBody className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold text-slate-800">{inv.assessment?.title ?? "Assessment"}</p>
-          {inv.assessment?.company && (
-            <p className="text-xs text-slate-400">{inv.assessment.company.name}</p>
-          )}
-          <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-500">
-            <span>📧 {inv.email}</span>
-            {inv.assessment?.durationMinutes && <span>⏱ {inv.assessment.durationMinutes} min</span>}
-            {inv.expiresAt && <span>📅 expires {new Date(inv.expiresAt).toLocaleDateString()}</span>}
+      <CardBody className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-foreground">
+              {invitation.assessment?.title ?? "Assessment"}
+            </h3>
+            <StatusBadge status={invitation.status} />
           </div>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {invitation.assessment?.company?.name
+              ? `${invitation.assessment.company.name} · `
+              : ""}
+            {invitation.assessment?.durationMinutes
+              ? `${invitation.assessment.durationMinutes} minutes · `
+              : ""}
+            {invitation.expiresAt
+              ? `expires ${new Date(invitation.expiresAt).toLocaleDateString()}`
+              : "no expiry"}
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge status={inv.status} />
+        <div className="flex shrink-0 gap-2">
+          {invitation.status === "PENDING" && (
+            <>
+              <Button size="sm" onClick={onAccept} disabled={accepting}>
+                {accepting ? "…" : "Accept"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject} disabled={rejecting}>
+                Decline
+              </Button>
+            </>
+          )}
           {canStart && (
-            <Button size="sm" loading={starting} onClick={start}>
-              <Play className="h-3 w-3" /> <span className="ml-1">Start</span>
+            <Button size="sm" onClick={handleStart} disabled={starting}>
+              {starting ? "Starting…" : "Start assessment"}
             </Button>
           )}
-          {!canStart && (
-            <Link href={`/candidate/attempts`} className="text-xs font-medium text-primary-600 hover:underline">
-              View attempt
-            </Link>
+          {inProgress && (
+            <Button size="sm" asChild>
+              <Link href={`/candidate/attempts/${inProgress.id}`}>Resume attempt</Link>
+            </Button>
+          )}
+          {invitation.status === "COMPLETED" && (
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/candidate/results">View results</Link>
+            </Button>
           )}
         </div>
       </CardBody>

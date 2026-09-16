@@ -1,141 +1,161 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { LayoutTemplate, Plus, Copy, Trash2 } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { AssessmentTemplate, Meta } from "@/lib/types";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
-import { StatusBadge } from "@/components/ui/Badge";
+import { useState } from "react";
+import { useTemplates, useCreateTemplate, useDeleteTemplate, useUseTemplate } from "@/hooks/useTemplates";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
-import { Modal, ConfirmDialog } from "@/components/ui/Modal";
-import { TemplateForm } from "@/components/recruiter/TemplateForm";
+import { TextField, TextareaField } from "@/components/ui/Input";
+import { Modal, ModalContent, ModalHeader, ModalFooter } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Primitives";
+import { Trash2, Plus, Copy } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { CreateTemplatePayload } from "@/lib/api/payloads";
 
 export default function TemplatesPage() {
-  const router = useRouter();
-  const [items, setItems] = useState<AssessmentTemplate[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [open, setOpen] = useState(false);
-  const [confirm, setConfirm] = useState<{ id: string; title: string } | null>(null);
-  const [editing, setEditing] = useState<AssessmentTemplate | null>(null);
+  const { data, isLoading } = useTemplates({ limit: 50 });
+  const del = useDeleteTemplate();
+  const [createOpen, setCreateOpen] = useState(false);
+  const templates = data?.data ?? [];
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/assessment-templates", { params: { page, limit: 10 } });
-      setItems(res.data?.data ?? []);
-      setMeta(res.data?.meta ?? null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const mutate = () => { load(); };
-
-  const useTemplate = async (t: AssessmentTemplate) => {
-    try {
-      const res = await api.post(`/assessment-templates/${t.id}/use`, {});
-      const assessmentId = res.data?.data?.id ?? res.data?.data?.assessmentId;
-      if (assessmentId) router.push(`/recruiter/assessments/${assessmentId}/edit`);
-      else toast.success("Template used as new assessment");
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
-
-  const remove = async () => {
-    if (!confirm) return;
-    try {
-      await api.delete(`/assessment-templates/${confirm.id}`);
-      toast.success("Template deleted");
-      setConfirm(null);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    }
-  };
-
-  if (loading) return <LoadingBlock />;
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 space-y-6">
+    <>
       <PageHeader
-        title="Assessment Templates"
-        subtitle="Reusable assessment configurations you can launch in one click."
-        actions={<Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}><Plus className="h-4 w-4" /> New template</Button>}
+        title="Templates"
+        subtitle="Reusable assessment blueprints — create an assessment from one in a click"
+        actions={
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="size-4" /> New template
+          </Button>
+        }
       />
+      {isLoading ? (
+        <Spinner className="mx-auto my-12" />
+      ) : templates.length === 0 ? (
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            No templates yet. Create one to standardise your assessments.
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {templates.map((t) => (
+            <TemplateCard
+              key={t.id}
+              template={t}
+              onDelete={() => { if (confirm(`Delete template "${t.title}"?`)) del.mutate(t.id); }}
+            />
+          ))}
+        </div>
+      )}
+      <CreateTemplateModal open={createOpen} onOpenChange={setCreateOpen} />
+    </>
+  );
+}
 
-      <div className="space-y-3">
-        {items.length === 0 ? (
-          <EmptyState icon={<LayoutTemplate className="h-6 w-6" />} title="No templates" description="Create a template to reuse assessment settings." />
-        ) : (
-          items.map((t) => (
-            <Card key={t.id}>
-              <CardBody className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-semibold text-slate-800">{t.title}</p>
-                  <p className="mt-0.5 max-w-xl text-sm text-slate-600 line-clamp-2">{t.description}</p>
-                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-500">
-                    {t.durationMinutes && <span>⏱ {t.durationMinutes} min</span>}
-                    {t.skills?.length ? <span>🏷 {t.skills.join(", ")}</span> : null}
-                    {t.companyId && <span>🏢 scoped</span>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={t.status ?? "DRAFT"} />
-                  <Button size="sm" variant="outline" onClick={() => useTemplate(t)}>
-                    <Copy className="h-3 w-3" /> Use
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => { setEditing(t); setOpen(true); }}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="danger" onClick={() => setConfirm({ id: t.id, title: t.title })}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          ))
-        )}
-      </div>
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onChange={setPage} />}
+function TemplateCard({
+  template,
+  onDelete,
+}: {
+  template: { id: string; title: string; description?: string | null; durationMinutes: number; passingScore: number };
+  onDelete: () => void;
+}) {
+  const router = useRouter();
+  const use = useUseTemplate();
 
-      <Modal
-        open={open}
-        onClose={() => { setOpen(false); setEditing(null); }}
-        title={editing ? "Edit template" : "New template"}
-      >
-        <TemplateForm
-          initial={editing}
-          onSubmit={async (body) => {
-            if (editing) {
-              await api.patch(`/assessment-templates/${editing.id}`, body);
-              toast.success("Template updated");
-            } else {
-              await api.post("/assessment-templates", body);
-              toast.success("Template created");
-            }
-            setOpen(false); setEditing(null);
-            load();
-          }}
-        />
-      </Modal>
+  return (
+    <Card>
+      <CardBody className="flex h-full flex-col justify-between gap-4">
+        <div>
+          <h3 className="font-medium text-foreground">{template.title}</h3>
+          {template.description && (
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{template.description}</p>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {template.durationMinutes} min · pass {template.passingScore}%
+          </p>
+        </div>
+        <div className="flex justify-end gap-1">
+          <Button
+            variant="outline" size="sm"
+            onClick={() => use.mutate({ id: template.id }, { onSuccess: (a) => router.push(`/recruiter/assessments/${a.id}`) })}
+            disabled={use.isPending}
+          >
+            <Copy className="size-4" /> Use
+          </Button>
+          <Button variant="ghost" size="sm" onClick={onDelete}>
+            <Trash2 className="size-4 text-destructive" />
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
 
-      <ConfirmDialog
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
-        onConfirm={remove}
-        title="Delete template"
-        message={`Delete "${confirm?.title}"? This cannot be undone.`}
-        danger
-      />
-    </main>
+function CreateTemplateModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const create = useCreateTemplate();
+  const [form, setForm] = useState<CreateTemplatePayload>({
+    title: "",
+    description: "",
+    durationMinutes: 60,
+    passingScore: 60,
+    maxAttempts: 1,
+  });
+
+  const submit = () => {
+    create.mutate(form, {
+      onSuccess: () => {
+        onOpenChange(false);
+        setForm({ title: "", description: "", durationMinutes: 60, passingScore: 60, maxAttempts: 1 });
+      },
+    });
+  };
+
+  return (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent size="md">
+        <ModalHeader title="New template" />
+        <div className="space-y-4 p-4">
+          <TextField
+            label="Title" required
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+          />
+          <TextareaField
+            label="Description" rows={3}
+            value={form.description ?? ""}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+          <div className="grid grid-cols-3 gap-3">
+            <TextField
+              label="Duration (min)" type="number" min={5}
+              value={form.durationMinutes}
+              onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
+            />
+            <TextField
+              label="Passing score (%)" type="number" min={0} max={100}
+              value={form.passingScore}
+              onChange={(e) => setForm({ ...form, passingScore: Number(e.target.value) })}
+            />
+            <TextField
+              label="Max attempts" type="number" min={1}
+              value={form.maxAttempts}
+              onChange={(e) => setForm({ ...form, maxAttempts: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+        <ModalFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!form.title || create.isPending}>
+            {create.isPending ? "Creating…" : "Create template"}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }

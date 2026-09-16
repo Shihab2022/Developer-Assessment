@@ -1,70 +1,66 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { CreditCard } from "lucide-react";
-import api, { getErrorMessage } from "@/lib/api";
-import type { Payment, Meta } from "@/lib/types";
-import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
+import { useAdminPayments } from "@/hooks/useAdmin";
+import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { EmptyState, LoadingBlock, Pagination } from "@/components/ui/Misc";
+import { Spinner } from "@/components/ui/Primitives";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
+import type { Payment } from "@/lib/types.platform";
 
 export default function AdminPaymentsPage() {
-  const [items, setItems] = useState<Payment[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [q, setQ] = useState("");
+  const { data, isLoading } = useAdminPayments({ limit: 100 });
+  const payments = data?.data ?? [];
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get("/admin/payments", { params: { page, limit: 10, q } });
-      setItems(res.data?.data ?? []);
-      setMeta(res.data?.meta ?? null);
-    } catch (err) {
-      toast.error(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [page, q]);
+  const total = payments
+    .filter((p: Payment) => p.status === "PAID")
+    .reduce((sum: number, p: Payment) => sum + p.amount, 0);
 
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <LoadingBlock />;
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <PageHeader title="Payments" subtitle="All platform payments." actions={<Button size="sm" variant="outline"><CreditCard className="h-4 w-4" /></Button>} />
-      <div className="mb-4 max-w-md"><Input placeholder="Filter (gateway / status)…" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} /></div>
+    <>
+      <PageHeader
+        title="Payments"
+        subtitle={payments.length ? `${payments.length} transactions · ${formatCurrency(total)} collected` : "All credit purchases"}
+      />
       <Card>
         <CardBody className="p-0">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-5 py-3">Amount</th>
-                <th className="px-5 py-3">Credits</th>
-                <th className="px-5 py-3">Company</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.map((p) => (
-                <tr key={p.id}>
-                  <td className="px-5 py-3">{p.currency ?? "USD"} {p.amount}</td>
-                  <td className="px-5 py-3">{p.credits ?? "—"}</td>
-                                    <td className="px-5 py-3">{p.company?.name ?? p.companyId ?? "—"}</td>
-                  <td className="px-5 py-3"><StatusBadge status={p.status} /></td>
-                  <td className="px-5 py-3 text-slate-500">{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "—"}</td>
+          {isLoading ? (
+            <Spinner className="mx-auto my-10" />
+          ) : payments.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No payments yet.</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Date</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Company</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Package</th>
+                  <th className="px-4 py-2 text-right font-medium text-muted-foreground">Amount</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-2 text-left font-medium text-muted-foreground">Gateway</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {payments.map((p: Payment) => (
+                  <tr key={p.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {p.createdAt ? formatDateTime(p.createdAt) : "—"}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-foreground">{p.company?.name ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {p.package ? `${p.package.name} (${p.package.credits} credits)` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium tabular-nums">
+                      {formatCurrency(p.amount, p.currency)}
+                    </td>
+                    <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.gateway}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </CardBody>
       </Card>
-      {meta && items.length === 0 && !loading ? <EmptyState title="No payments found" /> : <Pagination page={meta?.page ?? 1} totalPages={meta?.totalPages ?? 1} onChange={setPage} />}
-    </main>
+    </>
   );
 }

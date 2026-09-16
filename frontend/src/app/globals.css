@@ -2,33 +2,255 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------
+   Design tokens — light theme
+   ------------------------------------------------------------------ */
 @layer base {
-  html {
-    @apply antialiased scroll-smooth;
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 226 100% 97%;
+    --accent-foreground: 243 75% 38%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 243 75% 59%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 44%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 42%;
+    --info-foreground: 0 0% 100%;
+
+    --sidebar: 222 47% 11%;
+    --sidebar-foreground: 213 27% 84%;
+    --sidebar-muted: 215 20% 55%;
+    --sidebar-accent: 243 75% 59%;
+    --sidebar-border: 217 33% 20%;
+
+    --radius: 0.75rem;
   }
+
+  /* ------------------------------------------------------------------
+     Design tokens — dark theme
+     ------------------------------------------------------------------ */
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 44% 11%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 44% 11%;
+    --popover-foreground: 210 40% 96%;
+
+    --muted: 217 33% 16%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 243 40% 20%;
+    --accent-foreground: 226 100% 94%;
+
+    --border: 217 33% 19%;
+    --input: 217 33% 19%;
+    --ring: 239 84% 67%;
+
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 70% 42%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+    --info: 199 89% 55%;
+    --info-foreground: 222 47% 11%;
+
+    --sidebar: 222 47% 7%;
+    --sidebar-foreground: 213 27% 84%;
+    --sidebar-muted: 215 20% 50%;
+    --sidebar-accent: 239 84% 67%;
+    --sidebar-border: 217 33% 16%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-background text-foreground font-sans;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-primary-600/25;
+  }
+
+  /* Keyboard-only focus rings everywhere */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold tracking-tight text-foreground;
+    text-wrap: balance;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    @apply font-sans;
   }
 }
 
+/* ------------------------------------------------------------------
+   Component-level patterns
+   ------------------------------------------------------------------ */
 @layer components {
   .field-label {
-    @apply mb-1.5 block text-sm font-medium text-slate-700;
+    @apply mb-1.5 block text-sm font-medium text-foreground;
   }
+
+  .field-hint {
+    @apply mt-1 text-xs text-muted-foreground;
+  }
+
+  .field-error {
+    @apply mt-1 text-xs font-medium text-destructive;
+  }
+
   .code-area {
-    @apply w-full rounded-lg border border-slate-300 bg-slate-950 p-4 font-mono text-sm text-emerald-100 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30;
+    @apply w-full rounded-lg border border-border bg-slate-950 p-4 font-mono text-sm text-emerald-100 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30;
+  }
+
+  /* Cards / auth / marketing surfaces */
+  .panel {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-card;
+  }
+
+  .panel-header {
+    @apply flex items-start justify-between gap-4 border-b border-border px-5 py-4;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors;
+  }
+
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950/40 dark:text-primary-300;
+  }
+
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white;
   }
 }
 
-/* Slim scrollbars for panes */
-.thin-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ------------------------------------------------------------------
+   Utilities
+   ------------------------------------------------------------------ */
+@layer utilities {
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-300 dark:bg-slate-600;
+  }
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 via-violet-600 to-sky-500 bg-clip-text text-transparent dark:from-primary-300 dark:via-violet-300 dark:to-sky-300;
+  }
+
+  .glass {
+    @apply border border-white/20 bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/70;
+  }
+
+  .grid-bg {
+    @apply bg-grid-slate bg-grid;
+  }
+
+  .mask-fade-x {
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
 }
-.thin-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(203 213 225);
-  border-radius: 8px;
+
+/* ------------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-.thin-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+
+/* ------------------------------------------------------------------
+   Print — used by "Save as PDF" on report pages (the API only exposes CSV)
+   ------------------------------------------------------------------ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    @apply bg-white text-black;
+  }
+  .panel {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
 }
