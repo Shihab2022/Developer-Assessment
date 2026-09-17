@@ -288,6 +288,19 @@ export const PROGRAMMING_LANGUAGES: LanguageOption[] = [
     monaco: "sql",
     template: "SELECT *\nFROM table_name\nWHERE condition;\n",
   },
+  {
+    value: "html",
+    label: "HTML",
+    monaco: "html",
+    template:
+      "<!DOCTYPE html>\n<html lang=\"en\">\n  <body>\n    <h1>Hello, world!</h1>\n  </body>\n</html>\n",
+  },
+  {
+    value: "css",
+    label: "CSS",
+    monaco: "css",
+    template: "body {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n}\n",
+  },
 ];
 
 export const DEFAULT_LANGUAGE = PROGRAMMING_LANGUAGES[0]!;
