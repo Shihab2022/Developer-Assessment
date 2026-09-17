@@ -1,0 +1,161 @@
+{
+  "technology": "css",
+  "label": "CSS",
+  "description": "Selectors, specificity, the cascade, layout with Flexbox and Grid, responsive units and modern CSS features.",
+  "source": "Authored for DevAssess",
+  "questionCount": 10,
+  "levels": [
+    { "id": "L1", "label": "Fundamental" },
+    { "id": "L2", "label": "Intermediate" },
+    { "id": "L3", "label": "Advanced" }
+  ],
+  "topics": [
+    "Box Model", "Selectors & Specificity", "Cascade & Inheritance", "Units & Sizing",
+    "Flexbox", "Grid", "Positioning", "Responsive Design",
+    "Transitions & Animations", "Custom Properties"
+  ],
+  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
+  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "questions": [
+    {
+      "id": "css-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Box Model", "difficulty": "EASY",
+      "title": "With `box-sizing: border-box`, what does `width: 200px` mean?",
+      "prompt": "With `box-sizing: border-box`, what does `width: 200px` mean?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "The content box is 200px and padding plus border are added on top" },
+        { "id": "B", "text": "The total box — content, padding and border together — is 200px" },
+        { "id": "C", "text": "The margin box is 200px" },
+        { "id": "D", "text": "Only the border is 200px" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`border-box` includes padding and border inside the declared width, which is why most resets apply it globally. With the default `content-box` the element grows past 200px."
+    },
+    {
+      "id": "css-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Selectors & Specificity", "difficulty": "EASY",
+      "title": "Which selector wins between `.card .title` and `#main .title`?",
+      "prompt": "Which selector wins between `.card .title` and `#main .title`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`.card .title`, because two classes beat one class" },
+        { "id": "B", "text": "`#main .title`, because an ID contributes more specificity than any number of classes" },
+        { "id": "C", "text": "Whichever appears later in the stylesheet" },
+        { "id": "D", "text": "They tie and the browser picks one at random" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Specificity compares (ids, classes/attributes/pseudo-classes, elements) column by column. `#main .title` is (1,1,0) versus (0,2,0), so the ID wins before source order is considered."
+    },
+    {
+      "id": "css-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Cascade & Inheritance", "difficulty": "EASY",
+      "title": "Which properties are inherited by child elements by default?",
+      "prompt": "Which properties are inherited by child elements by default?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`color` and `font-family`" },
+        { "id": "B", "text": "`margin` and `padding`" },
+        { "id": "C", "text": "`border` and `background`" },
+        { "id": "D", "text": "`width` and `height`" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Typography properties inherit so a single `body` rule styles the page; box model and layout properties do not, which is why they must be set per element."
+    },
+    {
+      "id": "css-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Units & Sizing", "difficulty": "EASY",
+      "title": "Why is `1rem` usually preferred over `1em` for component spacing?",
+      "prompt": "Why is `1rem` usually preferred over `1em` for component spacing?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`rem` is relative to the root font size, so values stay predictable instead of compounding through nested `em` contexts" },
+        { "id": "B", "text": "`em` is not a valid CSS unit" },
+        { "id": "C", "text": "`rem` ignores the user's font-size preference" },
+        { "id": "D", "text": "`em` only works inside media queries" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`rem` resolves against the root element's font size while `em` resolves against the element's own font size, so nested components compound. Both respect the user's font-size setting."
+    },
+    {
+      "id": "css-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Flexbox", "difficulty": "MEDIUM",
+      "title": "In a flex container, what does `flex: 1` set on an item?",
+      "prompt": "In a flex container, what does `flex: 1` set on an item?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`flex-grow: 1; flex-shrink: 1; flex-basis: 0%` — the item absorbs free space equally" },
+        { "id": "B", "text": "`flex-grow: 1` only, leaving `flex-basis` at `auto`" },
+        { "id": "C", "text": "`flex-basis: 1px` and nothing else" },
+        { "id": "D", "text": "It centres the item along the cross axis" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "The shorthand expands to `1 1 0%`, so items share leftover space after their own content needs are met. Centring on the cross axis is `align-items`, not `flex`."
+    },
+    {
+      "id": "css-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Grid", "difficulty": "MEDIUM",
+      "title": "Which declaration makes a responsive grid of cards with a minimum width of 240px that grows to fill the row?",
+      "prompt": "Which declaration makes a responsive grid of cards with a minimum width of 240px that grows to fill the row?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`" },
+        { "id": "B", "text": "`grid-template-columns: repeat(3, minmax(240px, 1fr))`" },
+        { "id": "C", "text": "`grid-auto-flow: column`" },
+        { "id": "D", "text": "`display: flex; flex-wrap: wrap` with `width: 240px` on each card" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`auto-fill` creates as many 240px-or-wider tracks as fit, so no media queries are needed. A fixed `repeat(3, ...)` stays three columns on every screen."
+    },
+    {
+      "id": "css-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Positioning", "difficulty": "MEDIUM",
+      "title": "A badge must sit at the top-right corner of its parent card. What is required?",
+      "prompt": "A badge must sit at the top-right corner of its parent card. What is required?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`position: absolute; top: 0; right: 0` on the badge and `position: relative` on the card" },
+        { "id": "B", "text": "`position: fixed` on the badge alone" },
+        { "id": "C", "text": "`position: sticky; top: 0` on the badge" },
+        { "id": "D", "text": "`float: right` on the badge" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Absolutely positioned elements resolve against the nearest positioned ancestor, so the card needs `position: relative`. `fixed` attaches to the viewport and `sticky` is for scroll behaviour."
+    },
+    {
+      "id": "css-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Responsive Design", "difficulty": "MEDIUM",
+      "title": "Why does `@media (max-width: 767px)` avoid the classic breakpoint overlap bug?",
+      "prompt": "Why does `@media (max-width: 767px)` avoid the classic breakpoint overlap bug?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Because fractional device widths are impossible, so `max-width: 767px` and `min-width: 768px` cannot both match" },
+        { "id": "B", "text": "Because media queries only support integers" },
+        { "id": "C", "text": "Because `max-width` is evaluated in device pixels rather than CSS pixels" },
+        { "id": "D", "text": "It does not — overlap must be solved with `!important`" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Using `max-width: 767.98px` (or the integer trick) keeps mobile and desktop rules mutually exclusive; `max-width: 768px` plus `min-width: 768px` would both match at exactly 768px."
+    },
+    {
+      "id": "css-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "Transitions & Animations", "difficulty": "HARD",
+      "title": "A hover animation janks the layout. Which property pair keeps it on the compositor?",
+      "prompt": "A hover animation janks the layout. Which property pair keeps it on the compositor?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`width` and `height`" },
+        { "id": "B", "text": "`top` and `left`" },
+        { "id": "C", "text": "`transform` and `opacity`" },
+        { "id": "D", "text": "`margin` and `padding`" }
+      ],
+      "correctOptionId": "C",
+      "explanation": "`transform` and `opacity` can be handled by the compositor thread without re-running layout or paint, so they animate at full frame rate. Geometry properties trigger layout on every frame."
+    },
+    {
+      "id": "css-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Custom Properties", "difficulty": "HARD",
+      "title": "What happens when a `var()` reference points at an undefined custom property and no fallback is given?",
+      "prompt": "What happens when a `var()` reference points at an undefined custom property and no fallback is given?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "The declaration is invalid at computed-value time, so the property falls back to its inherited or initial value" },
+        { "id": "B", "text": "The browser treats it as an empty string and keeps the layout" },
+        { "id": "C", "text": "The rule is dropped at parse time like a normal syntax error" },
+        { "id": "D", "text": "It inherits the value from the nearest sibling" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Custom properties are resolved at computed-value time, so a missing variable makes the declaration \"invalid at computed-value time\" — the property becomes `unset`, not a parse error. `var(--x, fallback)` avoids it."
+    }
+  ]
+}

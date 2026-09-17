@@ -1,0 +1,161 @@
+{
+  "technology": "python",
+  "label": "Python",
+  "description": "Core Python MCQ: data structures, mutability, scoping, comprehensions, exceptions and iterators for web developers.",
+  "source": "Authored for DevAssess",
+  "questionCount": 10,
+  "levels": [
+    { "id": "L1", "label": "Fundamental" },
+    { "id": "L2", "label": "Intermediate" },
+    { "id": "L3", "label": "Advanced" }
+  ],
+  "topics": [
+    "Data Types", "Mutability", "Lists & Slicing", "Dictionaries",
+    "Functions & Arguments", "Scope & Closures", "Comprehensions", "Exceptions",
+    "Iterators & Generators", "Strings & Formatting"
+  ],
+  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
+  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "questions": [
+    {
+      "id": "py-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Data Types", "difficulty": "EASY",
+      "title": "What is the type of `3 / 2` in Python 3?",
+      "prompt": "What is the type of `3 / 2` in Python 3?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`int` with value `1`" },
+        { "id": "B", "text": "`float` with value `1.5` — `/` is true division" },
+        { "id": "C", "text": "`Decimal`" },
+        { "id": "D", "text": "It raises `ZeroDivisionError`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Python 3's `/` always returns a float. Floor division `//` returns an int (and a float when an operand is a float)."
+    },
+    {
+      "id": "py-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Mutability", "difficulty": "EASY",
+      "title": "Why is a mutable default argument considered a bug?",
+      "prompt": "Why is a mutable default argument considered a bug?",
+      "content": [ { "type": "code", "language": "python", "value": "def add_item(item, items=[]):\n    items.append(item)\n    return items\n\nadd_item(\"a\")\nadd_item(\"b\")" } ],
+      "options": [
+        { "id": "A", "text": "The default list is created once at function definition and shared across calls, so it returns `['a', 'b']`" },
+        { "id": "B", "text": "Each call creates a fresh list, so it returns `['b']`" },
+        { "id": "C", "text": "Python raises a `TypeError` for mutable defaults" },
+        { "id": "D", "text": "The list becomes a tuple automatically" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Default values are evaluated once when the `def` executes. Use `items=None` and `items = items if items is not None else []` inside the body."
+    },
+    {
+      "id": "py-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Lists & Slicing", "difficulty": "EASY",
+      "title": "What does `nums[::-1]` return?",
+      "prompt": "What does `nums[::-1]` return?",
+      "content": [ { "type": "code", "language": "python", "value": "nums = [1, 2, 3]\nprint(nums[::-1])\nprint(nums)" } ],
+      "options": [
+        { "id": "A", "text": "`[3, 2, 1]` and then `[1, 2, 3]` — slicing returns a new list and does not mutate" },
+        { "id": "B", "text": "`[3, 2, 1]` twice, because the slice reversed the original" },
+        { "id": "C", "text": "`None` twice" },
+        { "id": "D", "text": "A `TypeError`, because step cannot be negative" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "A step of `-1` walks the sequence backwards and builds a new list. `nums.reverse()` or `nums[:] = nums[::-1]` would mutate in place."
+    },
+    {
+      "id": "py-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Strings & Formatting", "difficulty": "EASY",
+      "title": "Which is the idiomatic way to build a string from parts in modern Python?",
+      "prompt": "Which is the idiomatic way to build a string from parts in modern Python?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Concatenating with `+` in a loop" },
+        { "id": "B", "text": "`\" \".join(parts)` or an f-string such as `f\"{user} scored {score}\"`" },
+        { "id": "C", "text": "Using `%` formatting with a tuple" },
+        { "id": "D", "text": "Calling `str(list(parts))`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`str.join` is O(n) for many parts (repeated `+` is quadratic in the common case) and f-strings are the readable, evaluated-at-runtime formatting introduced in Python 3.6."
+    },
+    {
+      "id": "py-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Dictionaries", "difficulty": "MEDIUM",
+      "title": "What is the safest way to read a config value that may be missing?",
+      "prompt": "What is the safest way to read a config value that may be missing?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`config[\"timeout\"]` wrapped in a broad `except:`" },
+        { "id": "B", "text": "`config.get(\"timeout\", 30)`" },
+        { "id": "C", "text": "`config.keys().index(\"timeout\")`" },
+        { "id": "D", "text": "`config.pop(\"timeout\")`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`dict.get(key, default)` returns the default instead of raising `KeyError`. `pop` removes the entry, and a bare `except:` hides unrelated bugs."
+    },
+    {
+      "id": "py-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Scope & Closures", "difficulty": "MEDIUM",
+      "title": "What does this print, and why?",
+      "prompt": "What does this print, and why?",
+      "content": [ { "type": "code", "language": "python", "value": "total = 0\n\ndef add(amount):\n    total = total + amount\n\nadd(5)" } ],
+      "options": [
+        { "id": "A", "text": "`UnboundLocalError` — assigning inside the function makes `total` local, so reading it before assignment fails; use `global total` or restructure" },
+        { "id": "B", "text": "`5` — Python resolves names to the enclosing scope at call time" },
+        { "id": "C", "text": "`0` — the assignment is silently ignored" },
+        { "id": "D", "text": "`NameError: name 'amount' is not defined`" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Any assignment in a function body makes the name local for the whole function unless declared `global`/`nonlocal`, so the right-hand read sees an unbound local."
+    },
+    {
+      "id": "py-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Comprehensions", "difficulty": "MEDIUM",
+      "title": "Which comprehension squares only the even numbers?",
+      "prompt": "Which comprehension squares only the even numbers?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`[n ** 2 for n in nums if n % 2 == 0]`" },
+        { "id": "B", "text": "`[n ** 2 if n % 2 == 0 for n in nums]`" },
+        { "id": "C", "text": "`[n ** 2 for n in nums, n % 2 == 0]`" },
+        { "id": "D", "text": "`{n: n ** 2 for n in nums if n % 2}`" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "The trailing `if` filters elements. `B` is invalid syntax (a conditional expression needs an `else`), and `D` builds a dict keyed by odd `n`."
+    },
+    {
+      "id": "py-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Exceptions", "difficulty": "MEDIUM",
+      "title": "What does this handler print?",
+      "prompt": "What does this handler print?",
+      "content": [ { "type": "code", "language": "python", "value": "try:\n    value = int(\"12a\")\nexcept ValueError:\n    print(\"bad number\")\nelse:\n    print(value)\nfinally:\n    print(\"done\")" } ],
+      "options": [
+        { "id": "A", "text": "`bad number` then `done` — `else` runs only when no exception was raised" },
+        { "id": "B", "text": "`bad number`, then `12a`, then `done`" },
+        { "id": "C", "text": "`done` only" },
+        { "id": "D", "text": "Nothing — the exception propagates because `ValueError` is not caught" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`int(\"12a\")` raises `ValueError`, so the `else` block is skipped; `finally` always runs."
+    },
+    {
+      "id": "py-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "Iterators & Generators", "difficulty": "HARD",
+      "title": "A generator is consumed twice in a loop-heavy report. What happens on the second pass?",
+      "prompt": "A generator is consumed twice in a loop-heavy report. What happens on the second pass?",
+      "content": [ { "type": "code", "language": "python", "value": "def pages():\n    yield 1\n    yield 2\n\nrows = pages()\nprint(sum(rows))\nprint(list(rows))" } ],
+      "options": [
+        { "id": "A", "text": "The second pass yields nothing — a generator is exhausted after one iteration, so `list(rows)` is `[]`; materialise with `list(pages())` if you need it twice" },
+        { "id": "B", "text": "The generator restarts automatically from the beginning" },
+        { "id": "C", "text": "A `StopIteration` propagates and crashes the program" },
+        { "id": "D", "text": "The second pass re-runs the function body from the first `yield`" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Generators are one-shot iterators: once exhausted they are empty. Call the generator function again or store a list to iterate more than once."
+    },
+    {
+      "id": "py-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Mutability", "difficulty": "HARD",
+      "title": "Why can a `dict` key be a tuple but not a list?",
+      "prompt": "Why can a `dict` key be a tuple but not a list?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Dict keys must be hashable; a list's hash would change when its contents change, so only immutable types such as tuples can be keys" },
+        { "id": "B", "text": "Lists are too large to store as keys" },
+        { "id": "C", "text": "Tuples are sorted internally, lists are not" },
+        { "id": "D", "text": "A tuple is copied on assignment, a list is not" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Hashing relies on the value staying stable. Mutable containers do not define `__hash__`, so `d[[1, 2]] = \"x\"` raises `TypeError: unhashable type: 'list'`. A tuple of immutables is hashable (a tuple containing a list is not)."
+    }
+  ]
+}

@@ -99,7 +99,7 @@ export const LANDING_PILLARS: LandingPillar[] = [
       "Retake rules per exam: attempt limit plus best / latest / first score",
       "Result page with a per-question breakdown and a shareable scorecard",
     ],
-    cta: { label: "Take an exam", href: "/register" },
+    cta: { label: "Browse exams", href: "/exams" },
   },
   {
     id: "practice",
@@ -578,10 +578,10 @@ export interface LandingFooterGroup {
 }
 
 export const LANDING_FOOTER_GROUPS: LandingFooterGroup[] = [
-  {
+   {
     title: "Learn",
     links: [
-      { label: "Technology exams", href: "#exams" },
+      { label: "Technology exams", href: "/exams" },
       { label: "Practice arena", href: "#practice" },
       { label: "Online compiler", href: "#playground" },
       { label: "FAQ", href: "#faq" },

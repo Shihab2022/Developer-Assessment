@@ -1,0 +1,189 @@
+{
+  "technology": "typescript",
+  "label": "TypeScript",
+  "description": "Type-system MCQ: inference, unions and narrowing, generics, utility types, strict mode and conditional types.",
+  "source": "Authored for DevAssess",
+  "questionCount": 12,
+  "levels": [
+    { "id": "L1", "label": "Fundamental" },
+    { "id": "L2", "label": "Intermediate" },
+    { "id": "L3", "label": "Advanced" }
+  ],
+  "topics": [
+    "Types vs Interfaces", "Type Inference", "unknown vs any", "Utility Types",
+    "Generics", "Unions & Narrowing", "Assertions & Literals", "Strict Mode",
+    "Function Types", "keyof & Indexed Access", "Conditional Types", "Structural Typing"
+  ],
+  "difficultyCounts": { "EASY": 4, "MEDIUM": 5, "HARD": 3 },
+  "levelCounts": { "L1": 4, "L2": 5, "L3": 3 },
+  "questions": [
+    {
+      "id": "ts-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Types vs Interfaces", "difficulty": "EASY",
+      "title": "Which statement about `interface` and `type` is correct?",
+      "prompt": "Which statement about `interface` and `type` is correct?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Only `interface` supports declaration merging; a second `type` alias with the same name is a duplicate identifier" },
+        { "id": "B", "text": "Only `type` supports declaration merging; a second `interface` with the same name is an error" },
+        { "id": "C", "text": "Both merge automatically, in declaration order" },
+        { "id": "D", "text": "Neither can be extended or combined" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Interfaces are open: declaring `interface User` twice merges the members. A type alias is a closed declaration, so a second `type User` is a duplicate identifier. Unions, tuples and primitives require `type` anyway."
+    },
+    {
+      "id": "ts-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Type Inference", "difficulty": "EASY",
+      "title": "What does the compiler report for this code?",
+      "prompt": "What does the compiler report for this code?",
+      "content": [ { "type": "code", "language": "typescript", "value": "let count = 0;\ncount = \"three\";" } ],
+      "options": [
+        { "id": "A", "text": "Nothing — `count` becomes `any` and accepts the string" },
+        { "id": "B", "text": "Error TS2322: Type 'string' is not assignable to type 'number'" },
+        { "id": "C", "text": "Error TS2339: Property 'three' does not exist" },
+        { "id": "D", "text": "Nothing — `count` silently becomes `number | string`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`let count = 0` infers the widened type `number`, so assigning a string is a type error. `const` would infer the literal type `0` instead."
+    },
+    {
+      "id": "ts-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "unknown vs any", "difficulty": "EASY",
+      "title": "A function receives JSON from the network. Why is `unknown` preferred over `any`?",
+      "prompt": "A function receives JSON from the network. Why is `unknown` preferred over `any`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`unknown` is faster at runtime because it skips type erasure" },
+        { "id": "B", "text": "`unknown` accepts every value, but reading a property on it is a compile error until the type is narrowed" },
+        { "id": "C", "text": "`any` cannot be used when `strict` is enabled" },
+        { "id": "D", "text": "`unknown` can only hold primitives, never objects" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Both accept any value, but `any` switches type checking off for that value. `unknown` is the safe top type: narrow it with `typeof`, `in` or a type guard before use."
+    },
+    {
+      "id": "ts-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Utility Types", "difficulty": "EASY",
+      "title": "Given `interface User { id: string; name: string }`, which type makes both properties optional?",
+      "prompt": "Given `interface User { id: string; name: string }`, which type makes both properties optional?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`Readonly<User>`" },
+        { "id": "B", "text": "`Required<User>`" },
+        { "id": "C", "text": "`Partial<User>`" },
+        { "id": "D", "text": "`Record<User, string>`" }
+      ],
+      "correctOptionId": "C",
+      "explanation": "`Partial<T>` maps every property to `T[K] | undefined`. `Required<T>` is the inverse, `Readonly<T>` blocks reassignment and `Record<K, V>` builds an object type from a key set."
+    },
+    {
+      "id": "ts-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Generics", "difficulty": "MEDIUM",
+      "title": "A generic helper must accept anything with a length. Which change makes this compile?",
+      "prompt": "A generic helper must accept anything with a length. Which change makes this compile?",
+      "content": [ { "type": "code", "language": "typescript", "value": "function longest<T>(a: T, b: T) {\n  return a.length > b.length ? a : b;\n}" } ],
+      "options": [
+        { "id": "A", "text": "`function longest<T extends { length: number }>(a: T, b: T)`" },
+        { "id": "B", "text": "`function longest<T>(a: T, b: T): T`" },
+        { "id": "C", "text": "`function longest(a: any, b: any)` is the only fix" },
+        { "id": "D", "text": "Add `// @ts-ignore` above the comparison" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "An unconstrained `T` could be `number`, which has no `length`, so TS reports \"Property 'length' does not exist on type 'T'\". A constraint documents the requirement and keeps the return type generic."
+    },
+    {
+      "id": "ts-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Unions & Narrowing", "difficulty": "MEDIUM",
+      "title": "Which property access is safe inside these branches?",
+      "prompt": "Which property access is safe inside these branches?",
+      "content": [ { "type": "code", "language": "typescript", "value": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; side: number };\n\nfunction area(shape: Shape) {\n  if (shape.kind === \"circle\") return Math.PI * shape.radius ** 2;\n  return shape.side ** 2;\n}" } ],
+      "options": [
+        { "id": "A", "text": "Both are errors unless the properties are optional" },
+        { "id": "B", "text": "Both are safe: the `kind` discriminant narrows the union in each branch" },
+        { "id": "C", "text": "Only the first branch is safe; the second needs a cast" },
+        { "id": "D", "text": "Neither is safe — a discriminated union must be checked with `in`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A shared literal field (`kind`) is a discriminant. Comparing it narrows the union, so `radius` is valid in the `circle` branch and `side` in the remaining `square` branch."
+    },
+    {
+      "id": "ts-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Assertions & Literals", "difficulty": "MEDIUM",
+      "title": "What is the inferred type of `config`, and what happens on the last line?",
+      "prompt": "What is the inferred type of `config`, and what happens on the last line?",
+      "content": [ { "type": "code", "language": "typescript", "value": "const config = {\n  mode: \"dark\",\n  retries: 3,\n} as const;\n\nconfig.retries = 5;" } ],
+      "options": [
+        { "id": "A", "text": "No error — `as const` only affects string values" },
+        { "id": "B", "text": "`as const` makes the object deeply readonly with literal types (`\"dark\"`, `3`), so the assignment is a compile error" },
+        { "id": "C", "text": "`as const` converts both values to `any`" },
+        { "id": "D", "text": "The assignment throws a TypeError at runtime" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`as const` produces a readonly object whose properties are literal types — useful for config objects and for deriving unions such as `typeof config.mode`."
+    },
+    {
+      "id": "ts-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Strict Mode", "difficulty": "MEDIUM",
+      "title": "`strict: true` is enabled. What does the compiler require here?",
+      "prompt": "`strict: true` is enabled. What does the compiler require here?",
+      "content": [ { "type": "code", "language": "typescript", "value": "function initials(name?: string) {\n  return name.slice(0, 2).toUpperCase();\n}" } ],
+      "options": [
+        { "id": "A", "text": "Nothing — optional parameters behave like `any`" },
+        { "id": "B", "text": "A runtime coercion such as `String(name)`" },
+        { "id": "C", "text": "The `undefined` case must be handled before calling `.slice`, because `strictNullChecks` makes `name` of type `string | undefined`" },
+        { "id": "D", "text": "The parameter must get a default value; narrowing is never enough" }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Under `strictNullChecks`, an optional parameter is `string | undefined`, so it must be narrowed (`if (!name) return \"\"`, `name ?? \"\"`, or a justified `name!`) before member access."
+    },
+    {
+      "id": "ts-q0009", "level": "L2", "levelLabel": "Intermediate", "topic": "Function Types", "difficulty": "MEDIUM",
+      "title": "Which annotation types this callback without implicit `any`?",
+      "prompt": "Which annotation types this callback without implicit `any`?",
+      "content": [ { "type": "code", "language": "typescript", "value": "const parse: ______ = (raw) => Number.parseInt(raw, 10);" } ],
+      "options": [
+        { "id": "A", "text": "`Function`" },
+        { "id": "B", "text": "`(value: string) => number`" },
+        { "id": "C", "text": "`(value: string): void`" },
+        { "id": "D", "text": "`CallableFunction<string, number>`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A function type declares parameter and return types and gives the parameters contextual types, so they are not implicit `any`. `Function` is effectively untyped and `void` discards the returned number."
+    },
+    {
+      "id": "ts-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "keyof & Indexed Access", "difficulty": "HARD",
+      "title": "What is the return type of this accessor, and why does it compile?",
+      "prompt": "What is the return type of this accessor, and why does it compile?",
+      "content": [ { "type": "code", "language": "typescript", "value": "function get<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}" } ],
+      "options": [
+        { "id": "A", "text": "`T[K]` — the indexed access type follows the requested key, and `K extends keyof T` keeps it within the object" },
+        { "id": "B", "text": "`any` — indexed access always erases to `any`" },
+        { "id": "C", "text": "`keyof T` — the key union is returned" },
+        { "id": "D", "text": "`T` — generics always return the generic parameter" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`T[K]` is a lookup type: it resolves to the property type of the key actually passed. Constraining `K` with `keyof T` rejects unknown keys, so no cast is needed inside."
+    },
+    {
+      "id": "ts-q0011", "level": "L3", "levelLabel": "Advanced", "topic": "Conditional Types", "difficulty": "HARD",
+      "title": "What is the type of `Available`, and how does `Exclude` produce it?",
+      "prompt": "What is the type of `Available`, and how does `Exclude` produce it?",
+      "content": [ { "type": "code", "language": "typescript", "value": "type Status = \"draft\" | \"active\" | \"archived\";\ntype Available = Exclude<Status, \"archived\">;" } ],
+      "options": [
+        { "id": "A", "text": "`Status` — `Exclude` is a no-op on unions" },
+        { "id": "B", "text": "`\"archived\"` — `Exclude` keeps what you list" },
+        { "id": "C", "text": "`\"draft\" | \"active\"` — `Exclude` is `T extends U ? never : T`, so matching members are filtered out" },
+        { "id": "D", "text": "`never` — every union member is removed" }
+      ],
+      "correctOptionId": "C",
+      "explanation": "`Exclude<T, U>` is a conditional type that distributes over the union: members assignable to `U` become `never` and drop out, leaving `\"draft\" | \"active\"`."
+    },
+    {
+      "id": "ts-q0012", "level": "L3", "levelLabel": "Advanced", "topic": "Structural Typing", "difficulty": "HARD",
+      "title": "Why does the second assignment fail while the first is fine?",
+      "prompt": "Why does the second assignment fail while the first is fine?",
+      "content": [ { "type": "code", "language": "typescript", "value": "interface Account {\n  id: string;\n}\n\nconst ACCOUNT = { id: \"a1\", balance: 100 };\nconst a: Account = ACCOUNT;                     // OK\nconst b: Account = { id: \"a2\", balance: 100 };  // Error" } ],
+      "options": [
+        { "id": "A", "text": "Fresh object literals get excess property checks, so unknown keys are rejected; assigning a pre-existing variable only needs structural compatibility" },
+        { "id": "B", "text": "`const` objects are readonly and can never be assigned to an interface" },
+        { "id": "C", "text": "Interfaces are nominally typed and require a `class` implementation" },
+        { "id": "D", "text": "The error is about the missing `balance` declaration, not the literal" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "TypeScript is structural: `ACCOUNT` is assignable because it has `id`. Excess property checking is an extra guard applied to fresh literal expressions, which is why the inline literal with `balance` is rejected unless widened through a variable or assertion."
+    }
+  ]
+}

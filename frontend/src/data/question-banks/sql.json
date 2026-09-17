@@ -1,0 +1,163 @@
+{
+  "technology": "sql",
+  "label": "SQL",
+  "description": "Query-writing MCQ: filtering, joins, aggregation, NULL semantics, indexes and transactions for application developers.",
+  "source": "Authored for DevAssess",
+  "questionCount": 10,
+  "levels": [
+    { "id": "L1", "label": "Fundamental" },
+    { "id": "L2", "label": "Intermediate" },
+    { "id": "L3", "label": "Advanced" }
+  ],
+  "topics": [
+    "SELECT & Filtering", "NULL Semantics", "Joins", "Aggregation & GROUP BY",
+    "Sorting & Paging", "Subqueries & CTEs", "Indexes", "Transactions & ACID",
+    "Constraints", "Modification & Upserts"
+  ],
+  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
+  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "questions": [
+    {
+      "id": "sql-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "SELECT & Filtering", "difficulty": "EASY",
+      "title": "Which clause filters rows *before* grouping happens?",
+      "prompt": "Which clause filters rows *before* grouping happens?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`HAVING`" },
+        { "id": "B", "text": "`WHERE`" },
+        { "id": "C", "text": "`ORDER BY`" },
+        { "id": "D", "text": "`DISTINCT`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`WHERE` filters individual rows before aggregation; `HAVING` filters the aggregated groups afterwards."
+    },
+    {
+      "id": "sql-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "NULL Semantics", "difficulty": "EASY",
+      "title": "Why does `WHERE status = NULL` never match a row?",
+      "prompt": "Why does `WHERE status = NULL` never match a row?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Because `NULL` compares equal to `NULL` only in `WHERE`" },
+        { "id": "B", "text": "Because any comparison with `NULL` yields `UNKNOWN`, and `WHERE` keeps only rows where the predicate is `TRUE` — use `IS NULL` instead" },
+        { "id": "C", "text": "Because `NULL` is a reserved keyword that cannot appear in a predicate" },
+        { "id": "D", "text": "Because the column must be indexed first" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Three-valued logic: `= NULL` evaluates to `UNKNOWN`, which is filtered out like `FALSE`. `IS NULL` / `IS NOT NULL` are the correct predicates."
+    },
+    {
+      "id": "sql-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Joins", "difficulty": "EASY",
+      "title": "Which join keeps every row from the left table even when the right side has no match?",
+      "prompt": "Which join keeps every row from the left table even when the right side has no match?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`INNER JOIN`" },
+        { "id": "B", "text": "`LEFT JOIN` (with the right side's columns coming back as `NULL`)" },
+        { "id": "C", "text": "`CROSS JOIN`" },
+        { "id": "D", "text": "`RIGHT JOIN`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`LEFT JOIN` preserves all left rows; unmatched right columns become `NULL`. `INNER JOIN` drops unmatched rows and `CROSS JOIN` produces the Cartesian product."
+    },
+    {
+      "id": "sql-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Sorting & Paging", "difficulty": "EASY",
+      "title": "Why must a deterministic `ORDER BY` accompany `LIMIT 20 OFFSET 40`?",
+      "prompt": "Why must a deterministic `ORDER BY` accompany `LIMIT 20 OFFSET 40`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Row order without `ORDER BY` is not guaranteed, so pages can repeat or skip rows between queries" },
+        { "id": "B", "text": "`OFFSET` is invalid without an index" },
+        { "id": "C", "text": "`LIMIT` only works on indexed tables" },
+        { "id": "D", "text": "`ORDER BY` is required for the query planner to use an index scan" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Without a total order (ideally including a unique tie-breaker such as `id`), the database may return rows in any order, so pagination is unstable."
+    },
+    {
+      "id": "sql-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Aggregation & GROUP BY", "difficulty": "MEDIUM",
+      "title": "Which query is valid in standard SQL?",
+      "prompt": "Which query is valid in standard SQL?",
+      "content": [
+        { "type": "code", "language": "sql", "value": "-- A\nSELECT customer_id, total FROM orders GROUP BY customer_id;\n\n-- B\nSELECT customer_id, SUM(total) AS revenue\nFROM orders\nGROUP BY customer_id\nHAVING SUM(total) > 1000;" }
+      ],
+      "options": [
+        { "id": "A", "text": "A only — `HAVING` is a MySQL extension" },
+        { "id": "B", "text": "B only — every selected column must be grouped or aggregated, and `HAVING` filters on aggregates" },
+        { "id": "C", "text": "Both — `GROUP BY` allows mixing bare columns with aggregates" },
+        { "id": "D", "text": "Neither — aggregate queries require a subquery" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "In grouped queries each selected column must appear in `GROUP BY` or inside an aggregate, so A is invalid (bare `total`). `HAVING` is standard SQL for filtering aggregate results."
+    },
+    {
+      "id": "sql-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Joins", "difficulty": "MEDIUM",
+      "title": "An `INNER JOIN users` on a posts table returns fewer posts than exist. Why?",
+      "prompt": "An `INNER JOIN users` on a posts table returns fewer posts than exist. Why?",
+      "content": [ { "type": "code", "language": "sql", "value": "SELECT p.id, u.name\nFROM posts p\nINNER JOIN users u ON u.id = p.author_id;" } ],
+      "options": [
+        { "id": "A", "text": "Posts whose `author_id` is `NULL` or points at a deleted user are dropped by the inner join" },
+        { "id": "B", "text": "The join must be missing an `ORDER BY`" },
+        { "id": "C", "text": "`INNER JOIN` deduplicates the result set" },
+        { "id": "D", "text": "The users table must be empty" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "An inner join requires a match in both tables, so orphaned posts (no author, or a deleted author) disappear. `LEFT JOIN posts -> users` keeps them with `NULL` user columns."
+    },
+    {
+      "id": "sql-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Indexes", "difficulty": "MEDIUM",
+      "title": "Which index best serves `WHERE company_id = $1 AND created_at > $2 ORDER BY created_at DESC`?",
+      "prompt": "Which index best serves `WHERE company_id = $1 AND created_at > $2 ORDER BY created_at DESC`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Two separate indexes: one on `company_id`, one on `created_at`" },
+        { "id": "B", "text": "A composite index on `(company_id, created_at)`" },
+        { "id": "C", "text": "An index on `(created_at, company_id)`" },
+        { "id": "D", "text": "No index — the planner always prefers a full scan for range predicates" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Equality first, then range: `(company_id, created_at)` lets the engine seek to the company and scan its time range in order, which also satisfies the `ORDER BY` without a sort."
+    },
+    {
+      "id": "sql-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Subqueries & CTEs", "difficulty": "MEDIUM",
+      "title": "A query needs the top spender per region. Which construct fits best?",
+      "prompt": "A query needs the top spender per region. Which construct fits best?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`GROUP BY region` with `MAX(total)` — it returns only the amount, not the customer" },
+        { "id": "B", "text": "A window function such as `ROW_NUMBER() OVER (PARTITION BY region ORDER BY SUM(total) DESC)` filtered with a CTE" },
+        { "id": "C", "text": "`DISTINCT ON region`, which works identically in every database" },
+        { "id": "D", "text": "`LIMIT 1` inside a `GROUP BY`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Aggregate functions collapse rows, so the winning customer disappears. Ranking with a window function inside a CTE keeps the row and ranks per partition. (`DISTINCT ON` is PostgreSQL-specific.)"
+    },
+    {
+      "id": "sql-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "Transactions & ACID", "difficulty": "HARD",
+      "title": "Two transactions read the same stock row, both decrement it and write it back. One update is lost. What is this, and what fixes it?",
+      "prompt": "Two transactions read the same stock row, both decrement it and write it back. One update is lost. What is this, and what fixes it?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "A dirty read — `READ COMMITTED` fixes it" },
+        { "id": "B", "text": "A lost update caused by read-modify-write outside a single statement; fix with an atomic `UPDATE stock SET qty = qty - 1 WHERE id = $1 AND qty > 0`, `SELECT ... FOR UPDATE`, or a higher isolation level" },
+        { "id": "C", "text": "A phantom read — only `SERIALIZABLE` in every database fixes it" },
+        { "id": "D", "text": "Normal behaviour — last-write-wins is the defined SQL semantic" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Both transactions read the same value before either commits, so one write is overwritten. Making the decrement atomic in a single statement, locking the row with `FOR UPDATE`, or raising isolation prevents it."
+    },
+    {
+      "id": "sql-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Modification & Upserts", "difficulty": "HARD",
+      "title": "An import must insert new rows and update existing ones in one round trip. Which statement is the standard fit?",
+      "prompt": "An import must insert new rows and update existing ones in one round trip. Which statement is the standard fit?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`INSERT ... ON CONFLICT (unique_key) DO UPDATE SET ...` (or the equivalent `MERGE`)" },
+        { "id": "B", "text": "`INSERT IGNORE`, which is portable across engines" },
+        { "id": "C", "text": "`UPDATE` followed by `INSERT` in application code without a transaction" },
+        { "id": "D", "text": "`REPLACE INTO`, which is standard SQL" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Upsert via `ON CONFLICT ... DO UPDATE` (PostgreSQL) or `MERGE` (standard / SQL Server / Oracle) handles both paths atomically against a unique constraint. `REPLACE` and `INSERT IGNORE` are engine-specific and can delete or silently skip rows."
+    }
+  ]
+}

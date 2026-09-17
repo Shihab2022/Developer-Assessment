@@ -1,0 +1,161 @@
+{
+  "technology": "html",
+  "label": "HTML",
+  "description": "Semantic markup, accessibility, forms, media and browser behaviour questions for web app development.",
+  "source": "Authored for DevAssess",
+  "questionCount": 10,
+  "levels": [
+    { "id": "L1", "label": "Fundamental" },
+    { "id": "L2", "label": "Intermediate" },
+    { "id": "L3", "label": "Advanced" }
+  ],
+  "topics": [
+    "Document Structure", "Semantic HTML", "Accessibility", "Forms & Validation",
+    "Links & Assets", "Media Elements", "Tables", "SEO & Metadata",
+    "Script Loading", "Web Storage & APIs"
+  ],
+  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
+  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "questions": [
+    {
+      "id": "html-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Document Structure", "difficulty": "EASY",
+      "title": "What is the purpose of `<!DOCTYPE html>`?",
+      "prompt": "What is the purpose of `<!DOCTYPE html>`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "It imports the HTML5 specification into the page" },
+        { "id": "B", "text": "It switches the browser into standards mode so CSS and layout follow the spec instead of legacy quirks" },
+        { "id": "C", "text": "It declares the character encoding as UTF-8" },
+        { "id": "D", "text": "It is required for JavaScript to run" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A missing or outdated doctype puts the browser into quirks mode, where box sizing and layout differ. Character encoding is declared separately with `<meta charset=\"utf-8\">`."
+    },
+    {
+      "id": "html-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Semantic HTML", "difficulty": "EASY",
+      "title": "Why prefer `<nav>`, `<main>` and `<footer>` over a page of `<div>` elements?",
+      "prompt": "Why prefer `<nav>`, `<main>` and `<footer>` over a page of `<div>` elements?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Semantic elements render faster because the browser skips their layout" },
+        { "id": "B", "text": "They convey document structure to browsers, assistive technology and search engines, and give screen-reader users landmarks to navigate by" },
+        { "id": "C", "text": "Only semantic elements can contain text nodes" },
+        { "id": "D", "text": "A `<div>` cannot be styled with CSS" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Landmark roles come for free from semantic elements, which improves keyboard navigation and SEO. Rendering speed is not the reason, and `<div>` is styleable like any other element."
+    },
+    {
+      "id": "html-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Accessibility", "difficulty": "EASY",
+      "title": "Which is the most accessible way to label a text input?",
+      "prompt": "Which is the most accessible way to label a text input?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`<input type=\"text\" placeholder=\"Email\">`" },
+        { "id": "B", "text": "`<label for=\"email\">Email</label><input id=\"email\" type=\"email\">`" },
+        { "id": "C", "text": "`<input type=\"email\" title=\"Email\">`" },
+        { "id": "D", "text": "`<span>Email</span><input type=\"email\">`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A programmatically associated `<label>` gives the input an accessible name, enlarges the click target and is announced by screen readers. Placeholder text disappears on input and is not a label substitute."
+    },
+    {
+      "id": "html-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Forms & Validation", "difficulty": "EASY",
+      "title": "What does adding `required` to an `<input>` do?",
+      "prompt": "What does adding `required` to an `<input>` do?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Nothing by itself — validation must be written in JavaScript" },
+        { "id": "B", "text": "It enables constraint validation, so submitting an empty value blocks the submit and shows a validation message" },
+        { "id": "C", "text": "It marks the field with a red border in every browser" },
+        { "id": "D", "text": "It only affects how the field is rendered on mobile" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`required`, `type`, `pattern` and `min`/`max` participate in native constraint validation checked on submit, extensible through the Constraint Validation API."
+    },
+    {
+      "id": "html-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Script Loading", "difficulty": "MEDIUM",
+      "title": "What is the difference between `<script defer>` and `<script async>`?",
+      "prompt": "What is the difference between `<script defer>` and `<script async>`?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "Both download in parallel, but `defer` executes after parsing in document order while `async` executes as soon as it is downloaded" },
+        { "id": "B", "text": "`defer` blocks parsing; `async` does not" },
+        { "id": "C", "text": "`async` keeps document order; `defer` does not" },
+        { "id": "D", "text": "They are equivalent for external scripts" }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Both attributes avoid render-blocking downloads. `defer` keeps execution order and runs before `DOMContentLoaded`, so it suits app bundles; `async` suits independent scripts such as analytics."
+    },
+    {
+      "id": "html-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Links & Assets", "difficulty": "MEDIUM",
+      "title": "A profile page is at `/users/7` and links to `href=\"edit\"`. Where does it go?",
+      "prompt": "A profile page is at `/users/7` and links to `href=\"edit\"`. Where does it go?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`/edit`" },
+        { "id": "B", "text": "`/users/edit`" },
+        { "id": "C", "text": "`/users/7/edit`" },
+        { "id": "D", "text": "It depends on the `<base>` element; otherwise the request fails" }
+      ],
+      "correctOptionId": "C",
+      "explanation": "A relative URL resolves against the current document URL, so `edit` resolves to `/users/7/edit`. `/users/edit` would need `href=\"/users/edit\"` or `href=\"../edit\"`."
+    },
+    {
+      "id": "html-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Media Elements", "difficulty": "MEDIUM",
+      "title": "Why does `alt` text matter on `<img>`, and what belongs in it?",
+      "prompt": "Why does `alt` text matter on `<img>`, and what belongs in it?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "It is only used by search engines to rank the page" },
+        { "id": "B", "text": "It is read by screen readers and shown if the image fails; it should describe the image's purpose, and decorative images should use `alt=\"\"`" },
+        { "id": "C", "text": "It is a tooltip shown on hover, so it should hold a caption" },
+        { "id": "D", "text": "It is required only for PNG images" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`alt` is the accessible replacement for the image. Empty `alt` is the correct way to mark purely decorative images so screen readers skip them instead of reading a file name."
+    },
+    {
+      "id": "html-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Tables", "difficulty": "MEDIUM",
+      "title": "Which attributes connect a data cell to its header in a complex table?",
+      "prompt": "Which attributes connect a data cell to its header in a complex table?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`scope` on `<td>` and `headers` on `<th>`" },
+        { "id": "B", "text": "`headers` on `<td>` pointing at `id` attributes on the `<th>` cells it belongs to" },
+        { "id": "C", "text": "`aria-label` on every `<td>`" },
+        { "id": "D", "text": "`colspan` and `rowspan`" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "For multi-level headers, `<th id=\"...\">` plus `<td headers=\"...\">` associates cells with the right headers. `scope` on `<th>` handles simple tables, and `colspan`/`rowspan` only control layout."
+    },
+    {
+      "id": "html-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "SEO & Metadata", "difficulty": "HARD",
+      "title": "A single-page app serves the same `index.html` for every route. What is the consequence?",
+      "prompt": "A single-page app serves the same `index.html` for every route. What is the consequence?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "None — crawlers execute JavaScript exactly like users" },
+        { "id": "B", "text": "Every route shares one title and description unless the document head is updated per route (or content is pre-rendered/server-rendered), which hurts SEO and link previews" },
+        { "id": "C", "text": "Only the favicon stops loading" },
+        { "id": "D", "text": "The browser caches the wrong route" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Crawler support for client rendering is inconsistent. Per-route metadata (Next.js `metadata`/`generateMetadata`, or prerendering) gives each URL its own title, description and social preview."
+    },
+    {
+      "id": "html-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Forms & Validation", "difficulty": "HARD",
+      "title": "Which input type is the right choice for a quantity between 1 and 10 that must be keyboard-friendly?",
+      "prompt": "Which input type is the right choice for a quantity between 1 and 10 that must be keyboard-friendly?",
+      "content": [],
+      "options": [
+        { "id": "A", "text": "`<input type=\"range\" min=\"1\" max=\"10\">`" },
+        { "id": "B", "text": "`<input type=\"number\" min=\"1\" max=\"10\" inputmode=\"numeric\">`" },
+        { "id": "C", "text": "`<input type=\"text\" pattern=\"[1-9]|10\">`" },
+        { "id": "D", "text": "`<select>` with ten `<option>` elements" }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`type=\"number\"` keeps typing and arrow-key stepping, participates in `min`/`max` validation and still shows a numeric keypad via `inputmode`. A range slider is poor for precise entry and a select adds unnecessary interaction."
+    }
+  ]
+}
