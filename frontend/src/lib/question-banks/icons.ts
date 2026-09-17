@@ -32,6 +32,8 @@ export function iconForTech(technologyId: string): LucideIcon {
     css: "Palette",
     html: "Code2",
     sql: "Database",
+    react: "Code2",
+    nextjs: "FileCode2",
   };
   const name = metaNames[technologyId] ?? "Library";
   return TECH_ICONS[name] ?? Library;

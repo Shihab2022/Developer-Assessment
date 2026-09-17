@@ -68,6 +68,24 @@ export const TECHNOLOGY_CATALOG: TechnologyCatalogEntry[] = [
     highlights: ["Semantics", "Accessibility", "Forms & validation", "Script loading"],
   },
   {
+    id: "react",
+    label: "React",
+    description:
+      "Scenario-based MCQ across five levels: JSX and component fundamentals, hooks and state, performance and error boundaries, state management and testing.",
+    icon: "Code2",
+    accent: "from-cyan-400 to-blue-500",
+    highlights: ["Components & hooks", "State management", "Performance", "Testing"],
+  },
+  {
+    id: "nextjs",
+    label: "Next.js",
+    description:
+      "Scenario-based App Router MCQ: routing and layouts, data fetching and Server Actions, caching and SEO, advanced server rendering and runtime architecture.",
+    icon: "FileCode2",
+    accent: "from-slate-500 to-zinc-700",
+    highlights: ["App Router", "Server Actions", "Caching & SEO", "Server rendering"],
+  },
+  {
     id: "sql",
     label: "SQL",
     description:

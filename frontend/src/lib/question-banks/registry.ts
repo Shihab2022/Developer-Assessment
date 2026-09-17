@@ -4,6 +4,8 @@ import pythonBank from "@/data/question-banks/python.json";
 import cssBank from "@/data/question-banks/css.json";
 import htmlBank from "@/data/question-banks/html.json";
 import sqlBank from "@/data/question-banks/sql.json";
+import reactBank from "@/data/question-banks/react.json";
+import nextjsBank from "@/data/question-banks/nextjs.json";
 import { catalogById } from "./catalog";
 import type { QuestionBank, TechnologyMeta } from "./types";
 
@@ -22,6 +24,8 @@ const BANKS: QuestionBank[] = [
   cssBank as unknown as QuestionBank,
   htmlBank as unknown as QuestionBank,
   sqlBank as unknown as QuestionBank,
+  reactBank as unknown as QuestionBank,
+  nextjsBank as unknown as QuestionBank,
 ];
 
 function toMeta(bank: QuestionBank): TechnologyMeta {

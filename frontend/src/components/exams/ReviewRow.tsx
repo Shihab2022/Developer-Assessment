@@ -51,7 +51,13 @@ export function ReviewRow({
                 <span className="flex size-5 shrink-0 items-center justify-center rounded bg-muted text-xs font-bold text-muted-foreground">
                   {option.id}
                 </span>
-                <span className="block flex-1 text-sm text-foreground">{option.text}</span>
+                {option.code ? (
+                  <pre className="thin-scrollbar flex-1 overflow-x-auto rounded-md bg-slate-950 px-3 py-2 font-mono text-xs text-emerald-100">
+                    {option.code}
+                  </pre>
+                ) : (
+                  <span className="block flex-1 text-sm text-foreground">{option.text}</span>
+                )}
                 {isCorrectOption && (
                   <Badge tone="green" size="sm">
                     Correct
@@ -67,6 +73,12 @@ export function ReviewRow({
           );
         })}
       </div>
+      {question.explanation && (
+        <div className="mt-4 rounded-lg bg-muted p-4 text-sm text-foreground">
+          <p className="mb-2 font-semibold">Explanation</p>
+          <QuestionContent blocks={[{ type: "text", value: question.explanation }]} />
+        </div>
+      )}
     </div>
   );
 }

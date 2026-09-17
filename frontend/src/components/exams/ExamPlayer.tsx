@@ -278,15 +278,17 @@ export default function ExamPlayer({
                   Next
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => setShowConfirm(true)}
-                disabled={submitting}
-                className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
-              >
-                <Send className="size-4" />
-                {submitting ? "Submitting…" : "Submit exam"}
-              </button>
+              {current === total - 1 && (
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(true)}
+                  disabled={submitting}
+                  className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Send className="size-4" />
+                  {submitting ? "Submitting…" : "Submit exam"}
+                </button>
+              )}
             </div>
           </div>
         </div>

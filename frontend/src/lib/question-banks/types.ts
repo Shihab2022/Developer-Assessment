@@ -70,4 +70,4 @@ export interface TechnologyMeta {
 export type { Difficulty };
 
 /** Identifier for a question-bank technology (the bank file key). */
-export type TechnologyId = "javascript" | "typescript" | "python" | "css" | "html" | "sql";
+export type TechnologyId = "javascript" | "typescript" | "python" | "css" | "html" | "sql" | "react" | "nextjs";

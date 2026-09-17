@@ -1,0 +1,749 @@
+{
+  "technology": "nextjs",
+  "label": "Next.js",
+  "description": "Scenario-based App Router MCQ: routing and layouts, data fetching and Server Actions, caching and SEO, advanced server rendering and runtime architecture.",
+  "source": "https://github.com/Shihab2022/interview-question/blob/main/Next.js/next-mcq.md",
+  "generatedAt": "2026-09-17T16:37:41.673Z",
+  "questionCount": 20,
+  "levels": [
+    {
+      "id": "L1",
+      "label": "Fundamental (Junior / Associate)"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate (Mid-Level)"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced (Senior)"
+    },
+    {
+      "id": "L4",
+      "label": "Expert (Architect)"
+    }
+  ],
+  "topics": [
+    "App Router Fundamentals",
+    "Data Fetching & Server Actions",
+    "Advanced Server Rendering",
+    "Architecture & Runtime"
+  ],
+  "difficultyCounts": {
+    "EASY": 10,
+    "MEDIUM": 10
+  },
+  "levelCounts": {
+    "L1": 5,
+    "L2": 5,
+    "L3": 5,
+    "L4": 5
+  },
+  "questions": [
+    {
+      "id": "nx-q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "Given the following `app/` directory structure, which file is responsible for rendering the content at the URL `/dashboard/settings`?",
+      "prompt": "Given the following `app/` directory structure, which file is responsible for rendering the content at the URL `/dashboard/settings`?",
+      "content": [
+        {
+          "type": "code",
+          "value": "app/\n├── layout.tsx\n├── page.tsx\n├── dashboard/\n│   ├── layout.tsx\n│   └── settings/\n│       ├── layout.tsx\n│       └── page.tsx"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "`app/dashboard/layout.tsx`"
+        },
+        {
+          "id": "B",
+          "text": "`app/dashboard/settings/layout.tsx`"
+        },
+        {
+          "id": "C",
+          "text": "`app/dashboard/settings/page.tsx`"
+        },
+        {
+          "id": "D",
+          "text": "`app/layout.tsx`"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "In the Next.js App Router, the `page.tsx` file is the UI unique to a route segment and the only file that makes a route publicly accessible. `app/dashboard/settings/page.tsx` is the file rendered at `/dashboard/settings`.\n**Why the distractors are wrong:**\n- **A** — `app/dashboard/layout.tsx` wraps all routes under `/dashboard` but does not render content at any specific URL on its own.\n- **B** — `app/dashboard/settings/layout.tsx` wraps children under `/dashboard/settings` but is not itself the rendered content.\n- **D** — `app/layout.tsx` is the root layout that wraps every page in the app but renders nothing specifically at `/dashboard/settings`."
+    },
+    {
+      "id": "nx-q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "A developer adds a `<nav>` component inside `app/dashboard/layout.tsx`. Which statement is **true** about this layout?",
+      "prompt": "A developer adds a `<nav>` component inside `app/dashboard/layout.tsx`. Which statement is **true** about this layout?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/dashboard/layout.tsx\nexport default function DashboardLayout({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <div>\n      <nav>Dashboard Nav</nav>\n      {children}\n    </div>\n  );\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "The `<nav>` is destroyed and re-mounted every time the user navigates between dashboard sub-routes."
+        },
+        {
+          "id": "B",
+          "text": "The `<nav>` persists across navigations between dashboard sub-routes without re-mounting."
+        },
+        {
+          "id": "C",
+          "text": "The `<nav>` is only rendered on the initial full-page load and not during client-side navigation."
+        },
+        {
+          "id": "D",
+          "text": "The layout component re-renders but the `<nav>` DOM node is never updated after the first mount."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Layouts in the App Router preserve their state and DOM nodes across navigations between sibling and child routes. This is a core advantage of the App Router over the Pages Router, where page-level wrappers (`_app.tsx`) were re-mounted on every navigation.\n**Why the distractors are wrong:**\n- **A** — Describes Pages Router behavior or full-page reload behavior, not App Router segment layouts.\n- **C** — Next.js App Router layouts persist during client-side navigation, not only on the initial load.\n- **D** — The key distinction is that the component is not destroyed and re-mounted; it can re-render if its props change, but React will reconcile the DOM rather than replace it."
+    },
+    {
+      "id": "nx-q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "A developer writes the following component. What is the **minimum required change** to make it work correctly in the Next.js App Router?",
+      "prompt": "A developer writes the following component. What is the **minimum required change** to make it work correctly in the Next.js App Router?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/components/Counter.tsx\nimport { useState } from \"react\";\n\nexport default function Counter() {\n  const [count, setCount] = useState(0);\n  return <button onClick={() => setCount((c) => c + 1)}>Count: {count}</button>;\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "Add `export const runtime = 'edge'` at the top of the file."
+        },
+        {
+          "id": "B",
+          "text": "Add `'use client';` as the very first line of the file."
+        },
+        {
+          "id": "C",
+          "text": "Move the component into the `pages/` directory instead of `app/`."
+        },
+        {
+          "id": "D",
+          "text": "Wrap the component in a `<Suspense>` boundary in the parent layout."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "By default, all components in `app/` are React Server Components and cannot use `useState`, browser APIs, or event handlers like `onClick`. Adding `'use client'` at the top of the file marks it as a Client Component boundary, enabling the use of React hooks and browser interactivity.\n**Why the distractors are wrong:**\n- **A** — `export const runtime = 'edge'` configures the server execution environment for a route or middleware; it has no effect on component type (Server vs. Client).\n- **C** — Moving to `pages/` would work but is not the minimum required change; it also adopts an entirely different router architecture.\n- **D** — `<Suspense>` handles async loading states and streaming; it does not grant access to React hooks in Server Components."
+    },
+    {
+      "id": "nx-q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "A Next.js App Router project has the file `app/products/[id]/page.tsx`. What is the **correct** way to access the dynamic `id` parameter inside the page component?",
+      "prompt": "A Next.js App Router project has the file `app/products/[id]/page.tsx`. What is the **correct** way to access the dynamic `id` parameter inside the page component?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/products/[id]/page.tsx\nexport default function ProductPage(/* ??? */) {\n  // access id here\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "`function ProductPage({ params }: { params: { id: string } })`"
+        },
+        {
+          "id": "B",
+          "text": "`function ProductPage({ query }: { query: { id: string } })`"
+        },
+        {
+          "id": "C",
+          "text": "`function ProductPage() { const { id } = useRouter().query; }`"
+        },
+        {
+          "id": "D",
+          "text": "`function ProductPage({ searchParams }: { searchParams: { id: string } })`"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "In the App Router, dynamic route segment values are passed to `page.tsx` and `layout.tsx` components via the `params` prop. The object keys mirror the folder bracket names: for `[id]`, the key is `id`.\n**Why the distractors are wrong:**\n- **B** — `query` is not a recognized prop in the App Router. It was a `router.query` pattern in the Pages Router.\n- **C** — `useRouter()` from `next/navigation` (App Router) exposes navigation methods but does not expose `query`. Dynamic params are accessed via the `useParams()` hook in Client Components or via the `params` prop in Server Components.\n- **D** — `searchParams` is a separate App Router prop used for URL query strings (e.g., `?tab=settings`), not for dynamic path segments defined with bracket syntax."
+    },
+    {
+      "id": "nx-q0005",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "A developer needs a route that matches **both** `/docs` (with no additional segments) **and** `/docs/guide/intro`. Which folder naming convention achieves this in the App Router?",
+      "prompt": "A developer needs a route that matches **both** `/docs` (with no additional segments) **and** `/docs/guide/intro`. Which folder naming convention achieves this in the App Router?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`app/docs/[...slug]/page.tsx`"
+        },
+        {
+          "id": "B",
+          "text": "`app/docs/[[...slug]]/page.tsx`"
+        },
+        {
+          "id": "C",
+          "text": "`app/docs/[slug]/page.tsx`"
+        },
+        {
+          "id": "D",
+          "text": "`app/docs/(slug)/page.tsx`"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`[[...slug]]` is an **optional catch-all** route. When `slug` is absent (i.e., the URL is `/docs`), the segment receives `undefined`. When segments are present (e.g., `/docs/guide/intro`), it receives `['guide', 'intro']`. This makes it the only option that matches both the zero-segment and multi-segment cases.\n**Why the distractors are wrong:**\n- **A** — `[...slug]` is a **required** catch-all. It does not match the base path `/docs` because at least one segment is mandatory; accessing `/docs` would return a 404.\n- **C** — `[slug]` matches exactly one dynamic segment (e.g., `/docs/intro`) and does not match zero or multiple segments.\n- **D** — Parentheses `(slug)` in the App Router denote **Route Groups**, which affect layout organization without creating URL segments. They do not create catch-all patterns."
+    },
+    {
+      "id": "nx-q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "A developer writes the following data-fetching code in a Server Component. What is the **correct description** of its caching behavior?",
+      "prompt": "A developer writes the following data-fetching code in a Server Component. What is the **correct description** of its caching behavior?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/news/page.tsx\nasync function getNews() {\n  const res = await fetch(\"https://api.example.com/news\", {\n    next: { revalidate: 3600 },\n  });\n  return res.json();\n}\n\nexport default async function NewsPage() {\n  const news = await getNews();\n  return (\n    <ul>\n      {news.map((n) => (\n        <li key={n.id}>{n.title}</li>\n      ))}\n    </ul>\n  );\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "The page is statically generated at build time and never updated unless manually redeployed."
+        },
+        {
+          "id": "B",
+          "text": "The page is always server-rendered fresh on every request with no caching."
+        },
+        {
+          "id": "C",
+          "text": "The page is cached and regenerated in the background at most once per hour after a request triggers it."
+        },
+        {
+          "id": "D",
+          "text": "The fetch result is cached in the browser\\'s service worker for one hour."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "`next: { revalidate: 3600 }` configures Incremental Static Regeneration (ISR) via Next.js\\'s server-side Data Cache. The response is stored in the cache and served to subsequent requests. After 3,600 seconds (1 hour), the next incoming request triggers a background regeneration while continuing to serve the stale cached response — the classic stale-while-revalidate pattern.\n**Why the distractors are wrong:**\n- **A** — Describes a fully static page with `cache: 'force-cache'` and no revalidation period; that page would never update post-deployment.\n- **B** — Describes `cache: 'no-store'` or `export const dynamic = 'force-dynamic'`, which bypass the Data Cache entirely.\n- **D** — `next: { revalidate }` controls Next.js\\'s **server-side** Data Cache, not the browser cache or service workers."
+    },
+    {
+      "id": "nx-q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "Which of the following is the **correct** implementation of a Server Action used directly in an HTML `<form>`?",
+      "prompt": "Which of the following is the **correct** implementation of a Server Action used directly in an HTML `<form>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "// app/contact/page.tsx\n\"use client\";\n\nasync function submitForm(formData: FormData) {\n  \"use server\";\n  const name = formData.get(\"name\");\n  await saveToDb(name);\n}\n\nexport default function ContactPage() {\n  return (\n    <form action={submitForm}>\n      <input name=\"name\" />\n      <button>Submit</button>\n    </form>\n  );\n}"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "// app/contact/page.tsx\nasync function submitForm(formData: FormData) {\n  \"use server\";\n  const name = formData.get(\"name\");\n  await saveToDb(name);\n}\n\nexport default function ContactPage() {\n  return (\n    <form action={submitForm}>\n      <input name=\"name\" />\n      <button>Submit</button>\n    </form>\n  );\n}"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "// app/contact/page.tsx\n\"use server\";\n\nasync function submitForm(formData: FormData) {\n  const name = formData.get(\"name\");\n  await saveToDb(name);\n}\n\nexport default function ContactPage() {\n  return (\n    <form action={submitForm}>\n      <input name=\"name\" />\n      <button>Submit</button>\n    </form>\n  );\n}"
+        },
+        {
+          "id": "D",
+          "text": "Option D",
+          "code": "// app/actions.ts\n\"use server\";\n\nexport async function submitForm(formData: FormData) {\n  const name = formData.get(\"name\");\n  await saveToDb(name);\n}\n\n// app/contact/page.tsx\nimport { submitForm } from \"./actions\";\n\nexport default function ContactPage() {\n  return (\n    <form action={submitForm}>\n      <input name=\"name\" />\n      <button>Submit</button>\n    </form>\n  );\n}"
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Option D is the canonical pattern. A dedicated file marked `'use server'` exports one or more server functions. A Server Component page imports and passes the action as the `<form action={...}>` prop. This pattern cleanly separates concerns and works for both Server and Client Component consumers.\n**Why the distractors are wrong:**\n- **A** — A file marked `'use client'` cannot contain inline `'use server'` function directives. The two module-level directives are mutually exclusive; Next.js will throw a build error.\n- **B** — Technically valid (an inline `'use server'` inside a Server Component function body is permitted), but Option D represents the recommended architectural pattern.\n- **C** — Placing `'use server'` at the module level of a file that also exports a React component as its default export would mark all exports (including the component) as server-only, causing a build error when Next.js attempts to render the component."
+    },
+    {
+      "id": "nx-q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "A developer debates whether `cache: 'no-store'` and `next: { revalidate: 0 }` are equivalent in Next.js. Which statement is **most accurate**?",
+      "prompt": "A developer debates whether `cache: 'no-store'` and `next: { revalidate: 0 }` are equivalent in Next.js. Which statement is **most accurate**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "ts",
+          "value": "// Option A\nfetch(url, { cache: \"no-store\" });\n\n// Option B\nfetch(url, { next: { revalidate: 0 } });"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are completely identical; both skip the Data Cache on every request."
+        },
+        {
+          "id": "B",
+          "text": "`cache: 'no-store'` opts out of caching entirely, while `revalidate: 0` still writes to the cache but immediately marks it as stale, potentially allowing a single stale read."
+        },
+        {
+          "id": "C",
+          "text": "`revalidate: 0` is not a valid Next.js option; only integer values ≥ 1 are accepted."
+        },
+        {
+          "id": "D",
+          "text": "`cache: 'no-store'` only affects the browser cache, while `revalidate: 0` affects the server-side Data Cache."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "These two options have subtle but important semantic differences. `cache: 'no-store'` (a Web Fetch API standard option) instructs Next.js never to read from or write to the Data Cache. `next: { revalidate: 0 }` still participates in the Data Cache infrastructure but with a TTL of zero, which means cached entries are immediately considered stale — the background revalidation cycle still applies. Their interactions with `generateStaticParams` and route-segment `dynamic` config can differ in edge cases.\n**Why the distractors are wrong:**\n- **A** — They are not identical. Their behavior diverges in how they interact with the Data Cache and the route rendering mode determination.\n- **C** — `revalidate: 0` is an explicitly documented and valid Next.js option used to force dynamic rendering via the Data Cache path.\n- **D** — Both options affect Next.js\\'s server-side Data Cache. Neither option directly controls the browser HTTP cache."
+    },
+    {
+      "id": "nx-q0009",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "A developer wants to set a dynamic `<title>` and `og:image` for a product detail page. Which implementation is **correct**?",
+      "prompt": "A developer wants to set a dynamic `<title>` and `og:image` for a product detail page. Which implementation is **correct**?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "export const metadata = {\n  title: \"Product Detail\",\n  openGraph: { images: [\"/og-default.png\"] },\n};"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "export async function generateMetadata({ params }) {\n  const product = await fetchProduct(params.id);\n  return {\n    title: product.name,\n    openGraph: { images: [product.imageUrl] },\n  };\n}"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "\"use client\";\nimport { Helmet } from \"react-helmet\";\n\nexport default function ProductPage({ params }) {\n  return (\n    <Helmet>\n      <title>Product</title>\n    </Helmet>\n  );\n}"
+        },
+        {
+          "id": "D",
+          "text": "Option D",
+          "code": "export async function getServerSideProps({ params }) {\n  const product = await fetchProduct(params.id);\n  return { props: { title: product.name } };\n}"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`generateMetadata` is the App Router\\'s native mechanism for generating dynamic metadata per request. It receives `{ params, searchParams }`, can perform async data fetching, and returns a metadata object. Next.js automatically renders the result as `<title>`, `<meta>`, and `<link>` tags in the `<head>`.\n**Why the distractors are wrong:**\n- **A** — Static `export const metadata` is evaluated once at build time and cannot reference runtime values like `params.id`. It produces the same metadata for every product.\n- **C** — `react-helmet` is a client-side library. It injects tags into the DOM after JavaScript loads, which means search engine crawlers may not see the correct metadata. The App Router\\'s Metadata API renders tags server-side.\n- **D** — `getServerSideProps` is a Pages Router API that does not exist in the App Router. Even in the Pages Router, it could not directly populate `<head>` tags — that required a separate `<Head>` component from `next/head`."
+    },
+    {
+      "id": "nx-q0010",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "A developer sees a React hydration error in production. Which code pattern in a **Client Component** is the **most likely cause**?",
+      "prompt": "A developer sees a React hydration error in production. Which code pattern in a **Client Component** is the **most likely cause**?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "\"use client\";\n\nexport default function Timestamp() {\n  return <p>Built at: {process.env.NEXT_PUBLIC_BUILD_TIME}</p>;\n}"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "\"use client\";\nimport { useState } from \"react\";\n\nexport default function Toggle() {\n  const [on, setOn] = useState(false);\n  return <button onClick={() => setOn(!on)}>{on ? \"ON\" : \"OFF\"}</button>;\n}"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "\"use client\";\n\nexport default function RandomId() {\n  return <div id={`item-${Math.random()}`}>Content</div>;\n}"
+        },
+        {
+          "id": "D",
+          "text": "Option D",
+          "code": "\"use client\";\n\nexport default function StaticText() {\n  return <p>Hello World</p>;\n}"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Hydration errors occur when the HTML rendered on the server does not match what React generates during client-side hydration. `Math.random()` produces a unique value on each invocation, so the `id` generated during SSR will differ from the one generated during the client hydration pass, producing a mismatch that React cannot reconcile.\n**Why the distractors are wrong:**\n- **A** — `NEXT_PUBLIC_BUILD_TIME` is a build-time environment variable inlined into both the server bundle and the client bundle during the build. Its value is identical in both environments.\n- **B** — `useState(false)` has a deterministic initial value (`false`) that is the same in both the server render and the client hydration pass. No mismatch occurs.\n- **D** — A static string literal (`Hello World`) is byte-for-byte identical in server-rendered HTML and client hydration output. No mismatch."
+    },
+    {
+      "id": "nx-q0011",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "A developer enables Partial Prerendering and writes the following page. What does Next.js serve to the **first visitor** of `/feed`?",
+      "prompt": "A developer enables Partial Prerendering and writes the following page. What does Next.js serve to the **first visitor** of `/feed`?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// next.config.ts\nconst nextConfig = { experimental: { ppr: true } };\n\n// app/feed/page.tsx\nimport { Suspense } from \"react\";\nimport StaticHeader from \"@/components/StaticHeader\";\nimport DynamicFeed from \"@/components/DynamicFeed\"; // internally calls cookies()\n\nexport default function FeedPage() {\n  return (\n    <>\n      <StaticHeader />\n      <Suspense fallback={<p>Loading feed…</p>}>\n        <DynamicFeed />\n      </Suspense>\n    </>\n  );\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "The entire page is blocked until `DynamicFeed` resolves; nothing is sent to the browser early."
+        },
+        {
+          "id": "B",
+          "text": "A static HTML shell containing `<StaticHeader>` and the `<p>Loading feed…</p>` fallback is served from the CDN instantly; `DynamicFeed` streams in dynamically per request."
+        },
+        {
+          "id": "C",
+          "text": "Both `StaticHeader` and `DynamicFeed` are rendered at build time; PPR has no effect when `cookies()` is used."
+        },
+        {
+          "id": "D",
+          "text": "The page falls back to full CSR because `DynamicFeed` uses `cookies()`, which PPR does not support."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Partial Prerendering (PPR) is designed precisely for this pattern. At build time, Next.js renders the static parts of the page (`<StaticHeader>`) and the `<Suspense>` fallback (`<p>Loading feed…</p>`) into a static HTML shell that is cached on the CDN. When a user visits `/feed`, the shell is served instantly. The server then streams the rendered output of `<DynamicFeed>` (which reads `cookies()` and is therefore dynamic) into the open Suspense hole.\n**Why the distractors are wrong:**\n- **A** — PPR specifically avoids this full-blocking behavior. The static shell is the whole point.\n- **C** — PPR never renders dynamic components (those using `cookies()`, `headers()`, etc.) at build time. The dynamic boundary is intentional.\n- **D** — PPR fully supports dynamic APIs like `cookies()` and `headers()` within `<Suspense>` boundaries. This is the core use case of the feature."
+    },
+    {
+      "id": "nx-q0012",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "A developer writes the following middleware. Which set of routes will it **intercept**?",
+      "prompt": "A developer writes the following middleware. Which set of routes will it **intercept**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "ts",
+          "value": "// middleware.ts\nimport { NextResponse } from \"next/server\";\nimport type { NextRequest } from \"next/server\";\n\nexport function middleware(request: NextRequest) {\n  const token = request.cookies.get(\"auth-token\");\n  if (!token) {\n    return NextResponse.redirect(new URL(\"/login\", request.url));\n  }\n  return NextResponse.next();\n}\n\nexport const config = {\n  matcher: [\"/dashboard/:path*\", \"/admin/:path*\"],\n};"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "All routes in the application, including static files and API routes."
+        },
+        {
+          "id": "B",
+          "text": "Only the exact paths `/dashboard` and `/admin`, not their sub-routes."
+        },
+        {
+          "id": "C",
+          "text": "Any path starting with `/dashboard` or `/admin`, including their sub-routes (`:path*` matches zero or more segments)."
+        },
+        {
+          "id": "D",
+          "text": "Only routes that contain the literal string `:path` in the URL."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "In Next.js middleware `matcher` config, `:path*` is a named parameter with a wildcard that matches **zero or more** path segments. This means the pattern `/dashboard/:path*` matches `/dashboard` (zero additional segments), `/dashboard/analytics`, `/dashboard/users/edit`, and so on.\n**Why the distractors are wrong:**\n- **A** — Without a `matcher` config (or with `matcher: ['/']`), middleware runs on all routes. The presence of a `matcher` explicitly limits its scope.\n- **B** — `:path*` matches sub-routes because `*` allows zero or more segments. To match only the exact paths, the config would be `matcher: ['/dashboard', '/admin']` with no wildcard.\n- **D** — `:path` is Next.js path-matching syntax for a named parameter, not a literal URL string. The colon prefix denotes a pattern parameter, not a URL literal character."
+    },
+    {
+      "id": "nx-q0013",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "A developer has a Server Component that queries a database but notices Next.js is caching the result between requests. Which code addition **correctly opts the component out of static rendering**?",
+      "prompt": "A developer has a Server Component that queries a database but notices Next.js is caching the result between requests. Which code addition **correctly opts the component out of static rendering**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "import { unstable_noStore as noStore } from \"next/cache\";\n\nexport default async function LiveOrderCount() {\n  // ??? add noStore call here\n  const count = await db.orders.count();\n  return <p>Live orders: {count}</p>;\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "Call `noStore()` inside a `useEffect` hook at the start of the function body."
+        },
+        {
+          "id": "B",
+          "text": "Call `noStore()` at the top of the async function body, before any `await` calls."
+        },
+        {
+          "id": "C",
+          "text": "Export `export const dynamic = 'force-dynamic'` from the route segment file and remove `noStore`."
+        },
+        {
+          "id": "D",
+          "text": "Both B and C are valid and produce equivalent results."
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Both approaches are documented Next.js mechanisms and are interchangeable for this use case. Calling `noStore()` at the top of the Server Component\\'s async function body signals to Next.js at render time that this component must not be statically cached. Exporting `export const dynamic = 'force-dynamic'` is the route-segment-level config equivalent that forces the entire route segment into dynamic rendering mode.\n**Why the distractors are wrong:**\n- **A** — `noStore()` is designed for Server Components. `useEffect` is a Client Component hook and cannot be used in a Server Component. Attempting this would cause a build error."
+    },
+    {
+      "id": "nx-q0014",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "A developer writes a Server Action to delete a blog post. Identify the **critical security flaw**:",
+      "prompt": "A developer writes a Server Action to delete a blog post. Identify the **critical security flaw**:",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/actions.ts\n\"use server\";\nimport { db } from \"@/lib/db\";\n\nexport async function deletePost(postId: string) {\n  await db.posts.delete({ where: { id: postId } });\n}"
+        },
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/dashboard/page.tsx  (Client Component)\n<button onClick={() => deletePost(post.id)}>Delete</button>"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "The Server Action is missing the `async` keyword on the function declaration."
+        },
+        {
+          "id": "B",
+          "text": "Server Actions cannot be called from Client Component event handlers; they must be used in `<form action={...}>` only."
+        },
+        {
+          "id": "C",
+          "text": "The action does not verify that the currently authenticated user owns `postId`, allowing any authenticated user to delete any post (broken object-level authorization)."
+        },
+        {
+          "id": "D",
+          "text": "`db.posts.delete` must be wrapped in a `try/catch`; the missing error handling is the critical flaw."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "This is a **Broken Object Level Authorization (BOLA)** vulnerability, also known as Insecure Direct Object Reference (IDOR). Any authenticated user who knows (or can guess) a `postId` can call `deletePost` to delete it — there is no verification that the requestor owns the post. An attacker can enumerate IDs and delete other users' content. The fix is to retrieve the current session, verify the authenticated user\\'s identity, and confirm ownership before executing the deletion.\n**Why the distractors are wrong:**\n- **A** — The function is correctly declared with `async`. This is not a bug.\n- **B** — Server Actions **can** be called from Client Component event handlers as of Next.js 14+. This is an explicitly supported and documented pattern.\n- **D** — Absent error handling is a code quality and reliability concern, not a security vulnerability. The authorization gap is the critical security flaw."
+    },
+    {
+      "id": "nx-q0015",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "A developer adds an `error.tsx` inside `app/dashboard/`. Which statement about its behavior is **correct**?",
+      "prompt": "A developer adds an `error.tsx` inside `app/dashboard/`. Which statement about its behavior is **correct**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/dashboard/error.tsx\n\"use client\";\n\nexport default function DashboardError({\n  error,\n  reset,\n}: {\n  error: Error & { digest?: string };\n  reset: () => void;\n}) {\n  return (\n    <div>\n      <p>Something went wrong: {error.message}</p>\n      <button onClick={reset}>Try again</button>\n    </div>\n  );\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "This file catches errors thrown in `app/dashboard/layout.tsx` as well as `app/dashboard/page.tsx`."
+        },
+        {
+          "id": "B",
+          "text": "This file catches errors thrown in `app/dashboard/page.tsx` and its children, but **not** errors thrown in `app/dashboard/layout.tsx`."
+        },
+        {
+          "id": "C",
+          "text": "The `reset` function performs a full browser page reload to re-attempt rendering."
+        },
+        {
+          "id": "D",
+          "text": "The `'use client'` directive is optional here; `error.tsx` can be a Server Component."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "In the App Router, `error.tsx` wraps the `page.tsx` (and its entire child subtree) of the same route segment in a React Error Boundary. However, the error boundary is rendered _inside_ the `layout.tsx` of the same segment. Because a component cannot catch its own render errors via an error boundary, `layout.tsx` errors propagate upward to the **parent segment\\'s** `error.tsx` (or to `global-error.tsx` for the root).\n**Why the distractors are wrong:**\n- **A** — `error.tsx` does not wrap `layout.tsx` at the same level. It sits inside it.\n- **C** — `reset()` calls the React Error Boundary\\'s reset mechanism, which re-renders the boundary\\'s children (re-attempts the failing segment). It is a React-level reset, not a full browser reload.\n- **D** — `error.tsx` **must** be a Client Component. React Error Boundaries rely on `componentDidCatch` / `getDerivedStateFromError` lifecycle semantics, which are inherently client-side features unavailable in Server Components."
+    },
+    {
+      "id": "nx-q0016",
+      "level": "L4",
+      "levelLabel": "Expert (Architect)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "A company runs two independent Next.js applications that should appear under one domain: a marketing site at `https://example.com` and a dashboard app at `https://example.com/dashboard`. Which configuration approach is **correct** for the dashboard app?",
+      "prompt": "A company runs two independent Next.js applications that should appear under one domain: a marketing site at `https://example.com` and a dashboard app at `https://example.com/dashboard`. Which configuration approach is **correct** for the dashboard app?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "// next.config.js (dashboard app)\nmodule.exports = { basePath: \"/dashboard\" };\n// A reverse proxy routes /dashboard/* to the dashboard Next.js server"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "// next.config.js (dashboard app)\nmodule.exports = { assetPrefix: \"/dashboard\" };\n// No reverse proxy needed; Next.js handles routing internally"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "// next.config.js (marketing app only)\nmodule.exports = {\n  async rewrites() {\n    return [\n      {\n        source: \"/dashboard/:path*\",\n        destination: \"https://dashboard-app.internal/:path*\",\n      },\n    ];\n  },\n};\n// No basePath is set on the dashboard app"
+        },
+        {
+          "id": "D",
+          "text": "Both A and C are valid multi-zone approaches; A uses `basePath` for same-server deployments while C uses rewrites for cross-origin proxying."
+        }
+      ],
+      "correctOptionId": "D",
+      "explanation": "Next.js Multi-Zones documentation describes two complementary strategies. Option A uses `basePath: '/dashboard'` so all internal `<Link>` hrefs and static asset paths are prefixed automatically, with a reverse proxy routing `/dashboard/*` traffic to this app\\'s server. Option C uses `rewrites` in the host app to proxy `/dashboard/*` to the dashboard app\\'s origin URL — the dashboard app does not need `basePath` in this configuration.\n**Why the distractors are wrong:**\n- **A alone** — Correct pattern, but incomplete answer because C is also valid.\n- **B** — `assetPrefix` affects only the CDN path for static assets (JS, CSS bundles) but does not redirect page routing. It cannot create a multi-zone setup on its own, and a reverse proxy is always required.\n- **C alone** — Correct pattern, but incomplete answer because A is also valid."
+    },
+    {
+      "id": "nx-q0017",
+      "level": "L4",
+      "levelLabel": "Expert (Architect)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "A developer uses `unstable_cache` to cache a database query with tag-based invalidation. Which implementation is **correct**?",
+      "prompt": "A developer uses `unstable_cache` to cache a database query with tag-based invalidation. Which implementation is **correct**?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "import { unstable_cache } from \"next/cache\";\n\nexport const getCachedUser = unstable_cache(\n  async (userId: string) => db.users.findUnique({ where: { id: userId } }),\n  [\"user-detail\"],\n  { tags: [\"user\"], revalidate: 3600 },\n);"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "import { unstable_cache } from \"next/cache\";\n\nexport const getCachedUser = unstable_cache(\n  async (userId: string) => db.users.findUnique({ where: { id: userId } }),\n  [\"user-detail\"],\n  { tag: \"user\", revalidate: 3600 }, // singular 'tag'\n);"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "export const getCachedUser = async (userId: string) => {\n  return fetch(`/api/users/${userId}`, {\n    next: { tags: [\"user\"], revalidate: 3600 },\n  }).then((r) => r.json());\n};"
+        },
+        {
+          "id": "D",
+          "text": "Option D",
+          "code": "import { cache } from \"react\";\n\nexport const getCachedUser = cache(async (userId: string) =>\n  db.users.findUnique({ where: { id: userId } }),\n);"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "The `unstable_cache` API signature is `unstable_cache(fn, keyParts, options)` where `options` accepts `{ tags: string[], revalidate: number }`. The `tags` field must be an **array of strings**. This enables `revalidateTag('user')` to purge all cache entries sharing that tag.\n**Why the distractors are wrong:**\n- **B** — The option key is `tags` (plural, array), not `tag` (singular string). Using `tag` instead of `tags` means no cache tag is registered, so `revalidateTag` will have no effect on this entry.\n- **C** — Making an internal `fetch` call to `/api/users/:id` adds an unnecessary HTTP round-trip to the same server. `unstable_cache` with a direct database call is the correct, efficient approach for caching non-`fetch` data sources.\n- **D** — `react.cache` provides **per-request deduplication** (memoizing calls within a single render pass). It does not persist data across requests, does not support cache tags, and does not accept a revalidation TTL. It solves a different problem (avoiding duplicate DB queries in the same render tree)."
+    },
+    {
+      "id": "nx-q0018",
+      "level": "L4",
+      "levelLabel": "Expert (Architect)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "An e-commerce platform needs to **immediately invalidate** all product listing caches whenever a product is updated via an admin Server Action. Which implementation is **correct**?",
+      "prompt": "An e-commerce platform needs to **immediately invalidate** all product listing caches whenever a product is updated via an admin Server Action. Which implementation is **correct**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "ts",
+          "value": "// app/admin/actions.ts\n\"use server\";\nimport { revalidateTag } from \"next/cache\";\nimport { db } from \"@/lib/db\";"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "Option A",
+          "code": "export async function updateProduct(id: string, data: ProductData) {\n  await db.products.update({ where: { id }, data });\n  revalidateTag(\"products\");\n}\n// All fetch() calls and unstable_cache results tagged 'products' are invalidated"
+        },
+        {
+          "id": "B",
+          "text": "Option B",
+          "code": "export async function updateProduct(id: string, data: ProductData) {\n  await db.products.update({ where: { id }, data });\n  await revalidatePath(\"/products\"); // revalidateTag is incorrect for this use case\n}"
+        },
+        {
+          "id": "C",
+          "text": "Option C",
+          "code": "export async function updateProduct(id: string, data: ProductData) {\n  await db.products.update({ where: { id }, data });\n  revalidateTag(\"products\");\n}\n// Only fetch() calls with the 'products' tag are invalidated; unstable_cache is unaffected"
+        },
+        {
+          "id": "D",
+          "text": "Option D",
+          "code": "export async function updateProduct(id: string, data: ProductData) {\n  await db.products.update({ where: { id }, data });\n  revalidateTag(\"products\"); // This triggers a full rebuild of all static pages\n}"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`revalidateTag` is the precise API for on-demand, tag-based cache invalidation. It marks all cache entries — both `fetch()` calls and `unstable_cache` results — that were registered with the specified tag as stale. On the next incoming request for those resources, they will be regenerated from the source.\n**Why the distractors are wrong:**\n- **B** — `revalidatePath` invalidates caches associated with a specific URL path, not all resources that share a semantic label. It is a coarser tool and does not invalidate all product-related data across different paths.\n- **C** — The claim that `unstable_cache` is unaffected by `revalidateTag` is **incorrect**. `revalidateTag` invalidates both `fetch()` cache entries and `unstable_cache` results that share the tag.\n- **D** — `revalidateTag` does not trigger a full static rebuild. It marks tagged entries as stale and Next.js regenerates them lazily on the next request, identical to how on-demand ISR works."
+    },
+    {
+      "id": "nx-q0019",
+      "level": "L4",
+      "levelLabel": "Expert (Architect)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "A team wants to embed a React component from a **remote** Webpack Module Federation app into a Next.js host application. Which statement is **most accurate**?",
+      "prompt": "A team wants to embed a React component from a **remote** Webpack Module Federation app into a Next.js host application. Which statement is **most accurate**?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Next.js natively supports Module Federation without additional configuration; remote components are loaded as standard dynamic imports."
+        },
+        {
+          "id": "B",
+          "text": "The `@module-federation/nextjs-mf` package adapts Module Federation for the Next.js runtime. The remote component should be consumed via `next/dynamic` with `ssr: false` unless both host and remote explicitly configure SSR support, to avoid hydration mismatches."
+        },
+        {
+          "id": "C",
+          "text": "Module Federation is only supported in the `pages/` router; the App Router cannot consume federated modules because Server Components do not support async remote loading."
+        },
+        {
+          "id": "D",
+          "text": "Federated modules must be re-exported through a Next.js API route (`/api/mf-proxy`) before Client Components can consume them."
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The `@module-federation/nextjs-mf` package bridges Webpack\\'s Module Federation runtime with Next.js\\'s custom bundler pipeline. Remote federated modules are loaded asynchronously from an external origin at runtime, so they must be consumed with `next/dynamic` to prevent issues during the SSR pass. Setting `ssr: false` is the safe default unless both the host and remote are explicitly configured to support SSR, which requires coordinating chunk loading between two separate Webpack builds.\n**Why the distractors are wrong:**\n- **A** — Next.js does not natively support Module Federation. It requires the `@module-federation/nextjs-mf` plugin to handle the integration. Standard dynamic imports cannot load from a remote Webpack container\\'s `remoteEntry.js`.\n- **C** — While App Router integration has historically been more complex, the `@module-federation/nextjs-mf` package supports consuming federated modules as Client Components in the App Router. It is not restricted to the Pages Router.\n- **D** — There is no need for an API route proxy. The federated module\\'s `remoteEntry.js` is fetched directly by the Webpack runtime in the browser. Routing through an API proxy would add latency and defeat the purpose of Module Federation."
+    },
+    {
+      "id": "nx-q0020",
+      "level": "L4",
+      "levelLabel": "Expert (Architect)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "An architect must choose the runtime for a Route Handler that: (1) queries a **PostgreSQL database** via a TCP connection, (2) handles **file uploads > 10 MB**, and (3) uses the **Node.js `crypto` module** for encryption. Which decision is **correct**?",
+      "prompt": "An architect must choose the runtime for a Route Handler that: (1) queries a **PostgreSQL database** via a TCP connection, (2) handles **file uploads > 10 MB**, and (3) uses the **Node.js `crypto` module** for encryption. Which decision is **correct**?",
+      "content": [
+        {
+          "type": "code",
+          "language": "ts",
+          "value": "// app/api/process/route.ts\nexport const runtime = \"???\";"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "`'edge'` — Edge Runtime is always faster and should be preferred for all Route Handlers."
+        },
+        {
+          "id": "B",
+          "text": "`'edge'` — Edge Runtime supports TCP connections and the Web Crypto API, satisfying all three requirements."
+        },
+        {
+          "id": "C",
+          "text": "`'nodejs'` (default) — Edge Runtime does not support TCP-based database connections, has a 4 MB request body size limit, and does not include the Node.js `crypto` module; only the Node.js runtime satisfies all three requirements."
+        },
+        {
+          "id": "D",
+          "text": "`'nodejs'` — but only because Edge Runtime is unavailable for Route Handlers and is restricted to Middleware only."
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "The Edge Runtime executes in a V8 isolate with a restricted API surface inherited from Cloudflare Workers / Vercel Edge: (1) **No TCP connections** — PostgreSQL drivers (pg, Prisma, Drizzle ORM) require TCP, making them incompatible; only HTTP-based edge-compatible drivers work. (2) **4 MB request body limit** — File uploads exceeding 4 MB are rejected. (3) **No Node.js built-in modules** — `node:crypto` is not available; only the Web Crypto API (`globalThis.crypto`) is accessible. The Node.js runtime (the default) supports all three requirements.\n**Why the distractors are wrong:**\n- **A** — Edge Runtime is not universally faster. For I/O-bound workloads with database connections, it is incompatible. Its speed advantage comes from geographic distribution and cold-start performance, not raw throughput.\n- **B** — Edge Runtime does **not** support TCP connections, has a body size limit, and does not include `node:crypto`. All three stated facts in option B are incorrect.\n- **D** — Edge Runtime **is** available for Route Handlers via `export const runtime = 'edge'`. It is not restricted to Middleware only."
+    }
+  ]
+}
