@@ -31,6 +31,17 @@ export const LANDING_NAV: LandingNavLink[] = [
   { href: "#faq", label: "FAQ" },
 ];
 
+/**
+ * Real routes shown next to the landing anchors.
+ *
+ * The anchors only resolve on the landing page, while these pages exist on
+ * their own — so the header offers both.
+ */
+export const HEADER_ROUTE_LINKS: LandingNavLink[] = [
+  { href: "/practice", label: "Practice arena" },
+  { href: "/playground", label: "Online compiler" },
+];
+
 /* ------------------------------------------------------------------ stats */
 
 export interface LandingStat {
@@ -133,7 +144,7 @@ export const LANDING_PILLARS: LandingPillar[] = [
       "HTML and CSS render in a live preview pane so styling work is visible too",
       "Share a snippet with a teammate to make debugging a conversation",
     ],
-    cta: { label: "Open the playground", href: "/register" },
+    cta: { label: "Open the playground", href: "/playground" },
   },
   {
     id: "competitions",
@@ -539,9 +550,9 @@ export const LANDING_FAQ: LandingFaq[] = [
   },
   {
     question: "Which languages can I actually run in the online compiler?",
-    answer: `The editor and runner support ${PROGRAMMING_LANGUAGES.map((lang) => lang.label).join(
-      ", ",
-    )}. Code is submitted to the execution sandbox for supported runtimes, while HTML and CSS render in a live preview pane instead.`,
+    answer: `The playground runs JavaScript, TypeScript and Python in a sandbox — Python through CPython compiled to WebAssembly — and renders HTML and CSS in a live preview pane. Assessment submissions can carry any of ${PROGRAMMING_LANGUAGES.map(
+      (lang) => lang.label,
+    ).join(", ")}, which the API dispatches to the execution sandbox.`,
   },
   {
     question: "Can a company bring its own questions, or must it use the shared bank?",
@@ -582,8 +593,8 @@ export const LANDING_FOOTER_GROUPS: LandingFooterGroup[] = [
     title: "Learn",
     links: [
       { label: "Technology exams", href: "/exams" },
-      { label: "Practice arena", href: "#practice" },
-      { label: "Online compiler", href: "#playground" },
+      { label: "Practice arena", href: "/practice" },
+      { label: "Online compiler", href: "/playground" },
       { label: "FAQ", href: "#faq" },
     ],
   },

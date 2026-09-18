@@ -6,9 +6,17 @@ import { ArrowRight, Code2, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { APP_NAME, dashboardPathForRole } from "@/lib/constants";
-import { LANDING_NAV } from "@/lib/marketing";
+import { HEADER_ROUTE_LINKS, LANDING_NAV } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/store/auth";
+
+/** Shared styling for a desktop header link (landing anchor or real route). */
+const NAV_LINK_CLASS =
+  "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+
+/** Mobile drawer equivalent of `NAV_LINK_CLASS`. */
+const MOBILE_LINK_CLASS =
+  "block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground";
 
 /**
  * Sticky marketing header.
@@ -48,11 +56,13 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing sections">
           {LANDING_NAV.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
+            <Link key={link.href} href={link.href} className={NAV_LINK_CLASS}>
+              {link.label}
+            </Link>
+          ))}
+          <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />
+          {HEADER_ROUTE_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} className={NAV_LINK_CLASS}>
               {link.label}
             </Link>
           ))}
@@ -101,7 +111,18 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                className={MOBILE_LINK_CLASS}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="my-2 h-px bg-border" role="presentation" />
+            {HEADER_ROUTE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className={MOBILE_LINK_CLASS}
               >
                 {link.label}
               </Link>
