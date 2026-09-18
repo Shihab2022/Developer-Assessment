@@ -19,6 +19,8 @@ export const ASSESSMENT_ACCESS_LEVELS = ["PUBLIC", "PRIVATE", "INVITATION_ONLY",
 export const RESULT_STRATEGIES = ["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"] as const;
 export const TEMPLATE_STATUSES = ["DRAFT", "ACTIVE", "ARCHIVED"] as const;
 
+export const COMPETITION_STATUSES = ["DRAFT", "OPEN", "CLOSED"] as const;
+
 export const INVITATION_STATUSES = ["PENDING", "ACCEPTED", "REJECTED", "EXPIRED", "COMPLETED"] as const;
 export const RECRUITMENT_STATUSES = [
   "INVITED",
@@ -332,6 +334,7 @@ export interface NavItem {
 export const RECRUITER_NAV: NavItem[] = [
   { href: "/recruiter/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
   { href: "/recruiter/assessments", label: "Assessments", icon: "ClipboardList" },
+  { href: "/recruiter/competitions", label: "Competitions", icon: "Trophy" },
   { href: "/recruiter/problems", label: "Question bank", icon: "Library" },
   { href: "/recruiter/templates", label: "Templates", icon: "LayoutTemplate" },
   { href: "/recruiter/candidates", label: "Candidates", icon: "Users" },
