@@ -20,6 +20,7 @@ export const buttonVariants = cva(
         danger:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         success: "bg-success text-success-foreground shadow-sm hover:bg-success/90",
+        solid: "bg-primary-600 text-white shadow-sm hover:bg-primary-700 active:bg-primary-800",
         link: "text-primary-600 underline-offset-4 hover:underline dark:text-primary-400",
       },
       size: {

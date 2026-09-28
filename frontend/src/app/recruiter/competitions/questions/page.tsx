@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -13,3 +13,24 @@ import { QuestionEditorModal } from "@/components/competitions/QuestionEditor";
 import { useCompetitionsHydrated, useCompetitionsStore } from "@/store/competitions";
 import type { OwnQuestion } from "@/lib/competitions/types";
 
+
+export default function RecruiterQuestionsPage() {
+  const hydrated = useCompetitionsHydrated();
+  const ownQuestions = hydrated
+    ? useCompetitionsStore((state) => state.ownQuestions)
+    : [];
+  if (!hydrated) {
+    return <Spinner className="mx-auto my-12" />;
+  }
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-10">
+      <PageHeader
+        title="Own question bank"
+        subtitle="Questions you authored for competitions and exams."
+      />
+
+      <OwnQuestionBank />
+    </div>
+  );
+}

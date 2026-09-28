@@ -71,6 +71,10 @@ interface CompetitionsState {
   ownQuestions: OwnQuestion[];
   entries: CompetitionEntry[];
 
+  /* question bank hydration (competition attempts) */
+  banks: Record<string, import("@/lib/question-banks/types").QuestionBank>;
+  banksReady: boolean;
+
   /* host */
   createCompetition: (input: CreateCompetitionInput) => Competition;
   updateCompetition: (id: string, patch: UpdateCompetitionInput) => void;
@@ -100,6 +104,8 @@ export const useCompetitionsStore = create<CompetitionsState>()(
       competitions: [],
       ownQuestions: [],
       entries: [],
+      banks: {},
+      banksReady: false,
 
       /* ---------------------------------------------------------- host */
 
@@ -213,6 +219,7 @@ export const useCompetitionsStore = create<CompetitionsState>()(
       /* ---------------------------------------------------- participants */
 
       startEntry: (input) => {
+        const now = new Date().toISOString();
         const entry: CompetitionEntry = {
           id: createId("entry"),
           competitionId: input.competitionId,
@@ -220,7 +227,7 @@ export const useCompetitionsStore = create<CompetitionsState>()(
           participantEmail: input.participantEmail,
           organisation: input.organisation,
           status: "IN_PROGRESS",
-          startedAt: new Date().toISOString(),
+          startedAt: now,
           seed: input.seed,
           questionOrder: input.plan.questionOrder,
           optionOrders: input.plan.optionOrders,
@@ -257,7 +264,10 @@ export const useCompetitionsStore = create<CompetitionsState>()(
             entry.id === entryId
               ? {
                   ...entry,
-                  proctorEvents: [...entry.proctorEvents, { type, at: new Date().toISOString() }],
+                  proctorEvents: [
+                    ...entry.proctorEvents,
+                    { type, at: new Date().toISOString() },
+                  ],
                 }
               : entry,
           ),
@@ -373,4 +383,56 @@ export function attemptsUsed(
 export function accessCodeMatches(competition: Competition, code: string): boolean {
   return competition.inviteCode.replace(/[\s-]/g, "").toUpperCase() ===
     code.replace(/[\s-]/g, "").toUpperCase();
+}
+
+/* ------------------------------------------------------------------ bank loader */
+
+/**
+ * Loads every built-in question bank into the competition store asynchronously.
+ *
+ * Called once per attempt session (from the attempt page) so library-mcq and
+ * library-coding rows can be resolved without per-page fetches. Own questions
+ * remain in `state.ownQuestions` and are resolved separately by the paper layer.
+ */
+export async function loadCompetitionBanks(): Promise<void> {
+  const set = useCompetitionsStore.setState;
+  try {
+    const { loadBank } = await import("@/lib/question-banks/load");
+    const technologies = [
+      "javascript",
+      "typescript",
+      "python",
+      "css",
+      "html",
+      "react",
+      "nextjs",
+      "sql",
+    ] as const;
+    const results = await Promise.allSettled(
+      technologies.map((tech) => loadBank(tech).then((bank) => [tech, bank] as const)),
+    );
+    const banks: Record<string, import("@/lib/question-banks/types").QuestionBank> = {};
+    let ready = true;
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        const [tech, bank] = result.value;
+        banks[tech] = bank;
+      } else {
+        ready = false;
+      }
+    }
+    set({ banks, banksReady: ready });
+  } catch (error) {
+    set({ banks: {}, banksReady: false });
+  }
+}
+
+export function useCompetitionBanks(): {
+  banks: Record<string, import("@/lib/question-banks/types").QuestionBank>;
+  banksReady: boolean;
+} {
+  return {
+    banks: useCompetitionsStore((state) => state.banks),
+    banksReady: useCompetitionsStore((state) => state.banksReady),
+  };
 }

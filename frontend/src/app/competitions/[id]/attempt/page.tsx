@@ -51,4 +51,3 @@ function AttemptFromQuery({ competitionId }: { competitionId: string }) {
     </div>
   );
 }
-
