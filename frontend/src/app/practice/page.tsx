@@ -13,7 +13,7 @@ import { formatNumber } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Practice arena — DevAssess",
   description:
-    "Solve coding problems in your browser: JavaScript and TypeScript solutions run against real test cases with instant feedback.",
+    "Solve coding problems in your browser: JavaScript, TypeScript and Python solutions run against real test cases with instant feedback.",
 };
 
 export default function PracticeIndexPage() {
@@ -65,11 +65,11 @@ export default function PracticeIndexPage() {
           <div className="rounded-xl border border-border bg-card p-5 shadow-card">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Terminal className="size-4 text-primary-600" />
-              JavaScript & TypeScript
+              JavaScript, TypeScript &amp; Python
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Solutions execute in a sandboxed worker with a 5-second limit per run.
-              Console output is captured for debugging.
+              Solutions run in a sandboxed worker with a 5-second limit per run; Python runs on
+              CPython compiled to WebAssembly. Console output is captured for debugging.
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { useEffect, useState } from "react";
+import type { PracticeLanguage } from "@/lib/practice/types";
 
 /**
  * Practice progress.
@@ -10,7 +11,7 @@ import { useEffect, useState } from "react";
  * problems never loses work.
  */
 
-export type PracticeLanguage = "javascript" | "typescript";
+export type { PracticeLanguage };
 
 export interface SolvedRecord {
   problemId: string;
@@ -111,7 +112,13 @@ export const usePracticeStore = create<PracticeState>()(
     {
       name: "devassess-practice",
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
+      /**
+       * v1 only ever stored `javascript` / `typescript` drafts and languages.
+       * Those entries stay valid, and a Python draft simply does not exist yet —
+       * so the stored state is kept as it is.
+       */
+      migrate: (persisted) => persisted as PracticeState,
     },
   ),
 );

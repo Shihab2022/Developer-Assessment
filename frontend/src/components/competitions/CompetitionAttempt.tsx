@@ -406,15 +406,15 @@ function CodingCard({
         <div className="flex items-start gap-3">
           <Badge
             tone={
-              coding.difficulty === "EASY"
+              coding.problem.difficulty === "EASY"
                 ? "green"
-                : coding.difficulty === "HARD"
+                : coding.problem.difficulty === "HARD"
                 ? "red"
                 : "amber"
             }
             size="sm"
           >
-            {coding.difficulty}
+            {coding.problem.difficulty}
           </Badge>
           <span className="text-xs text-muted-foreground">
             {coding.sourceLabel}
@@ -475,8 +475,7 @@ function WrittenCard({
   onAnswer: (value: string) => void;
   submitted: boolean;
 }) {
-  const written = row.row as Extract<ResolvedRowForRun["row"], { kind: "written"; difficulty: string; sourceLabel: string }>;
-  const w = written as Extract<ResolvedRowForRun["row"], { kind: "written"; difficulty: string; sourceLabel: string }>;
+  const w = row.row as Extract<ResolvedRowForRun["row"], { kind: "written" }>;
 
   return (
     <Card className="border-border">

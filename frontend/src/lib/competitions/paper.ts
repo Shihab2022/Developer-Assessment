@@ -102,6 +102,7 @@ export interface ResolvedWrittenRow {
   sourceLabel: string;
   title: string;
   prompt: string;
+  difficulty: Difficulty;
   maxWords?: number;
 }
 
@@ -179,6 +180,7 @@ export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; mi
           sourceLabel: "Your question",
           title: question.title,
           prompt: question.prompt,
+          difficulty: question.difficulty,
           maxWords: question.written?.maxWords,
         });
       }

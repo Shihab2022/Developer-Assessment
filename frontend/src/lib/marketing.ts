@@ -42,6 +42,18 @@ export const HEADER_ROUTE_LINKS: LandingNavLink[] = [
   { href: "/playground", label: "Online compiler" },
 ];
 
+/**
+ * Resolves a navigation href for the current route.
+ *
+ * Landing anchors (`#exams`) only resolve on the landing page; anywhere else
+ * they are rewritten to an absolute `/#exams` link so the header and footer
+ * keep working on the exam, practice and playground shells.
+ */
+export function resolveNavHref(href: string, pathname: string | null): string {
+  if (!href.startsWith("#")) return href;
+  return pathname === "/" ? href : `/${href}`;
+}
+
 /* ------------------------------------------------------------------ stats */
 
 export interface LandingStat {

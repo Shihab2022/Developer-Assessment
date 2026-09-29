@@ -1,5 +1,8 @@
 import type { Difficulty } from "@/lib/types";
 
+/** Languages a practice solution can be written in. */
+export type PracticeLanguage = "javascript" | "typescript" | "python";
+
 /** A single worked example shown in the problem description. */
 export interface ProblemExample {
   input: string;
@@ -35,9 +38,14 @@ export interface PracticeProblem {
   constraints: string[];
   /** Name of the function the user must implement. */
   functionName: string;
+  /**
+   * Stub shown in the editor. `python` is optional because company-authored
+   * competition questions are JavaScript/TypeScript only.
+   */
   starterCode: {
     javascript: string;
     typescript: string;
+    python?: string;
   };
   testCases: PracticeTestCase[];
   hints: string[];

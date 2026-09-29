@@ -6,6 +6,7 @@ import { Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import type { PracticeLanguage } from "@/lib/practice/types";
 
 /**
  * Monaco-backed code editor for the practice arena.
@@ -15,9 +16,16 @@ import { cn } from "@/lib/utils";
  * never blocks the first paint and is only downloaded when a solver page opens.
  */
 
+/** File name shown in the editor tab strip. */
+const FILE_NAMES: Record<PracticeLanguage, string> = {
+  javascript: "solution.js",
+  typescript: "solution.ts",
+  python: "solution.py",
+};
+
 export interface CodeEditorProps {
   value: string;
-  language: "javascript" | "typescript";
+  language: PracticeLanguage;
   onChange: (value: string) => void;
   onReset: () => void;
   onRun?: () => void;
@@ -53,7 +61,7 @@ export default function CodeEditor({
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-3 py-2">
         <span className="font-mono text-xs font-medium text-muted-foreground">
-          {language === "typescript" ? "solution.ts" : "solution.js"}
+          {FILE_NAMES[language]}
         </span>
         <div className="flex items-center gap-2">
           <span className="hidden text-[11px] text-muted-foreground sm:inline">
@@ -93,7 +101,8 @@ export default function CodeEditor({
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
             lineNumbers: "on",
-            tabSize: 2,
+            // Python is indentation-significant, so it follows PEP 8.
+            tabSize: language === "python" ? 4 : 2,
             automaticLayout: true,
             renderLineHighlight: "line",
             padding: { top: 12, bottom: 12 },

@@ -1,9 +1,48 @@
 import type { Difficulty, PracticeProblem, PracticeTestCase } from "@/lib/practice/types";
 
 /**
- * Generates starter code for both languages from a function signature.
+ * Generates starter code for every supported language from a function signature.
  * Keeps each problem definition down to a single `starter(...)` call.
+ *
+ * Python is derived from the same signature: the camelCase name becomes its
+ * PEP 8 equivalent (`twoSum` → `two_sum`) and the parameter names are reused, so
+ * the Python stub always matches the name the Pyodide harness calls.
  */
+
+/** `twoSum` → `two_sum`. Mirrors `pythonFunctionName` in `@/lib/practice/python`. */
+function pyName(fnName: string): string {
+  return fnName
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+    .replace(/[^A-Za-z0-9_]/g, "_")
+    .toLowerCase();
+}
+
+/** Python parameter list: the JavaScript names, stripped of rest/type noise. */
+function pyParams(params: string): string {
+  const names = params
+    .split(",")
+    .map((param) => param.trim().replace(/^\.\.\./, "").replace(/[^A-Za-z0-9_]/g, ""))
+    .filter(Boolean);
+  return names.join(", ");
+}
+
+/** JSDoc lines as plain Python docstring lines (`@param {T} x` → `x: T`). */
+function pyDoc(jsDoc: string): string {
+  return jsDoc
+    .split("\n")
+    .map((line) => line.replace(/^\s*\*\s?/, "").trim())
+    .map((line) => {
+      const param = line.match(/^@param\s*\{(.+?)\}\s*(.+)$/);
+      if (param) return `${param[2]}: ${param[1]}`;
+      const returns = line.match(/^@returns?\s*\{(.+?)\}$/);
+      if (returns) return `returns: ${returns[1]}`;
+      return line;
+    })
+    .filter(Boolean)
+    .join("\n    ");
+}
+
 function starter(
   jsDoc: string,
   fnName: string,
@@ -14,6 +53,7 @@ function starter(
   return {
     javascript: `/**\n * ${jsDoc.split("\n").join("\n * ")}\n */\nfunction ${fnName}(${jsParams}) {\n  // Write your solution here\n}`,
     typescript: `function ${fnName}(${tsParams}): ${tsReturn} {\n  // Write your solution here\n}`,
+    python: `def ${pyName(fnName)}(${pyParams(jsParams)}):\n    """${pyDoc(jsDoc)}\n\n    Write your solution, then press Run.\n    """\n    # Write your solution here`,
   };
 }
 

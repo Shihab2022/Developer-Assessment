@@ -44,7 +44,22 @@ const CodeEditor = dynamic(() => import("@/components/practice/CodeEditor"), {
 const LANGUAGE_OPTIONS = [
   { value: "javascript", label: "JavaScript" },
   { value: "typescript", label: "TypeScript" },
+  { value: "python", label: "Python / Wasm" },
 ];
+
+/** Shown while Python is selected but nothing is running yet. */
+const PYTHON_HINT =
+  "Python runs on WebAssembly (Pyodide): the first run downloads about 10 MB, then the runtime stays warm in this tab.";
+
+/**
+ * Starter code for a language.
+ *
+ * Company-authored competition questions ship JavaScript/TypeScript stubs only,
+ * so the JavaScript stub is the fallback.
+ */
+function starterFor(problem: PracticeProblem, language: PracticeLanguage): string {
+  return problem.starterCode[language] ?? problem.starterCode.javascript;
+}
 
 export function ProblemSolver({
   problem,
@@ -68,6 +83,7 @@ export function ProblemSolver({
   const [code, setCode] = useState(problem.starterCode.javascript);
   const [summary, setSummary] = useState<RunSummary | null>(null);
   const [busy, setBusy] = useState<"run" | "submit" | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [tab, setTab] = useState<"description" | "hints">("description");
   const [mobilePane, setMobilePane] = useState<"problem" | "code">("problem");
   const [revealedHints, setRevealedHints] = useState(0);
@@ -85,7 +101,7 @@ export function ProblemSolver({
     const savedLanguage = languageMap[problem.id] ?? "javascript";
     const savedDraft = drafts[problem.id]?.[savedLanguage];
     setLanguage(savedLanguage);
-    setCode(savedDraft ?? problem.starterCode[savedLanguage]);
+    setCode(savedDraft ?? starterFor(problem, savedLanguage));
     setSummary(null);
     setRevealedHints(0);
     // Intentionally keyed on the problem so switching problems resets the view.
@@ -106,31 +122,47 @@ export function ProblemSolver({
       setDraft(problem.id, language, code);
       setStoredLanguage(problem.id, target);
       setLanguage(target);
-      setCode(drafts[problem.id]?.[target] ?? problem.starterCode[target]);
+      setCode(drafts[problem.id]?.[target] ?? starterFor(problem, target));
       setSummary(null);
     },
-    [code, drafts, language, problem.id, problem.starterCode, setDraft, setStoredLanguage],
+    [code, drafts, language, problem, setDraft, setStoredLanguage],
   );
 
   const handleReset = useCallback(() => {
-    setCode(problem.starterCode[language]);
+    setCode(starterFor(problem, language));
     clearDraft(problem.id, language);
     setSummary(null);
-  }, [clearDraft, language, problem.id, problem.starterCode]);
+  }, [clearDraft, language, problem]);
 
   const handleRun = useCallback(async () => {
     setBusy("run");
     setSummary(null);
-    const result = await runTests({ code, language, problem, includeHidden: false });
+    setStatus(null);
+    const result = await runTests({
+      code,
+      language,
+      problem,
+      includeHidden: false,
+      onStatus: setStatus,
+    });
     setSummary(result);
+    setStatus(null);
     setBusy(null);
   }, [code, language, problem]);
 
   const handleSubmit = useCallback(async () => {
     setBusy("submit");
     setSummary(null);
-    const result = await runTests({ code, language, problem, includeHidden: true });
+    setStatus(null);
+    const result = await runTests({
+      code,
+      language,
+      problem,
+      includeHidden: true,
+      onStatus: setStatus,
+    });
     setSummary(result);
+    setStatus(null);
     recordAttempt({
       problemId: problem.id,
       language,
@@ -403,6 +435,14 @@ export function ProblemSolver({
               </Button>
             </div>
           </div>
+
+          {/* Runtime hint / progress (Python boots WebAssembly) */}
+          {(status || language === "python") && (
+            <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground">
+              {status && <Loader2 className="size-3 shrink-0 animate-spin" />}
+              <span className="truncate">{status ?? PYTHON_HINT}</span>
+            </div>
+          )}
 
           {/* Editor */}
           <div className="min-h-[180px] flex-1">

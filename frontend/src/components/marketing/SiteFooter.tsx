@@ -1,11 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Code2, Github } from "lucide-react";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
-import { LANDING_FOOTER_GROUPS } from "@/lib/marketing";
+import { LANDING_FOOTER_GROUPS, resolveNavHref } from "@/lib/marketing";
 
-/** Marketing footer: brand blurb, anchor link groups and the legal strip. */
+/**
+ * Marketing footer: brand blurb, anchor link groups and the legal strip.
+ *
+ * The link groups mix real routes with landing anchors, so the anchors are
+ * resolved against the current path (they only exist on `/`).
+ */
 export function SiteFooter() {
   const year = new Date().getFullYear();
+  const pathname = usePathname();
 
   return (
     <footer className="border-t border-border bg-card">
@@ -36,7 +45,7 @@ export function SiteFooter() {
                 {group.links.map((link) => (
                   <li key={`${group.title}-${link.label}`}>
                     <Link
-                      href={link.href}
+                      href={resolveNavHref(link.href, pathname)}
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}

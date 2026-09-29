@@ -20,6 +20,7 @@ import {
   useCompetitionsStore,
 } from "@/store/competitions";
 import { leaderboardCsv } from "@/lib/competitions/scoring";
+import type { Competition } from "@/lib/competitions/types";
 import { copyToClipboard, downloadBlob, formatDateTime } from "@/lib/utils";
 
 export default function RecruiterCompetitionPage() {
@@ -42,7 +43,7 @@ export default function RecruiterCompetitionPage() {
     [competitions, params.id],
   );
   const competitionEntries = useMemo(
-    () => competition ? entriesFor(entries, resolvedCompetition.id) : [],
+    () => (competition ? entriesFor(entries, competition.id) : []),
     [competition, entries],
   );
 
@@ -87,7 +88,7 @@ export default function RecruiterCompetitionPage() {
   }
 
   function handleDownloadCsv() {
-    const csv = leaderboardCsv(competitionEntries, resolvedCompetition);
+    const csv = leaderboardCsv(resolvedCompetition, competitionEntries);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     downloadBlob(blob, `competition-${resolvedCompetition.id}-leaderboard.csv`);
     toast.success("Leaderboard exported.");

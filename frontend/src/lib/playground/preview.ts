@@ -7,10 +7,30 @@ import type { ConsoleLevel, ConsoleLine } from "./types";
  * the user's source. A tiny bridge script is injected into every document so
  * `console.log`, runtime errors and unhandled rejections show up in the console
  * panel instead of disappearing into the iframe.
+ *
+ * HTML previews also get the Tailwind Play CDN (pinned to the version the app
+ * compiles with), so utility classes in the markup are compiled inside the
+ * iframe — no build step, no stylesheet import for the user to remember.
  */
 
 /** Marker that identifies messages coming from our own preview iframe. */
 export const PREVIEW_MESSAGE_SOURCE = "devassess-playground";
+
+/** Tailwind Play CDN, pinned to the Tailwind version the frontend compiles with. */
+export const TAILWIND_CDN_URL = "https://cdn.tailwindcss.com/3.4.19";
+
+/** Injected into HTML previews so utility classes are compiled in the iframe. */
+const TAILWIND_CDN_SNIPPET = `<script src="${TAILWIND_CDN_URL}"></script>`;
+
+/** True when the user's markup already loads a Tailwind runtime itself. */
+function hasTailwind(source: string): boolean {
+  return /cdn\.tailwindcss\.com|@tailwindcss\/browser|tailwindcss\/dist/i.test(source);
+}
+
+/** Tailwind snippet for a document, or an empty string when the user has it. */
+function tailwindSnippet(source: string): string {
+  return hasTailwind(source) ? "" : TAILWIND_CDN_SNIPPET;
+}
 
 /** Minimal reset so a bare stylesheet still renders something sensible. */
 const BASE_STYLES = `html { color-scheme: light dark; }
@@ -96,6 +116,7 @@ function wrapFragment(fragment: string): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+${tailwindSnippet(fragment)}
 <style>${BASE_STYLES}</style>
 </head>
 <body>
@@ -111,6 +132,9 @@ ${PREVIEW_BRIDGE}
  * - `html` is used verbatim when it looks like a full document, otherwise it is
  *   wrapped in a document shell.
  * - `css` is applied on top of the built-in sample page.
+ *
+ * HTML documents are always given the Tailwind Play CDN (unless they ship their
+ * own Tailwind runtime) so class-based layouts render exactly as authored.
  */
 export function buildPreviewDocument(language: "html" | "css", code: string): string {
   if (language === "css") {
@@ -138,7 +162,10 @@ ${PREVIEW_BRIDGE}
   if (!looksLikeDocument) return wrapFragment(source);
 
   // A full document: keep it as the user wrote it and only append the bridge.
-  return injectBefore(source, "</body>", PREVIEW_BRIDGE);
+  const withTailwind = hasTailwind(source)
+    ? source
+    : injectBefore(source, "</head>", TAILWIND_CDN_SNIPPET);
+  return injectBefore(withTailwind, "</body>", PREVIEW_BRIDGE);
 }
 
 /**

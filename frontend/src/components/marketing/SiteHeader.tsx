@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Code2, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { APP_NAME, dashboardPathForRole } from "@/lib/constants";
-import { HEADER_ROUTE_LINKS, LANDING_NAV } from "@/lib/marketing";
+import { HEADER_ROUTE_LINKS, LANDING_NAV, resolveNavHref } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/store/auth";
 
@@ -27,6 +28,7 @@ const MOBILE_LINK_CLASS =
  */
 export function SiteHeader() {
   const user = useCurrentUser();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -56,7 +58,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing sections">
           {LANDING_NAV.map((link) => (
-            <Link key={link.href} href={link.href} className={NAV_LINK_CLASS}>
+            <Link key={link.href} href={resolveNavHref(link.href, pathname)} className={NAV_LINK_CLASS}>
               {link.label}
             </Link>
           ))}
@@ -109,7 +111,7 @@ export function SiteHeader() {
             {LANDING_NAV.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={resolveNavHref(link.href, pathname)}
                 onClick={() => setOpen(false)}
                 className={MOBILE_LINK_CLASS}
               >
