@@ -7,22 +7,27 @@ import { ExamShell } from "@/components/exams/ExamShell";
 import { PlaygroundWorkspace } from "@/components/playground/PlaygroundWorkspace";
 import { PLAYGROUND_LANGUAGES } from "@/lib/playground/languages";
 import {
-  PYTHON_LOAD_TIMEOUT_MS,
   PYTHON_RUN_TIMEOUT_MS,
   SCRIPT_TIMEOUT_MS,
+  SQL_RUN_TIMEOUT_MS,
 } from "@/lib/playground/limits";
 import type { PlaygroundRuntime } from "@/lib/playground/types";
 
 export const metadata: Metadata = {
-  title: "Online compiler — DevAssess",
+  title: "Online compiler",
   description:
-    "Write and run JavaScript, TypeScript, Python, HTML and CSS in the browser: sandboxed execution, live output and an instant preview — no sign-in required.",
+    "Write and run JavaScript, TypeScript, Python, SQL, Go, Java, HTML, CSS, Tailwind and React + MUI in the browser: sandboxed execution, live output, SQL result tables and an instant preview — no sign-in required.",
 };
 
 /** Runtime badge copy, keyed by how a language produces output. */
-const RUNTIME_LABELS: Record<PlaygroundRuntime, { label: string; tone: "blue" | "violet" }> = {
+const RUNTIME_LABELS: Record<
+  PlaygroundRuntime,
+  { label: string; tone: "blue" | "violet" | "amber" | "green" }
+> = {
   script: { label: "Web Worker", tone: "blue" },
   python: { label: "Python / Wasm", tone: "blue" },
+  sql: { label: "SQLite / Wasm", tone: "green" },
+  remote: { label: "Remote sandbox", tone: "amber" },
   preview: { label: "Live preview", tone: "violet" },
 };
 
@@ -33,7 +38,7 @@ export default function PlaygroundPage() {
         <SectionHeading
           eyebrow="Online compiler"
           title="Write code, run it, watch the output"
-          description="JavaScript, TypeScript and Python execute in a sandboxed worker; HTML and CSS render in a live preview that streams its console back to you. Your snippet is never uploaded — it runs in this tab."
+          description="Ten languages, one workspace: JavaScript, TypeScript and Python run in sandboxed workers, SQL runs on SQLite with real result tables, Go and Java dispatch to a remote sandbox, and HTML, CSS, Tailwind and React + MUI render into a live preview that streams its console back to you. Your snippet is never uploaded — it runs in this tab."
         />
 
         <PlaygroundWorkspace />
@@ -42,11 +47,12 @@ export default function PlaygroundPage() {
           <div className="rounded-xl border border-border bg-card p-5 shadow-card">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Terminal className="size-4 text-primary-600" />
-              Two runtimes, one editor
+              Input, output, preview
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Script languages print into the console panel below the editor, while HTML and CSS
-              render into a preview pane and forward their logs to the same panel.
+              The Input tab feeds stdin to your program, script languages print into the Output
+              panel, and the web languages render into a preview pane that forwards its logs to the
+              same panel.
             </p>
           </div>
 
@@ -56,21 +62,22 @@ export default function PlaygroundPage() {
               Sandboxed and time-boxed
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              {SCRIPT_TIMEOUT_MS / 1000} seconds per JavaScript or TypeScript run and{" "}
-              {PYTHON_RUN_TIMEOUT_MS / 1000} seconds per warm Python run. On timeout the worker is
-              terminated, so the page never freezes.
+              {SCRIPT_TIMEOUT_MS / 1000} seconds per JavaScript or TypeScript run,{" "}
+              {PYTHON_RUN_TIMEOUT_MS / 1000} seconds per warm Python run and{" "}
+              {SQL_RUN_TIMEOUT_MS / 1000} seconds per query. On a timeout the worker is terminated,
+              so the page never freezes — and every web tab renders inside a sandboxed iframe.
             </p>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5 shadow-card">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Cpu className="size-4 text-primary-600" />
-              Python without a server
+              Real runtimes, no install
             </div>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              CPython is compiled to WebAssembly and cached by the browser. The first run may take
-              up to {PYTHON_LOAD_TIMEOUT_MS / 1000} seconds to download the runtime; later runs
-              start instantly.
+              CPython, SQLite and the Tailwind compiler all run as WebAssembly in this tab — the
+              first run downloads the runtime, later runs start instantly. Go and Java are compiled
+              on a remote sandbox, because a browser cannot run those toolchains itself.
             </p>
           </div>
         </div>

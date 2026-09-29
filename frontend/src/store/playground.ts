@@ -15,13 +15,16 @@ import type { PlaygroundLanguage } from "@/lib/playground/types";
 export interface PlaygroundState {
   /** language -> draft source. */
   drafts: Partial<Record<PlaygroundLanguage, string>>;
+  /** language -> Input tab (stdin) draft. */
+  stdin: Partial<Record<PlaygroundLanguage, string>>;
   /** Last language the user worked in. */
   language: PlaygroundLanguage;
-  /** Re-render the preview while typing (HTML/CSS only). */
+  /** Re-render the preview while typing (HTML/CSS/Tailwind/React only). */
   autoPreview: boolean;
 
   setDraft: (language: PlaygroundLanguage, code: string) => void;
   clearDraft: (language: PlaygroundLanguage) => void;
+  setStdin: (language: PlaygroundLanguage, value: string) => void;
   setLanguage: (language: PlaygroundLanguage) => void;
   setAutoPreview: (enabled: boolean) => void;
   reset: () => void;
@@ -31,6 +34,7 @@ export const usePlaygroundStore = create<PlaygroundState>()(
   persist(
     (set) => ({
       drafts: {},
+      stdin: {},
       language: DEFAULT_PLAYGROUND_LANGUAGE,
       autoPreview: true,
 
@@ -45,17 +49,22 @@ export const usePlaygroundStore = create<PlaygroundState>()(
           return { drafts: next };
         }),
 
+      setStdin: (language, value) =>
+        set((state) => ({ stdin: { ...state.stdin, [language]: value } })),
+
       setLanguage: (language) => set({ language }),
 
       setAutoPreview: (autoPreview) => set({ autoPreview }),
 
       reset: () =>
-        set({ drafts: {}, language: DEFAULT_PLAYGROUND_LANGUAGE, autoPreview: true }),
+        set({ drafts: {}, stdin: {}, language: DEFAULT_PLAYGROUND_LANGUAGE, autoPreview: true }),
     }),
     {
       name: "devassess-playground",
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
+      /** v1 had no Input tab, so a v1 payload simply has no stdin entries. */
+      migrate: (persisted) => persisted as PlaygroundState,
     },
   ),
 );

@@ -3,7 +3,7 @@
 import { AlertTriangle, CheckCircle2, Clock, Eraser, Loader2, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import type { ConsoleLine, RunResult } from "@/lib/playground/types";
+import type { ConsoleLine, ResultTable, RunResult } from "@/lib/playground/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -44,12 +44,67 @@ export interface PlaygroundConsoleProps {
   result: RunResult | null;
   /** True while a run is in flight. */
   busy: boolean;
-  /** Progress text streamed by the runner (Python runtime download, …). */
+  /** Progress text streamed by the runner (Python/SQL runtime download, …). */
   status?: string | null;
   /** Copy shown before the first run. */
   emptyHint: string;
   onClear: () => void;
   className?: string;
+}
+
+/**
+ * Renders the result sets a SQL run produced, under the console output.
+ *
+ * Columns come straight from SQLite, so this stays a dumb table: no sorting, no
+ * paging, cell values rendered exactly as the database returned them.
+ */
+function ResultTables({ tables }: { tables: ResultTable[] }) {
+  if (tables.length === 0) return null;
+
+  return (
+    <div className="mt-4 space-y-4">
+      {tables.map((table, index) => (
+        <div key={index} className="overflow-hidden rounded-lg border border-slate-800">
+          <div className="border-b border-slate-800 bg-slate-900/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            Result {index + 1} · {table.rows.length} row{table.rows.length === 1 ? "" : "s"}
+          </div>
+          <div className="thin-scrollbar overflow-x-auto">
+            <table className="w-full border-collapse text-left font-mono text-[12px]">
+              <thead>
+                <tr>
+                  {table.columns.map((column) => (
+                    <th
+                      key={column}
+                      className="whitespace-nowrap border-b border-slate-800 bg-slate-900/60 px-3 py-2 font-semibold text-sky-200"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {table.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex} className="odd:bg-slate-900/30">
+                    {row.map((cell, cellIndex) => (
+                      <td
+                        key={cellIndex}
+                        className={cn(
+                          "whitespace-nowrap px-3 py-1.5 text-slate-200",
+                          cell === "NULL" && "italic text-slate-500",
+                        )}
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function PlaygroundConsole({
@@ -128,6 +183,8 @@ export function PlaygroundConsole({
         {result?.location && (
           <div className="mt-1 text-[11px] text-slate-400">Reported at {result.location}.</div>
         )}
+
+        <ResultTables tables={result?.tables ?? []} />
 
         {busy && logs.length === 0 && (
           <div className="text-slate-400">{status ?? "Running…"}</div>

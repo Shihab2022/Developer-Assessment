@@ -7,7 +7,7 @@ import { ArrowRight, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { BrandLogo } from "@/components/brand/Logo";
-import { APP_NAME, dashboardPathForRole } from "@/lib/constants";
+import { dashboardPathForRole } from "@/lib/constants";
 import { HEADER_ROUTE_LINKS, LANDING_NAV, resolveNavHref } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/store/auth";

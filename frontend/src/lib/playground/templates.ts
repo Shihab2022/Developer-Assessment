@@ -412,11 +412,11 @@ const TAILWIND = `<!DOCTYPE html>
 `;
 
 const REACT_MUI = `// React + Material UI compile inside the preview pane.
-// Edit the component and press Run to re-mount it.
+// The preview mounts the component named \`App\` — keep that name.
 
 const { useState } = React;
 
-function CounterCard() {
+function App() {
   const [count, setCount] = useState(0);
   const [name, setName] = useState("Developer");
 

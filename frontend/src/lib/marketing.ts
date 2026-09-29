@@ -6,13 +6,15 @@ import {
   ROLES,
   type BadgeTone,
 } from "./constants";
+import { PLAYGROUND_LANGUAGES } from "./playground/languages";
 
 /**
  * Landing-page content.
  *
  * Every string the marketing page renders lives here so copy can be edited
  * without touching layout code. Counts are derived from the real backend enums
- * in `constants.ts` rather than being invented marketing figures.
+ * in `constants.ts` (and the playground registry) rather than being invented
+ * marketing figures.
  */
 
 /* -------------------------------------------------------------------- nav */
@@ -146,15 +148,15 @@ export const LANDING_PILLARS: LandingPillar[] = [
     eyebrow: "Online compiler",
     title: "Bring your own code and just run it",
     blurb:
-      "A scratchpad for everything that is not part of an assessment: write JavaScript, TypeScript, Python, SQL, HTML or CSS and read the output without installing a toolchain.",
+      "A scratchpad for everything that is not part of an assessment: JavaScript, TypeScript, Python, SQL, Go, Java, HTML, CSS, Tailwind and React + MUI all run from one workspace, with no toolchain to install.",
     icon: "Terminal",
     tone: "blue",
     bullets: [
-      `${PROGRAMMING_LANGUAGES.length} languages and syntax modes behind one dropdown`,
+      `${PLAYGROUND_LANGUAGES.length} language tabs grouped in a single picker`,
       "Monaco editor with highlighting, indentation and familiar shortcuts",
-      "stdout, stderr and exit status shown next to the code — no tab juggling",
-      "HTML and CSS render in a live preview pane so styling work is visible too",
-      "Share a snippet with a teammate to make debugging a conversation",
+      "stdout, stderr, exit status and SQL result tables shown next to the code",
+      "An Input tab feeds stdin to your program the way a terminal would",
+      "HTML, CSS, Tailwind and React + MUI render in a live, sandboxed preview",
     ],
     cta: { label: "Open the playground", href: "/playground" },
   },
@@ -562,7 +564,7 @@ export const LANDING_FAQ: LandingFaq[] = [
   },
   {
     question: "Which languages can I actually run in the online compiler?",
-    answer: `The playground runs JavaScript, TypeScript and Python in a sandbox — Python through CPython compiled to WebAssembly — and renders HTML and CSS in a live preview pane. Assessment submissions can carry any of ${PROGRAMMING_LANGUAGES.map(
+    answer: `The playground ships ten tabs: JavaScript, TypeScript and Python run in sandboxed workers (Python through CPython compiled to WebAssembly), SQL runs on SQLite with result tables, Go and Java compile on a remote sandbox, and HTML, CSS, Tailwind and React + MUI render into a live preview where the Tailwind compiler and Babel run inside the frame. Assessment submissions can carry any of ${PROGRAMMING_LANGUAGES.map(
       (lang) => lang.label,
     ).join(", ")}, which the API dispatches to the execution sandbox.`,
   },

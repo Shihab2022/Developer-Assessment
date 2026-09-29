@@ -21,6 +21,8 @@ export interface PlaygroundRunRequest {
   id: number;
   code: string;
   language: "javascript" | "typescript";
+  /** Text from the Input tab; exposed to the snippet through `readLine()`. */
+  stdin?: string;
 }
 
 export interface PlaygroundRunResponse {
@@ -113,13 +115,41 @@ function captureConsole(logs: ConsoleLine[]) {
   };
 }
 
+/**
+ * Helper lines the runner adds in front of the user's snippet, so the editor can
+ * read the Input tab the way a terminal program would:
+ *
+ * ```
+ * const line = readLine();          // null at end of input
+ * const name = input("Name: ");     // echoes the prompt, throws at EOF
+ * ```
+ */
+function stdinPrelude(stdin: string): string {
+  return [
+    `const __stdinLines = ${JSON.stringify(stdin)}.split(/\\r?\\n/);`,
+    "let __stdinIndex = 0;",
+    "function readLine() {",
+    "  return __stdinIndex < __stdinLines.length ? __stdinLines[__stdinIndex++] : null;",
+    "}",
+    "function input(promptText) {",
+    '  if (promptText) console.log(promptText);',
+    "  const line = readLine();",
+    '  if (line === null) throw new Error("EOF when reading a line");',
+    "  return line;",
+    "}",
+    "function readAll() {",
+    '  return __stdinLines.slice(__stdinIndex).join("\\n");',
+    "}",
+  ].join("\n");
+}
+
 /** Extracts `line x, column y` from a stack trace, undoing the wrapper offset. */
-function locationFromStack(stack: string | undefined): string | undefined {
+function locationFromStack(stack: string | undefined, offset: number): string | undefined {
   if (!stack) return undefined;
   const match = stack.match(/<anonymous>:(\d+):(\d+)/);
   if (!match) return undefined;
 
-  const line = Math.max(1, Number(match[1]) - WRAPPER_OFFSET);
+  const line = Math.max(1, Number(match[1]) - offset);
   return `line ${line}, column ${match[2]}`;
 }
 
@@ -147,13 +177,18 @@ async function execute(request: PlaygroundRunRequest): Promise<PlaygroundRunResp
   const source = stripped ? stripped.code : code;
   const transpiled = Boolean(stripped && source !== code);
 
+  const prelude = request.stdin ? stdinPrelude(request.stdin) : "";
+  // Lines the runner adds in front of the snippet (`"use strict";`, helpers and
+  // the `return (async () => {` opener) — undone when reporting an error line.
+  const wrapperOffset = WRAPPER_OFFSET + (prelude ? prelude.split("\n").length : 0);
+
   const restoreConsole = captureConsole(logs);
 
   try {
     // A named parameter list keeps the blocked globals out of the snippet.
     const factory = new Function(
       ...BLOCKED_GLOBALS,
-      `"use strict";\nreturn (async () => {\n${source}\n})();`,
+      `"use strict";\n${prelude}${prelude ? "\n" : ""}return (async () => {\n${source}\n})();`,
     );
 
     const program = factory(...BLOCKED_GLOBALS.map(blockedGlobal)) as Promise<unknown>;
@@ -169,7 +204,7 @@ async function execute(request: PlaygroundRunRequest): Promise<PlaygroundRunResp
       ...base,
       ok: false,
       error: message,
-      location: locationFromStack(err.stack),
+      location: locationFromStack(err.stack, wrapperOffset),
       durationMs: performance.now() - startedAt,
       transpiled,
     };

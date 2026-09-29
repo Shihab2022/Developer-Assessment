@@ -109,6 +109,71 @@ function injectBefore(documentText: string, tag: string, snippet: string): strin
   return `${documentText.slice(0, index)}${snippet}\n${documentText.slice(index)}`;
 }
 
+/**
+ * Inserts `snippet` immediately after the opening `<head>` tag.
+ *
+ * The Tailwind tab needs the compiler script to load *before* any
+ * `tailwind.config` block the user writes, so the snippet goes at the very top
+ * of `<head>` rather than before `</head>`.
+ */
+function insertAfterHead(documentText: string, snippet: string): string {
+  const match = documentText.match(/<head[^>]*>/i);
+  if (!match) return injectBefore(documentText, "</head>", snippet);
+  const at = documentText.indexOf(match[0]) + match[0].length;
+  return `${documentText.slice(0, at)}\n${snippet}\n${documentText.slice(at)}`;
+}
+
+/** CDN builds used by the React + MUI tab (all inside the sandboxed frame). */
+const REACT_CDN = "https://unpkg.com/react@18.3.1/umd/react.production.min.js";
+const REACT_DOM_CDN = "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js";
+const MUI_CDN = "https://unpkg.com/@mui/material@5.15.20/umd/material-ui.production.min.js";
+const BABEL_CDN = "https://unpkg.com/@babel/standalone@7.24.7/babel.min.js";
+
+/**
+ * Wraps JSX source in a document that mounts it as a React app.
+ *
+ * React, ReactDOM, Material UI and Babel all load from a CDN inside the
+ * sandboxed iframe (so nothing is added to the app bundle), then Babel
+ * transforms the user's JSX in place. The snippet is expected to declare a
+ * component called `App`; the wrapper renders it and reports a readable error
+ * when that name is missing.
+ */
+function muiDocument(code: string): string {
+  const source = code.trim() || "function App() {\n  return <mui.Typography>Nothing to preview yet.</mui.Typography>;\n}";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+<script crossorigin src="${REACT_CDN}"></script>
+<script crossorigin src="${REACT_DOM_CDN}"></script>
+<script src="${MUI_CDN}"></script>
+<script src="${BABEL_CDN}"></script>
+<style>
+  body { margin: 0; background: #f8fafc; font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+${PREVIEW_BRIDGE}
+<script type="text/babel" data-presets="react">
+${source}
+
+(function mount() {
+  var container = document.getElementById("root");
+  if (typeof App === "undefined") {
+    console.error("Define a component named App — that is what the preview mounts.");
+    return;
+  }
+  ReactDOM.createRoot(container).render(React.createElement(App));
+})();
+</script>
+</body>
+</html>`;
+}
+
 /** Wraps an HTML fragment in a minimal, script-enabled document. */
 function wrapFragment(fragment: string): string {
   return `<!DOCTYPE html>
