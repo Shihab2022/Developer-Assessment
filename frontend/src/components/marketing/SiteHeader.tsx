@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Code2, LayoutDashboard, Menu, X } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { BrandLogo } from "@/components/brand/Logo";
 import { APP_NAME, dashboardPathForRole } from "@/lib/constants";
 import { HEADER_ROUTE_LINKS, LANDING_NAV, resolveNavHref } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
@@ -49,12 +50,7 @@ export function SiteHeader() {
       )}
     >
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5" aria-label={`${APP_NAME} home`}>
-          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-sky-500 text-white shadow-glow">
-            <Code2 className="size-5" strokeWidth={2.2} />
-          </span>
-          <span className="text-base font-semibold tracking-tight text-foreground">{APP_NAME}</span>
-        </Link>
+        <BrandLogo />
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Landing sections">
           {LANDING_NAV.map((link) => (

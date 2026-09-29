@@ -16,7 +16,10 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     const key = `${keyPrefix}-${index}`;
     if (token.startsWith("`") && token.endsWith("`") && token.length > 2) {
       return (
-        <code key={key} className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground">
+        <code
+          key={key}
+          className="rounded-md border border-primary-200/70 bg-primary-50 px-1.5 py-0.5 font-mono text-[0.85em] font-medium text-primary-700 dark:border-primary-900/60 dark:bg-primary-950/40 dark:text-primary-200"
+        >
           {token.slice(1, -1)}
         </code>
       );

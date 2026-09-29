@@ -15,6 +15,7 @@ import { useCurrentUser } from "@/store/auth";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/Button";
+import { BrandLogo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
 import { navForRole, isNavActive, type NavItem } from "@/lib/constants";
 import type { Role } from "@/lib/types";
@@ -81,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
-          <span className="font-semibold text-foreground">DevAssess</span>
+          <BrandLogo size="sm" />
           <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             ×
           </Button>

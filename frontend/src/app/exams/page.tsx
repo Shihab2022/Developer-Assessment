@@ -11,7 +11,7 @@ import { cn, formatNumber } from "@/lib/utils";
 import { iconForTech } from "@/lib/question-banks/icons";
 
 export const metadata: Metadata = {
-  title: "Technology exams — DevAssess",
+  title: "Technology exams",
   description:
     "Take a timed, auto-graded MCQ exam in JavaScript, TypeScript, Python, HTML, CSS, or SQL. Questions are randomised for every attempt.",
 };

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="DevAssess">
+  <defs>
+    <linearGradient id="devassess-tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="55%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#devassess-tile)" />
+  <g fill="none" stroke="#ffffff" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M23 19 12.5 32l10.5 13" />
+    <path d="M41 19 51.5 32 41 45" />
+    <path d="M33.5 18.5 30.5 45.5" />
+  </g>
+</svg>

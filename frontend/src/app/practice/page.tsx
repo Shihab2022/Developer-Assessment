@@ -11,7 +11,7 @@ import { STATUS_TONES, DIFFICULTY_LABELS } from "@/lib/constants";
 import { formatNumber } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Practice arena — DevAssess",
+  title: "Practice arena",
   description:
     "Solve coding problems in your browser: JavaScript, TypeScript and Python solutions run against real test cases with instant feedback.",
 };

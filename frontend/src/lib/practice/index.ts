@@ -15,6 +15,17 @@ export const ALL_PROBLEMS: PracticeProblem[] = [...PRACTICE_PROBLEMS].sort(
 
 export const PROBLEM_COUNT = ALL_PROBLEMS.length;
 
+/**
+ * Problems rendered to static HTML at build time.
+ *
+ * The curated bank is small and stable, so it is worth pre-rendering for
+ * instant first paint and crawlability; the 900+ generated problems render on
+ * demand instead of adding minutes to every `next build`.
+ */
+export const PRE_RENDERED_PROBLEMS: PracticeProblem[] = ALL_PROBLEMS.filter(
+  (problem) => problem.number <= CURATED_PROBLEM_COUNT,
+);
+
 export function problemById(id: string): PracticeProblem | undefined {
   return ALL_PROBLEMS.find((problem) => problem.id === id);
 }

@@ -19,12 +19,17 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { SelectField } from "@/components/ui/Select";
 import { RichText } from "@/components/practice/RichText";
+import { CodeBlock } from "@/components/practice/CodeBlock";
+import { ExampleCard } from "@/components/practice/ExampleCard";
+import { HintsPanel } from "@/components/practice/HintsPanel";
+import { ProblemPager, type ProblemLink } from "@/components/practice/ProblemPager";
 import { TestResults } from "@/components/practice/TestResults";
 import { runTests, type RunSummary } from "@/lib/practice/runner";
 import { usePracticeHydrated, usePracticeStore, type PracticeLanguage } from "@/store/practice";
 import type { PracticeProblem } from "@/lib/practice/types";
 import { DIFFICULTY_LABELS, STATUS_TONES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
 
 /**
  * Monaco is heavy and uses the AMD loader, so the editor is client-only and
@@ -62,12 +67,18 @@ function starterFor(problem: PracticeProblem, language: PracticeLanguage): strin
 
 export function ProblemSolver({
   problem,
-  previousId,
-  nextId,
+  previous,
+  next,
+  position,
+  total,
 }: {
   problem: PracticeProblem;
-  previousId?: string;
-  nextId?: string;
+  previous?: ProblemLink;
+  next?: ProblemLink;
+  /** One-based position of this problem in the bank. */
+  position?: number;
+  /** Size of the bank (used by the pager footer). */
+  total?: number;
 }) {
   const hydrated = usePracticeHydrated();
   const solvedMap = usePracticeStore((state) => state.solved);
@@ -85,7 +96,6 @@ export function ProblemSolver({
   const [status, setStatus] = useState<string | null>(null);
   const [tab, setTab] = useState<"description" | "hints">("description");
   const [mobilePane, setMobilePane] = useState<"problem" | "code">("problem");
-  const [revealedHints, setRevealedHints] = useState(0);
 
   const solved = Boolean(solvedMap[problem.id]?.solvedAt);
   const attempts = solvedMap[problem.id]?.attempts ?? 0;
@@ -98,7 +108,6 @@ export function ProblemSolver({
     setLanguage(savedLanguage);
     setCode(savedDraft ?? starterFor(problem, savedLanguage));
     setSummary(null);
-    setRevealedHints(0);
     // Intentionally keyed on the problem so switching problems resets the view.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, problem.id]);
@@ -180,8 +189,8 @@ export function ProblemSolver({
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col bg-background">
       {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="container flex h-14 items-center justify-between gap-3">
+      <div className="shrink-0 border-b border-border bg-card">
+        <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button asChild variant="ghost" size="sm" className="-ml-2 shrink-0">
               <Link href="/practice">
@@ -205,42 +214,46 @@ export function ProblemSolver({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             {attempts > 0 && (
               <span className="hidden text-xs text-muted-foreground md:inline">
                 {attempts} {attempts === 1 ? "attempt" : "attempts"}
               </span>
             )}
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              asChild={Boolean(previousId)}
-              disabled={!previousId}
-              title="Previous problem"
+              disabled={!previous}
+              title={previous ? `Previous: ${previous.title}` : "This is the first problem"}
+              asChild={Boolean(previous)}
             >
-              {previousId ? (
-                <Link href={`/practice/${previousId}`}>
+              {previous ? (
+                <Link href={`/practice/${previous.id}`} aria-label={`Previous: ${previous.title}`}>
                   <ChevronLeft />
+                  <span className="hidden sm:inline">Prev</span>
                 </Link>
               ) : (
-                <span>
+                <span aria-disabled="true">
                   <ChevronLeft />
+                  <span className="hidden sm:inline">Prev</span>
                 </span>
               )}
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              asChild={Boolean(nextId)}
-              disabled={!nextId}
-              title="Next problem"
+              disabled={!next}
+              title={next ? `Next: ${next.title}` : "This is the last problem"}
+              asChild={Boolean(next)}
             >
-              {nextId ? (
-                <Link href={`/practice/${nextId}`}>
+              {next ? (
+                <Link href={`/practice/${next.id}`} aria-label={`Next: ${next.title}`}>
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight />
                 </Link>
               ) : (
-                <span>
+                <span aria-disabled="true">
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight />
                 </span>
               )}
@@ -250,7 +263,7 @@ export function ProblemSolver({
       </div>
 
       {/* Mobile pane switcher */}
-      <div className="flex border-b border-border bg-card lg:hidden">
+      <div className="flex shrink-0 border-b border-border bg-card lg:hidden">
         {(["problem", "code"] as const).map((pane) => (
           <button
             key={pane}
@@ -269,137 +282,122 @@ export function ProblemSolver({
       </div>
 
       {/* Split view: problem | code */}
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
-        {/* Left: description */}
-        <div
+      <div className="grid min-h-0 flex-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:grid-cols-2 lg:p-5 xl:gap-5 xl:p-6">
+        {/* Left: description + hints, with the pager pinned to the bottom */}
+        <section
           className={cn(
-            "thin-scrollbar min-h-0 overflow-y-auto border-border lg:block lg:border-r",
-            mobilePane === "problem" ? "block" : "hidden",
+            "min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card lg:flex",
+            mobilePane === "problem" ? "flex" : "hidden",
           )}
         >
-          <div className="container max-w-none px-5 py-6 lg:px-6">
-            <div className="mb-5 flex items-center gap-1 border-b border-border">
-              {(
-                [
-                  { id: "description", label: "Description", icon: BookOpen },
-                  { id: "hints", label: `Hints (${problem.hints.length})`, icon: Lightbulb },
-                ] as const
-              ).map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setTab(item.id)}
-                    className={cn(
-                      "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
-                      tab === item.id
-                        ? "border-primary-600 text-foreground"
-                        : "border-transparent text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="size-4" />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
+          <div
+            className="no-scrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-border px-3"
+            role="tablist"
+            aria-label="Problem details"
+          >
+            {(
+              [
+                { id: "description", label: "Description", icon: BookOpen },
+                { id: "hints", label: "Hints", icon: Lightbulb },
+              ] as const
+            ).map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === item.id}
+                  onClick={() => setTab(item.id)}
+                  className={cn(
+                    "-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+                    tab === item.id
+                      ? "border-primary-600 text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon className="size-4" />
+                  {item.label}
+                  {item.id === "hints" && (
+                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                      {problem.hints.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
+          <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
             {tab === "description" ? (
-              <div className="space-y-6">
-                <RichText text={problem.description} />
+              <div className="space-y-7">
+                <RichText
+                  text={problem.description}
+                  className="text-[13.5px] leading-7 text-slate-600 dark:text-slate-300"
+                />
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {problem.examples.map((example, index) => (
-                    <div key={index}>
-                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Example {index + 1}
-                      </p>
-                      <div className="space-y-1 rounded-lg border border-border bg-muted/40 px-4 py-3 font-mono text-[12px] leading-relaxed">
-                        <div>
-                          <span className="text-muted-foreground">Input: </span>
-                          <span className="text-foreground">{example.input}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Output: </span>
-                          <span className="text-foreground">{example.output}</span>
-                        </div>
-                        {example.explanation && (
-                          <div className="text-muted-foreground">
-                            <span>Explanation: </span>
-                            {example.explanation}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <ExampleCard
+                      key={index}
+                      example={example}
+                      index={index}
+                      functionName={problem.functionName}
+                    />
                   ))}
                 </div>
 
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Constraints
-                  </p>
-                  <ul className="space-y-1 font-mono text-[12px] text-muted-foreground">
-                    {problem.constraints.map((constraint) => (
-                      <li key={constraint} className="flex gap-2">
-                        <span className="select-none">•</span>
-                        <span>{constraint}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <CodeBlock
+                    code={problem.constraints.join("\n")}
+                    label="Constraints"
+                    copyable={false}
+                  />
 
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Topics
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {problem.topics.map((topic) => (
-                      <Badge key={topic} tone="gray" size="sm">
-                        {topic}
-                      </Badge>
-                    ))}
+                  <div className="rounded-lg border border-border bg-muted/30 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Topics
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {problem.topics.map((topic) => (
+                        <Badge key={topic} tone="indigo" size="sm">
+                          {topic}
+                        </Badge>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
+                      Implement{" "}
+                      <code className="rounded bg-background px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+                        {problem.functionName}
+                      </code>{" "}
+                      in the editor and return the answer — printing it is never graded.
+                    </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                {problem.hints.slice(0, revealedHints).map((hint, index) => (
-                  <div
-                    key={index}
-                    className="rounded-lg border border-amber-200 bg-amber-50/60 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/20"
-                  >
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
-                      Hint {index + 1}
-                    </p>
-                    <RichText text={hint} className="text-amber-900 dark:text-amber-100" />
-                  </div>
-                ))}
-
-                {revealedHints < problem.hints.length ? (
-                  <Button variant="outline" onClick={() => setRevealedHints((count) => count + 1)}>
-                    <Lightbulb />
-                    Reveal hint {revealedHints + 1}
-                  </Button>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    That is every hint for this problem.
-                  </p>
-                )}
-              </div>
+              <HintsPanel key={problem.id} problem={problem} />
             )}
           </div>
-        </div>
+
+          <ProblemPager
+            previous={previous}
+            next={next}
+            position={position}
+            total={total}
+            className="shrink-0 border-t border-border bg-muted/20 px-3 py-3 sm:px-4"
+          />
+        </section>
 
         {/* Right: editor + results */}
-        <div
+        <section
           className={cn(
-            "flex min-h-0 flex-col bg-card",
-            mobilePane === "code" ? "flex" : "hidden lg:flex",
+            "min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card lg:flex",
+            mobilePane === "code" ? "flex" : "hidden",
           )}
         >
           {/* Toolbar: language + Run + Submit */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/20 px-3 py-2">
             <SelectField
               value={language}
               onValueChange={handleLanguageChange}
@@ -433,14 +431,14 @@ export function ProblemSolver({
 
           {/* Runtime hint / progress (Python boots WebAssembly) */}
           {(status || language === "python") && (
-            <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground">
+            <div className="flex shrink-0 items-center gap-2 border-b border-border bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground">
               {status && <Loader2 className="size-3 shrink-0 animate-spin" />}
               <span className="truncate">{status ?? PYTHON_HINT}</span>
             </div>
           )}
 
           {/* Editor */}
-          <div className="min-h-[180px] flex-1">
+          <div className="min-h-[200px] flex-1">
             <CodeEditor
               value={code}
               language={language}
@@ -454,11 +452,11 @@ export function ProblemSolver({
 
           {/* Results */}
           {summary && (
-            <div className="flex max-h-[42%] min-h-0 shrink-0 flex-col border-t border-border">
+            <div className="flex max-h-[45%] min-h-0 shrink-0 flex-col border-t border-border">
               <TestResults summary={summary} problem={problem} />
             </div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );
