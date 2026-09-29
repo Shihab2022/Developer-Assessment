@@ -283,7 +283,7 @@ function stripAsCasts(code: string): string {
     const isAs = code.startsWith("as", i) && !isIdentChar(code[i - 1]) && !isIdentChar(code[i + 2]);
 
     if (isAs) {
-      let j = i + 2;
+      const j = i + 2;
       // `as const` is two tokens; anything else is a type expression.
       const constMatch = code.slice(j).match(/^\s+const\b/);
       if (constMatch) {

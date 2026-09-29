@@ -773,4 +773,2115 @@ export const PRACTICE_PROBLEMS: PracticeProblem[] = [
       "Binary-search the partition point in the smaller array so the left half of the combined data is always the same length.",
     ],
   },
+
+  /* =========================================================== 31 – 35 */
+  {
+    id: "sqrt-x", number: 31, title: "Sqrt(x)", difficulty: "EASY" as D,
+    topics: ["Math", "Binary Search"],
+    description:
+      "Given a non-negative integer `x`, return the **square root** of `x` rounded down to the nearest integer.\n\nYou may not use any built-in exponent or square-root function.",
+    examples: [
+      { input: "x = 4", output: "2" },
+      { input: "x = 8", output: "2", explanation: "sqrt(8) = 2.828…, truncated to 2." },
+    ],
+    constraints: ["0 <= x <= 2^31 - 1"],
+    functionName: "mySqrt",
+    starterCode: starter(
+      "@param {number} x\n * @return {number}",
+      "mySqrt", "x", "x: number", "number",
+    ),
+    testCases: [
+      tc([4], 2),
+      tc([8], 2),
+      tc([0], 0, { hidden: true }),
+      tc([1], 1, { hidden: true }),
+      tc([10000], 100, { hidden: true }),
+    ],
+    hints: [
+      "Binary-search the answer between `0` and `x` instead of testing every integer.",
+      "Keep `lo` on the last square below `x` so the loop ends on the floor.",
+    ],
+  },
+  {
+    id: "excel-sheet-column-number", number: 32, title: "Excel Sheet Column Number", difficulty: "EASY" as D,
+    topics: ["Math", "Strings"],
+    description:
+      "Excel column titles are a base-26 system: `A` = 1, `B` = 2, … `Z` = 26, `AA` = 27.\n\nGiven a column title `s`, return its column number.",
+    examples: [
+      { input: 's = "A"', output: "1" },
+      { input: 's = "AB"', output: "28", explanation: "1 * 26 + 2" },
+    ],
+    constraints: ["1 <= s.length <= 7", "`s` consists of uppercase English letters only."],
+    functionName: "titleToNumber",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "titleToNumber", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["A"], 1),
+      tc(["AB"], 28),
+      tc(["ZY"], 701, { hidden: true }),
+      tc(["AAA"], 703, { hidden: true }),
+    ],
+    hints: [
+      "Walk the title left to right, multiplying the running total by 26 at each step.",
+      "`charCodeAt(i) - 64` turns a letter into its 1-based position.",
+    ],
+  },
+  {
+    id: "isomorphic-strings", number: 33, title: "Isomorphic Strings", difficulty: "EASY" as D,
+    topics: ["Strings", "Hash Table"],
+    description:
+      "Two strings are **isomorphic** when the characters of `s` can be replaced one-to-one to get `t`.\n\nNo two characters may map to the same character, and a character may map to itself.",
+    examples: [
+      { input: 's = "egg", t = "add"', output: "true", explanation: "e → a and g → d." },
+      { input: 's = "foo", t = "bar"', output: "false" },
+    ],
+    constraints: ["1 <= s.length <= 5 * 10^4", "s.length === t.length"],
+    functionName: "isIsomorphic",
+    starterCode: starter(
+      "@param {string} s\n * @param {string} t\n * @return {boolean}",
+      "isIsomorphic", "s, t", "s: string, t: string", "boolean",
+    ),
+    testCases: [
+      tc(["egg", "add"], true),
+      tc(["foo", "bar"], false),
+      tc(["paper", "title"], true, { hidden: true }),
+      tc(["badc", "baba"], false, { hidden: true }),
+    ],
+    hints: [
+      "Keep two maps — `s → t` and `t → s` — and check both on every character.",
+      "One direction alone is not enough: that is why `badc` / `baba` fails.",
+    ],
+  },
+  {
+    id: "ransom-note", number: 34, title: "Ransom Note", difficulty: "EASY" as D,
+    topics: ["Strings", "Hash Table"],
+    description:
+      "Return `true` if `ransomNote` can be built from the letters of `magazine`.\n\nEach letter in `magazine` may be used at most once.",
+    examples: [
+      { input: 'ransomNote = "a", magazine = "b"', output: "false" },
+      { input: 'ransomNote = "aa", magazine = "ab"', output: "false", explanation: "Only one `a` is available." },
+    ],
+    constraints: ["1 <= ransomNote.length, magazine.length <= 10^5", "Both strings are lowercase English letters."],
+    functionName: "canConstruct",
+    starterCode: starter(
+      "@param {string} ransomNote\n * @param {string} magazine\n * @return {boolean}",
+      "canConstruct", "ransomNote, magazine", "ransomNote: string, magazine: string", "boolean",
+    ),
+    testCases: [
+      tc(["a", "b"], false),
+      tc(["aa", "ab"], false),
+      tc(["aa", "aab"], true, { hidden: true }),
+      tc(["aab", "baa"], true, { hidden: true }),
+    ],
+    hints: [
+      "Count the letters of `magazine` once, then spend them on `ransomNote`.",
+      "A letter budget that goes negative means the answer is `false`.",
+    ],
+  },
+  {
+    id: "word-pattern", number: 35, title: "Word Pattern", difficulty: "EASY" as D,
+    topics: ["Strings", "Hash Table"],
+    description:
+      "Given a `pattern` and a string `s`, return `true` when `s` follows the same pattern.\n\nThere must be a **bijection** between a letter in `pattern` and a non-empty word in `s`.",
+    examples: [
+      { input: 'pattern = "abba", s = "dog cat cat dog"', output: "true" },
+      { input: 'pattern = "abba", s = "dog cat cat fish"', output: "false" },
+    ],
+    constraints: ["1 <= pattern.length <= 300", "1 <= s.length <= 3000", "Words in `s` are separated by single spaces."],
+    functionName: "wordPattern",
+    starterCode: starter(
+      "@param {string} pattern\n * @param {string} s\n * @return {boolean}",
+      "wordPattern", "pattern, s", "pattern: string, s: string", "boolean",
+    ),
+    testCases: [
+      tc(["abba", "dog cat cat dog"], true),
+      tc(["abba", "dog cat cat fish"], false),
+      tc(["aaaa", "dog cat cat dog"], false, { hidden: true }),
+      tc(["abc", "b c a"], true, { hidden: true }),
+    ],
+    hints: [
+      "Split `s` on spaces and compare the lengths before anything else.",
+      "Two maps (letter → word and word → letter) catch both duplicate letters and duplicate words.",
+    ],
+  },
+
+  /* =========================================================== 36 – 40 */
+  {
+    id: "first-unique-character-in-a-string", number: 36, title: "First Unique Character in a String", difficulty: "EASY" as D,
+    topics: ["Strings", "Hash Table"],
+    description:
+      "Find the **first non-repeating character** in `s` and return its index.\n\nIf every character repeats, return `-1`.",
+    examples: [
+      { input: 's = "leetcode"', output: "0", explanation: "`l` is the first character that appears once." },
+      { input: 's = "loveleetcode"', output: "2" },
+    ],
+    constraints: ["1 <= s.length <= 10^5", "`s` consists of lowercase English letters."],
+    functionName: "firstUniqChar",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "firstUniqChar", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["leetcode"], 0),
+      tc(["loveleetcode"], 2),
+      tc(["aabb"], -1, { hidden: true }),
+      tc(["z"], 0, { hidden: true }),
+    ],
+    hints: [
+      "Count every character first, then scan again for the first count of one.",
+      "Two passes keep the answer at O(n) instead of O(n²).",
+    ],
+  },
+  {
+    id: "intersection-of-two-arrays", number: 37, title: "Intersection of Two Arrays", difficulty: "EASY" as D,
+    topics: ["Arrays", "Hash Table"],
+    description:
+      "Given two integer arrays, return their **intersection**.\n\nEvery element in the result must be unique; the order does not matter.",
+    examples: [
+      { input: "nums1 = [1,2,2,1], nums2 = [2,2]", output: "[2]" },
+      { input: "nums1 = [4,9,5], nums2 = [9,4,9,8,4]", output: "[4,9]" },
+    ],
+    constraints: ["1 <= nums1.length, nums2.length <= 1000", "0 <= nums1[i], nums2[i] <= 1000"],
+    functionName: "intersection",
+    starterCode: starter(
+      "@param {number[]} nums1\n * @param {number[]} nums2\n * @return {number[]}",
+      "intersection", "nums1, nums2", "nums1: number[], nums2: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[1, 2, 2, 1], [2, 2]], [2]),
+      tc([[4, 9, 5], [9, 4, 9, 8, 4]], [4, 9], { unordered: true }),
+      tc([[1, 2], [1, 2]], [1, 2], { hidden: true, unordered: true }),
+      tc([[3, 3], [3]], [3], { hidden: true }),
+    ],
+    hints: [
+      "Put one array into a `Set` and filter the other against it.",
+      "The `Set` also gives you the deduplication for free.",
+    ],
+  },
+  {
+    id: "missing-number", number: 38, title: "Missing Number", difficulty: "EASY" as D,
+    topics: ["Arrays", "Math"],
+    description:
+      "`nums` contains `n` **distinct** numbers taken from the range `[0, n]`. Return the only number in that range that is missing.",
+    examples: [
+      { input: "nums = [3,0,1]", output: "2", explanation: "The range is 0…3 and 2 is missing." },
+      { input: "nums = [0,1]", output: "2" },
+    ],
+    constraints: ["n == nums.length", "1 <= n <= 10^4", "All numbers are unique."],
+    functionName: "missingNumber",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "missingNumber", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[3, 0, 1]], 2),
+      tc([[0, 1]], 2),
+      tc([[9, 6, 4, 2, 3, 5, 7, 0, 1]], 8, { hidden: true }),
+      tc([[0]], 1, { hidden: true }),
+    ],
+    hints: [
+      "The expected sum of `0…n` is `n * (n + 1) / 2`; subtract what you actually see.",
+      "XOR-ing the indices with the values gives the same answer without any arithmetic.",
+    ],
+  },
+  {
+    id: "add-binary", number: 39, title: "Add Binary", difficulty: "EASY" as D,
+    topics: ["Math", "Strings", "Bit Manipulation"],
+    description: "Given two binary strings `a` and `b`, return their sum as a binary string.",
+    examples: [
+      { input: 'a = "11", b = "1"', output: '"100"' },
+      { input: 'a = "1010", b = "1011"', output: '"10101"' },
+    ],
+    constraints: ["1 <= a.length, b.length <= 10^4", "`a` and `b` only contain `0` and `1` characters."],
+    functionName: "addBinary",
+    starterCode: starter(
+      "@param {string} a\n * @param {string} b\n * @return {string}",
+      "addBinary", "a, b", "a: string, b: string", "string",
+    ),
+    testCases: [
+      tc(["11", "1"], "100"),
+      tc(["1010", "1011"], "10101"),
+      tc(["0", "0"], "0", { hidden: true }),
+      tc(["1", "111"], "1000", { hidden: true }),
+    ],
+    hints: [
+      "Add from the right-hand end and carry a `1` whenever a column totals two or more.",
+      "Collect digits in an array and reverse at the end — concatenating strings in a loop is O(n²).",
+    ],
+  },
+  {
+    id: "happy-number", number: 40, title: "Happy Number", difficulty: "EASY" as D,
+    topics: ["Math", "Hash Table"],
+    description:
+      "A number is **happy** when repeatedly replacing it with the sum of the squares of its digits eventually reaches `1`.\n\nA number that loops forever is not happy.",
+    examples: [
+      { input: "n = 19", output: "true", explanation: "1² + 9² = 82 → 68 → 100 → 1" },
+      { input: "n = 2", output: "false" },
+    ],
+    constraints: ["1 <= n <= 2^31 - 1"],
+    functionName: "isHappy",
+    starterCode: starter(
+      "@param {number} n\n * @return {boolean}",
+      "isHappy", "n", "n: number", "boolean",
+    ),
+    testCases: [
+      tc([19], true),
+      tc([2], false),
+      tc([1], true, { hidden: true }),
+      tc([7], true, { hidden: true }),
+    ],
+    hints: [
+      "Remember the numbers you have already seen in a `Set` to detect the cycle.",
+      "Every unhappy number eventually lands in the cycle that contains `4`.",
+    ],
+  },
+
+  /* =========================================================== 41 – 45 */
+  {
+    id: "power-of-two", number: 41, title: "Power of Two", difficulty: "EASY" as D,
+    topics: ["Math", "Bit Manipulation"],
+    description: "Given an integer `n`, return `true` if it is a power of two. Otherwise return `false`.",
+    examples: [
+      { input: "n = 1", output: "true", explanation: "2⁰ = 1" },
+      { input: "n = 3", output: "false" },
+    ],
+    constraints: ["-2^31 <= n <= 2^31 - 1"],
+    functionName: "isPowerOfTwo",
+    starterCode: starter(
+      "@param {number} n\n * @return {boolean}",
+      "isPowerOfTwo", "n", "n: number", "boolean",
+    ),
+    testCases: [
+      tc([1], true),
+      tc([16], true),
+      tc([3], false, { hidden: true }),
+      tc([0], false, { hidden: true }),
+    ],
+    hints: [
+      "Keep dividing by two and bail out as soon as the remainder is non-zero.",
+      "In binary, a power of two has exactly one `1` bit.",
+    ],
+  },
+  {
+    id: "find-the-index-of-the-first-occurrence", number: 42, title: "Find the Index of the First Occurrence", difficulty: "EASY" as D,
+    topics: ["Strings", "Two Pointers"],
+    description:
+      "Given two strings `haystack` and `needle`, return the index of the first occurrence of `needle` in `haystack`, or `-1` when it is not part of it.",
+    examples: [
+      { input: 'haystack = "sadbutsad", needle = "sad"', output: "0" },
+      { input: 'haystack = "leetcode", needle = "leeto"', output: "-1" },
+    ],
+    constraints: ["1 <= haystack.length, needle.length <= 10^4"],
+    functionName: "strStr",
+    starterCode: starter(
+      "@param {string} haystack\n * @param {string} needle\n * @return {number}",
+      "strStr", "haystack, needle", "haystack: string, needle: string", "number",
+    ),
+    testCases: [
+      tc(["sadbutsad", "sad"], 0),
+      tc(["leetcode", "leeto"], -1),
+      tc(["hello", "ll"], 2, { hidden: true }),
+      tc(["a", "a"], 0, { hidden: true }),
+    ],
+    hints: [
+      "Only start a comparison where there is still room left for the whole needle.",
+      "Compare manually first, then look at how KMP avoids re-reading characters.",
+    ],
+  },
+  {
+    id: "fibonacci-number", number: 43, title: "Fibonacci Number", difficulty: "EASY" as D,
+    topics: ["Math", "Dynamic Programming", "Recursion"],
+    description:
+      "The Fibonacci sequence is defined by `F(0) = 0`, `F(1) = 1` and `F(n) = F(n - 1) + F(n - 2)` for `n > 1`.\n\nGiven `n`, return `F(n)`.",
+    examples: [
+      { input: "n = 2", output: "1" },
+      { input: "n = 4", output: "3", explanation: "0, 1, 1, 2, 3" },
+    ],
+    constraints: ["0 <= n <= 30"],
+    functionName: "fib",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "fib", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([0], 0),
+      tc([4], 3),
+      tc([10], 55, { hidden: true }),
+      tc([20], 6765, { hidden: true }),
+    ],
+    hints: [
+      "The plain recursive definition recomputes the same values exponentially often.",
+      "Two variables that roll forward give an O(n) time, O(1) space solution.",
+    ],
+  },
+  {
+    id: "count-primes", number: 44, title: "Count Primes", difficulty: "EASY" as D,
+    topics: ["Math", "Arrays"],
+    description: "Given an integer `n`, return the number of prime numbers **strictly less than** `n`.",
+    examples: [
+      { input: "n = 10", output: "4", explanation: "2, 3, 5 and 7" },
+      { input: "n = 0", output: "0" },
+    ],
+    constraints: ["0 <= n <= 5 * 10^6"],
+    functionName: "countPrimes",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "countPrimes", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([10], 4),
+      tc([0], 0),
+      tc([1], 0, { hidden: true }),
+      tc([100], 25, { hidden: true }),
+    ],
+    hints: [
+      "Sieve of Eratosthenes: mark multiples of each prime you find.",
+      "Only sieve up to `Math.sqrt(n)` — larger multiples are already marked.",
+    ],
+  },
+  {
+    id: "number-of-1-bits", number: 45, title: "Number of 1 Bits", difficulty: "EASY" as D,
+    topics: ["Bit Manipulation"],
+    description:
+      "Given a non-negative integer `n`, return the number of `1` bits in its binary representation (also known as the Hamming weight).",
+    examples: [
+      { input: "n = 11", output: "3", explanation: "1011 has three set bits." },
+      { input: "n = 128", output: "1" },
+    ],
+    constraints: ["0 <= n <= 2^31 - 1"],
+    functionName: "hammingWeight",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "hammingWeight", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([11], 3),
+      tc([128], 1),
+      tc([0], 0, { hidden: true }),
+      tc([255], 8, { hidden: true }),
+    ],
+    hints: [
+      "Shift the number right one bit at a time and count the odd values.",
+      "`n & (n - 1)` clears the lowest set bit — one loop iteration per `1`.",
+    ],
+  },
+
+  /* =========================================================== 46 – 50 */
+  {
+    id: "reverse-bits", number: 46, title: "Reverse Bits", difficulty: "EASY" as D,
+    topics: ["Bit Manipulation", "Divide and Conquer"],
+    description:
+      "Reverse the bits of a given 32-bit unsigned integer `n` and return the result.\n\nUse the unsigned 32-bit value in your answer: `reverseBits(1)` is `2147483648`, not `-2147483648`.",
+    examples: [
+      { input: "n = 43261596", output: "964176192", explanation: "00000010100101000001111010011100 → 00111001011110000010100101000000" },
+    ],
+    constraints: ["0 <= n <= 2^32 - 1"],
+    functionName: "reverseBits",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "reverseBits", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([43261596], 964176192),
+      tc([0], 0, { hidden: true }),
+      tc([1], 2147483648, { hidden: true }),
+      tc([3], 3221225472, { hidden: true }),
+    ],
+    hints: [
+      "Take the lowest bit of the input and push it onto the result, 32 times.",
+      "Use `>>> 0` in JavaScript so the result stays an unsigned 32-bit value.",
+    ],
+  },
+  {
+    id: "remove-element", number: 47, title: "Remove Element", difficulty: "EASY" as D,
+    topics: ["Arrays", "Two Pointers"],
+    description:
+      "Given an array `nums` and a value `val`, return a new array with every occurrence of `val` removed.\n\nThe relative order of the remaining elements must be kept.",
+    examples: [
+      { input: "nums = [3,2,2,3], val = 3", output: "[2,2]" },
+      { input: "nums = [0,1,2,2,3,0,4,2], val = 2", output: "[0,1,3,0,4]" },
+    ],
+    constraints: ["0 <= nums.length <= 100", "0 <= nums[i], val <= 50"],
+    functionName: "removeElement",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} val\n * @return {number[]}",
+      "removeElement", "nums, val", "nums: number[], val: number", "number[]",
+    ),
+    testCases: [
+      tc([[3, 2, 2, 3], 3], [2, 2]),
+      tc([[0, 1, 2, 2, 3, 0, 4, 2], 2], [0, 1, 3, 0, 4]),
+      tc([[1], 1], [], { hidden: true }),
+      tc([[2, 2, 2], 2], [], { hidden: true }),
+    ],
+    hints: [
+      "`filter` keeps the order for free; the interesting version writes back into the same array.",
+      "A slow write pointer plus a fast read pointer does it in one pass.",
+    ],
+  },
+  {
+    id: "kids-with-the-greatest-number-of-candies", number: 48, title: "Kids With the Greatest Number of Candies", difficulty: "EASY" as D,
+    topics: ["Arrays"],
+    description:
+      "`candies[i]` is how many candies child `i` has. After giving `extraCandies` to one child, return a boolean array where `result[i]` says whether that child then has the **most** candies.",
+    examples: [
+      { input: "candies = [2,3,5,1,3], extraCandies = 3", output: "[true,true,true,false,true]" },
+      { input: "candies = [4,2,1,1,2], extraCandies = 1", output: "[true,false,false,false,false]" },
+    ],
+    constraints: ["1 <= candies.length <= 100", "1 <= candies[i] <= 100", "1 <= extraCandies <= 50"],
+    functionName: "kidsWithCandies",
+    starterCode: starter(
+      "@param {number[]} candies\n * @param {number} extraCandies\n * @return {boolean[]}",
+      "kidsWithCandies", "candies, extraCandies", "candies: number[], extraCandies: number", "boolean[]",
+    ),
+    testCases: [
+      tc([[2, 3, 5, 1, 3], 3], [true, true, true, false, true]),
+      tc([[4, 2, 1, 1, 2], 1], [true, false, false, false, false]),
+      tc([[12, 1, 12], 10], [true, false, true], { hidden: true }),
+      tc([[1, 1, 1], 1], [true, true, true], { hidden: true }),
+    ],
+    hints: [
+      "Find the current maximum once, outside the loop.",
+      "“The most” means at least the maximum, so ties count.",
+    ],
+  },
+  {
+    id: "shuffle-the-array", number: 49, title: "Shuffle the Array", difficulty: "EASY" as D,
+    topics: ["Arrays"],
+    description:
+      "`nums` holds `2n` elements in the form `[x1…xn, y1…yn]`. Return them interleaved as `[x1, y1, x2, y2, …]`.",
+    examples: [
+      { input: "nums = [2,5,1,3,4,7], n = 3", output: "[2,3,5,4,1,7]", explanation: "x = [2,5,1], y = [3,4,7]" },
+      { input: "nums = [1,2,3,4,4,3,2,1], n = 4", output: "[1,4,2,3,3,2,4,1]" },
+    ],
+    constraints: ["1 <= n <= 500", "nums.length === 2n"],
+    functionName: "shuffle",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} n\n * @return {number[]}",
+      "shuffle", "nums, n", "nums: number[], n: number", "number[]",
+    ),
+    testCases: [
+      tc([[2, 5, 1, 3, 4, 7], 3], [2, 3, 5, 4, 1, 7]),
+      tc([[1, 2, 3, 4, 4, 3, 2, 1], 4], [1, 4, 2, 3, 3, 2, 4, 1]),
+      tc([[1, 1, 2, 2], 2], [1, 2, 1, 2], { hidden: true }),
+      tc([[7, 8, 9, 1, 2, 3], 3], [7, 1, 8, 2, 9, 3], { hidden: true }),
+    ],
+    hints: [
+      "Pair `nums[i]` with `nums[i + n]` for every `i` below `n`.",
+      "Push into a result array instead of trying to rearrange in place.",
+    ],
+  },
+  {
+    id: "number-of-steps-to-reduce-a-number-to-zero", number: 50, title: "Number of Steps to Reduce a Number to Zero", difficulty: "EASY" as D,
+    topics: ["Math", "Bit Manipulation"],
+    description:
+      "Given `num`, repeat these rules until it reaches `0` and return the number of steps used:\n\n- if the number is even, divide it by 2\n- if it is odd, subtract 1",
+    examples: [
+      { input: "num = 14", output: "6", explanation: "14 → 7 → 6 → 3 → 2 → 1 → 0" },
+      { input: "num = 8", output: "4" },
+    ],
+    constraints: ["0 <= num <= 10^6"],
+    functionName: "numberOfSteps",
+    starterCode: starter(
+      "@param {number} num\n * @return {number}",
+      "numberOfSteps", "num", "num: number", "number",
+    ),
+    testCases: [
+      tc([14], 6),
+      tc([8], 4),
+      tc([0], 0, { hidden: true }),
+      tc([15], 7, { hidden: true }),
+    ],
+    hints: [
+      "A `while` loop plus a step counter is all that is needed.",
+      "Even numbers lose a binary digit, odd numbers clear a bit.",
+    ],
+  },
+
+  /* =========================================================== 51 – 55 */
+  {
+    id: "running-sum-of-1d-array", number: 51, title: "Running Sum of 1d Array", difficulty: "EASY" as D,
+    topics: ["Arrays", "Prefix Sum"],
+    description:
+      "Return the running sum of `nums`: `runningSum[i] = nums[0] + nums[1] + … + nums[i]`.",
+    examples: [
+      { input: "nums = [1,2,3,4]", output: "[1,3,6,10]" },
+      { input: "nums = [1,1,1,1,1]", output: "[1,2,3,4,5]" },
+    ],
+    constraints: ["1 <= nums.length <= 1000", "-10^6 <= nums[i] <= 10^6"],
+    functionName: "runningSum",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[]}",
+      "runningSum", "nums", "nums: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[1, 2, 3, 4]], [1, 3, 6, 10]),
+      tc([[1, 1, 1, 1, 1]], [1, 2, 3, 4, 5]),
+      tc([[3, 1, 2, 10, 1]], [3, 4, 6, 16, 17], { hidden: true }),
+      tc([[1]], [1], { hidden: true }),
+    ],
+    hints: [
+      "Keep a `total` variable and push it after every addition.",
+      "Writing into a copy of the input avoids a second array of running totals.",
+    ],
+  },
+  {
+    id: "final-value-of-variable", number: 52, title: "Final Value of Variable After Operations", difficulty: "EASY" as D,
+    topics: ["Strings", "Simulation"],
+    description:
+      "Starting from `X = 0`, apply every operation in `operations` and return the final value of `X`.\n\n`++X` and `X++` both add 1; `--X` and `X--` both subtract 1.",
+    examples: [
+      { input: 'operations = ["--X","X++","X++"]', output: "1" },
+      { input: 'operations = ["++X","++X","X++"]', output: "3" },
+    ],
+    constraints: ["1 <= operations.length <= 100", "Every operation is one of `++X`, `X++`, `--X`, `X--`."],
+    functionName: "finalValue",
+    starterCode: starter(
+      "@param {string[]} operations\n * @return {number}",
+      "finalValue", "operations", "operations: string[]", "number",
+    ),
+    testCases: [
+      tc([["--X", "X++", "X++"]], 1),
+      tc([["++X", "++X", "X++"]], 3),
+      tc([["X++", "++X", "--X", "X--"]], 0, { hidden: true }),
+      tc([["--X", "--X", "X++"]], -1, { hidden: true }),
+    ],
+    hints: [
+      "Only the operation's second character decides the direction: `+` or `-`.",
+      "`operation.includes('+')` is enough — no need to compare four strings.",
+    ],
+  },
+  {
+    id: "richest-customer-wealth", number: 53, title: "Richest Customer Wealth", difficulty: "EASY" as D,
+    topics: ["Arrays", "Matrix"],
+    description:
+      "`accounts[i][j]` is the amount of money customer `i` has in bank `j`. Return the wealth of the richest customer, where wealth is the sum of their row.",
+    examples: [
+      { input: "accounts = [[1,2,3],[3,2,1]]", output: "6", explanation: "Both customers have 6." },
+      { input: "accounts = [[1,5],[7,3],[3,5]]", output: "10" },
+    ],
+    constraints: ["1 <= accounts.length, accounts[i].length <= 50", "1 <= accounts[i][j] <= 100"],
+    functionName: "maximumWealth",
+    starterCode: starter(
+      "@param {number[][]} accounts\n * @return {number}",
+      "maximumWealth", "accounts", "accounts: number[][]", "number",
+    ),
+    testCases: [
+      tc([[[1, 2, 3], [3, 2, 1]]], 6),
+      tc([[[1, 5], [7, 3], [3, 5]]], 10),
+      tc([[[2, 8, 7], [7, 1, 3], [1, 9, 5]]], 17, { hidden: true }),
+      tc([[[5], [7], [3]]], 7, { hidden: true }),
+    ],
+    hints: [
+      "Row sums are independent — the maximum does not need sorting.",
+      "`reduce` over each row, then take the largest value.",
+    ],
+  },
+  {
+    id: "defanging-an-ip-address", number: 54, title: "Defanging an IP Address", difficulty: "EASY" as D,
+    topics: ["Strings"],
+    description:
+      'A **defanged** version of an IP address replaces every `.` with `[.]`.\n\nReturn the defanged version of `address`.',
+    examples: [
+      { input: 'address = "1.1.1.1"', output: '"1[.]1[.]1[.]1"' },
+      { input: 'address = "255.100.50.0"', output: '"255[.]100[.]50[.]0"' },
+    ],
+    constraints: ["`address` is a valid IPv4 address."],
+    functionName: "defangIPaddr",
+    starterCode: starter(
+      "@param {string} address\n * @return {string}",
+      "defangIPaddr", "address", "address: string", "string",
+    ),
+    testCases: [
+      tc(["1.1.1.1"], "1[.]1[.]1[.]1"),
+      tc(["255.100.50.0"], "255[.]100[.]50[.]0"),
+      tc(["0.0.0.0"], "0[.]0[.]0[.]0", { hidden: true }),
+      tc(["192.168.1.1"], "192[.]168[.]1[.]1", { hidden: true }),
+    ],
+    hints: [
+      "`split('.')` and `join('[.]')` is the whole solution.",
+      "A regular expression with the global flag works too: `/\\./g`.",
+    ],
+  },
+  {
+    id: "goal-parser-interpretation", number: 55, title: "Goal Parser Interpretation", difficulty: "EASY" as D,
+    topics: ["Strings"],
+    description:
+      "Parse a command string where `G` stays `G`, `()` becomes `o` and `(al)` becomes `al`. Return the interpreted string.",
+    examples: [
+      { input: 'command = "G()(al)"', output: '"Goal"' },
+      { input: 'command = "G()()()()(al)"', output: '"Gooooal"' },
+    ],
+    constraints: ["1 <= command.length <= 100", "`command` only contains `G`, `()` and `(al)`."],
+    functionName: "interpret",
+    starterCode: starter(
+      "@param {string} command\n * @return {string}",
+      "interpret", "command", "command: string", "string",
+    ),
+    testCases: [
+      tc(["G()(al)"], "Goal"),
+      tc(["G()()()()(al)"], "Gooooal"),
+      tc(["(al)G(al)()()G"], "alGalooG", { hidden: true }),
+      tc(["G"], "G", { hidden: true }),
+    ],
+    hints: [
+      "Scan left to right: `G` is literal, `()` adds `o`, `(al)` adds `al`.",
+      "`command.replace(/\\\\(\\\\)/g, 'o').replace(/\\\\(al\\\\)/g, 'al')` is a one-liner.",
+    ],
+  },
+
+  /* =========================================================== 56 – 60 */
+  {
+    id: "find-numbers-with-even-number-of-digits", number: 56, title: "Find Numbers with Even Number of Digits", difficulty: "EASY" as D,
+    topics: ["Arrays", "Math"],
+    description: "Given an array `nums` of integers, return how many of them contain an **even number of digits**.",
+    examples: [
+      { input: "nums = [12,345,2,6,7896]", output: "2", explanation: "12 and 7896 have 2 and 4 digits." },
+      { input: "nums = [555,901,482,1771]", output: "1" },
+    ],
+    constraints: ["1 <= nums.length <= 500", "1 <= nums[i] <= 10^5"],
+    functionName: "findNumbers",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "findNumbers", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[12, 345, 2, 6, 7896]], 2),
+      tc([[555, 901, 482, 1771]], 1),
+      tc([[1]], 0, { hidden: true }),
+      tc([[100000]], 1, { hidden: true }),
+    ],
+    hints: [
+      "`String(value).length % 2 === 0` is the quick check.",
+      "Logarithms work too: `Math.floor(Math.log10(value)) + 1` gives the digit count.",
+    ],
+  },
+  {
+    id: "count-of-matches-in-tournament", number: 57, title: "Count of Matches in Tournament", difficulty: "EASY" as D,
+    topics: ["Math", "Simulation"],
+    description:
+      "`n` teams play a knockout tournament. In each round, teams are paired up; the winner of each match advances and — when the count is odd — one team gets a bye.\n\nReturn the total number of matches played until a winner is decided.",
+    examples: [
+      { input: "n = 7", output: "6", explanation: "3 + 2 + 1 = 6 matches." },
+      { input: "n = 14", output: "13" },
+    ],
+    constraints: ["1 <= n <= 200"],
+    functionName: "numberOfMatches",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "numberOfMatches", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([7], 6),
+      tc([14], 13),
+      tc([1], 0, { hidden: true }),
+      tc([100], 99, { hidden: true }),
+    ],
+    hints: [
+      "Every match eliminates exactly one team, so `n - 1` teams have to go.",
+      "Simulating the halving rounds is the literal version of the same answer.",
+    ],
+  },
+  {
+    id: "to-lower-case", number: 58, title: "To Lower Case", difficulty: "EASY" as D,
+    topics: ["Strings"],
+    description: "Given a string `s`, return it converted to lowercase letters.",
+    examples: [
+      { input: 's = "Hello"', output: '"hello"' },
+      { input: 's = "here"', output: '"here"' },
+    ],
+    constraints: ["1 <= s.length <= 100", "`s` contains printable ASCII characters."],
+    functionName: "toLowerCase",
+    starterCode: starter(
+      "@param {string} s\n * @return {string}",
+      "toLowerCase", "s", "s: string", "string",
+    ),
+    testCases: [
+      tc(["Hello"], "hello"),
+      tc(["here"], "here"),
+      tc(["LOVELY"], "lovely", { hidden: true }),
+      tc(["Mixed123"], "mixed123", { hidden: true }),
+    ],
+    hints: [
+      "`s.toLowerCase()` is the practical answer.",
+      "For practice, map each code point and add 32 for the `A`–`Z` range.",
+    ],
+  },
+  {
+    id: "number-of-good-pairs", number: 59, title: "Number of Good Pairs", difficulty: "EASY" as D,
+    topics: ["Arrays", "Hash Table", "Math", "Counting"],
+    description:
+      "A pair `(i, j)` is **good** when `nums[i] === nums[j]` and `i < j`.\n\nReturn the number of good pairs in `nums`.",
+    examples: [
+      { input: "nums = [1,2,3,1,1,3]", output: "4", explanation: "(0,3), (0,4), (3,4) and (2,5)" },
+      { input: "nums = [1,1,1,1]", output: "6" },
+    ],
+    constraints: ["1 <= nums.length <= 100", "1 <= nums[i] <= 100"],
+    functionName: "numIdenticalPairs",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "numIdenticalPairs", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 2, 3, 1, 1, 3]], 4),
+      tc([[1, 1, 1, 1]], 6),
+      tc([[1, 2, 3]], 0, { hidden: true }),
+      tc([[1, 1, 1]], 3, { hidden: true }),
+    ],
+    hints: [
+      "Count how often each value appears, then add `count` for every new occurrence.",
+      "A value seen `k` times contributes `k * (k - 1) / 2` pairs in total.",
+    ],
+  },
+  {
+    id: "how-many-numbers-are-smaller-than-the-current-number", number: 60, title: "How Many Numbers Are Smaller Than the Current Number", difficulty: "EASY" as D,
+    topics: ["Arrays", "Sorting", "Hash Table"],
+    description:
+      "For each element of `nums`, count how many other elements are **strictly smaller** than it and return those counts in the original order.",
+    examples: [
+      { input: "nums = [8,1,2,2,3]", output: "[4,0,1,1,3]" },
+      { input: "nums = [6,5,4,8]", output: "[2,1,0,3]" },
+    ],
+    constraints: ["2 <= nums.length <= 500", "0 <= nums[i] <= 100"],
+    functionName: "smallerNumbersThanCurrent",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[]}",
+      "smallerNumbersThanCurrent", "nums", "nums: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[8, 1, 2, 2, 3]], [4, 0, 1, 1, 3]),
+      tc([[6, 5, 4, 8]], [2, 1, 0, 3]),
+      tc([[7, 7, 7, 7]], [0, 0, 0, 0], { hidden: true }),
+      tc([[1, 2, 3, 4]], [0, 1, 2, 3], { hidden: true }),
+    ],
+    hints: [
+      "Sort a copy of the array; the first index of a value is its count of smaller values.",
+      "The O(n²) double loop naively gives the same answer for small inputs.",
+    ],
+  },
+
+  /* =========================================================== 61 – 63 */
+  {
+    id: "count-items-matching-a-rule", number: 61, title: "Count Items Matching a Rule", difficulty: "EASY" as D,
+    topics: ["Arrays", "Strings"],
+    description:
+      "`items[i] = [type, color, name]` describes item `i`. Given a `ruleKey` (`type`, `color` or `name`) and a `ruleValue`, return how many items match.",
+    examples: [
+      { input: 'items = [["phone","blue","pixel"],["computer","silver","lenovo"],["phone","gold","iphone"]], ruleKey = "color", ruleValue = "silver"', output: "1" },
+      { input: 'items = [["phone","blue","pixel"],["computer","silver","lenovo"],["phone","gold","iphone"]], ruleKey = "type", ruleValue = "phone"', output: "2" },
+    ],
+    constraints: ["1 <= items.length <= 10^4", "`ruleKey` is one of `type`, `color`, `name`."],
+    functionName: "countMatches",
+    starterCode: starter(
+      "@param {string[][]} items\n * @param {string} ruleKey\n * @param {string} ruleValue\n * @return {number}",
+      "countMatches", "items, ruleKey, ruleValue", "items: string[][], ruleKey: string, ruleValue: string", "number",
+    ),
+    testCases: [
+      tc([[["phone", "blue", "pixel"], ["computer", "silver", "lenovo"], ["phone", "gold", "iphone"]], "color", "silver"], 1),
+      tc([[["phone", "blue", "pixel"], ["computer", "silver", "lenovo"], ["phone", "gold", "iphone"]], "type", "phone"], 2),
+      tc([[["phone", "blue", "pixel"], ["computer", "silver", "lenovo"], ["phone", "gold", "iphone"]], "name", "iphone"], 1, { hidden: true }),
+      tc([[["a", "b", "c"]], "type", "a"], 1, { hidden: true }),
+    ],
+    hints: [
+      "Map the rule key to a column index once: `type` → 0, `color` → 1, `name` → 2.",
+      "A lookup object beats a chain of `if` statements.",
+    ],
+  },
+  {
+    id: "sort-array-by-parity", number: 62, title: "Sort Array By Parity", difficulty: "EASY" as D,
+    topics: ["Arrays", "Two Pointers", "Sorting"],
+    description:
+      "Return an array with all the **even** integers of `nums` first, followed by all the odd integers.\n\nThe relative order within each half must be preserved.",
+    examples: [
+      { input: "nums = [3,1,2,4]", output: "[2,4,3,1]", explanation: "Evens `[2,4]` then odds `[3,1]`." },
+      { input: "nums = [0]", output: "[0]" },
+    ],
+    constraints: ["1 <= nums.length <= 5000", "0 <= nums[i] <= 5000"],
+    functionName: "sortArrayByParity",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[]}",
+      "sortArrayByParity", "nums", "nums: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[3, 1, 2, 4]], [2, 4, 3, 1]),
+      tc([[0]], [0]),
+      tc([[1, 2]], [2, 1], { hidden: true }),
+      tc([[2, 1]], [2, 1], { hidden: true }),
+    ],
+    hints: [
+      "Two buckets — one for evens, one for odds — then concatenate.",
+      "`nums[i] % 2 === 0` identifies the even values.",
+    ],
+  },
+  {
+    id: "height-checker", number: 63, title: "Height Checker", difficulty: "EASY" as D,
+    topics: ["Arrays", "Sorting"],
+    description:
+      "The students in `heights` must stand in **non-decreasing** order. Return how many positions differ from the sorted order.",
+    examples: [
+      { input: "heights = [1,1,4,2,1,3]", output: "3", explanation: "Sorted: [1,1,1,2,3,4] — indices 2, 4 and 5 differ." },
+      { input: "heights = [5,1,2,3,4]", output: "5" },
+    ],
+    constraints: ["1 <= heights.length <= 100", "1 <= heights[i] <= 100"],
+    functionName: "heightChecker",
+    starterCode: starter(
+      "@param {number[]} heights\n * @return {number}",
+      "heightChecker", "heights", "heights: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 1, 4, 2, 1, 3]], 3),
+      tc([[5, 1, 2, 3, 4]], 5),
+      tc([[1, 2, 3, 4, 5]], 0, { hidden: true }),
+      tc([[3, 1, 6]], 2, { hidden: true }),
+    ],
+    hints: [
+      "Sort a copy and compare index by index — do not sort the original in place.",
+      "`[...heights].sort((a, b) => a - b)` avoids the in-place mutation.",
+    ],
+  },
+
+  /* =========================================================== 64 – 67 */
+  {
+    id: "maximum-product-of-two-elements-in-an-array", number: 64, title: "Maximum Product of Two Elements", difficulty: "EASY" as D,
+    topics: ["Arrays", "Sorting"],
+    description:
+      "Choose two **different** indices `i` and `j` that maximise `(nums[i] - 1) * (nums[j] - 1)` and return that maximum.",
+    examples: [
+      { input: "nums = [3,4,5,2]", output: "12", explanation: "(5 - 1) * (4 - 1) = 12" },
+      { input: "nums = [1,5,4,5]", output: "16" },
+    ],
+    constraints: ["2 <= nums.length <= 500", "1 <= nums[i] <= 10^3"],
+    functionName: "maxProduct",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "maxProduct", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[3, 4, 5, 2]], 12),
+      tc([[1, 5, 4, 5]], 16),
+      tc([[3, 7]], 12, { hidden: true }),
+      tc([[1, 2]], 0, { hidden: true }),
+    ],
+    hints: [
+      "Only the two largest values matter, so one pass with two trackers is enough.",
+      "Sorting descending and taking the first two elements is the shortest version.",
+    ],
+  },
+  {
+    id: "unique-number-of-occurrences", number: 65, title: "Unique Number of Occurrences", difficulty: "EASY" as D,
+    topics: ["Arrays", "Hash Table"],
+    description: "Return `true` when every distinct value in `arr` occurs a **different** number of times.",
+    examples: [
+      { input: "arr = [1,2,2,1,1,3]", output: "true", explanation: "1 → three times, 2 → twice, 3 → once." },
+      { input: "arr = [1,2]", output: "false", explanation: "Both values occur once." },
+    ],
+    constraints: ["1 <= arr.length <= 1000", "-1000 <= arr[i] <= 1000"],
+    functionName: "uniqueOccurrences",
+    starterCode: starter(
+      "@param {number[]} arr\n * @return {boolean}",
+      "uniqueOccurrences", "arr", "arr: number[]", "boolean",
+    ),
+    testCases: [
+      tc([[1, 2, 2, 1, 1, 3]], true),
+      tc([[1, 2]], false),
+      tc([[-3, 0, 1, -3, 1, 1, 1, -3, 10, 0]], true, { hidden: true }),
+      tc([[1, 1, 2, 2]], false, { hidden: true }),
+    ],
+    hints: [
+      "Build a frequency map, then collect the counts into a `Set`.",
+      "The answer is `true` exactly when the `Set` is as large as the map.",
+    ],
+  },
+  {
+    id: "can-place-flowers", number: 66, title: "Can Place Flowers", difficulty: "EASY" as D,
+    topics: ["Arrays", "Greedy"],
+    description:
+      "`flowerbed` contains `0`s (empty) and `1`s (planted). Flowers cannot be planted in adjacent plots.\n\nReturn `true` if `n` new flowers can be planted without breaking that rule.",
+    examples: [
+      { input: "flowerbed = [1,0,0,0,1], n = 1", output: "true" },
+      { input: "flowerbed = [1,0,0,0,1], n = 2", output: "false" },
+    ],
+    constraints: ["1 <= flowerbed.length <= 2 * 10^4", "0 <= n <= flowerbed.length", "`flowerbed[i]` is `0` or `1`."],
+    functionName: "canPlaceFlowers",
+    starterCode: starter(
+      "@param {number[]} flowerbed\n * @param {number} n\n * @return {boolean}",
+      "canPlaceFlowers", "flowerbed, n", "flowerbed: number[], n: number", "boolean",
+    ),
+    testCases: [
+      tc([[1, 0, 0, 0, 1], 1], true),
+      tc([[1, 0, 0, 0, 1], 2], false),
+      tc([[0, 0, 1, 0, 0], 1], true, { hidden: true }),
+      tc([[1, 0, 0, 0, 0, 1], 2], false, { hidden: true }),
+    ],
+    hints: [
+      "Walk left to right and plant greedily whenever the current plot and both neighbours are empty.",
+      "Treat the positions outside the array as empty, then count how many flowers fit.",
+    ],
+  },
+  {
+    id: "number-complement", number: 67, title: "Number Complement", difficulty: "EASY" as D,
+    topics: ["Bit Manipulation"],
+    description:
+      "The **complement** of an integer flips every bit of its binary representation (ignoring leading zeros).\n\nGiven `num`, return its complement.",
+    examples: [
+      { input: "num = 5", output: "2", explanation: "101 → 010" },
+      { input: "num = 1", output: "0" },
+    ],
+    constraints: ["1 <= num < 2^31"],
+    functionName: "findComplement",
+    starterCode: starter(
+      "@param {number} num\n * @return {number}",
+      "findComplement", "num", "num: number", "number",
+    ),
+    testCases: [
+      tc([5], 2),
+      tc([1], 0),
+      tc([2], 1, { hidden: true }),
+      tc([10], 5, { hidden: true }),
+    ],
+    hints: [
+      "You need a mask of ones that is exactly as wide as the number.",
+      "Shift a mask left while it is still smaller than `num`, then XOR.",
+    ],
+  },
+
+  /* =========================================================== 68 – 70 */
+  {
+    id: "repeated-substring-pattern", number: 68, title: "Repeated Substring Pattern", difficulty: "EASY" as D,
+    topics: ["Strings", "String Matching"],
+    description:
+      "Given a string `s`, return `true` if it can be built by repeating one of its substrings several times.",
+    examples: [
+      { input: 's = "abab"', output: "true", explanation: 'It is "ab" twice.' },
+      { input: 's = "aba"', output: "false" },
+    ],
+    constraints: ["1 <= s.length <= 10^4", "`s` consists of lowercase English letters."],
+    functionName: "repeatedSubstringPattern",
+    starterCode: starter(
+      "@param {string} s\n * @return {boolean}",
+      "repeatedSubstringPattern", "s", "s: string", "boolean",
+    ),
+    testCases: [
+      tc(["abab"], true),
+      tc(["aba"], false),
+      tc(["abcabcabcabc"], true, { hidden: true }),
+      tc(["a"], false, { hidden: true }),
+    ],
+    hints: [
+      "Trying every divisor of the length is the honest brute force.",
+      "The clever trick: `s` must appear in `s + s` after dropping the first and last characters.",
+    ],
+  },
+  {
+    id: "add-digits", number: 69, title: "Add Digits", difficulty: "EASY" as D,
+    topics: ["Math", "Simulation", "Number Theory"],
+    description:
+      "Repeatedly add all the digits of `num` until a single digit remains, and return it.",
+    examples: [
+      { input: "num = 38", output: "2", explanation: "3 + 8 = 11 → 1 + 1 = 2" },
+      { input: "num = 0", output: "0" },
+    ],
+    constraints: ["0 <= num <= 2^31 - 1"],
+    functionName: "addDigits",
+    starterCode: starter(
+      "@param {number} num\n * @return {number}",
+      "addDigits", "num", "num: number", "number",
+    ),
+    testCases: [
+      tc([38], 2),
+      tc([0], 0),
+      tc([10], 1, { hidden: true }),
+      tc([9], 9, { hidden: true }),
+    ],
+    hints: [
+      "`while (num >= 10)` with `% 10` and `Math.floor(n / 10)` is the direct simulation.",
+      "The result is the well-known digital root: `1 + (num - 1) % 9`, with `0` as a special case.",
+    ],
+  },
+  {
+    id: "find-the-difference", number: 70, title: "Find the Difference", difficulty: "EASY" as D,
+    topics: ["Strings", "Hash Table", "Bit Manipulation"],
+    description:
+      "String `t` is produced by shuffling `s` and adding one extra letter.\n\nReturn that extra letter.",
+    examples: [
+      { input: 's = "abcd", t = "abcde"', output: '"e"' },
+      { input: 's = "", t = "y"', output: '"y"' },
+    ],
+    constraints: ["0 <= s.length <= 1000", "t.length === s.length + 1", "Both strings are lowercase English letters."],
+    functionName: "findTheDifference",
+    starterCode: starter(
+      "@param {string} s\n * @param {string} t\n * @return {string}",
+      "findTheDifference", "s, t", "s: string, t: string", "string",
+    ),
+    testCases: [
+      tc(["abcd", "abcde"], "e"),
+      tc(["", "y"], "y"),
+      tc(["a", "aa"], "a", { hidden: true }),
+      tc(["ae", "aea"], "a", { hidden: true }),
+    ],
+    hints: [
+      "XOR every character of both strings — the pairs cancel out.",
+      "Summing code points and subtracting the totals works just as well.",
+    ],
+  },
+
+  /* =========================================================== 71 – 74 */
+  {
+    id: "best-time-to-buy-and-sell-stock-ii", number: 71, title: "Best Time to Buy and Sell Stock II", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Greedy", "Dynamic Programming"],
+    description:
+      "`prices[i]` is the price of a stock on day `i`. You may buy and sell as many times as you like, but you may hold at most one share at a time.\n\nReturn the maximum profit you can make.",
+    examples: [
+      { input: "prices = [7,1,5,3,6,4]", output: "7", explanation: "Buy at 1, sell at 5, buy at 3, sell at 6." },
+      { input: "prices = [1,2,3,4,5]", output: "4" },
+    ],
+    constraints: ["1 <= prices.length <= 3 * 10^4", "0 <= prices[i] <= 10^4"],
+    functionName: "maxProfitII",
+    starterCode: starter(
+      "@param {number[]} prices\n * @return {number}",
+      "maxProfitII", "prices", "prices: number[]", "number",
+    ),
+    testCases: [
+      tc([[7, 1, 5, 3, 6, 4]], 7),
+      tc([[1, 2, 3, 4, 5]], 4),
+      tc([[7, 6, 4, 3, 1]], 0, { hidden: true }),
+      tc([[1]], 0, { hidden: true }),
+    ],
+    hints: [
+      "Every upward step can be captured, so simply add `prices[i] - prices[i - 1]` when it is positive.",
+      "Proof sketch: a longer hold is worth exactly the sum of the daily rises it spans.",
+    ],
+  },
+  {
+    id: "longest-consecutive-sequence", number: 72, title: "Longest Consecutive Sequence", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Hash Table", "Union Find"],
+    description:
+      "Given an unsorted array `nums`, return the length of the longest run of consecutive integers.\n\nYour algorithm must run in O(n) time.",
+    examples: [
+      { input: "nums = [100,4,200,1,3,2]", output: "4", explanation: "The run is 1, 2, 3, 4." },
+      { input: "nums = [0,3,7,2,5,8,4,6,0,1]", output: "9" },
+    ],
+    constraints: ["0 <= nums.length <= 10^5", "-10^9 <= nums[i] <= 10^9"],
+    functionName: "longestConsecutive",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "longestConsecutive", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[100, 4, 200, 1, 3, 2]], 4),
+      tc([[0, 3, 7, 2, 5, 8, 4, 6, 0, 1]], 9),
+      tc([[]], 0, { hidden: true }),
+      tc([[1, 1, 1]], 1, { hidden: true }),
+    ],
+    hints: [
+      "Put everything in a `Set` so membership tests are O(1).",
+      "Only start counting from a value whose predecessor is missing — that is what keeps it linear.",
+    ],
+  },
+  {
+    id: "top-k-frequent-elements", number: 73, title: "Top K Frequent Elements", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Hash Table", "Heap", "Sorting"],
+    description:
+      "Return the `k` most frequent elements of `nums` in any order.\n\nThe answer is guaranteed to be unique.",
+    examples: [
+      { input: "nums = [1,1,1,2,2,3], k = 2", output: "[1,2]" },
+      { input: "nums = [1], k = 1", output: "[1]" },
+    ],
+    constraints: ["1 <= nums.length <= 10^5", "k is in the range [1, number of distinct elements]"],
+    functionName: "topKFrequent",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} k\n * @return {number[]}",
+      "topKFrequent", "nums, k", "nums: number[], k: number", "number[]",
+    ),
+    testCases: [
+      tc([[1, 1, 1, 2, 2, 3], 2], [1, 2], { unordered: true }),
+      tc([[1], 1], [1]),
+      tc([[1, 2, 1, 2, 1, 2, 3, 1, 3, 2], 2], [1, 2], { hidden: true, unordered: true }),
+      tc([[4, 4, 4, 5, 5, 6], 2], [4, 5], { hidden: true, unordered: true }),
+    ],
+    hints: [
+      "Count first, then sort the distinct values by their counts.",
+      "Bucketing by frequency gives O(n) instead of O(n log n).",
+    ],
+  },
+  {
+    id: "set-matrix-zeroes", number: 74, title: "Set Matrix Zeroes", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Matrix", "Hash Table"],
+    description:
+      "Given an `m × n` integer matrix, return a matrix where every row and column containing a `0` is set to `0`.",
+    examples: [
+      { input: "matrix = [[1,1,1],[1,0,1],[1,1,1]]", output: "[[1,0,1],[0,0,0],[1,0,1]]" },
+      { input: "matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]", output: "[[0,0,0,0],[0,4,5,0],[0,3,1,0]]" },
+    ],
+    constraints: ["1 <= m, n <= 200", "-2^31 <= matrix[i][j] <= 2^31 - 1"],
+    functionName: "setZeroes",
+    starterCode: starter(
+      "@param {number[][]} matrix\n * @return {number[][]}",
+      "setZeroes", "matrix", "matrix: number[][]", "number[][]",
+    ),
+    testCases: [
+      tc([[[1, 1, 1], [1, 0, 1], [1, 1, 1]]], [[1, 0, 1], [0, 0, 0], [1, 0, 1]]),
+      tc([[[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]], [[0, 0, 0, 0], [0, 4, 5, 0], [0, 3, 1, 0]]),
+      tc([[[1]]], [[1]], { hidden: true }),
+      tc([[[0]]], [[0]], { hidden: true }),
+    ],
+    hints: [
+      "Record the zero rows and columns first, then apply them — mutating while scanning loses information.",
+      "Building a fresh matrix avoids the order-of-operations trap entirely.",
+    ],
+  },
+
+  /* =========================================================== 75 – 78 */
+  {
+    id: "rotate-image", number: 75, title: "Rotate Image", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Matrix"],
+    description:
+      "Given an `n × n` matrix, return it rotated **90 degrees clockwise**.",
+    examples: [
+      { input: "matrix = [[1,2,3],[4,5,6],[7,8,9]]", output: "[[7,4,1],[8,5,2],[9,6,3]]" },
+      { input: "matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]", output: "[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]" },
+    ],
+    constraints: ["n == matrix.length == matrix[i].length", "1 <= n <= 20"],
+    functionName: "rotate",
+    starterCode: starter(
+      "@param {number[][]} matrix\n * @return {number[][]}",
+      "rotate", "matrix", "matrix: number[][]", "number[][]",
+    ),
+    testCases: [
+      tc([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], [[7, 4, 1], [8, 5, 2], [9, 6, 3]]),
+      tc([[[5, 1, 9, 11], [2, 4, 8, 10], [13, 3, 6, 7], [15, 14, 12, 16]]], [[15, 13, 2, 5], [14, 3, 4, 1], [12, 6, 8, 9], [16, 7, 10, 11]]),
+      tc([[[1]]], [[1]], { hidden: true }),
+      tc([[[1, 2], [3, 4]]], [[3, 1], [4, 2]], { hidden: true }),
+    ],
+    hints: [
+      "The cell at row `i`, column `j` moves to row `j`, column `n - 1 - i`.",
+      "Transpose the matrix and then reverse every row.",
+    ],
+  },
+  {
+    id: "container-with-most-water", number: 76, title: "Container With Most Water", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Two Pointers", "Greedy"],
+    description:
+      "`height[i]` is the height of a vertical line at x-coordinate `i`. Two lines together with the x-axis form a container.\n\nReturn the maximum amount of water such a container can hold.",
+    examples: [
+      { input: "height = [1,8,6,2,5,4,8,3,7]", output: "49" },
+      { input: "height = [1,1]", output: "1" },
+    ],
+    constraints: ["n == height.length", "2 <= n <= 10^5", "0 <= height[i] <= 10^4"],
+    functionName: "maxArea",
+    starterCode: starter(
+      "@param {number[]} height\n * @return {number}",
+      "maxArea", "height", "height: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 8, 6, 2, 5, 4, 8, 3, 7]], 49),
+      tc([[1, 1]], 1),
+      tc([[4, 3, 2, 1, 4]], 16, { hidden: true }),
+      tc([[1, 2, 1]], 2, { hidden: true }),
+    ],
+    hints: [
+      "Width shrinks as the pointers close in, so only height can improve the area.",
+      "Always move the pointer on the shorter line; moving the taller one can never help.",
+    ],
+  },
+  {
+    id: "sort-colors", number: 77, title: "Sort Colors", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Two Pointers", "Sorting"],
+    description:
+      "`nums` contains `0`s, `1`s and `2`s representing red, white and blue. Return the array sorted so equal colours are adjacent, in the order red, white, blue.",
+    examples: [
+      { input: "nums = [2,0,2,1,1,0]", output: "[0,0,1,1,2,2]" },
+      { input: "nums = [2,0,1]", output: "[0,1,2]" },
+    ],
+    constraints: ["1 <= nums.length <= 300", "`nums[i]` is `0`, `1` or `2`."],
+    functionName: "sortColors",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[]}",
+      "sortColors", "nums", "nums: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[2, 0, 2, 1, 1, 0]], [0, 0, 1, 1, 2, 2]),
+      tc([[2, 0, 1]], [0, 1, 2]),
+      tc([[0]], [0], { hidden: true }),
+      tc([[1, 0]], [0, 1], { hidden: true }),
+    ],
+    hints: [
+      "Counting the three values and rewriting the array is O(n) time and O(1) extra space.",
+      "The Dutch national flag algorithm sorts in a single pass with three pointers.",
+    ],
+  },
+  {
+    id: "permutations", number: 78, title: "Permutations", difficulty: "MEDIUM" as D,
+    topics: ["Backtracking", "Recursion", "Arrays"],
+    description:
+      "Given an array `nums` of **distinct** integers, return all of its permutations in any order.",
+    examples: [
+      { input: "nums = [0,1]", output: "[[0,1],[1,0]]" },
+      { input: "nums = [1]", output: "[[1]]" },
+    ],
+    constraints: ["1 <= nums.length <= 6", "All integers in `nums` are unique."],
+    functionName: "permute",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[][]}",
+      "permute", "nums", "nums: number[]", "number[][]",
+    ),
+    testCases: [
+      tc([[1, 2, 3]], [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]], { unordered: true }),
+      tc([[0, 1]], [[0, 1], [1, 0]], { unordered: true }),
+      tc([[1]], [[1]], { hidden: true }),
+      tc([[1, 2]], [[1, 2], [2, 1]], { hidden: true, unordered: true }),
+    ],
+    hints: [
+      "Backtrack: pick a value, recurse with the rest, then undo the choice.",
+      "Swapping in place is a neat way to avoid copying the remaining values.",
+    ],
+  },
+
+  /* =========================================================== 79 – 82 */
+  {
+    id: "subsets", number: 79, title: "Subsets", difficulty: "MEDIUM" as D,
+    topics: ["Backtracking", "Bit Manipulation", "Arrays"],
+    description:
+      "Given an array `nums` of **distinct** integers, return every possible subset (the power set) in any order.",
+    examples: [
+      { input: "nums = [1,2,3]", output: "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]" },
+      { input: "nums = [0]", output: "[[],[0]]" },
+    ],
+    constraints: ["1 <= nums.length <= 10", "All integers in `nums` are unique."],
+    functionName: "subsets",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number[][]}",
+      "subsets", "nums", "nums: number[]", "number[][]",
+    ),
+    testCases: [
+      tc([[1, 2, 3]], [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]], { unordered: true }),
+      tc([[0]], [[], [0]], { unordered: true }),
+      tc([[1, 2]], [[], [1], [2], [1, 2]], { hidden: true, unordered: true }),
+      tc([[5]], [[], [5]], { hidden: true, unordered: true }),
+    ],
+    hints: [
+      "For every value you either include it or you do not — that is 2ⁿ subsets.",
+      "Iterate `0 … 2ⁿ - 1` and read the bits of the counter to build each subset.",
+    ],
+  },
+  {
+    id: "combination-sum", number: 80, title: "Combination Sum", difficulty: "MEDIUM" as D,
+    topics: ["Backtracking", "Arrays", "Recursion"],
+    description:
+      "Given distinct `candidates` and a `target`, return every unique combination that sums to `target`.\n\nThe same candidate may be chosen an unlimited number of times, and the answer may be in any order.",
+    examples: [
+      { input: "candidates = [2,3,6,7], target = 7", output: "[[2,2,3],[7]]" },
+      { input: "candidates = [2,3,5], target = 8", output: "[[2,2,2,2],[2,3,3],[3,5]]" },
+    ],
+    constraints: ["1 <= candidates.length <= 30", "2 <= candidates[i] <= 40", "1 <= target <= 40"],
+    functionName: "combinationSum",
+    starterCode: starter(
+      "@param {number[]} candidates\n * @param {number} target\n * @return {number[][]}",
+      "combinationSum", "candidates, target", "candidates: number[], target: number", "number[][]",
+    ),
+    testCases: [
+      tc([[2, 3, 6, 7], 7], [[2, 2, 3], [7]], { unordered: true }),
+      tc([[2, 3, 5], 8], [[2, 2, 2, 2], [2, 3, 3], [3, 5]], { unordered: true }),
+      tc([[2], 1], [], { hidden: true }),
+      tc([[1], 1], [[1]], { hidden: true, unordered: true }),
+    ],
+    hints: [
+      "Backtrack with a running total; stop as soon as the total exceeds the target.",
+      "To avoid duplicates, only consider candidates from the current index onward.",
+    ],
+  },
+  {
+    id: "jump-game", number: 81, title: "Jump Game", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Greedy", "Dynamic Programming"],
+    description:
+      "`nums[i]` is the maximum jump length from index `i`. Starting at index `0`, return `true` if the last index can be reached.",
+    examples: [
+      { input: "nums = [2,3,1,1,4]", output: "true", explanation: "Jump 1 step to index 1, then 3 steps to the end." },
+      { input: "nums = [3,2,1,0,4]", output: "false" },
+    ],
+    constraints: ["1 <= nums.length <= 10^4", "0 <= nums[i] <= 10^5"],
+    functionName: "canJump",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {boolean}",
+      "canJump", "nums", "nums: number[]", "boolean",
+    ),
+    testCases: [
+      tc([[2, 3, 1, 1, 4]], true),
+      tc([[3, 2, 1, 0, 4]], false),
+      tc([[0]], true, { hidden: true }),
+      tc([[1, 0, 1]], false, { hidden: true }),
+    ],
+    hints: [
+      "Track the furthest index reachable so far and return `false` if you walk past it.",
+      "Working backwards — the last index is always reachable — is just as short.",
+    ],
+  },
+  {
+    id: "unique-paths", number: 82, title: "Unique Paths", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Math", "Combinatorics"],
+    description:
+      "A robot starts in the top-left corner of an `m × n` grid and may only move right or down. Return the number of unique paths to the bottom-right corner.",
+    examples: [
+      { input: "m = 3, n = 7", output: "28" },
+      { input: "m = 3, n = 2", output: "3" },
+    ],
+    constraints: ["1 <= m, n <= 100"],
+    functionName: "uniquePaths",
+    starterCode: starter(
+      "@param {number} m\n * @param {number} n\n * @return {number}",
+      "uniquePaths", "m, n", "m: number, n: number", "number",
+    ),
+    testCases: [
+      tc([3, 7], 28),
+      tc([3, 2], 3),
+      tc([3, 3], 6, { hidden: true }),
+      tc([1, 1], 1, { hidden: true }),
+    ],
+    hints: [
+      "Every cell's path count is the sum of the cell above and the cell to the left.",
+      "Only one row of the DP table is needed at a time — update it left to right.",
+    ],
+  },
+
+  /* =========================================================== 83 – 86 */
+  {
+    id: "daily-temperatures", number: 83, title: "Daily Temperatures", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Stack", "Monotonic Stack"],
+    description:
+      "For every day in `temperatures`, return how many days you have to wait for a **warmer** temperature. If no warmer day comes, the value is `0`.",
+    examples: [
+      { input: "temperatures = [73,74,75,71,69,72,76,73]", output: "[1,1,4,2,1,1,0,0]" },
+      { input: "temperatures = [30,40,50,60]", output: "[1,1,1,0]" },
+    ],
+    constraints: ["1 <= temperatures.length <= 10^5", "30 <= temperatures[i] <= 100"],
+    functionName: "dailyTemperatures",
+    starterCode: starter(
+      "@param {number[]} temperatures\n * @return {number[]}",
+      "dailyTemperatures", "temperatures", "temperatures: number[]", "number[]",
+    ),
+    testCases: [
+      tc([[73, 74, 75, 71, 69, 72, 76, 73]], [1, 1, 4, 2, 1, 1, 0, 0]),
+      tc([[30, 40, 50, 60]], [1, 1, 1, 0]),
+      tc([[30, 60, 90]], [1, 1, 0], { hidden: true }),
+      tc([[90, 80, 70]], [0, 0, 0], { hidden: true }),
+    ],
+    hints: [
+      "A stack of indices whose warmer day has not been found yet.",
+      "When a warmer temperature arrives, it answers every colder day still on the stack.",
+    ],
+  },
+  {
+    id: "evaluate-reverse-polish-notation", number: 84, title: "Evaluate Reverse Polish Notation", difficulty: "MEDIUM" as D,
+    topics: ["Stack", "Math", "Arrays"],
+    description:
+      "Evaluate an arithmetic expression in **reverse Polish notation** and return the integer result.\n\nValid operators are `+`, `-`, `*` and `/`, and division truncates toward zero.",
+    examples: [
+      { input: 'tokens = ["2","1","+","3","*"]', output: "9", explanation: "((2 + 1) * 3)" },
+      { input: 'tokens = ["4","13","5","/","+"]', output: "6", explanation: "(4 + (13 / 5)) with truncated division." },
+    ],
+    constraints: ["1 <= tokens.length <= 10^4", "Every division is by a non-zero integer."],
+    functionName: "evalRPN",
+    starterCode: starter(
+      "@param {string[]} tokens\n * @return {number}",
+      "evalRPN", "tokens", "tokens: string[]", "number",
+    ),
+    testCases: [
+      tc([["2", "1", "+", "3", "*"]], 9),
+      tc([["4", "13", "5", "/", "+"]], 6),
+      tc([["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]], 22, { hidden: true }),
+      tc([["3", "4", "+"]], 7, { hidden: true }),
+    ],
+    hints: [
+      "One stack: push numbers, and pop two values whenever you meet an operator.",
+      "Remember the operand order — the first pop is the right-hand side.",
+    ],
+  },
+  {
+    id: "longest-repeating-character-replacement", number: 85, title: "Longest Repeating Character Replacement", difficulty: "MEDIUM" as D,
+    topics: ["Strings", "Sliding Window", "Hash Table"],
+    description:
+      "You may change at most `k` characters of `s` to any uppercase letter. Return the length of the longest substring of a **single repeated letter** you can produce.",
+    examples: [
+      { input: 's = "ABAB", k = 2', output: "4" },
+      { input: 's = "AABABBA", k = 1', output: "4" },
+    ],
+    constraints: ["1 <= s.length <= 10^5", "0 <= k <= s.length", "`s` consists of uppercase English letters."],
+    functionName: "characterReplacement",
+    starterCode: starter(
+      "@param {string} s\n * @param {number} k\n * @return {number}",
+      "characterReplacement", "s, k", "s: string, k: number", "number",
+    ),
+    testCases: [
+      tc(["ABAB", 2], 4),
+      tc(["AABABBA", 1], 4),
+      tc(["A", 0], 1, { hidden: true }),
+      tc(["AAAA", 2], 4, { hidden: true }),
+    ],
+    hints: [
+      "Slide a window and keep the count of each letter inside it.",
+      "The window is valid while `windowLength - maxLetterCount <= k`.",
+    ],
+  },
+  {
+    id: "find-all-anagrams-in-a-string", number: 86, title: "Find All Anagrams in a String", difficulty: "MEDIUM" as D,
+    topics: ["Strings", "Sliding Window", "Hash Table"],
+    description:
+      "Given `s` and `p`, return the **start indices** of every substring of `s` that is an anagram of `p`.\n\nThe result must be in ascending order.",
+    examples: [
+      { input: 's = "cbaebabacd", p = "abc"', output: "[0,6]" },
+      { input: 's = "abab", p = "ab"', output: "[0,1,2]" },
+    ],
+    constraints: ["1 <= s.length, p.length <= 3 * 10^4", "Both strings are lowercase English letters."],
+    functionName: "findAnagrams",
+    starterCode: starter(
+      "@param {string} s\n * @param {string} p\n * @return {number[]}",
+      "findAnagrams", "s, p", "s: string, p: string", "number[]",
+    ),
+    testCases: [
+      tc(["cbaebabacd", "abc"], [0, 6]),
+      tc(["abab", "ab"], [0, 1, 2]),
+      tc(["a", "a"], [0], { hidden: true }),
+      tc(["aa", "bb"], [], { hidden: true }),
+    ],
+    hints: [
+      "Build the letter counts of `p` once, then slide a window of the same length over `s`.",
+      "Instead of rebuilding counts per window, add the new letter and remove the old one.",
+    ],
+  },
+
+  /* =========================================================== 87 – 90 */
+  {
+    id: "subarray-sum-equals-k", number: 87, title: "Subarray Sum Equals K", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Hash Table", "Prefix Sum"],
+    description: "Given `nums` and `k`, return the total number of contiguous subarrays whose sum equals `k`.",
+    examples: [
+      { input: "nums = [1,1,1], k = 2", output: "2" },
+      { input: "nums = [1,2,3], k = 3", output: "2", explanation: "[1,2] and [3]" },
+    ],
+    constraints: ["1 <= nums.length <= 2 * 10^4", "-1000 <= nums[i] <= 1000", "-10^7 <= k <= 10^7"],
+    functionName: "subarraySum",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} k\n * @return {number}",
+      "subarraySum", "nums, k", "nums: number[], k: number", "number",
+    ),
+    testCases: [
+      tc([[1, 1, 1], 2], 2),
+      tc([[1, 2, 3], 3], 2),
+      tc([[1], 0], 0, { hidden: true }),
+      tc([[-1, -1, 1], 0], 1, { hidden: true }),
+    ],
+    hints: [
+      "A subarray sums to `k` when two prefix sums differ by exactly `k`.",
+      "Store how many times each prefix sum has appeared, starting with `{ 0: 1 }`.",
+    ],
+  },
+  {
+    id: "insert-interval", number: 88, title: "Insert Interval", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Intervals"],
+    description:
+      "`intervals` is sorted by start and has no overlaps. Insert `newInterval`, merging where needed, and return the still-sorted result.",
+    examples: [
+      { input: "intervals = [[1,3],[6,9]], newInterval = [2,5]", output: "[[1,5],[6,9]]" },
+      { input: "intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]", output: "[[1,2],[3,10],[12,16]]" },
+    ],
+    constraints: ["0 <= intervals.length <= 10^4", "intervals[i].length == 2", "0 <= start <= end <= 10^5"],
+    functionName: "insertInterval",
+    starterCode: starter(
+      "@param {number[][]} intervals\n * @param {number[]} newInterval\n * @return {number[][]}",
+      "insertInterval", "intervals, newInterval", "intervals: number[][], newInterval: number[]", "number[][]",
+    ),
+    testCases: [
+      tc([[[1, 3], [6, 9]], [2, 5]], [[1, 5], [6, 9]]),
+      tc([[[1, 2], [3, 5], [6, 7], [8, 10], [12, 16]], [4, 8]], [[1, 2], [3, 10], [12, 16]]),
+      tc([[], [5, 7]], [[5, 7]], { hidden: true }),
+      tc([[[1, 5]], [2, 3]], [[1, 5]], { hidden: true }),
+    ],
+    hints: [
+      "Copy the intervals that end before the new one starts, then merge the overlapping run.",
+      "An interval overlaps when `interval[0] <= newInterval[1] && newInterval[0] <= interval[1]`.",
+    ],
+  },
+  {
+    id: "house-robber", number: 89, title: "House Robber", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Arrays"],
+    description:
+      "`nums[i]` is the money in house `i`. Adjacent houses share an alarm, so you cannot rob two in a row.\n\nReturn the maximum amount you can rob.",
+    examples: [
+      { input: "nums = [1,2,3,1]", output: "4", explanation: "Rob house 0 and house 2." },
+      { input: "nums = [2,7,9,3,1]", output: "12" },
+    ],
+    constraints: ["1 <= nums.length <= 100", "0 <= nums[i] <= 400"],
+    functionName: "rob",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "rob", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 2, 3, 1]], 4),
+      tc([[2, 7, 9, 3, 1]], 12),
+      tc([[5]], 5, { hidden: true }),
+      tc([[2, 1, 1, 2]], 4, { hidden: true }),
+    ],
+    hints: [
+      "At every house you either skip it, or take it plus the best result two houses back.",
+      "Two rolling variables are enough — no array required.",
+    ],
+  },
+  {
+    id: "longest-increasing-subsequence", number: 90, title: "Longest Increasing Subsequence", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Binary Search", "Arrays"],
+    description:
+      "Return the length of the longest **strictly increasing** subsequence of `nums` (elements keep their relative order but need not be adjacent).",
+    examples: [
+      { input: "nums = [10,9,2,5,3,7,101,18]", output: "4", explanation: "[2,3,7,101]" },
+      { input: "nums = [0,1,0,3,2,3]", output: "4" },
+    ],
+    constraints: ["1 <= nums.length <= 2500", "-10^4 <= nums[i] <= 10^4"],
+    functionName: "lengthOfLIS",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "lengthOfLIS", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[10, 9, 2, 5, 3, 7, 101, 18]], 4),
+      tc([[0, 1, 0, 3, 2, 3]], 4),
+      tc([[7, 7, 7, 7]], 1, { hidden: true }),
+      tc([[1, 2, 3, 4, 5]], 5, { hidden: true }),
+    ],
+    hints: [
+      "The O(n²) DP: `best[i] = 1 + max(best[j])` over every `j < i` with `nums[j] < nums[i]`.",
+      "Keeping a tail array and binary-searching where each value fits gives O(n log n).",
+    ],
+  },
+
+  /* =========================================================== 91 – 94 */
+  {
+    id: "word-break", number: 91, title: "Word Break", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Strings", "Trie"],
+    description:
+      "Given a string `s` and a dictionary `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of dictionary words.\n\nWords may be reused any number of times.",
+    examples: [
+      { input: 's = "leetcode", wordDict = ["leet","code"]', output: "true" },
+      { input: 's = "applepenapple", wordDict = ["apple","pen"]', output: "true" },
+    ],
+    constraints: ["1 <= s.length <= 300", "1 <= wordDict.length <= 1000", "Words are lowercase and unique."],
+    functionName: "wordBreak",
+    starterCode: starter(
+      "@param {string} s\n * @param {string[]} wordDict\n * @return {boolean}",
+      "wordBreak", "s, wordDict", "s: string, wordDict: string[]", "boolean",
+    ),
+    testCases: [
+      tc(["leetcode", ["leet", "code"]], true),
+      tc(["applepenapple", ["apple", "pen"]], true),
+      tc(["catsandog", ["cats", "dog", "sand", "and", "cat"]], false, { hidden: true }),
+      tc(["a", ["b"]], false, { hidden: true }),
+    ],
+    hints: [
+      "`reachable[i]` is true when the first `i` characters can be segmented.",
+      "For every reachable prefix, mark `reachable[i + word.length]` for each dictionary word that matches.",
+    ],
+  },
+  {
+    id: "decode-ways", number: 92, title: "Decode Ways", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Strings"],
+    description:
+      "A message of digits maps to letters with `A` = `1` … `Z` = `26`. Given the digit string `s`, return the number of ways it can be decoded.",
+    examples: [
+      { input: 's = "12"', output: "2", explanation: '"AB" (1 2) or "L" (12)' },
+      { input: 's = "226"', output: "3" },
+    ],
+    constraints: ["1 <= s.length <= 100", "`s` contains digits only and may contain leading zeros."],
+    functionName: "numDecodings",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "numDecodings", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["12"], 2),
+      tc(["226"], 3),
+      tc(["10"], 1, { hidden: true }),
+      tc(["27"], 1, { hidden: true }),
+    ],
+    hints: [
+      "`dp[i]` counts the ways to decode the first `i` characters.",
+      "A single digit must be `1`–`9`; a pair must be `10`–`26`.",
+    ],
+  },
+  {
+    id: "maximum-product-subarray", number: 93, title: "Maximum Product Subarray", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Dynamic Programming"],
+    description:
+      "Given an integer array `nums`, return the largest product of any contiguous subarray.",
+    examples: [
+      { input: "nums = [2,3,-2,4]", output: "6", explanation: "[2,3]" },
+      { input: "nums = [-2,0,-1]", output: "0" },
+    ],
+    constraints: ["1 <= nums.length <= 2 * 10^4", "-10 <= nums[i] <= 10", "The answer fits in a 32-bit integer."],
+    functionName: "maxProduct",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "maxProduct", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[2, 3, -2, 4]], 6),
+      tc([[-2, 0, -1]], 0),
+      tc([[2, -5, -2, -4, 3]], 24, { hidden: true }),
+      tc([[-5]], -5, { hidden: true }),
+    ],
+    hints: [
+      "Track both the maximum and the minimum product ending at the current index.",
+      "A very negative product can become the maximum after one more negative number.",
+    ],
+  },
+  {
+    id: "kth-largest-element-in-an-array", number: 94, title: "Kth Largest Element in an Array", difficulty: "MEDIUM" as D,
+    topics: ["Arrays", "Sorting", "Heap", "Quickselect"],
+    description:
+      "Return the `k`-th largest element of `nums`.\n\nThis is the `k`-th largest in **sorted order**, not the `k`-th distinct value.",
+    examples: [
+      { input: "nums = [3,2,1,5,6,4], k = 2", output: "5" },
+      { input: "nums = [3,2,3,1,2,4,5,5,6], k = 4", output: "4" },
+    ],
+    constraints: ["1 <= k <= nums.length <= 10^5", "-10^4 <= nums[i] <= 10^4"],
+    functionName: "findKthLargest",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} k\n * @return {number}",
+      "findKthLargest", "nums, k", "nums: number[], k: number", "number",
+    ),
+    testCases: [
+      tc([[3, 2, 1, 5, 6, 4], 2], 5),
+      tc([[3, 2, 3, 1, 2, 4, 5, 5, 6], 4], 4),
+      tc([[1], 1], 1, { hidden: true }),
+      tc([[7, 6, 5, 4], 4], 4, { hidden: true }),
+    ],
+    hints: [
+      "Sorting descending and indexing `k - 1` is O(n log n) and perfectly acceptable.",
+      "Quickselect narrows the array around a pivot in average O(n) time.",
+    ],
+  },
+
+  /* =========================================================== 95 – 98 */
+  {
+    id: "integer-break", number: 95, title: "Integer Break", difficulty: "MEDIUM" as D,
+    topics: ["Math", "Dynamic Programming"],
+    description:
+      "Break `n` into the sum of at least **two** positive integers and return the maximum product of those parts.",
+    examples: [
+      { input: "n = 2", output: "1", explanation: "2 = 1 + 1, product 1" },
+      { input: "n = 10", output: "36", explanation: "10 = 3 + 3 + 4, product 36" },
+    ],
+    constraints: ["2 <= n <= 58"],
+    functionName: "integerBreak",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "integerBreak", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([2], 1),
+      tc([10], 36),
+      tc([3], 2, { hidden: true }),
+      tc([8], 18, { hidden: true }),
+    ],
+    hints: [
+      "Cutting a number into as many 3s as possible is optimal, except for small remainders.",
+      "`dp[i] = max(j * (i - j), j * dp[i - j])` is the dynamic-programming version.",
+    ],
+  },
+  {
+    id: "perfect-squares", number: 96, title: "Perfect Squares", difficulty: "MEDIUM" as D,
+    topics: ["Math", "Dynamic Programming", "Breadth-First Search"],
+    description:
+      "Given an integer `n`, return the **fewest** number of perfect squares that sum to `n`.",
+    examples: [
+      { input: "n = 12", output: "3", explanation: "12 = 4 + 4 + 4" },
+      { input: "n = 13", output: "2", explanation: "13 = 4 + 9" },
+    ],
+    constraints: ["1 <= n <= 10^4"],
+    functionName: "numSquares",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "numSquares", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([12], 3),
+      tc([13], 2),
+      tc([1], 1, { hidden: true }),
+      tc([4], 1, { hidden: true }),
+    ],
+    hints: [
+      "`dp[i] = 1 + min(dp[i - square])` over every square up to `i`.",
+      "The answer is never above 4 — Legendre's three-square theorem explains why.",
+    ],
+  },
+  {
+    id: "minimum-path-sum", number: 97, title: "Minimum Path Sum", difficulty: "MEDIUM" as D,
+    topics: ["Dynamic Programming", "Matrix"],
+    description:
+      "A robot in the top-left corner of a grid filled with non-negative numbers moves only right or down. Return the minimum sum of a path to the bottom-right corner.",
+    examples: [
+      { input: "grid = [[1,3,1],[1,5,1],[4,2,1]]", output: "7", explanation: "1 → 3 → 1 → 1 → 1" },
+      { input: "grid = [[1,2,3],[4,5,6]]", output: "12" },
+    ],
+    constraints: ["1 <= m, n <= 200", "0 <= grid[i][j] <= 200"],
+    functionName: "minPathSum",
+    starterCode: starter(
+      "@param {number[][]} grid\n * @return {number}",
+      "minPathSum", "grid", "grid: number[][]", "number",
+    ),
+    testCases: [
+      tc([[[1, 3, 1], [1, 5, 1], [4, 2, 1]]], 7),
+      tc([[[1, 2, 3], [4, 5, 6]]], 12),
+      tc([[[5]]], 5, { hidden: true }),
+      tc([[[1, 2], [1, 1]]], 3, { hidden: true }),
+    ],
+    hints: [
+      "Each cell takes its own value plus the cheaper of the cell above and the cell to the left.",
+      "Only the previous row is needed, so a single array works.",
+    ],
+  },
+  {
+    id: "number-of-islands", number: 98, title: "Number of Islands", difficulty: "MEDIUM" as D,
+    topics: ["Matrix", "Depth-First Search", "Breadth-First Search", "Union Find"],
+    description:
+      "`grid` contains `1`s (land) and `0`s (water). An island is land connected **horizontally or vertically**.\n\nReturn the number of islands.",
+    examples: [
+      { input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]', output: "1" },
+      { input: 'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]', output: "3" },
+    ],
+    constraints: ["1 <= m, n <= 300", "Every cell is `\"0\"` or `\"1\"`."],
+    functionName: "numIslands",
+    starterCode: starter(
+      "@param {string[][]} grid\n * @return {number}",
+      "numIslands", "grid", "grid: string[][]", "number",
+    ),
+    testCases: [
+      tc([[["1", "1", "1", "1", "0"], ["1", "1", "0", "1", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "0", "0", "0"]]], 1),
+      tc([[["1", "1", "0", "0", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "1", "0", "0"], ["0", "0", "0", "1", "1"]]], 3),
+      tc([[["0"]]], 0, { hidden: true }),
+      tc([[["1"]]], 1, { hidden: true }),
+    ],
+    hints: [
+      "Scan every cell; when you meet land, count an island and flood-fill everything connected to it.",
+      "Mark visited land by rewriting it to `\"0\"` — no extra visited matrix needed.",
+    ],
+  },
+
+  /* ========================================================== 99 – 102 */
+  {
+    id: "string-to-integer-atoi", number: 99, title: "String to Integer (atoi)", difficulty: "MEDIUM" as D,
+    topics: ["Strings", "Simulation"],
+    description:
+      "Convert `s` to a 32-bit signed integer:\n\n1. skip leading whitespace\n2. read an optional `+` or `-`\n3. read digits until a non-digit appears\n4. clamp the result to `[-2^31, 2^31 - 1]` and return `0` when no digits were read",
+    examples: [
+      { input: 's = "42"', output: "42" },
+      { input: 's = "   -42"', output: "-42" },
+    ],
+    constraints: ["0 <= s.length <= 200", "`s` may contain letters, digits, spaces, `+`, `-` and `.`."],
+    functionName: "myAtoi",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "myAtoi", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["42"], 42),
+      tc(["   -42"], -42),
+      tc(["4193 with words"], 4193, { hidden: true }),
+      tc(["-91283472332"], -2147483648, { hidden: true }),
+    ],
+    hints: [
+      "Handle one concern per loop: whitespace, then sign, then digits.",
+      "Clamp with `Math.max(MIN, Math.min(MAX, value))` after the digits are read.",
+    ],
+  },
+  {
+    id: "count-and-say", number: 100, title: "Count and Say", difficulty: "MEDIUM" as D,
+    topics: ["Strings", "Recursion"],
+    description:
+      "The count-and-say sequence starts at `\"1\"`. Each following term reads the previous one out loud: run lengths followed by the digit.\n\nGiven `n`, return the `n`-th term.",
+    examples: [
+      { input: "n = 1", output: '"1"' },
+      { input: "n = 4", output: '"1211"', explanation: '1 → 11 → 21 → 1211' },
+    ],
+    constraints: ["1 <= n <= 30"],
+    functionName: "countAndSay",
+    starterCode: starter(
+      "@param {number} n\n * @return {string}",
+      "countAndSay", "n", "n: number", "string",
+    ),
+    testCases: [
+      tc([1], "1"),
+      tc([4], "1211"),
+      tc([5], "111221", { hidden: true }),
+      tc([6], "312211", { hidden: true }),
+    ],
+    hints: [
+      "Scan the previous term, counting how long the current run of identical digits is.",
+      "Append `count` then `digit` every time the run ends.",
+    ],
+  },
+  {
+    id: "longest-valid-parentheses", number: 101, title: "Longest Valid Parentheses", difficulty: "HARD" as D,
+    topics: ["Strings", "Stack", "Dynamic Programming"],
+    description:
+      "Given a string containing only `(` and `)`, return the length of the **longest valid** (well-formed) parentheses substring.",
+    examples: [
+      { input: 's = "(()"', output: "2", explanation: 'The substring "()" is valid.' },
+      { input: 's = ")()())"', output: "4" },
+    ],
+    constraints: ["0 <= s.length <= 3 * 10^4", "`s` contains only `(` and `)`."],
+    functionName: "longestValidParentheses",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "longestValidParentheses", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["(()"], 2),
+      tc([")()())"], 4),
+      tc([""], 0, { hidden: true }),
+      tc(["()(()"], 2, { hidden: true }),
+    ],
+    hints: [
+      "Push indices onto a stack and seed it with `-1` so the first match has a base.",
+      "When a `)` has no matching `(`, use its index as the new base.",
+    ],
+  },
+  {
+    id: "first-missing-positive", number: 102, title: "First Missing Positive", difficulty: "HARD" as D,
+    topics: ["Arrays", "Hash Table"],
+    description:
+      "Given an unsorted integer array `nums`, return the smallest **positive** integer that does not appear in it.\n\nYour algorithm must run in O(n) time and use O(1) extra space.",
+    examples: [
+      { input: "nums = [1,2,0]", output: "3" },
+      { input: "nums = [3,4,-1,1]", output: "2" },
+    ],
+    constraints: ["1 <= nums.length <= 10^5", "-2^31 <= nums[i] <= 2^31 - 1"],
+    functionName: "firstMissingPositive",
+    starterCode: starter(
+      "@param {number[]} nums\n * @return {number}",
+      "firstMissingPositive", "nums", "nums: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 2, 0]], 3),
+      tc([[3, 4, -1, 1]], 2),
+      tc([[7, 8, 9, 11, 12]], 1, { hidden: true }),
+      tc([[1]], 2, { hidden: true }),
+    ],
+    hints: [
+      "The answer is always between `1` and `n + 1`, so only values in that range matter.",
+      "Swap each value into its own index slot (`value - 1`) to sort in place.",
+    ],
+  },
+
+  /* ========================================================= 103 – 106 */
+  {
+    id: "edit-distance", number: 103, title: "Edit Distance", difficulty: "HARD" as D,
+    topics: ["Dynamic Programming", "Strings"],
+    description:
+      "Given `word1` and `word2`, return the minimum number of single-character **insert**, **delete** or **replace** operations needed to turn `word1` into `word2`.",
+    examples: [
+      { input: 'word1 = "horse", word2 = "ros"', output: "3", explanation: "horse → rorse → rose → ros" },
+      { input: 'word1 = "intention", word2 = "execution"', output: "5" },
+    ],
+    constraints: ["0 <= word1.length, word2.length <= 500", "Both words are lowercase English letters."],
+    functionName: "minDistance",
+    starterCode: starter(
+      "@param {string} word1\n * @param {string} word2\n * @return {number}",
+      "minDistance", "word1, word2", "word1: string, word2: string", "number",
+    ),
+    testCases: [
+      tc(["horse", "ros"], 3),
+      tc(["intention", "execution"], 5),
+      tc(["", ""], 0, { hidden: true }),
+      tc(["", "abc"], 3, { hidden: true }),
+    ],
+    hints: [
+      "`dp[i][j]` is the distance between the first `i` and `j` characters.",
+      "Equal characters cost `dp[i-1][j-1]`; otherwise it is 1 plus the cheapest of the three neighbours.",
+    ],
+  },
+  {
+    id: "largest-rectangle-in-histogram", number: 104, title: "Largest Rectangle in Histogram", difficulty: "HARD" as D,
+    topics: ["Arrays", "Stack", "Monotonic Stack"],
+    description:
+      "`heights[i]` is the height of a bar of width `1`. Return the area of the largest rectangle that fits inside the histogram.",
+    examples: [
+      { input: "heights = [2,1,5,6,2,3]", output: "10", explanation: "The 5×2 rectangle spanning bars 2 and 3." },
+      { input: "heights = [2,4]", output: "4" },
+    ],
+    constraints: ["1 <= heights.length <= 10^5", "0 <= heights[i] <= 10^4"],
+    functionName: "largestRectangleArea",
+    starterCode: starter(
+      "@param {number[]} heights\n * @return {number}",
+      "largestRectangleArea", "heights", "heights: number[]", "number",
+    ),
+    testCases: [
+      tc([[2, 1, 5, 6, 2, 3]], 10),
+      tc([[2, 4]], 4),
+      tc([[1]], 1, { hidden: true }),
+      tc([[5, 5, 5]], 15, { hidden: true }),
+    ],
+    hints: [
+      "For each bar you need the nearest shorter bar on both sides.",
+      "A monotonic stack gives those boundaries in one pass.",
+    ],
+  },
+  {
+    id: "sliding-window-maximum", number: 105, title: "Sliding Window Maximum", difficulty: "HARD" as D,
+    topics: ["Arrays", "Sliding Window", "Deque", "Monotonic Queue"],
+    description:
+      "Given `nums` and a window size `k`, return the maximum of every window as it slides from left to right.",
+    examples: [
+      { input: "nums = [1,3,-1,-3,5,3,6,7], k = 3", output: "[3,3,5,5,6,7]" },
+      { input: "nums = [1], k = 1", output: "[1]" },
+    ],
+    constraints: ["1 <= nums.length <= 10^5", "1 <= k <= nums.length", "-10^4 <= nums[i] <= 10^4"],
+    functionName: "maxSlidingWindow",
+    starterCode: starter(
+      "@param {number[]} nums\n * @param {number} k\n * @return {number[]}",
+      "maxSlidingWindow", "nums, k", "nums: number[], k: number", "number[]",
+    ),
+    testCases: [
+      tc([[1, 3, -1, -3, 5, 3, 6, 7], 3], [3, 3, 5, 5, 6, 7]),
+      tc([[1], 1], [1]),
+      tc([[9, 11], 2], [11], { hidden: true }),
+      tc([[4, -2], 2], [4], { hidden: true }),
+    ],
+    hints: [
+      "The naive `max()` per window is O(n·k) — too slow at this size.",
+      "Keep a deque of indices whose values decrease; the front is always the window's maximum.",
+    ],
+  },
+  {
+    id: "candy", number: 106, title: "Candy", difficulty: "HARD" as D,
+    topics: ["Arrays", "Greedy"],
+    description:
+      "Children stand in a line with `ratings[i]`. Every child must receive at least one candy, and a child with a higher rating than a neighbour must receive more.\n\nReturn the minimum number of candies needed.",
+    examples: [
+      { input: "ratings = [1,0,2]", output: "5", explanation: "[2,1,2]" },
+      { input: "ratings = [1,2,2]", output: "4", explanation: "[1,2,1]" },
+    ],
+    constraints: ["1 <= ratings.length <= 2 * 10^4", "0 <= ratings[i] <= 2 * 10^4"],
+    functionName: "candy",
+    starterCode: starter(
+      "@param {number[]} ratings\n * @return {number}",
+      "candy", "ratings", "ratings: number[]", "number",
+    ),
+    testCases: [
+      tc([[1, 0, 2]], 5),
+      tc([[1, 2, 2]], 4),
+      tc([[1]], 1, { hidden: true }),
+      tc([[1, 2, 3]], 6, { hidden: true }),
+    ],
+    hints: [
+      "One left-to-right pass fixes the rising slopes, one right-to-left pass fixes the falling ones.",
+      "Take the maximum of the two passes per child; summing that is the answer.",
+    ],
+  },
+
+  /* ========================================================= 107 – 110 */
+  {
+    id: "n-queens-ii", number: 107, title: "N-Queens II", difficulty: "HARD" as D,
+    topics: ["Backtracking", "Recursion"],
+    description:
+      "The n-queens puzzle places `n` queens on an `n × n` board so that no two attack each other.\n\nReturn the number of distinct solutions.",
+    examples: [
+      { input: "n = 1", output: "1" },
+      { input: "n = 4", output: "2" },
+    ],
+    constraints: ["1 <= n <= 9"],
+    functionName: "totalNQueens",
+    starterCode: starter(
+      "@param {number} n\n * @return {number}",
+      "totalNQueens", "n", "n: number", "number",
+    ),
+    testCases: [
+      tc([1], 1),
+      tc([4], 2),
+      tc([5], 10, { hidden: true }),
+      tc([8], 92, { hidden: true }),
+    ],
+    hints: [
+      "Place one queen per row and recurse into the next row.",
+      "Track the used columns and both diagonals as sets — `row + col` and `row - col` identify them.",
+    ],
+  },
+  {
+    id: "word-search", number: 108, title: "Word Search", difficulty: "HARD" as D,
+    topics: ["Matrix", "Backtracking", "Depth-First Search"],
+    description:
+      "Given a `board` of letters and a `word`, return `true` if the word can be built from **sequentially adjacent** cells (horizontally or vertically).\n\nThe same cell may not be used twice.",
+    examples: [
+      { input: 'board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"', output: "true" },
+      { input: 'board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"', output: "true" },
+    ],
+    constraints: ["1 <= m, n <= 6", "1 <= word.length <= 15", "Cells hold a single uppercase letter."],
+    functionName: "wordSearch",
+    starterCode: starter(
+      "@param {string[][]} board\n * @param {string} word\n * @return {boolean}",
+      "wordSearch", "board, word", "board: string[][], word: string", "boolean",
+    ),
+    testCases: [
+      tc([[["A", "B", "C", "E"], ["S", "F", "C", "S"], ["A", "D", "E", "E"]], "ABCCED"], true),
+      tc([[["A", "B", "C", "E"], ["S", "F", "C", "S"], ["A", "D", "E", "E"]], "SEE"], true),
+      tc([[["A", "B", "C", "E"], ["S", "F", "C", "S"], ["A", "D", "E", "E"]], "ABCB"], false, { hidden: true }),
+      tc([[["a"]], "a"], true, { hidden: true }),
+    ],
+    hints: [
+      "Try every cell as a starting point and walk the word with DFS.",
+      "Mark the current cell as visited before recursing, then restore it afterwards.",
+    ],
+  },
+  {
+    id: "basic-calculator", number: 109, title: "Basic Calculator", difficulty: "HARD" as D,
+    topics: ["Strings", "Stack", "Math"],
+    description:
+      "Evaluate a valid expression containing non-negative integers, `+`, `-`, `(`, `)` and spaces, and return its integer value.\n\nYou must not use `eval`.",
+    examples: [
+      { input: 's = "1 + 1"', output: "2" },
+      { input: 's = " 2-1 + 2 "', output: "3" },
+    ],
+    constraints: ["1 <= s.length <= 3 * 10^5", "The expression is always valid."],
+    functionName: "calculate",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "calculate", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["1 + 1"], 2),
+      tc([" 2-1 + 2 "], 3),
+      tc(["(1+(4+5+2)-3)+(6+8)"], 23, { hidden: true }),
+      tc(["2-(5-6)"], 3, { hidden: true }),
+    ],
+    hints: [
+      "Keep a running result and a current sign, and push both onto a stack at `(`.",
+      "Restore the previous result and sign after `)`, subtracting when the sign was negative.",
+    ],
+  },
+  {
+    id: "longest-palindromic-subsequence", number: 110, title: "Longest Palindromic Subsequence", difficulty: "HARD" as D,
+    topics: ["Dynamic Programming", "Strings"],
+    description:
+      "Given a string `s`, return the length of the longest palindromic **subsequence** (characters keep their order but need not be adjacent).",
+    examples: [
+      { input: 's = "bbbab"', output: "4", explanation: '"bbbb"' },
+      { input: 's = "cbbd"', output: "2" },
+    ],
+    constraints: ["1 <= s.length <= 1000", "`s` consists of lowercase English letters."],
+    functionName: "longestPalindromeSubseq",
+    starterCode: starter(
+      "@param {string} s\n * @return {number}",
+      "longestPalindromeSubseq", "s", "s: string", "number",
+    ),
+    testCases: [
+      tc(["bbbab"], 4),
+      tc(["cbbd"], 2),
+      tc(["a"], 1, { hidden: true }),
+      tc(["aaaa"], 4, { hidden: true }),
+    ],
+    hints: [
+      "If the two end characters match, they are both part of the answer.",
+      "Otherwise drop one end at a time and keep the better result.",
+    ],
+  },
 ];

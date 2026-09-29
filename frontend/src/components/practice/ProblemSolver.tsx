@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
@@ -14,7 +14,6 @@ import {
   Loader2,
   Play,
   Send,
-  XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -90,10 +89,6 @@ export function ProblemSolver({
 
   const solved = Boolean(solvedMap[problem.id]?.solvedAt);
   const attempts = solvedMap[problem.id]?.attempts ?? 0;
-  const visibleCases = useMemo(
-    () => problem.testCases.filter((testCase) => !testCase.isHidden).length,
-    [problem],
-  );
 
   // Restore the saved language + draft once persistence is ready.
   useEffect(() => {

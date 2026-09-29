@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:practice": "node scripts/verify-practice-bank.mjs",
+    "verify:practice:python": "node scripts/verify-practice-bank.mjs --python"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
