@@ -94,6 +94,9 @@ export function HintsPanel({ problem }: { problem: PracticeProblem }) {
               </ul>
             </section>
           );
+        })}
+      </div>
+
       {/* Authored, progressive hints */}
       <div className="space-y-3 border-t border-border pt-5">
         <div className="flex flex-wrap items-center justify-between gap-2">

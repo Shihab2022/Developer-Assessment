@@ -884,4 +884,287 @@ export const FAMILIES = [
       return value;
     },
   },
+  {
+    slug: "matrix-diagonal-sum", title: "Main Diagonal Sum", difficulty: "EASY",
+    topics: ["Matrix", "Math"], fn: "matrixDiagonalSum", params: "grid: number[][]", returns: "number",
+    statement: "Given a square matrix `grid`, return the sum of the values on its main diagonal — cells where the row index equals the column index.",
+    constraints: ["1 <= grid.length <= 200", "`grid` is square, so every row has `grid.length` values."],
+    hints: ["The diagonal cells are exactly `grid[i][i]`.", "There is no need for a `j` loop at all."],
+    args: (r, i) => [r.matrix({ rows: 3 + (i % 4), cols: 3 + (i % 4), min: -6, max: 9 })],
+    solve: function matrixDiagonalSum(grid) {
+      let total = 0;
+      for (let i = 0; i < grid.length; i += 1) total += grid[i][i];
+      return total;
+    },
+  },
+  {
+    slug: "matrix-row-sums", title: "Sum of Each Row", difficulty: "EASY",
+    topics: ["Matrix"], fn: "matrixRowSums", params: "grid: number[][]", returns: "number[]",
+    statement: "Given a matrix `grid`, return an array holding the sum of each row, in row order.",
+    constraints: ["1 <= grid.length <= 200", "1 <= grid[i].length <= 200"],
+    hints: ["`grid.map((row) => row.reduce((sum, value) => sum + value, 0))`.", "An empty row must contribute `0`, not `undefined`."],
+    args: (r, i) => [r.matrix({ rows: 2 + (i % 4), cols: 3 + (i % 3), min: -9, max: 12 })],
+    solve: (grid) => grid.map((row) => row.reduce((sum, value) => sum + value, 0)),
+  },
+  {
+    slug: "matrix-column-sums", title: "Sum of Each Column", difficulty: "MEDIUM",
+    topics: ["Matrix"], fn: "matrixColumnSums", params: "grid: number[][]", returns: "number[]",
+    statement: "Given a matrix `grid`, return an array holding the sum of each column, in column order.",
+    constraints: ["1 <= grid.length <= 200", "1 <= grid[i].length <= 200", "Every row has the same length."],
+    hints: ["Iterate `col` in the outer loop and `row` in the inner loop.", "Read the column count once from `grid[0].length`."],
+    args: (r, i) => [r.matrix({ rows: 2 + (i % 4), cols: 3 + (i % 4), min: -9, max: 12 })],
+    solve: function matrixColumnSums(grid) {
+      const columns = [];
+      const width = grid[0]?.length ?? 0;
+      for (let col = 0; col < width; col += 1) {
+        let total = 0;
+        for (const row of grid) total += row[col];
+        columns.push(total);
+      }
+      return columns;
+    },
+  },
+  {
+    slug: "matrix-transpose", title: "Transpose a Matrix", difficulty: "MEDIUM",
+    topics: ["Matrix"], fn: "matrixTranspose", params: "grid: number[][]", returns: "number[][]",
+    statement: "Given a matrix `grid`, return its transpose: the value at `row i, col j` moves to `row j, col i`.",
+    constraints: ["1 <= grid.length <= 200", "1 <= grid[i].length <= 200", "`grid` may be non-square."],
+    hints: ["Build `result[j][i] = grid[i][j]`.", "The width of the result is the height of the input."],
+    args: (r, i) => [r.matrix({ rows: 2 + (i % 3), cols: 2 + ((i + 1) % 4), min: -5, max: 15 })],
+    solve: function matrixTranspose(grid) {
+      const height = grid.length;
+      const width = grid[0]?.length ?? 0;
+      const out = [];
+      for (let col = 0; col < width; col += 1) {
+        const column = [];
+        for (let row = 0; row < height; row += 1) column.push(grid[row][col]);
+        out.push(column);
+      }
+      return out;
+    },
+  },
+  {
+    slug: "matrix-count-target", title: "Count a Value in a Matrix", difficulty: "EASY",
+    topics: ["Matrix", "Counting"], fn: "matrixCountTarget", params: "grid: number[][], target: number", returns: "number",
+    statement: "Given a matrix `grid` and a `target`, return how many cells hold exactly that value.",
+    constraints: ["1 <= grid.length <= 200", "1 <= grid[i].length <= 200"],
+    hints: ["Flatten with `grid.flat()` and count, or nest two loops.", "`flat()` is fine at this size but doubles the memory."],
+    args: (r, i) => {
+      const grid = r.matrix({ rows: 3 + (i % 3), cols: 3 + (i % 3), min: -4, max: 8 });
+      const flat = grid.flat();
+      return [grid, i % 2 === 0 ? r.pick(flat) : r.int(-4, 8)];
+    },
+    solve: function matrixCountTarget(grid, target) {
+      let count = 0;
+      for (const row of grid) for (const value of row) if (value === target) count += 1;
+      return count;
+    },
+  },
+  {
+    slug: "matrix-row-with-max-sum", title: "Row With the Largest Sum", difficulty: "MEDIUM",
+    topics: ["Matrix", "Arrays"], fn: "matrixRowWithMaxSum", params: "grid: number[][]", returns: "number",
+    statement: "Given a non-empty matrix `grid`, return the **index** of the row whose sum is largest. On a tie, return the lowest index.",
+    constraints: ["1 <= grid.length <= 200", "1 <= grid[i].length <= 200"],
+    hints: ["Accumulate each row's sum and keep the best index.", "Use `>` (not `>=`) so a tie keeps the earlier row."],
+    args: (r, i) => [r.matrix({ rows: 2 + (i % 4), cols: 3 + (i % 4), min: -20, max: 30 })],
+    solve: function matrixRowWithMaxSum(grid) {
+      let best = 0;
+      let bestSum = -Infinity;
+      grid.forEach((row, index) => {
+        const sum = row.reduce((total, value) => total + value, 0);
+        if (sum > bestSum) {
+          bestSum = sum;
+          best = index;
+        }
+      });
+      return best;
+    },
+  },
+  {
+    slug: "climb-stairs-ways", title: "Ways to Climb the Stairs", difficulty: "MEDIUM",
+    topics: ["Dynamic Programming", "Math"], fn: "climbStairsWays", params: "n: number", returns: "number",
+    statement: "You climb a staircase of `n` steps, taking `1` or `2` steps at a time. Return how many distinct ways you can reach the top.",
+    constraints: ["1 <= n <= 60", "The result fits in a JavaScript number."],
+    hints: ["It is the Fibonacci recurrence: `ways(n) = ways(n-1) + ways(n-2)`.", "Seed `ways(1) = 1` and `ways(2) = 2`, then roll forward."],
+    args: (r, i) => [r.int(1, 10 + i * 2)],
+    solve: function climbStairsWays(n) {
+      let previous = 1;
+      let current = 1;
+      for (let step = 1; step < n; step += 1) {
+        const next = previous + current;
+        previous = current;
+        current = next;
+      }
+      return current;
+    },
+  },
+  {
+    slug: "unique-paths-grid", title: "Unique Paths in a Grid", difficulty: "MEDIUM",
+    topics: ["Dynamic Programming", "Matrix"], fn: "uniquePathsGrid", params: "rows: number, cols: number", returns: "number",
+    statement: "A robot sits at the top-left of a `rows x cols` grid and can only move **right** or **down**. Return how many distinct paths reach the bottom-right corner.",
+    constraints: ["1 <= rows, cols <= 30", "The answer fits in a JavaScript number."],
+    hints: ["`paths[i][j] = paths[i-1][j] + paths[i][j-1]`, with the first row and column seeded to `1`.", "A single rolling array of length `cols` keeps memory at O(cols)."],
+    args: (r, i) => [r.int(1, 4 + (i % 6)), r.int(1, 4 + ((i + 1) % 6))],
+    solve: function uniquePathsGrid(rows, cols) {
+      const row = new Array(cols).fill(1);
+      for (let i = 1; i < rows; i += 1) {
+        for (let j = 1; j < cols; j += 1) row[j] += row[j - 1];
+      }
+      return row[cols - 1];
+    },
+  },
+  {
+    slug: "minimum-path-sum", title: "Minimum Path Sum", difficulty: "MEDIUM",
+    topics: ["Dynamic Programming", "Matrix"], fn: "minimumPathSum", params: "grid: number[][]", returns: "number",
+    statement: "Given a non-empty matrix of non-negative costs `grid`, return the cheapest path from the top-left to the bottom-right, moving only **right** or **down**.",
+    constraints: ["1 <= grid.length <= 100", "1 <= grid[i].length <= 100", "0 <= grid[i][j] <= 1000"],
+    hints: ["Add the cell cost to the cheaper of the two neighbours you could arrive from.", "The first row and first column can only be reached one way — accumulate them."],
+    args: (r, i) => [r.matrix({ rows: 2 + (i % 4), cols: 2 + (i % 4), min: 0, max: 12 })],
+    solve: function minimumPathSum(grid) {
+      const height = grid.length;
+      const width = grid[0].length;
+      const cost = grid.map((row) => [...row]);
+      for (let j = 1; j < width; j += 1) cost[0][j] += cost[0][j - 1];
+      for (let i = 1; i < height; i += 1) cost[i][0] += cost[i - 1][0];
+      for (let i = 1; i < height; i += 1) {
+        for (let j = 1; j < width; j += 1) {
+          cost[i][j] += Math.min(cost[i - 1][j], cost[i][j - 1]);
+        }
+      }
+      return cost[height - 1][width - 1];
+    },
+  },
+  {
+    slug: "max-profit-single-trade", title: "Best Time to Buy and Sell", difficulty: "MEDIUM",
+    topics: ["Greedy", "Arrays"], fn: "maxProfitSingleTrade", params: "prices: number[]", returns: "number",
+    statement: "Given a daily `prices` array where `prices[i]` is the price on day `i`, buy low and sell high **once** and return the best profit.\n\nReturn `0` when no profitable trade exists.",
+    constraints: ["2 <= prices.length <= 10^5", "1 <= prices[i] <= 10^4"],
+    hints: ["Track the cheapest price seen so far and the best profit at every day.", "You must buy before you sell — the sell day is always scanned after the buy day."],
+    args: (r, i) => [r.arr({ nMin: 3 + i, nMax: 8 + i * 2, min: 1, max: 40 })],
+    solve: function maxProfitSingleTrade(prices) {
+      let lowest = prices[0];
+      let best = 0;
+      for (const price of prices) {
+        if (price < lowest) lowest = price;
+        else if (price - lowest > best) best = price - lowest;
+      }
+      return best;
+    },
+  },
+  {
+    slug: "subarray-sum-count", title: "Subarrays With a Given Sum", difficulty: "MEDIUM",
+    topics: ["Arrays", "Hash Table", "Prefix Sum"], fn: "subarraySumCount", params: "nums: number[], target: number", returns: "number",
+    statement: "Given an array of integers `nums` (possibly negative) and a `target`, return how many **contiguous** subarrays add up to `target`.",
+    constraints: ["1 <= nums.length <= 10^4", "-10^3 <= nums[i], target <= 10^3"],
+    hints: ["A prefix-sum map turns the question into `prefix[i] - prefix[j] === target`.", "Seeding `prefix 0 → 1` lets a subarray that starts at index `0` be counted."],
+    args: (r, i) => [r.arr({ nMin: 3 + i, nMax: 7 + i * 2, min: -3, max: 6 }), r.int(-4, 8)],
+    solve: function subarraySumCount(nums, target) {
+      const seen = new Map([[0, 1]]);
+      let prefix = 0;
+      let count = 0;
+      for (const value of nums) {
+        prefix += value;
+        count += seen.get(prefix - target) ?? 0;
+        seen.set(prefix, (seen.get(prefix) ?? 0) + 1);
+      }
+      return count;
+    },
+  },
+  {
+    slug: "longest-consecutive-sequence", title: "Longest Consecutive Sequence", difficulty: "MEDIUM",
+    topics: ["Arrays", "Hash Table"], fn: "longestConsecutiveSequence", params: "nums: number[]", returns: "number",
+    statement: "Given an unsorted array of integers `nums`, return the length of the longest run of consecutive values — each one exactly `1` apart.",
+    constraints: ["0 <= nums.length <= 10^5", "-10^9 <= nums[i] <= 10^9"],
+    hints: ["Put every value in a `Set`, then only start counting from a value that has no predecessor.", "That trick keeps every element in the inner loop at most once, so the total work is O(n)."],
+    args: (r, i) => {
+      const base = r.int(1, 9);
+      const length = 3 + (i % 5);
+      const sequence = Array.from({ length }, (_, index) => base + index);
+      return [r.shuffle([...sequence, base + length + 3])];
+    },
+    solve: function longestConsecutiveSequence(nums) {
+      const values = new Set(nums);
+      let best = 0;
+      for (const value of values) {
+        if (values.has(value - 1)) continue;
+        let run = 1;
+        let current = value;
+        while (values.has(current + 1)) {
+          run += 1;
+          current += 1;
+        }
+        if (run > best) best = run;
+      }
+      return best;
+    },
+  },
+  {
+    slug: "top-k-frequent-values", title: "Top K Frequent Values", difficulty: "MEDIUM", unordered: true,
+    topics: ["Arrays", "Hash Table", "Heap"], fn: "topKFrequentValues", params: "nums: number[], k: number", returns: "number[]",
+    statement: "Given an array of integers `nums` and a `k`, return the `k` values that appear most often, **in any order**. Ties may be broken arbitrarily.",
+    constraints: ["1 <= k <= number of distinct values in `nums`", "1 <= nums.length <= 10^5"],
+    hints: ["Count first with a `Map`, then sort the keys by count descending.", "Sorting the entries is simpler than a heap at this size."],
+    args: (r, i) => {
+      const nums = r.arr({ nMin: 4 + i, nMax: 9 + i, min: 1, max: 5 });
+      const distinct = new Set(nums).size;
+      return [nums, r.int(1, Math.min(distinct, 3))];
+    },
+    solve: function topKFrequentValues(nums, k) {
+      const counts = new Map();
+      for (const value of nums) counts.set(value, (counts.get(value) ?? 0) + 1);
+      return [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, k)
+        .map((entry) => entry[0]);
+    },
+  },
+  {
+    slug: "merge-overlapping-intervals", title: "Merge Overlapping Intervals", difficulty: "MEDIUM",
+    topics: ["Intervals", "Sorting"], fn: "mergeOverlappingIntervals", params: "intervals: number[][]", returns: "number[][]",
+    statement: "Given a list of `[start, end]` intervals, merge every pair that overlaps and return the merged list sorted by start.\n\nIntervals that only touch (`end === start`) merge too.",
+    constraints: ["1 <= intervals.length <= 10^4", "0 <= start <= end <= 10^6"],
+    hints: ["Sort by start first, then walk once extending the current interval's end when the next one overlaps.", "`next[0] <= current[1]` is the overlap test — use `<=` so touching intervals merge."],
+    args: (r, i) => {
+      const count = 2 + (i % 4);
+      return [
+        Array.from({ length: count }, () => {
+          const start = r.int(0, 60 + i);
+          return [start, start + r.int(1, 20 + i)];
+        }),
+      ];
+    },
+    solve: function mergeOverlappingIntervals(intervals) {
+      const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+      const merged = [];
+      for (const [start, end] of sorted) {
+        const last = merged[merged.length - 1];
+        if (last && start <= last[1]) last[1] = Math.max(last[1], end);
+        else merged.push([start, end]);
+      }
+      return merged;
+    },
+  },
+  {
+    slug: "balanced-brackets", title: "Balanced Brackets", difficulty: "MEDIUM",
+    topics: ["Stack", "Strings"], fn: "balancedBrackets", params: "text: string", returns: "boolean",
+    statement: "Given a string of the characters `()[]{}`, return `true` when every bracket is correctly matched and nested.\n\nCharacters other than brackets may appear and should be ignored.",
+    constraints: ["0 <= text.length <= 10^4"],
+    hints: ["Push opening brackets onto a stack and pop when a closer arrives.", "After the loop the stack must be empty — a leftover opener means the input is unbalanced."],
+    args: (r, i) => {
+      const pairs = ["()", "[]", "{}", "([])", "{[()]}"];
+      const base = r.pick(pairs);
+      return [i % 3 === 0 ? base + base : base + "("];
+    },
+    solve: function balancedBrackets(text) {
+      const stack = [];
+      const closing = { ")": "(", "]": "[", "}": "{" };
+      for (const char of text) {
+        if (char === "(" || char === "[" || char === "{") stack.push(char);
+        else if (char in closing) {
+          if (stack.pop() !== closing[char]) return false;
+        }
+      }
+      return stack.length === 0;
+    },
+  },
 ];

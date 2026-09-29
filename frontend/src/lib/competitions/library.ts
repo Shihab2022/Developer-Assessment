@@ -1,5 +1,5 @@
-import { PROBLEM_INDEX, problemById } from "@/lib/practice/index";
-import type { PracticeProblem } from "@/lib/practice/types";
+import { PRACTICE_PROBLEMS } from "@/data/practice-problems/problems";
+import type { PracticeProblem, ProblemIndexEntry } from "@/lib/practice/types";
 import { TECHNOLOGY_CATALOG } from "@/lib/question-banks/catalog";
 import type { BankQuestion, QuestionBank } from "@/lib/question-banks/types";
 import type { Difficulty } from "@/lib/types";
@@ -47,8 +47,24 @@ export interface LibraryProblemRow {
   topics: string[];
 }
 
+/**
+ * Coding problems available to a competition paper.
+ *
+ * Deliberately the *curated* bank only: this module is imported by client
+ * components (the library picker and the builder), and the 1000+ generated
+ * problems live behind `@/lib/practice/index`, which is server-only. Keeping
+ * the two apart is what stops the arena's data from reaching the browser.
+ */
+const CURATED_INDEX: ProblemIndexEntry[] = PRACTICE_PROBLEMS.map((problem) => ({
+  id: problem.id,
+  number: problem.number,
+  title: problem.title,
+  difficulty: problem.difficulty,
+  topics: problem.topics,
+}));
+
 /** Coding problems from the practice arena (no test cases — those stay server-side in the page). */
-export const LIBRARY_PROBLEMS: LibraryProblemRow[] = PROBLEM_INDEX.map((problem) => ({
+export const LIBRARY_PROBLEMS: LibraryProblemRow[] = CURATED_INDEX.map((problem) => ({
   id: problem.id,
   number: problem.number,
   title: problem.title,
@@ -57,7 +73,7 @@ export const LIBRARY_PROBLEMS: LibraryProblemRow[] = PROBLEM_INDEX.map((problem)
 }));
 
 export function libraryProblemRow(problemId: string): LibraryProblemRow | undefined {
-  return PROBLEM_INDEX.find((problem) => problem.id === problemId);
+  return CURATED_INDEX.find((problem) => problem.id === problemId);
 }
 
 export function libraryTechnologyRow(technology: string): LibraryTechnologyRow | undefined {
@@ -132,5 +148,5 @@ export function ownQuestionFromProblem(
 
 /** Loads the full practice problem (starter code + test cases) for a paper row. */
 export function libraryProblem(problemId: string): PracticeProblem | undefined {
-  return problemById(problemId);
+  return PRACTICE_PROBLEMS.find((problem) => problem.id === problemId);
 }

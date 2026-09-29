@@ -7,7 +7,17 @@
  */
 
 /** Every language the playground understands. */
-export type PlaygroundLanguage = "javascript" | "typescript" | "python" | "html" | "css";
+export type PlaygroundLanguage =
+  | "javascript"
+  | "typescript"
+  | "python"
+  | "sql"
+  | "go"
+  | "java"
+  | "html"
+  | "css"
+  | "tailwind"
+  | "reactmui";
 
 /** How a language produces output. */
 export type PlaygroundRuntime =
@@ -15,6 +25,10 @@ export type PlaygroundRuntime =
   | "script"
   /** Executed by the Pyodide WebAssembly runtime in its own worker. */
   | "python"
+  /** Executed by SQLite compiled to WebAssembly in its own worker. */
+  | "sql"
+  /** Dispatched to a remote, containerised sandbox (Go, Java). */
+  | "remote"
   /** Rendered in a sandboxed iframe — the preview *is* the output. */
   | "preview";
 
@@ -25,9 +39,16 @@ export interface ConsoleLine {
   text: string;
 }
 
+/** A tabular result set (SQL queries). */
+export interface ResultTable {
+  /** Column headings, in result order. */
+  columns: string[];
+  rows: string[][];
+}
+
 export type RunStatus = "idle" | "running" | "success" | "error" | "timeout";
 
-/** Outcome of a script/python run or of a preview render. */
+/** Outcome of a script/python/sql run or of a preview render. */
 export interface RunResult {
   language: PlaygroundLanguage;
   status: Exclude<RunStatus, "idle" | "running">;
@@ -42,4 +63,6 @@ export interface RunResult {
   durationMs: number;
   /** True when TypeScript source had to be stripped before execution. */
   transpiled: boolean;
+  /** Result grids produced by a run (SQL only). */
+  tables?: ResultTable[];
 }

@@ -12,8 +12,19 @@ import path from "node:path";
 
 const require = createRequire(import.meta.url);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const problemsPath = path.join(scriptDir, "..", "src", "data", "practice-problems", "problems.ts");
-const { PRACTICE_PROBLEMS } = require(problemsPath);
+const dataDir = path.join(scriptDir, "..", "src", "data", "practice-problems");
+
+const { PRACTICE_PROBLEMS: CURATED_PROBLEMS } = require(path.join(dataDir, "problems.ts"));
+const { GENERATED_PROBLEMS } = require(path.join(dataDir, "generated-problems.ts"));
+const GENERATED_SOLUTIONS = require(path.join(scriptDir, "generated-reference-solutions.json"));
+
+/**
+ * The bank the arena serves: hand-curated problems first, then the generated
+ * sets, ordered by problem number.
+ */
+const PRACTICE_PROBLEMS = [...CURATED_PROBLEMS, ...GENERATED_PROBLEMS].sort(
+  (a, b) => a.number - b.number,
+);
 
 
 let failures = 0;
@@ -69,7 +80,7 @@ function toSnake(name) {
     .toLowerCase();
 }
 
-const MIN_PROBLEMS = 100;
+const MIN_PROBLEMS = 1000;
 const VALID_DIFFICULTIES = new Set(["EASY", "MEDIUM", "HARD"]);
 
 const ids = new Set();
@@ -123,7 +134,7 @@ for (const problem of PRACTICE_PROBLEMS) {
 }
 
 if (PRACTICE_PROBLEMS.length < MIN_PROBLEMS) {
-  fail("only " + PRACTICE_PROBLEMS.length + " problems, need 100+");
+  fail("only " + PRACTICE_PROBLEMS.length + " problems, need " + MIN_PROBLEMS + "+");
 } else {
   ok(PRACTICE_PROBLEMS.length + " problems, " + visible + " visible + " + hidden + " hidden cases");
 }
@@ -256,7 +267,9 @@ const REFERENCE_SOLUTIONS = {
 "longest-palindromic-subsequence": "function longestPalindromeSubseq(s) { const n = s.length; const dp = Array.from({ length: n }, () => new Array(n).fill(0)); for (let i = n - 1; i >= 0; i--) { dp[i][i] = 1; for (let j = i + 1; j < n; j++) dp[i][j] = s[i] === s[j] ? 2 + (dp[i + 1]?.[j - 1] ?? 0) : Math.max(dp[i + 1][j], dp[i][j - 1]); } return dp[0][n - 1]; }",
 };
 
-/* ------------------------------------------------------------------ runner */
+// Generated sets derive their reference solution from the same function that
+// computed their expected values, so the two can never disagree.
+for (const [id, code] of Object.entries(GENERATED_SOLUTIONS)) REFERENCE_SOLUTIONS[id] = code;
 
 /* ------------------------------------------------------------------ runner */
 

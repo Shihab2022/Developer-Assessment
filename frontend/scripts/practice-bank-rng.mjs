@@ -8,6 +8,15 @@
  * on the family slug.
  */
 
+/**
+ * Hard ceiling for generated array and string lengths.
+ *
+ * Families grow their inputs with the case index so a set's hidden cases are
+ * the biggest; without a ceiling the last set of each family would ship
+ * hundreds of values and megabytes of committed JSON for no pedagogical gain.
+ */
+const MAX_LENGTH = 48;
+
 /** Small, fast, deterministic PRNG. */
 export function createRandom(seedText) {
   let seed = 0;
@@ -24,7 +33,7 @@ export function createRandom(seedText) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 
-  const int = (min, max) => min + Math.floor(next() * (max - min + 1));
+  const int = (min, max) => (max <= min ? min : min + Math.floor(next() * (max - min + 1)));
 
   const pick = (list) => list[int(0, list.length - 1)];
 
@@ -39,9 +48,17 @@ export function createRandom(seedText) {
     return copy;
   };
 
-  /** Array of integers. `n` fixes the length; `nMin`/`nMax` pick one. */
+  /**
+   * Array of integers. `n` fixes the length; `nMin`/`nMax` pick one.
+   *
+   * Lengths are capped: the families grow their inputs with the case index, and
+   * without a ceiling the last sets would ship enormous arrays (and megabytes of
+   * committed JSON) for no pedagogical gain.
+   */
   const arr = ({ n, nMin = 1, nMax = n ?? nMin, min = 0, max = 20, sorted = false, unique = false } = {}) => {
-    const length = n ?? int(nMin, nMax);
+    const low = Math.min(nMin, MAX_LENGTH);
+    const high = Math.max(low, Math.min(nMax, MAX_LENGTH));
+    const length = n ?? int(low, high);
     const values = [];
     const seen = new Set();
     let guard = 0;
@@ -64,17 +81,19 @@ export function createRandom(seedText) {
     return Array.from({ length }, () => Math.round(next() * (max - min) * 10 + min * 10) / 10);
   };
 
-  /** Lowercase string of the requested length. */
+  /** Lowercase string of the requested length (capped like arrays). */
   const str = ({ n, nMin = 1, nMax = n ?? 12, alphabet = "abcdefghijklmnopqrstuvwxyz" } = {}) => {
-    const length = n ?? int(nMin, nMax);
+    const length = n ?? int(Math.min(nMin, MAX_LENGTH), Math.max(Math.min(nMin, MAX_LENGTH), Math.min(nMax, MAX_LENGTH)));
     let out = "";
     for (let i = 0; i < length; i += 1) out += alphabet[int(0, alphabet.length - 1)];
     return out;
   };
 
-  /** Rows x cols matrix of integers. */
+  /** Rows x cols matrix of integers, capped at 8x8. */
   const matrix = ({ rows, cols, min = 0, max = 9 } = {}) =>
-    Array.from({ length: rows }, () => arr({ n: cols, min, max }));
+    Array.from({ length: Math.min(Math.max(rows, 1), MAX_LENGTH) }, () =>
+      arr({ n: Math.min(Math.max(cols, 1), MAX_LENGTH), min, max }),
+    );
 
   return { next, int, pick, bool, shuffle, arr, floats, str, matrix };
 }

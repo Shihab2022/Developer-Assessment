@@ -9,7 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "verify:practice": "node scripts/verify-practice-bank.mjs",
-    "verify:practice:python": "node scripts/verify-practice-bank.mjs --python"
+    "verify:practice:python": "node scripts/verify-practice-bank.mjs --python",
+    "generate:practice": "node scripts/generate-practice-bank.mjs",
+    "generate:brand": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

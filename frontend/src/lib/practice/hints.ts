@@ -64,6 +64,9 @@ function constraintWatchouts(problem: PracticeProblem, bullets: string[]): strin
   }
   if (/10\^9|10\*\*9|2147483647/.test(text)) {
     watchouts.push("Values are large enough to overflow 32-bit arithmetic — stay in double/BigInt territory.");
+  }
+  return watchouts;
+}
 
 /** Target performance note for the difficulty. */
 function complexityNotes(problem: PracticeProblem): HintSection {
@@ -164,8 +167,4 @@ export function guidedHintSections(problem: PracticeProblem): HintSection[] {
     },
     complexityNotes(problem),
   ];
-}
-
-  }
-  return watchouts;
 }

@@ -1,4 +1,4 @@
-import type { ConsoleLevel, ConsoleLine } from "./types";
+import type { ConsoleLevel, ConsoleLine, PlaygroundLanguage } from "./types";
 
 /**
  * Live-preview documents for HTML and CSS.
@@ -130,13 +130,19 @@ ${PREVIEW_BRIDGE}
  * Builds the `srcDoc` for the preview pane.
  *
  * - `html` is used verbatim when it looks like a full document, otherwise it is
- *   wrapped in a document shell.
+ *   wrapped in a document shell. HTML documents always get the Tailwind Play
+ *   CDN (unless they ship their own Tailwind runtime) so class-based layouts
+ *   render exactly as authored.
  * - `css` is applied on top of the built-in sample page.
- *
- * HTML documents are always given the Tailwind Play CDN (unless they ship their
- * own Tailwind runtime) so class-based layouts render exactly as authored.
+ * - `tailwind` is the dedicated Tailwind compiler tab: the CDN is injected
+ *   *first* in `<head>` so a later `tailwind.config` block themes the build.
+ * - `reactmui` mounts the user's JSX component with React, Material UI and
+ *   Babel standalone, all loaded from a CDN inside the sandboxed frame.
  */
-export function buildPreviewDocument(language: "html" | "css", code: string): string {
+export function buildPreviewDocument(
+  language: PlaygroundLanguage,
+  code: string,
+): string {
   if (language === "css") {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -155,7 +161,20 @@ ${PREVIEW_BRIDGE}
 </html>`;
   }
 
+  if (language === "reactmui") {
+    return muiDocument(code);
+  }
+
   const source = code.trim();
+
+  if (language === "tailwind") {
+    if (!source) return wrapFragment("<p style=\"padding:24px\">Nothing to preview yet.</p>");
+    const looksLikeDocument = /<html[\s>]/i.test(source) || /<!doctype/i.test(source);
+    if (!looksLikeDocument) return wrapFragment(source);
+    const withTailwind = hasTailwind(source) ? source : insertAfterHead(source, TAILWIND_CDN_SNIPPET);
+    return injectBefore(withTailwind, "</body>", PREVIEW_BRIDGE);
+  }
+
   if (!source) return wrapFragment("<p style=\"padding:24px\">Nothing to preview yet.</p>");
 
   const looksLikeDocument = /<html[\s>]/i.test(source) || /<!doctype/i.test(source);

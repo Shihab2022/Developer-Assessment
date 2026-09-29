@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ChevronRight, CircleDashed, SearchX, Timer } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, CircleDashed, SearchX, Timer } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Select";
 import { usePracticeHydrated, usePracticeStore, isSolved } from "@/store/practice";
@@ -14,7 +15,15 @@ import { cn } from "@/lib/utils";
 type DifficultyFilter = "ALL" | "EASY" | "MEDIUM" | "HARD";
 type StatusFilter = "ALL" | "SOLVED" | "UNSOLVED";
 
-/** Filterable problem list — LeetCode table style. */
+/** Rows rendered before the first "Show more" — keeps a 1000+ list responsive. */
+const PAGE_SIZE = 60;
+
+/**
+ * Filterable problem list — LeetCode table style.
+ *
+ * The bank now holds 1000+ problems, so the list renders in pages of
+ * `PAGE_SIZE` and the counter always reports how many rows are on screen.
+ */
 export function ProblemTable({
   problems,
   topics,
@@ -29,6 +38,7 @@ export function ProblemTable({
   const [difficulty, setDifficulty] = useState<DifficultyFilter>("ALL");
   const [topic, setTopic] = useState<string>("ALL");
   const [status, setStatus] = useState<StatusFilter>("ALL");
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -47,6 +57,13 @@ export function ProblemTable({
       return true;
     });
   }, [problems, search, difficulty, topic, status, hydrated, solved]);
+
+  // Any filter change starts the paged view over.
+  useEffect(() => {
+    setLimit(PAGE_SIZE);
+  }, [search, difficulty, topic, status, problems]);
+
+  const shown = filtered.slice(0, limit);
 
   return (
     <div>
@@ -98,7 +115,7 @@ export function ProblemTable({
         </div>
       ) : (
         <ul className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
-          {filtered.map((problem, index) => {
+          {shown.map((problem, index) => {
             const problemSolved = hydrated && isSolved(solved, problem.id);
             return (
               <li key={problem.id} className={cn(index > 0 && "border-t border-border")}>
@@ -136,9 +153,18 @@ export function ProblemTable({
         </ul>
       )}
 
+      {filtered.length > shown.length && (
+        <div className="mt-4 flex justify-center">
+          <Button variant="outline" onClick={() => setLimit((count) => count + PAGE_SIZE)}>
+            <ChevronDown />
+            Show {Math.min(PAGE_SIZE, filtered.length - shown.length)} more
+          </Button>
+        </div>
+      )}
+
       <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <Timer className="size-3.5" />
-        Showing {filtered.length} of {problems.length} problems
+        Showing {shown.length} of {filtered.length} matching problems ({problems.length} in the arena)
       </p>
     </div>
   );
