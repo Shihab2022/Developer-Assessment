@@ -2,9 +2,8 @@
 
 import { useCallback, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { Loader2, RotateCcw } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,14 +21,11 @@ export interface PlaygroundEditorProps {
   value: string;
   /** Monaco language id — see `PLAYGROUND_LANGUAGES`. */
   monaco: string;
-  /** File name shown above the editor, e.g. `main.py`. */
-  fileName: string;
   /** Indentation width (Python uses four spaces). */
   tabSize: number;
   onChange: (value: string) => void;
   /** Bound to Ctrl/Cmd + Enter. */
   onRun?: () => void;
-  onReset: () => void;
   readOnly?: boolean;
   className?: string;
 }
@@ -37,11 +33,9 @@ export interface PlaygroundEditorProps {
 export default function PlaygroundEditor({
   value,
   monaco,
-  fileName,
   tabSize,
   onChange,
   onRun,
-  onReset,
   readOnly = false,
   className,
 }: PlaygroundEditorProps) {
@@ -58,25 +52,6 @@ export default function PlaygroundEditor({
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-3 py-2">
-        <span className="font-mono text-xs font-medium text-muted-foreground">{fileName}</span>
-        <div className="flex items-center gap-2">
-          <span className="hidden text-[11px] text-muted-foreground sm:inline">
-            Ctrl/Cmd + Enter to run
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            disabled={readOnly}
-            title="Restore the starter snippet"
-          >
-            <RotateCcw />
-            Reset
-          </Button>
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1">
         <Editor
           height="100%"

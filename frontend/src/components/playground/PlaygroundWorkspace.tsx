@@ -1,26 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { Copy, Loader2, Play, RotateCcw, TerminalSquare } from "lucide-react";
+import { Copy, Loader2, Play, RotateCcw, Terminal, TerminalSquare } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { SwitchField } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-import { PlaygroundConsole } from "@/components/playground/PlaygroundConsole";
+  PlaygroundConsole,
+  PlaygroundRunStatus,
+} from "@/components/playground/PlaygroundConsole";
 import { PreviewPane } from "@/components/playground/PreviewPane";
 import {
   DEFAULT_PLAYGROUND_LANGUAGE,
-  PLAYGROUND_GROUPS,
   PLAYGROUND_LANGUAGES,
   acceptsStdin,
   isPreviewLanguage,
@@ -45,10 +38,11 @@ import { cn } from "@/lib/utils";
  * - HTML, CSS, Tailwind and React + MUI render in the sandboxed preview pane,
  *   where the Tailwind compiler and Babel run inside the frame itself.
  *
- * The layout follows what people expect from an online IDE: language picker and
- * Run button on top, editor on the left, and an Output / Preview / Input panel on
- * the right (stacked on narrow screens). Drafts, the active tab and the Input
- * buffer are persisted per language, so a refresh never loses work.
+ * The layout mirrors the online-compiler chrome people already know (Programiz,
+ * JSFiddle): a language rail down the left, a file tab with the Run button over
+ * the editor, and an Output / Preview / Input panel across a draggable divider
+ * (stacked on narrow screens). Drafts, the active tab and the Input buffer are
+ * persisted per language, so a refresh never loses work.
  */
 
 /** Monaco is client-only and heavy, so it loads after the layout paints. */
@@ -120,6 +114,23 @@ export function PlaygroundWorkspace() {
   const [previewLogs, setPreviewLogs] = useState<ConsoleLine[]>([]);
   const [previewDoc, setPreviewDoc] = useState("");
   const [frameKey, setFrameKey] = useState(0);
+  /** Editor pane width as a percentage of the split row (desktop only). */
+  const [split, setSplit] = useState(50);
+  /** True while the divider is being dragged. */
+  const [dragging, setDragging] = useState(false);
+  /** True at the `lg` breakpoint, where the two panes sit side by side. */
+  const [isWide, setIsWide] = useState(false);
+  const splitAreaRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLElement>(null);
+
+  // The divider only exists from `lg` up, so mirror Tailwind's breakpoint.
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setIsWide(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   const meta = playgroundLanguage(language);
   const preview = isPreviewLanguage(language);
@@ -288,94 +299,183 @@ export function PlaygroundWorkspace() {
   }, [preview, stdinAvailable]);
 
   return (
-    <div className="mt-8 flex h-[calc(100vh-11rem)] min-h-[620px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card sm:h-[calc(100vh-9.5rem)]">
-      {/* Toolbar: language picker + actions */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-3 py-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <Select
-            value={language}
-            onValueChange={(value) => handleLanguageChange(value as PlaygroundLanguage)}
-          >
-            <SelectTrigger className="h-9 w-[11.5rem] text-sm" aria-label="Programming language">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PLAYGROUND_GROUPS.map((group) => (
-                <SelectGroup key={group}>
-                  <SelectLabel>{group}</SelectLabel>
-                  {PLAYGROUND_LANGUAGES.filter((entry) => entry.group === group).map((entry) => (
-                    <SelectItem key={entry.value} value={entry.value}>
-                      {entry.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <span className="hidden items-center gap-2 sm:flex">
-            <span className="font-mono text-xs text-muted-foreground">{meta.fileName}</span>
-            <Badge tone={runtime.tone} size="sm">
-              {runtime.label}
-            </Badge>
+    <div className="flex min-h-[560px] flex-1 flex-col overflow-hidden border-t border-border bg-card">
+      {/* Title bar: the "<language> Online Compiler" header */}
+      <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-muted/30 px-3 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-600 text-white">
+            <Terminal className="size-4" />
           </span>
+          <div className="min-w-0">
+            <h1 className="truncate text-sm font-semibold text-foreground sm:text-base">
+              {meta.label} Online Compiler
+            </h1>
+            <p
+              className="hidden truncate text-xs text-muted-foreground md:block"
+              title={meta.blurb}
+            >
+              {meta.blurb}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleCopy}>
-            <Copy />
-            <span className="hidden sm:inline">Copy</span>
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleReset}>
-            <RotateCcw />
-            Reset
-          </Button>
-          <Button size="sm" onClick={handleRun} loading={busy} disabled={busy}>
-            {!busy && <Play />}
-            {meta.actionLabel}
-          </Button>
-        </div>
+        <Badge tone={runtime.tone} size="sm">
+          {runtime.label}
+        </Badge>
       </div>
 
-      <p className="border-b border-border px-4 py-2 text-xs leading-relaxed text-muted-foreground">
-        {meta.blurb}
-      </p>
-
-      {/* Editor | panel */}
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
-        <div className="flex min-h-[280px] flex-col border-b border-border lg:border-b-0 lg:border-r">
-          <PlaygroundEditor
-            value={code}
-            monaco={meta.monaco}
-            fileName={meta.fileName}
-            tabSize={meta.tabSize}
-            onChange={handleCodeChange}
-            onRun={busy ? undefined : handleRun}
-            onReset={handleReset}
-            className="h-full"
-          />
-        </div>
-
-        <div className="flex min-h-[280px] flex-col">
-          {/* Panel tabs */}
-          <div className="no-scrollbar flex shrink-0 items-center gap-1 overflow-x-auto border-b border-border bg-muted/20 px-2">
-            {panes.map((entry) => (
+      {/* Language rail + editor/output split */}
+      <div ref={splitAreaRef} className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <nav
+          ref={railRef}
+          aria-label="Playground languages"
+          className="no-scrollbar flex shrink-0 gap-1 overflow-x-auto border-b border-border bg-muted/20 p-1.5 lg:w-14 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto lg:border-b-0 lg:border-r lg:p-2"
+        >
+          {PLAYGROUND_LANGUAGES.map((entry) => {
+            const active = entry.value === language;
+            return (
               <button
-                key={entry.id}
+                key={entry.value}
                 type="button"
-                role="tab"
-                aria-selected={pane === entry.id}
-                onClick={() => setPane(entry.id)}
+                onClick={() => handleLanguageChange(entry.value)}
+                title={entry.label}
+                aria-label={entry.label}
+                aria-pressed={active}
                 className={cn(
-                  "-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide transition-colors",
-                  pane === entry.id
-                    ? "border-primary-600 text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
+                  "grid size-10 shrink-0 place-items-center rounded-lg text-[11px] font-bold uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+                  active
+                    ? "bg-primary-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:bg-border hover:text-foreground",
                 )}
               >
-                {entry.label}
+                {entry.shortLabel}
               </button>
-            ))}
+            );
+          })}
+        </nav>
+
+        {/* Editor pane: file tab strip with Copy / Reset / Run, like an IDE */}
+        <section
+          className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-border lg:flex-none lg:border-b-0"
+          style={isWide ? { width: `${split}%` } : undefined}
+        >
+          <div className="flex h-11 shrink-0 items-stretch justify-between gap-2 border-b border-border bg-muted/40 px-2">
+            <div className="flex min-w-0 items-stretch">
+              <span className="flex items-center border-b-2 border-primary-600 px-2 font-mono text-xs font-medium text-foreground">
+                {meta.fileName}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="ghost"
+                size="iconSm"
+                onClick={handleCopy}
+                title="Copy code"
+                aria-label="Copy code"
+              >
+                <Copy />
+              </Button>
+              <Button
+                variant="ghost"
+                size="iconSm"
+                onClick={handleReset}
+                title="Restore the starter snippet"
+                aria-label="Restore the starter snippet"
+              >
+                <RotateCcw />
+              </Button>
+              <Button size="sm" onClick={handleRun} loading={busy} disabled={busy}>
+                {!busy && <Play />}
+                {meta.actionLabel}
+              </Button>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1">
+            <PlaygroundEditor
+              value={code}
+              monaco={meta.monaco}
+              tabSize={meta.tabSize}
+              onChange={handleCodeChange}
+              onRun={busy ? undefined : handleRun}
+              className="h-full"
+            />
+          </div>
+        </section>
+
+        {/* Draggable divider between the editor and the output pane */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize the editor and output panes"
+          aria-valuenow={Math.round(split)}
+          aria-valuemin={25}
+          aria-valuemax={75}
+          title="Drag to resize · double-click to reset"
+          style={{ touchAction: "none" }}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            setDragging(true);
+          }}
+          onPointerMove={(event) => {
+            if (!dragging || !isWide) return;
+            const rect = splitAreaRef.current?.getBoundingClientRect();
+            const rail = railRef.current?.getBoundingClientRect();
+            if (!rect || !rail || rect.width <= 0) return;
+            const next = ((event.clientX - rect.left - rail.width) / rect.width) * 100;
+            setSplit(Math.min(75, Math.max(25, next)));
+          }}
+          onPointerUp={(event) => {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            setDragging(false);
+          }}
+          onPointerCancel={() => setDragging(false)}
+          onDoubleClick={() => setSplit(50)}
+          className={cn(
+            "hidden w-2 shrink-0 cursor-col-resize select-none items-center justify-center border-r border-border transition-colors lg:flex",
+            dragging
+              ? "bg-primary-100 dark:bg-primary-950/60"
+              : "bg-muted/40 hover:bg-primary-100/60 dark:hover:bg-primary-950/40",
+          )}
+        >
+          <span className="h-10 w-0.5 rounded-full bg-border" aria-hidden="true" />
+        </div>
+
+        {/* Output / preview / input pane */}
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-[2.75rem] shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-border bg-muted/40 px-2 py-1">
+            <div
+              role="tablist"
+              aria-label="Output panels"
+              className="no-scrollbar flex items-center gap-1 overflow-x-auto"
+            >
+              {panes.map((entry) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={pane === entry.id}
+                  onClick={() => setPane(entry.id)}
+                  className={cn(
+                    "flex h-9 items-center whitespace-nowrap border-b-2 px-3 text-xs font-semibold uppercase tracking-wide transition-colors",
+                    pane === entry.id
+                      ? "border-primary-600 text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {entry.label}
+                </button>
+              ))}
+            </div>
+
+            <PlaygroundRunStatus
+              result={consoleResult}
+              busy={busy}
+              status={progress}
+              onClear={handleClear}
+            />
           </div>
 
           <div className="min-h-0 flex-1">
@@ -394,7 +494,6 @@ export function PlaygroundWorkspace() {
                 busy={busy}
                 status={progress}
                 emptyHint={meta.emptyHint}
-                onClear={handleClear}
                 className="h-full"
               />
             )}
@@ -418,32 +517,36 @@ export function PlaygroundWorkspace() {
               </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
 
-      {/* Footer: live-preview switch, or a note about how to run */}
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-2.5">
-        {preview ? (
-          <SwitchField
-            id="playground-auto-preview"
-            checked={autoPreview}
-            onCheckedChange={setAutoPreview}
-            label="Live preview while typing"
-            description="Turn this off to render only when you press the run button."
-            className="max-w-md"
-          />
-        ) : (
-          <span className="text-[11px] text-muted-foreground">
-            Ctrl/Cmd + Enter runs the snippet · drafts and input are saved per language
-          </span>
-        )}
+      {/* Status bar: shortcuts, live-preview switch, sandbox notes */}
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+        <span className="truncate">
+          Ctrl/Cmd + Enter runs the snippet · drafts and input are saved per language
+          {isWide ? " · drag the divider to resize the panes" : ""}
+        </span>
 
-        {runtime.tone === "amber" && (
-          <span className="text-[11px] text-muted-foreground">
-            {meta.label} runs on a remote sandbox — set{" "}
-            <code className="font-mono">NEXT_PUBLIC_CODE_RUNNER_URL</code> to use your own runner.
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {preview ? (
+            <label
+              htmlFor="playground-auto-preview"
+              className="flex cursor-pointer items-center gap-2 whitespace-nowrap"
+            >
+              <span>Live preview while typing</span>
+              <Switch
+                id="playground-auto-preview"
+                checked={autoPreview}
+                onCheckedChange={setAutoPreview}
+              />
+            </label>
+          ) : runtime.tone === "amber" ? (
+            <span className="truncate">
+              {meta.label} runs on a remote sandbox — set{" "}
+              <code className="font-mono">NEXT_PUBLIC_CODE_RUNNER_URL</code> to use your own runner.
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
   );

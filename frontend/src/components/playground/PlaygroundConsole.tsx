@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Clock, Eraser, Loader2, Terminal } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Eraser, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import type { ConsoleLine, ResultTable, RunResult } from "@/lib/playground/types";
@@ -40,6 +40,81 @@ const STATUS_STYLES: Record<
   },
 };
 
+/**
+ * Run status cluster shown in the output pane's header: a spinner while the run
+ * is in flight, the exit status afterwards, and a shortcut to clear the console.
+ *
+ * Deliberately separate from `PlaygroundConsole` so the workspace can put the
+ * pane tabs and this cluster on one row, the way online compilers do.
+ */
+export interface PlaygroundRunStatusProps {
+  result: RunResult | null;
+  /** True while a run is in flight. */
+  busy: boolean;
+  /** Progress text streamed by the runner (Python/SQL runtime download, …). */
+  status?: string | null;
+  onClear: () => void;
+  className?: string;
+}
+
+export function PlaygroundRunStatus({
+  result,
+  busy,
+  status,
+  onClear,
+  className,
+}: PlaygroundRunStatusProps) {
+  const style = result ? STATUS_STYLES[result.status] : null;
+  const StatusIcon = style?.icon;
+  const hasLogs = (result?.logs.length ?? 0) > 0;
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-end gap-2 text-[11px] text-muted-foreground",
+        className,
+      )}
+    >
+      {busy && (
+        <span className="flex items-center gap-1.5">
+          <Loader2 className="size-3.5 animate-spin" />
+          {status ?? "Running…"}
+        </span>
+      )}
+
+      {!busy && style && StatusIcon && (
+        <span className={cn("flex items-center gap-1.5 font-semibold", style.tone)}>
+          <StatusIcon className="size-3.5" />
+          {style.label}
+        </span>
+      )}
+
+      {!busy && result && (
+        <>
+          <Badge tone={result.status === "success" ? "green" : "red"} size="sm">
+            exit {result.exitCode}
+          </Badge>
+          {result.durationMs > 0 && (
+            <span className="font-mono">{result.durationMs.toFixed(0)} ms</span>
+          )}
+          {result.transpiled && (
+            <Badge tone="blue" size="sm">
+              TypeScript → JS
+            </Badge>
+          )}
+        </>
+      )}
+
+      {hasLogs && !busy && (
+        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={onClear}>
+          <Eraser />
+          Clear
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export interface PlaygroundConsoleProps {
   result: RunResult | null;
   /** True while a run is in flight. */
@@ -48,7 +123,6 @@ export interface PlaygroundConsoleProps {
   status?: string | null;
   /** Copy shown before the first run. */
   emptyHint: string;
-  onClear: () => void;
   className?: string;
 }
 
@@ -112,62 +186,13 @@ export function PlaygroundConsole({
   busy,
   status,
   emptyHint,
-  onClear,
   className,
 }: PlaygroundConsoleProps) {
-  const style = result ? STATUS_STYLES[result.status] : null;
-  const StatusIcon = style?.icon;
   const logs = result?.logs ?? [];
   const hasLogs = logs.length > 0;
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2.5">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <Terminal className="size-3.5" />
-          Output
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-          {busy && (
-            <span className="flex items-center gap-1.5">
-              <Loader2 className="size-3.5 animate-spin" />
-              {status ?? "Running…"}
-            </span>
-          )}
-
-          {!busy && style && StatusIcon && (
-            <span className={cn("flex items-center gap-1.5 font-semibold", style.tone)}>
-              <StatusIcon className="size-3.5" />
-              {style.label}
-            </span>
-          )}
-
-          {!busy && result && (
-            <>
-              <Badge tone={result.status === "success" ? "green" : "red"} size="sm">
-                exit {result.exitCode}
-              </Badge>
-              {result.durationMs > 0 && (
-                <span className="font-mono">{result.durationMs.toFixed(0)} ms</span>
-              )}
-              {result.transpiled && (
-                <Badge tone="blue" size="sm">
-                  TypeScript → JS
-                </Badge>
-              )}
-            </>
-          )}
-
-          {hasLogs && !busy && (
-            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={onClear}>
-              <Eraser />
-              Clear
-            </Button>
-          )}
-        </div>
-      </div>
-
       <div className="thin-scrollbar min-h-0 flex-1 overflow-auto bg-slate-950 px-4 py-3 font-mono text-[12.5px] leading-relaxed">
         {logs.map((line, index) => (
           <div key={`${index}-${line.level}`} className={cn("whitespace-pre-wrap", LEVEL_STYLES[line.level])}>
