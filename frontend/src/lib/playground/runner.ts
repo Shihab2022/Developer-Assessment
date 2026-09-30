@@ -5,6 +5,7 @@ import {
   PYTHON_LOAD_TIMEOUT_MS,
   PYTHON_RUN_TIMEOUT_MS,
   PYTHON_WORKER_URL,
+  REMOTE_PROXY_URL,
   REMOTE_RUNNER_URL,
   REMOTE_TIMEOUT_MS,
   SCRIPT_TIMEOUT_MS,
@@ -12,7 +13,13 @@ import {
   SQL_RUN_TIMEOUT_MS,
   SQL_WORKER_URL,
 } from "./limits";
-import type { ConsoleLine, PlaygroundLanguage, ResultTable, RunResult } from "./types";
+import type {
+  ConsoleLine,
+  PlaygroundLanguage,
+  RemoteExecuteOutcome,
+  ResultTable,
+  RunResult,
+} from "./types";
 
 /**
  * Main-thread bridge to the playground sandboxes (requirement 3).
@@ -26,9 +33,9 @@ import type { ConsoleLine, PlaygroundLanguage, ResultTable, RunResult } from "./
  *   and kept warm, because booting CPython costs a ~10 MB download.
  * - **SQL** is delegated to SQLite compiled to WebAssembly (sql.js), again in a
  *   long-lived worker seeded with a demo schema.
- * - **Go and Java** are dispatched to a remote, containerised sandbox
- *   (`REMOTE_RUNNER_URL`, Piston protocol). Nothing else can execute them from a
- *   browser tab, and the UI says so.
+ * - **Go and Java** go through `runRemote`: a self-hosted / whitelisted Piston
+ *   endpoint when `NEXT_PUBLIC_CODE_RUNNER_URL` is set, otherwise the app's own
+ *   `/api/playground/execute` route (official Go playground + public Judge0).
  *
  * HTML, CSS, Tailwind and React + MUI never reach this module — they render in
  * the preview pane.
@@ -439,27 +446,22 @@ function toLines(text: string | undefined, level: ConsoleLine["level"]): Console
     .split("\n")
     .map((line) => ({ level, text: line }));
 }
-
 /**
- * Runs Go or Java on a remote, containerised sandbox.
+ * Posts the snippet to a self-hosted / whitelisted Piston v2 endpoint.
  *
- * A browser tab cannot execute these languages, so the snippet is posted to a
- * Piston-compatible endpoint (`REMOTE_RUNNER_URL`) together with the Input tab's
- * stdin. Compiler output is surfaced as well, which is where Go and Java users
- * spend most of their time.
+ * Returns `null` when the endpoint refuses or cannot be reached, so the caller
+ * can fall through to the built-in public sandboxes instead of showing the raw
+ * 401 the whitelist-only public Piston now answers with.
  */
-export async function runRemote(options: {
+async function runPistonRemote(options: {
   language: "go" | "java";
   code: string;
   stdin?: string;
   fileName: string;
-  onStatus?: (message: string) => void;
-}): Promise<RunResult> {
-  const { language, code, stdin, fileName, onStatus } = options;
+}): Promise<RunResult | null> {
+  if (!REMOTE_RUNNER_URL) return null;
 
-  if (!code.trim()) return errorResult(language, "Write some code before running it.");
-
-  onStatus?.("Sending the program to the sandbox…");
+  const { language, code, stdin, fileName } = options;
   const startedAt = performance.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS);
@@ -481,14 +483,7 @@ export async function runRemote(options: {
       }),
     });
 
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      return errorResult(
-        language,
-        `The remote sandbox answered ${response.status}. ${detail.slice(0, 200)}`.trim(),
-        performance.now() - startedAt,
-      );
-    }
+    if (!response.ok) return null;
 
     const payload = (await response.json()) as PistonResponse;
     const logs: ConsoleLine[] = [
@@ -513,13 +508,109 @@ export async function runRemote(options: {
       durationMs: performance.now() - startedAt,
       transpiled: false,
     };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Maps the proxy route's normalised outcome onto the console's RunResult shape.
+ * Compile output comes first (that is where Go/Java users spend most of their
+ * time), then sandbox notes, then the captured streams.
+ */
+function outcomeToResult(language: PlaygroundLanguage, outcome: RemoteExecuteOutcome): RunResult {
+  const logs: ConsoleLine[] = [];
+  if (outcome.compileOutput) logs.push({ level: "error", text: outcome.compileOutput });
+  if (outcome.message) logs.push({ level: "system", text: outcome.message });
+  logs.push(...toLines(outcome.stdout, "log"));
+  logs.push(...toLines(outcome.stderr, outcome.status === "success" ? "warn" : "error"));
+
+  const failed = outcome.status !== "success";
+  const firstError = outcome.compileOutput || outcome.stderr || outcome.message || null;
+
+  return {
+    language,
+    status: outcome.status,
+    exitCode: outcome.exitCode,
+    logs,
+    error: failed ? (firstError ?? "The program failed.") : undefined,
+    durationMs: outcome.durationMs,
+    transpiled: false,
+  };
+}
+
+/**
+ * Runs Go or Java on a remote, containerised sandbox.
+ *
+ * A browser tab cannot execute these languages, so the snippet travels one of
+ * two routes (first one configured wins):
+ *
+ * 1. A self-hosted / whitelisted Piston v2 endpoint when
+ *    `NEXT_PUBLIC_CODE_RUNNER_URL` is set — it receives the full request,
+ *    including the Input tab's stdin.
+ * 2. Otherwise the app's own `/api/playground/execute` route, which talks to
+ *    the official Go playground and the public Judge0 instance from the
+ *    server. Neither allows CORS from a browser, and the public Piston API is
+ *    whitelist-only nowadays, so the server hop is what keeps these tabs
+ *    working out of the box.
+ */
+export async function runRemote(options: {
+  language: "go" | "java";
+  code: string;
+  stdin?: string;
+  fileName: string;
+  onStatus?: (message: string) => void;
+}): Promise<RunResult> {
+  const { language, code, stdin, fileName, onStatus } = options;
+
+  if (!code.trim()) return errorResult(language, "Write some code before running it.");
+
+  if (REMOTE_RUNNER_URL) {
+    onStatus?.("Trying the configured remote sandbox…");
+    const piston = await runPistonRemote({ language, code, stdin, fileName });
+    if (piston) return piston;
+  }
+
+  onStatus?.(
+    language === "go"
+      ? "Sending the program to the Go playground…"
+      : "Compiling on the public Java sandbox…",
+  );
+  const startedAt = performance.now();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(REMOTE_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({ language, code, stdin: stdin ?? "" }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as
+      | (RemoteExecuteOutcome & { error?: string })
+      | null;
+
+    if (!response.ok || !payload || payload.error) {
+      return errorResult(
+        language,
+        payload?.error ??
+          `The ${language === "go" ? "Go" : "Java"} sandbox answered ${response.status}. Try again, or set NEXT_PUBLIC_CODE_RUNNER_URL to your own runner.`,
+        performance.now() - startedAt,
+      );
+    }
+
+    return outcomeToResult(language, payload);
   } catch (error) {
     const aborted = (error as Error).name === "AbortError";
     return errorResult(
       language,
       aborted
         ? `The sandbox did not answer within ${REMOTE_TIMEOUT_MS / 1000} seconds. It may be busy — try again.`
-        : "The remote sandbox is unreachable. Go and Java need a running code-runner (see NEXT_PUBLIC_CODE_RUNNER_URL).",
+        : "The playground could not reach its code runner. Check your connection and try again.",
       performance.now() - startedAt,
     );
   } finally {

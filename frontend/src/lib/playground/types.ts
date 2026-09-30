@@ -48,6 +48,25 @@ export interface ResultTable {
 
 export type RunStatus = "idle" | "running" | "success" | "error" | "timeout";
 
+/**
+ * Normalised answer produced by the `/api/playground/execute` proxy route for
+ * Go and Java. The route talks to the official Go playground and the public
+ * Judge0 instance server-side and maps their responses onto this shape.
+ */
+export interface RemoteExecuteOutcome {
+  status: Exclude<RunStatus, "idle" | "running">;
+  exitCode: number;
+  /** Captured standard output. */
+  stdout: string;
+  /** Captured standard error. */
+  stderr: string;
+  /** Compiler / vet diagnostics (build failures). */
+  compileOutput: string;
+  /** Extra note from the sandbox (vet warnings, Judge0 status, …). */
+  message: string | null;
+  durationMs: number;
+}
+
 /** Outcome of a script/python/sql run or of a preview render. */
 export interface RunResult {
   language: PlaygroundLanguage;

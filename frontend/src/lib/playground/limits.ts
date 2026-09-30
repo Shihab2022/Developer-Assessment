@@ -23,10 +23,17 @@ export const SQL_WORKER_URL = "/playground/sql-worker.js";
 export const REMOTE_TIMEOUT_MS = 30_000;
 
 /**
- * Remote sandbox endpoint used for the languages that cannot run in a browser
- * (Go and Java). It speaks the Piston v2 protocol, so pointing this at a
- * self-hosted Piston instance — or at the platform's own runner — is a matter
- * of setting `NEXT_PUBLIC_CODE_RUNNER_URL`.
+ * Optional Piston v2 endpoint for the languages that cannot run in a browser
+ * (Go and Java).
+ *
+ * The public Piston API turned whitelist-only on 2026-02-15, so it is no longer
+ * the default. Without this variable the playground uses its own same-origin
+ * proxy route (`/api/playground/execute`), which talks to the official Go
+ * playground and the public Judge0 instance from the server — neither allows
+ * CORS calls from a browser tab. Pointing this at your own (or whitelisted)
+ * Piston makes it the preferred runner, with the proxy as fallback.
  */
-export const REMOTE_RUNNER_URL =
-  process.env.NEXT_PUBLIC_CODE_RUNNER_URL ?? "https://emkc.org/api/v2/piston/execute";
+export const REMOTE_RUNNER_URL = process.env.NEXT_PUBLIC_CODE_RUNNER_URL?.trim() || null;
+
+/** Same-origin proxy that fans Go/Java out to the public sandboxes. */
+export const REMOTE_PROXY_URL = "/api/playground/execute";

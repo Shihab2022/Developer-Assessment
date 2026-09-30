@@ -12,6 +12,7 @@ import {
   PlaygroundRunStatus,
 } from "@/components/playground/PlaygroundConsole";
 import { PreviewPane } from "@/components/playground/PreviewPane";
+import { LANGUAGE_ICON_PATHS } from "@/lib/playground/language-icons";
 import {
   DEFAULT_PLAYGROUND_LANGUAGE,
   PLAYGROUND_LANGUAGES,
@@ -348,7 +349,16 @@ export function PlaygroundWorkspace() {
                     : "text-muted-foreground hover:bg-border hover:text-foreground",
                 )}
               >
-                {entry.shortLabel}
+                {/* Brand glyph on the vertical rail, short label in the mobile strip. */}
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="hidden size-5 lg:block"
+                  fill="currentColor"
+                >
+                  <path d={LANGUAGE_ICON_PATHS[entry.value]} />
+                </svg>
+                <span className="lg:hidden">{entry.shortLabel}</span>
               </button>
             );
           })}

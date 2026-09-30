@@ -151,6 +151,17 @@ function muiDocument(code: string): string {
 <script crossorigin src="${REACT_DOM_CDN}"></script>
 <script src="${MUI_CDN}"></script>
 <script src="${BABEL_CDN}"></script>
+<script>
+  // The snippets use 'mui.*'; the MUI UMD build registers itself as
+  // 'window.MaterialUI', so alias it here. If the CDN failed (offline, blocked
+  // request) the preview would otherwise stay blank — report that instead.
+  window.mui = window.MaterialUI || null;
+  if (!window.mui) {
+    console.error(
+      "Material UI could not be loaded from unpkg — check your connection and press Run again."
+    );
+  }
+</script>
 <style>
   body { margin: 0; background: #f8fafc; font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; }
 </style>
