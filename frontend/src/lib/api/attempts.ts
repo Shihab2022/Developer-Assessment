@@ -19,6 +19,10 @@ import type { AttemptListParams, ListParams } from "./payloads";
 export const attemptsApi = {
   /* ---- candidate ---- */
 
+  /** Starts an attempt for the signed-in candidate (returns the created attempt). */
+  start: (assessmentId: string) =>
+    apiPost<Attempt>(endpoints.assessments.startAttempt(assessmentId)),
+
   mine: (params?: AttemptListParams) =>
     apiGetPaginated<Attempt>(endpoints.attempts.mine, { params: compactParams({ ...(params ?? {}) }) }),
 

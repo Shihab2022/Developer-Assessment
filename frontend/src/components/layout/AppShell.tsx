@@ -17,7 +17,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/Button";
 import { BrandLogo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
-import { navForRole, isNavActive, type NavItem } from "@/lib/constants";
+import { navForRole, isNavActive, dashboardPathForRole, type NavItem } from "@/lib/constants";
 import type { Role } from "@/lib/types";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -82,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
-          <BrandLogo size="sm" />
+          <BrandLogo size="sm" href={dashboardPathForRole(user.role)} />
           <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             ×
           </Button>
@@ -125,7 +125,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <NotificationBell />
             <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={() => router.push("/candidate/me")} className="h-9 w-9 rounded-full p-0">
+            <Button variant="ghost" size="sm" onClick={() => router.push(dashboardPathForRole(user.role))} className="h-9 w-9 rounded-full p-0" aria-label="Go to dashboard">
               {user.profileImageUrl ? (
                 <img src={user.profileImageUrl} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
               ) : (

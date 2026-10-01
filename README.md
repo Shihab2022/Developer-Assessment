@@ -8,6 +8,7 @@ and generating results, reports, and analytics.
 
 | Resource | Link |
 |---|---|
+| **Roles, registration, email confirmation & exam-invitation flows** | [`docs/AUTH_AND_EMAIL.md`](docs/AUTH_AND_EMAIL.md) |
 | Backend setup, architecture, env vars, deployment | [`server/README.md`](server/README.md) |
 | Full REST API reference (enums, DB models, Postman) | [`server/api.md`](server/api.md) |
 | Interactive Swagger UI | `http://localhost:5000/api/docs` |
@@ -15,7 +16,17 @@ and generating results, reports, and analytics.
 
 ## ✨ Features
 
-- **Three roles** — `CANDIDATE`, `RECRUITER`, `ADMIN` with strict authorization.
+- **Four roles** — `CANDIDATE`, `RECRUITER`, `COMPANY` (company owner) and `ADMIN`
+  with strict authorization. A `COMPANY` owner creates the company, receives a
+  friendly join code and controls the company's recruiters.
+- **Email confirmation** — registration sends a confirmation link (nodemailer +
+  Google SMTP); the account can only sign in after the address is confirmed.
+  With no SMTP configured the account is auto-verified so local dev still works.
+- **Friendly company join code** — recruiters join a company with a short code
+  (e.g. `TECHCOR-4F2A19`) instead of pasting a UUID.
+- **Invite → exam link → result emails** — recruiters invite candidates by email;
+  the candidate opens the link, signs in (or registers), takes the exam **once**,
+  and receives their result by email.
 - **Problem bank** — coding, MCQ, and written problems with test cases, options, tags,
   difficulty, categories, and full-text search.
 - **Assessments** — configurable duration, passing score, max attempts, shuffling,
@@ -38,6 +49,21 @@ and generating results, reports, and analytics.
 - **Audit logs & soft delete** — every critical operation is recorded; entities use `deletedAt`.
 - **Security** — Helmet, CORS, JWT access + refresh rotation, bcrypt, Zod validation,
   rate limiting, and per-resource ownership checks.
+
+## 🔄 How it works (short version)
+
+| Step | What happens |
+|---|---|
+| 1 | **Register** on a dedicated page: `/register/candidate`, `/register/recruiter` (needs a company join code) or `/register/company` (creates the company). |
+| 2 | A **confirmation email** is sent. Until the address is confirmed, login returns `403`. |
+| 3 | A **company owner** (`COMPANY`) copies the join code and invites recruiters from **Recruiter → Company → Team & recruiters**. |
+| 4 | A **recruiter** invites candidates to an assessment; each candidate receives an **email with a personal exam link**. |
+| 5 | The candidate opens the link, **signs in or registers** with the invited email, and **starts the exam** (server-timed). |
+| 6 | The email is single-use: once the exam is started it **cannot be taken again with that Gmail address**. |
+| 7 | On submit the **result is stored**, the candidate is notified in-app and receives a **result email**. |
+
+Full details, diagrams and endpoint tables:
+[`docs/AUTH_AND_EMAIL.md`](docs/AUTH_AND_EMAIL.md).
 
 ## 📁 Repository Structure
 

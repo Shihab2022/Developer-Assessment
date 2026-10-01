@@ -57,10 +57,32 @@ const getMe = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const verifyEmail = catchAsync(async (req: Request, res: Response) => {
+  const token = String(req.body?.token ?? req.query.token ?? "");
+  const result = await AuthServices.verifyEmail(token);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Email confirmed successfully. You can now sign in.",
+    data: result,
+  });
+});
+
+const resendVerification = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.resendVerification(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message:
+      "If an unconfirmed account exists for that email, a new confirmation link has been sent.",
+    data: result,
+  });
+});
+
 export const AuthController = {
   register,
   login,
   refreshToken,
   logout,
   getMe,
+  verifyEmail,
+  resendVerification,
 };

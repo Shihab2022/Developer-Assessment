@@ -6,11 +6,27 @@ import {
   createInvitationSchema,
   invitationListQuerySchema,
   invitationParamsSchema,
+  invitationTokenParamsSchema,
 } from "./invitations.validation";
 import { invitationRateLimiter } from "../../middlewares/rateLimiter";
 
 // Routes under /api/v1/invitations
 export const InvitationRouter = express.Router();
+
+// Public exam-link lookup (opened from the invitation email, before sign-in).
+InvitationRouter.get(
+  "/token/:token",
+  validate(invitationTokenParamsSchema),
+  InvitationController.getByToken,
+);
+
+// Candidate accepts their personal exam link after signing in.
+InvitationRouter.post(
+  "/token/:token/accept",
+  auth("CANDIDATE"),
+  validate(invitationTokenParamsSchema),
+  InvitationController.acceptByToken,
+);
 
 InvitationRouter.post(
   "/:id/resend",

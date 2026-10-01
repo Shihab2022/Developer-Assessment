@@ -5,7 +5,7 @@ import type { AssessmentStatus, Role } from "./types";
  * source of truth for select options, filters and label rendering.
  * ------------------------------------------------------------------------ */
 
-export const ROLES = ["CANDIDATE", "RECRUITER", "ADMIN"] as const;
+export const ROLES = ["CANDIDATE", "RECRUITER", "COMPANY", "ADMIN"] as const;
 export const USER_STATUSES = ["ACTIVE", "SUSPENDED", "DELETED"] as const;
 export const COMPANY_MEMBER_ROLES = ["OWNER", "ADMIN", "MEMBER"] as const;
 
@@ -126,6 +126,7 @@ export const DEFAULT_INTERVIEW_SETTINGS = {
 export const ROLE_LABELS: Record<Role, string> = {
   CANDIDATE: "Candidate",
   RECRUITER: "Recruiter",
+  COMPANY: "Company owner",
   ADMIN: "Administrator",
 };
 
@@ -499,6 +500,9 @@ export function navForRole(role: Role): NavItem[] {
     case "ADMIN":
       return ADMIN_NAV;
     case "RECRUITER":
+    // Company owners share the recruiter workspace (extra team management is
+    // surfaced on the Company page).
+    case "COMPANY":
       return RECRUITER_NAV;
     default:
       return CANDIDATE_NAV;
@@ -510,10 +514,19 @@ export function dashboardPathForRole(role: Role): string {
     case "ADMIN":
       return "/admin/dashboard";
     case "RECRUITER":
+    case "COMPANY":
       return "/recruiter/dashboard";
     default:
       return "/candidate/dashboard";
   }
+}
+
+/**
+ * True for `RECRUITER` and `COMPANY` — the roles that share the recruiter
+ * workspace. Mirrors the backend, which normalizes COMPANY → RECRUITER.
+ */
+export function isRecruiterLikeRole(role: Role | null | undefined): boolean {
+  return role === "RECRUITER" || role === "COMPANY" || role === "ADMIN";
 }
 
 /** True when `href` is the active section for the current pathname. */

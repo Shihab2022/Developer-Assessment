@@ -1,13 +1,60 @@
 import crypto from "crypto";
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import config from "../../config";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
+import { buildInvitationEmail, isMailEnabled, sendMail } from "../../lib/mailer";
 import { AssessmentServices } from "../assessments/assessments.service";
 import { InvitationStatus } from "../../../generated/prisma/enums";
 
 const generateInviteToken = () => crypto.randomBytes(24).toString("hex");
+
+/** Emails the candidate their personal exam link (`/invitations/join?token=...`). */
+const sendInvitationEmail = async (invitation: {
+  assessmentId: string;
+  email: string;
+  token: string | null;
+  expiresAt: Date | null;
+  candidateId: string | null;
+}) => {
+  if (!isMailEnabled() || !invitation.token) return;
+  const assessment = await prisma.assessment.findFirst({
+    where: { id: invitation.assessmentId, deletedAt: null },
+    include: {
+      company: { select: { name: true } },
+      creator: { select: { name: true, email: true } },
+    },
+  });
+  if (!assessment) return;
+
+  const candidate = invitation.candidateId
+    ? await prisma.user.findUnique({
+        where: { id: invitation.candidateId },
+        select: { name: true },
+      })
+    : null;
+
+  const joinUrl = `${config.frontend_url}/invitations/join?token=${invitation.token}`;
+  const rendered = buildInvitationEmail({
+    candidateName: candidate?.name ?? "",
+    companyName: assessment.company?.name ?? "the hiring team",
+    assessmentTitle: assessment.title,
+    durationMinutes: assessment.durationMinutes,
+    joinUrl,
+    recruiterName: assessment.creator?.name,
+    expiresAt: invitation.expiresAt,
+  });
+
+  await sendMail({
+    to: invitation.email,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    replyTo: assessment.creator?.email,
+  });
+};
 
 const create = async (
   user: IAuthUser,
@@ -67,6 +114,17 @@ const create = async (
     ipAddress: meta.ip,
     userAgent: meta.userAgent,
   });
+
+  // Deliver the personal exam link to each invited candidate.
+  for (const invite of result as Array<{
+    assessmentId: string;
+    email: string;
+    token: string | null;
+    expiresAt: Date | null;
+    candidateId: string | null;
+  }>) {
+    await sendInvitationEmail(invite);
+  }
 
   return result;
 };
@@ -140,6 +198,8 @@ const resend = async (
     ipAddress: meta.ip,
     userAgent: meta.userAgent,
   });
+
+  await sendInvitationEmail(updated);
 
   return updated;
 };
@@ -286,6 +346,143 @@ const listForCandidate = async (
   };
 };
 
+/** Resolves a personal exam link. Public — used before the candidate signs in. */
+const getByToken = async (token: string) => {
+  const invitation = await prisma.invitation.findFirst({
+    where: { token },
+    include: {
+      assessment: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          instructions: true,
+          durationMinutes: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          showResults: true,
+          maxAttempts: true,
+          company: { select: { id: true, name: true, logo: true } },
+        },
+      },
+      candidate: { select: { id: true, name: true, email: true } },
+    },
+  });
+  if (!invitation) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "This invitation link is invalid or has been revoked.",
+    );
+  }
+
+  const expiredByDate = Boolean(invitation.expiresAt && invitation.expiresAt < new Date());
+  const expired =
+    expiredByDate ||
+    invitation.status === InvitationStatus.EXPIRED ||
+    (invitation.assessment.endDate !== null &&
+      invitation.assessment.endDate < new Date());
+  const closed =
+    invitation.status === InvitationStatus.COMPLETED ||
+    invitation.status === InvitationStatus.REJECTED;
+
+  // Single-attempt guarantee: an exam is considered taken once ANY account with
+  // the invited email has started an attempt for this assessment.
+  const attemptsByEmail = await prisma.attempt.count({
+    where: {
+      assessmentId: invitation.assessmentId,
+      candidate: { email: { equals: invitation.email, mode: "insensitive" } },
+    },
+  });
+  const alreadyAttempted = attemptsByEmail > 0;
+
+  const account = await prisma.user.findUnique({
+    where: { email: invitation.email },
+    select: { id: true, name: true },
+  });
+
+  return {
+    id: invitation.id,
+    email: invitation.email,
+    status: invitation.status,
+    expiresAt: invitation.expiresAt,
+    expired,
+    closed,
+    alreadyAttempted,
+    accountExists: Boolean(account),
+    candidate: invitation.candidate,
+    assessment: invitation.assessment,
+    usable: !expired && !closed && !alreadyAttempted,
+  };
+};
+
+/** Accepts the invitation for the signed-in candidate (must match the invited email). */
+const acceptByToken = async (
+  user: IAuthUser,
+  token: string,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  const invitation = await prisma.invitation.findFirst({ where: { token } });
+  if (!invitation) {
+    throw new ApiError(httpStatus.NOT_FOUND, "This invitation link is invalid.");
+  }
+
+  if (user.email.toLowerCase() !== invitation.email.toLowerCase()) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      `This invitation was sent to ${invitation.email}. Please sign in with that address.`,
+    );
+  }
+
+  if (invitation.status === InvitationStatus.COMPLETED) {
+    throw new ApiError(httpStatus.CONFLICT, "You have already completed this assessment.");
+  }
+  if (invitation.status === InvitationStatus.REJECTED) {
+    throw new ApiError(httpStatus.CONFLICT, "This invitation is no longer active.");
+  }
+  if (invitation.expiresAt && invitation.expiresAt < new Date()) {
+    await prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { status: InvitationStatus.EXPIRED },
+    });
+    throw new ApiError(httpStatus.CONFLICT, "This invitation has expired.");
+  }
+
+  const attemptsByEmail = await prisma.attempt.count({
+    where: {
+      assessmentId: invitation.assessmentId,
+      candidate: { email: { equals: invitation.email, mode: "insensitive" } },
+    },
+  });
+  if (attemptsByEmail > 0) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "This assessment has already been started with this email address and cannot be taken again.",
+    );
+  }
+
+  const updated = await prisma.invitation.update({
+    where: { id: invitation.id },
+    data: {
+      status: InvitationStatus.ACCEPTED,
+      acceptedAt: new Date(),
+      candidateId: user.id,
+    },
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "invitation.acceptByToken",
+    entityType: "Invitation",
+    entityId: invitation.id,
+    newValue: { email: invitation.email, assessmentId: invitation.assessmentId },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return { invitation: updated, assessmentId: invitation.assessmentId };
+};
+
 export const InvitationServices = {
   create,
   listForAssessment,
@@ -293,4 +490,6 @@ export const InvitationServices = {
   accept,
   reject,
   listForCandidate,
+  getByToken,
+  acceptByToken,
 };

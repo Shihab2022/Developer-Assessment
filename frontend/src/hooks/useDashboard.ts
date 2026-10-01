@@ -8,7 +8,8 @@ import { useAuthStore } from "@/store/auth";
 /** RECRUITER dashboard (also served to ADMIN). */
 export function useRecruiterDashboard() {
   const { user, accessToken, hydrated } = useAuthStore();
-  const allowed = user?.role === "RECRUITER" || user?.role === "ADMIN";
+  const allowed =
+    user?.role === "RECRUITER" || user?.role === "COMPANY" || user?.role === "ADMIN";
   return useQuery({
     queryKey: qk.dashboard.recruiter,
     queryFn: () => dashboardApi.recruiter(),

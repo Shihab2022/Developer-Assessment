@@ -21,6 +21,12 @@ export const invitationParamsSchema = z.object({
   params: z.object({ id: z.string().uuid("Invalid invitation id") }),
 });
 
+export const invitationTokenParamsSchema = z.object({
+  params: z.object({
+    token: z.string().min(10, "Invalid invitation token"),
+  }),
+});
+
 export const invitationListQuerySchema = z.object({
   query: z
     .object({

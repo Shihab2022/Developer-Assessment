@@ -7,7 +7,7 @@ export default function RecruiterLayout({
   children: React.ReactNode;
 }) {
   return (
-    <RoleGuard allowedRoles={["RECRUITER", "ADMIN"]}>
+    <RoleGuard allowedRoles={["RECRUITER", "COMPANY", "ADMIN"]}>
       <AppShell>{children}</AppShell>
     </RoleGuard>
   );

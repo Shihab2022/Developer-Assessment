@@ -1,10 +1,16 @@
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import config from "../../config";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
+import { buildResultEmail, isMailEnabled, sendMail } from "../../lib/mailer";
 
-import { AttemptStatus, InvitationStatus } from "../../../generated/prisma/enums";
+import {
+  AttemptStatus,
+  InvitationStatus,
+  NotificationType,
+} from "../../../generated/prisma/enums";
 
 const assertAttemptOwnership = async (user: IAuthUser, attemptId: string) => {
   const attempt = await prisma.attempt.findUnique({
@@ -89,10 +95,18 @@ const start = async (
 
   // Count existing attempts and respect maxAttempts; the unique constraint
   // (assessmentId, candidateId, attemptNumber) guards against race conditions.
-  const existing = await prisma.attempt.count({
-    where: { assessmentId, candidateId: user.id },
-  });
-  if (existing >= assessment.maxAttempts) {
+  // We also count attempts by the invited *email* so the same person cannot
+  // retake the exam from a second account with the same address.
+  const [existing, existingByEmail] = await Promise.all([
+    prisma.attempt.count({ where: { assessmentId, candidateId: user.id } }),
+    prisma.attempt.count({
+      where: {
+        assessmentId,
+        candidate: { email: { equals: user.email, mode: "insensitive" } },
+      },
+    }),
+  ]);
+  if (existing >= assessment.maxAttempts || existingByEmail >= assessment.maxAttempts) {
     throw new ApiError(
       httpStatus.CONFLICT,
       `Maximum attempts (${assessment.maxAttempts}) reached for this assessment`,
@@ -372,7 +386,85 @@ const submit = async (
     // Result calculation must not fail the submission.
   }
 
+  if (result) {
+    try {
+      await deliverResult({
+        attemptId,
+        candidateId: attempt.candidateId,
+        assessmentId: attempt.assessmentId,
+        result,
+      });
+    } catch {
+      // Result delivery (email/notification) must not fail the submission.
+    }
+  }
+
   return { attempt: fresh, alreadySubmitted: false, result };
+};
+
+/**
+ * Post-submission side effects: mark the invitation complete, drop an in-app
+ * notification, and email the candidate their result.
+ */
+const deliverResult = async (params: {
+  attemptId: string;
+  candidateId: string;
+  assessmentId: string;
+  result: {
+    id: string;
+    percentage: number;
+    passed: boolean;
+    earnedPoints: number;
+    totalPoints: number;
+  };
+}) => {
+  const [candidate, assessment] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: params.candidateId },
+      select: { id: true, name: true, email: true },
+    }),
+    prisma.assessment.findUnique({
+      where: { id: params.assessmentId },
+      select: { id: true, title: true, showResults: true },
+    }),
+  ]);
+  if (!candidate || !assessment) return;
+
+  await prisma.invitation.updateMany({
+    where: {
+      assessmentId: params.assessmentId,
+      email: { equals: candidate.email, mode: "insensitive" },
+    },
+    data: { status: InvitationStatus.COMPLETED, completedAt: new Date() },
+  });
+
+  await prisma.notification.create({
+    data: {
+      userId: candidate.id,
+      type: NotificationType.RESULT_AVAILABLE,
+      title: "Your assessment result is ready",
+      message: `You scored ${Math.round(params.result.percentage)}% on "${assessment.title}".`,
+      data: { assessmentId: params.assessmentId, resultId: params.result.id },
+    },
+  });
+
+  if (!isMailEnabled() || !assessment.showResults) return;
+
+  const rendered = buildResultEmail({
+    candidateName: candidate.name,
+    assessmentTitle: assessment.title,
+    percentage: Math.round(params.result.percentage),
+    passed: params.result.passed,
+    earnedPoints: params.result.earnedPoints,
+    totalPoints: params.result.totalPoints,
+    resultUrl: `${config.frontend_url}/candidate/results`,
+  });
+  await sendMail({
+    to: candidate.email,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
 };
 
 const candidatesMeAttempts = async (

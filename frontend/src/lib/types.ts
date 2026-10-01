@@ -50,7 +50,7 @@ export interface Paginated<T> {
 
 // ---------------------------------------------------------------- enums
 
-export type Role = "CANDIDATE" | "RECRUITER" | "ADMIN";
+export type Role = "CANDIDATE" | "RECRUITER" | "COMPANY" | "ADMIN";
 export type UserStatus = "ACTIVE" | "SUSPENDED" | "DELETED";
 export type CompanyMemberRole = "OWNER" | "ADMIN" | "MEMBER";
 
@@ -133,6 +133,8 @@ export interface User {
   name: string;
   role: Role;
   status: UserStatus;
+  /** Email confirmation status — required before signing in. */
+  emailVerified?: boolean;
   phone?: string | null;
   bio?: string | null;
   skills?: string[];
@@ -158,9 +160,25 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  role: Extract<Role, "CANDIDATE" | "RECRUITER">;
+  role: Extract<Role, "CANDIDATE" | "RECRUITER" | "COMPANY">;
   phone?: string;
+  /** Deprecated — recruiters now join with `companyCode`. */
   companyId?: string;
+  /** Company name, used when a company owner registers. */
+  companyName?: string;
+  /** Friendly company join code, used when a recruiter joins a company. */
+  companyCode?: string;
+}
+
+/** Response of `POST /auth/register`. */
+export interface RegisterResult {
+  requiresVerification: boolean;
+  user: User;
+  /** Present for a company-owner signup — the shareable join code. */
+  companyCode?: string | null;
+  /** Present only in no-SMTP mode, where the account is auto-verified. */
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface RefreshTokenPayload {
@@ -174,6 +192,8 @@ export interface Company {
   id: string;
   name: string;
   slug: string;
+  /** Friendly, shareable join code recruiters use to join the company. */
+  code?: string | null;
   logo?: string | null;
   description?: string | null;
   website?: string | null;

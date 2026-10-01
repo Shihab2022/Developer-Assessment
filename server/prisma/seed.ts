@@ -33,16 +33,20 @@ async function main() {
       password: await bcrypt.hash(adminPassword, saltRounds),
       role: "ADMIN",
       status: "ACTIVE",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
     },
   });
 
   // ---------- Company ----------
   const company = await prisma.company.upsert({
     where: { slug: "techcorp" },
-    update: {},
+    // Backfill the friendly join code for companies created before it existed.
+    update: { code: "TECHCOR-0001" },
     create: {
       name: "TechCorp Solutions",
       slug: "techcorp",
+      code: "TECHCOR-0001",
       description: "A software company hiring top developers.",
       website: "https://techcorp.example.com",
       industry: "Software Development",
@@ -61,6 +65,8 @@ async function main() {
       password: await bcrypt.hash(recruiterPassword, saltRounds),
       role: "RECRUITER",
       status: "ACTIVE",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
       jobTitle: "Technical Hiring Manager",
       companyId: company.id,
     },
@@ -81,6 +87,8 @@ async function main() {
       password: await bcrypt.hash(candidatePassword, saltRounds),
       role: "CANDIDATE",
       status: "ACTIVE",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
       phone: "+8801700000000",
       bio: "Full-stack developer with 3 years of experience.",
       skills: ["javascript", "nodejs", "postgresql"],
@@ -231,13 +239,18 @@ async function main() {
     where: {
       assessmentId_email: { assessmentId: assessment.id, email: candidateEmail },
     },
-    update: {},
+    update: {
+      // Keeps the demo exam link working across re-seeds:
+      // http://localhost:3000/invitations/join?token=demo-candidate-token-0001
+      token: "demo-candidate-token-0001",
+    },
     create: {
       assessmentId: assessment.id,
       candidateId: candidate.id,
       email: candidateEmail,
       invitedBy: recruiter.id,
       companyId: company.id,
+      token: "demo-candidate-token-0001",
       status: "PENDING",
     },
   });

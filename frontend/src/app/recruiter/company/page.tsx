@@ -1,15 +1,21 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { Copy, Trash2, UserPlus } from "lucide-react";
 import { useCurrentUser } from "@/store/auth";
 import {
   useCompany, useCompanyAnalytics, useCompanyMembers, useUpdateCompany,
+  useInviteCompanyMember, useRemoveCompanyMember, useUpdateCompanyMemberRole,
 } from "@/hooks/useCompanies";
 import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TextField, TextareaField } from "@/components/ui/Input";
+import { SelectField } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Primitives";
 import { formatPercent, formatNumber } from "@/lib/utils";
-import Link from "next/link";
+import type { CompanyMemberRole } from "@/lib/types";
 
 const Stat = ({ label, value }: { label: string; value: string | number }) => (
   <div className="rounded-lg border border-border p-4">
@@ -25,6 +31,21 @@ export default function CompanyPage() {
   const { data: analytics } = useCompanyAnalytics(companyId || undefined);
   const { data: members } = useCompanyMembers(companyId || undefined);
   const update = useUpdateCompany(companyId);
+  const invite = useInviteCompanyMember(companyId);
+  const updateRole = useUpdateCompanyMemberRole(companyId);
+  const removeMember = useRemoveCompanyMember(companyId);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<CompanyMemberRole>("MEMBER");
+
+  const copyJoinCode = async () => {
+    if (!company?.code) return;
+    try {
+      await navigator.clipboard.writeText(company.code);
+      toast.success("Join code copied");
+    } catch {
+      toast.error("Could not copy the code");
+    }
+  };
 
   if (!me?.companyId) {
     return (
@@ -92,23 +113,114 @@ export default function CompanyPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Members" />
-          <CardBody className="space-y-2">
-            {(members ?? []).map((m) => (
-              <div key={m.id} className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-medium text-foreground">{m.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">{m.user?.email}</p>
-                </div>
-                <span className="text-xs text-muted-foreground">{m.role}</span>
+          <CardHeader title="Team & recruiters" />
+          <CardBody className="space-y-4">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 p-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Company join code
+                </p>
+                <p className="mt-1 truncate font-mono text-sm font-semibold tracking-widest text-foreground">
+                  {company.code ?? "—"}
+                </p>
               </div>
-            ))}
-            {(members ?? []).length === 0 && (
-              <p className="py-4 text-center text-sm text-muted-foreground">No members listed.</p>
-            )}
-            <Button variant="outline" size="sm" asChild className="mt-2">
-              <Link href="/recruiter/candidates">View candidates</Link>
-            </Button>
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  variant="outline"
+                  size="iconSm"
+                  onClick={copyJoinCode}
+                  disabled={!company.code}
+                  aria-label="Copy join code"
+                >
+                  <Copy />
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/register/recruiter">Open invite page</Link>
+                </Button>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                invite.mutate(
+                  { email: inviteEmail.trim(), role: inviteRole },
+                  { onSuccess: () => setInviteEmail("") },
+                );
+              }}
+              className="space-y-3"
+            >
+              <TextField
+                label="Invite a recruiter"
+                type="email"
+                placeholder="teammate@company.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+                hint="They receive an email with this join code to register as your recruiter."
+              />
+              <div className="flex items-end gap-3">
+                <SelectField
+                  label="Role"
+                  value={inviteRole}
+                  onValueChange={(v) => setInviteRole(v as CompanyMemberRole)}
+                  options={[
+                    { value: "MEMBER", label: "Member" },
+                    { value: "ADMIN", label: "Admin" },
+                  ]}
+                  className="w-40"
+                />
+                <Button type="submit" size="sm" loading={invite.isPending}>
+                  <UserPlus />
+                  Send invite
+                </Button>
+              </div>
+            </form>
+
+            <div className="space-y-2">
+              {(members ?? []).map((m) => {
+                const isOwner = m.role === "OWNER";
+                return (
+                  <div
+                    key={m.id}
+                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {m.user?.name}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{m.user?.email}</p>
+                    </div>
+                    <SelectField
+                      value={m.role}
+                      onValueChange={(v) =>
+                        updateRole.mutate({ userId: m.userId, role: v as CompanyMemberRole })
+                      }
+                      options={[
+                        { value: "OWNER", label: "Owner", disabled: !isOwner },
+                        { value: "ADMIN", label: "Admin", disabled: isOwner },
+                        { value: "MEMBER", label: "Member", disabled: isOwner },
+                      ]}
+                      className="w-32"
+                    />
+                    {!isOwner && (
+                      <Button
+                        variant="ghost"
+                        size="iconSm"
+                        aria-label="Remove member"
+                        disabled={removeMember.isPending}
+                        onClick={() => removeMember.mutate(m.userId)}
+                      >
+                        <Trash2 className="text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+              {(members ?? []).length === 0 && (
+                <p className="py-4 text-center text-sm text-muted-foreground">No members yet.</p>
+              )}
+            </div>
           </CardBody>
         </Card>
       </div>

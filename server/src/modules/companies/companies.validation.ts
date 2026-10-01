@@ -34,3 +34,26 @@ export const updateCompanySchema = z.object({
 export const idParamSchema = z.object({
   params: z.object({ id: z.string().uuid("Invalid id") }),
 });
+
+export const memberParamsSchema = z.object({
+  params: z.object({
+    id: z.string().uuid("Invalid company id"),
+    userId: z.string().uuid("Invalid user id"),
+  }),
+});
+
+const memberRoleSchema = z.enum(["OWNER", "ADMIN", "MEMBER"]);
+
+export const inviteMemberSchema = z.object({
+  body: z
+    .object({
+      email: z.string().email("A valid email is required"),
+      name: z.string().min(2).max(100).optional(),
+      role: memberRoleSchema.default("MEMBER"),
+    })
+    .strict(),
+});
+
+export const updateMemberRoleSchema = z.object({
+  body: z.object({ role: memberRoleSchema }).strict(),
+});

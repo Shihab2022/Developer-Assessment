@@ -53,6 +53,20 @@ const envSchema = z.object({
   INTERVIEW_MAX_UPLOAD_MB: z.coerce.number().default(12),
   INTERVIEW_SESSION_TTL_HOURS: z.coerce.number().default(72),
   FRONTEND_URL: z.string().optional(),
+  // ---- Email delivery (Google / Gmail SMTP) ----
+  SMTP_HOST: z.string().default("smtp.gmail.com"),
+  SMTP_PORT: z.coerce.number().default(465),
+  /** Implicit TLS — true for port 465, false for 587 (STARTTLS). */
+  SMTP_SECURE: z
+    .string()
+    .optional()
+    .transform((v) => (v === undefined ? true : v !== "false")),
+  SMTP_USERNAME: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  MAIL_FROM: z.string().optional(),
+  /** Set to "false" to disable outbound email entirely (registration auto-verifies). */
+  MAIL_ENABLED: z.string().optional(),
+  EMAIL_VERIFICATION_EXPIRES_IN_HOURS: z.coerce.number().default(24),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -123,6 +137,26 @@ export default {
       process.env.FRONT_END_BASE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000",
+  },
+  /** Public base URL used to build candidate links (email confirmations, invitations). */
+  frontend_url:
+    env.FRONTEND_URL ||
+    process.env.FRONT_END_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000",
+  mail: {
+    /** Enabled only when credentials exist, unless explicitly disabled. */
+    enabled:
+      env.MAIL_ENABLED !== "false" && Boolean(env.SMTP_USERNAME && env.SMTP_PASSWORD),
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    username: env.SMTP_USERNAME ?? null,
+    password: env.SMTP_PASSWORD ?? null,
+    from:
+      env.MAIL_FROM ||
+      (env.SMTP_USERNAME ? `DevAssess <${env.SMTP_USERNAME}>` : "DevAssess <no-reply@devassess.local>"),
+    verification_expires_hours: env.EMAIL_VERIFICATION_EXPIRES_IN_HOURS,
   },
   isProduction: env.NODE_ENV === "production",
 };

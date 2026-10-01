@@ -3,6 +3,7 @@ import type {
   AssessmentAccessLevel,
   AssessmentProblem,
   AssessmentTemplateInput,
+  CompanyMemberRole,
   Difficulty,
   ProblemStatus,
   ProblemType,
@@ -59,6 +60,17 @@ export type UpdateCompanyPayload = Partial<CreateCompanyPayload>;
 
 export interface UpdateRecruitmentStatusPayload {
   recruitmentStatus: RecruitmentStatus;
+}
+
+/** Invite (or add) a recruiter to a company. */
+export interface InviteCompanyMemberPayload {
+  email: string;
+  name?: string;
+  role?: CompanyMemberRole;
+}
+
+export interface UpdateCompanyMemberRolePayload {
+  role: CompanyMemberRole;
 }
 
 /* ---------------------------------------------------------------- assessments */

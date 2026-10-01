@@ -6,7 +6,15 @@ submissions, and generating reports.
 
 ## Features
 
-- **Three roles** — `CANDIDATE`, `RECRUITER`, `ADMIN` with strict authorization.
+- **Four roles** — `CANDIDATE`, `RECRUITER`, `COMPANY` (company owner) and `ADMIN`
+  with strict authorization. `COMPANY` is normalized to `RECRUITER` internally
+  and additionally may manage its company's recruiters.
+- **Email confirmation** — registration issues a hashed, single-use confirmation
+  token and emails a link (nodemailer + Google SMTP). Unconfirmed accounts get
+  `403` on login until they confirm. Without SMTP credentials the account is
+  auto-verified so local development still works.
+- **Friendly company join code** — recruiters join a company with a short code
+  instead of a UUID.
 - **Problem bank** — coding, MCQ, and written problems with test cases, options, tags,
   difficulty, categories, and full-text search.
 - **Assessments** — configurable duration, passing score, max attempts, shuffling,
@@ -81,7 +89,12 @@ cp .env.example .env
 | `INTERVIEW_QUESTION_TIME_SECONDS` | Default time per question (300 = 5 minutes) |
 | `INTERVIEW_MAX_UPLOAD_MB` | Body limit for interview answer uploads (transcript + evidence + clip) |
 | `INTERVIEW_SESSION_TTL_HOURS` | How long a candidate link stays usable |
-| `FRONTEND_URL` | Public base URL used to build candidate interview links |
+| `FRONTEND_URL` | Public base URL used to build candidate links (email confirmation + invitations) |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | SMTP server (defaults to `smtp.gmail.com:465`, implicit TLS) |
+| `SMTP_USERNAME` / `SMTP_PASSWORD` | Google account + **App Password** used to send mail |
+| `MAIL_FROM` | From header (defaults to `DevAssess <SMTP_USERNAME>`) |
+| `MAIL_ENABLED` | `false` disables outbound email (registrations auto-verify) |
+| `EMAIL_VERIFICATION_EXPIRES_IN_HOURS` | Confirmation-link lifetime (default 24) |
 | `SEED_*` | Local/dev seed credentials |
 
 ## Database Setup

@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/Primitives";
 import { formatDateTime } from "@/lib/utils";
 import type { Role } from "@/lib/types";
 
-const ROLES = ["CANDIDATE", "RECRUITER", "ADMIN"];
+const ROLES = ["CANDIDATE", "RECRUITER", "COMPANY", "ADMIN"];
 
 export default function AdminUsersPage() {
   const [q, setQ] = useState("");

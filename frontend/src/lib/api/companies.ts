@@ -11,6 +11,8 @@ import { endpoints } from "./endpoints";
 import type {
   CandidateListParams,
   CreateCompanyPayload,
+  InviteCompanyMemberPayload,
+  UpdateCompanyMemberRolePayload,
   UpdateCompanyPayload,
   UpdateRecruitmentStatusPayload,
 } from "./payloads";
@@ -29,6 +31,22 @@ export const companiesApi = {
   remove: (id: string) => apiDelete<unknown>(endpoints.companies.byId(id)),
 
   members: (id: string) => apiGet<CompanyMember[]>(endpoints.companies.members(id)),
+
+  /** Invites a recruiter to the company (emails them the join code). */
+  inviteMember: (id: string, payload: InviteCompanyMemberPayload) =>
+    apiPost<{
+      email: string;
+      role: string;
+      companyCode: string | null;
+      invitedUserId: string | null;
+      accountCreated: boolean;
+    }>(endpoints.companies.members(id), payload),
+
+  updateMemberRole: (id: string, userId: string, payload: UpdateCompanyMemberRolePayload) =>
+    apiPatch<CompanyMember>(endpoints.companies.member(id, userId), payload),
+
+  removeMember: (id: string, userId: string) =>
+    apiDelete<unknown>(endpoints.companies.member(id, userId)),
 
   reports: (id: string, params?: { page?: number; limit?: number }) =>
     apiGetPaginated<Record<string, unknown>>(endpoints.companies.reports(id), {

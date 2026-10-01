@@ -1,10 +1,12 @@
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
+import config from "../../config";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
-import { slugify } from "../../helpers/utils";
+import { generateCompanyCode, slugify } from "../../helpers/utils";
 import { writeAuditLog } from "../../lib/audit";
-import { CompanyMemberRole } from "../../../generated/prisma/enums";
+import { buildRecruiterInviteEmail, isMailEnabled, sendMail } from "../../lib/mailer";
+import { CompanyMemberRole, UserRole } from "../../../generated/prisma/enums";
 
 export const getMembership = async (userId: string, companyId: string) => {
   return prisma.companyMember.findUnique({
@@ -61,11 +63,20 @@ const create = async (
     uniqueSlug = `${slug}-${counter++}`;
   }
 
+  // Friendly, shareable join code (recruiters register with this, not a UUID).
+  let code = generateCompanyCode(payload.name);
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const clash = await prisma.company.findUnique({ where: { code } });
+    if (!clash) break;
+    code = generateCompanyCode(payload.name);
+  }
+
   const company = await prisma.$transaction(async (tx) => {
     const created = await tx.company.create({
       data: {
         name: payload.name,
         slug: uniqueSlug,
+        code,
         logo: payload.logo,
         description: payload.description,
         website: payload.website,
@@ -230,6 +241,169 @@ const getMembers = async (id: string, user: IAuthUser) => {
     orderBy: { createdAt: "asc" },
   });
   return members;
+};
+
+/**
+ * Adds or invites a recruiter to the company.
+ *
+ * - Existing platform user → promoted to RECRUITER (if needed) and added as a member.
+ * - New email → the invitation email contains the friendly company code so they
+ *   can self-register as a recruiter of this company.
+ */
+const inviteMember = async (
+  user: IAuthUser,
+  companyId: string,
+  payload: { email: string; name?: string; role?: CompanyMemberRole },
+  meta: { ip?: string; userAgent?: string },
+) => {
+  await assertCompanyAccess(user, companyId, [
+    CompanyMemberRole.OWNER,
+    CompanyMemberRole.ADMIN,
+  ]);
+  const company = await prisma.company.findFirst({
+    where: { id: companyId, deletedAt: null },
+  });
+  if (!company) throw new ApiError(httpStatus.NOT_FOUND, "Company not found");
+
+  const email = payload.email.toLowerCase().trim();
+  const requestedRole = payload.role ?? CompanyMemberRole.MEMBER;
+
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    const existingMembership = await prisma.companyMember.findUnique({
+      where: { companyId_userId: { companyId, userId: existingUser.id } },
+    });
+    if (existingMembership) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        "This person is already a member of the company",
+      );
+    }
+    if (existingUser.role === UserRole.CANDIDATE) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { role: UserRole.RECRUITER, companyId },
+      });
+    } else if (!existingUser.companyId) {
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { companyId },
+      });
+    }
+    await prisma.companyMember.create({
+      data: { companyId, userId: existingUser.id, role: requestedRole },
+    });
+  }
+
+  if (isMailEnabled()) {
+    const rendered = buildRecruiterInviteEmail({
+      invitedName: payload.name || existingUser?.name || email,
+      companyName: company.name,
+      inviterName: user.name || "Your company administrator",
+      companyCode: company.code ?? "",
+      acceptUrl: `${config.frontend_url}/register/recruiter?companyCode=${encodeURIComponent(
+        company.code ?? "",
+      )}&email=${encodeURIComponent(email)}`,
+    });
+    await sendMail({
+      to: email,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      replyTo: user.email,
+    });
+  }
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "company.memberInvite",
+    entityType: "Company",
+    entityId: companyId,
+    newValue: { email, role: requestedRole, existingAccount: Boolean(existingUser) },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return {
+    email,
+    role: requestedRole,
+    companyCode: company.code,
+    invitedUserId: existingUser?.id ?? null,
+    accountCreated: Boolean(existingUser),
+  };
+};
+
+const updateMemberRole = async (
+  user: IAuthUser,
+  companyId: string,
+  memberUserId: string,
+  role: CompanyMemberRole,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  await assertCompanyAccess(user, companyId, [
+    CompanyMemberRole.OWNER,
+    CompanyMemberRole.ADMIN,
+  ]);
+  const membership = await prisma.companyMember.findUnique({
+    where: { companyId_userId: { companyId, userId: memberUserId } },
+  });
+  if (!membership) throw new ApiError(httpStatus.NOT_FOUND, "Company member not found");
+  if (membership.role === CompanyMemberRole.OWNER && role !== CompanyMemberRole.OWNER) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "The company owner's role cannot be changed");
+  }
+
+  const updated = await prisma.companyMember.update({
+    where: { id: membership.id },
+    data: { role },
+  });
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "company.memberRoleChange",
+    entityType: "Company",
+    entityId: companyId,
+    newValue: { userId: memberUserId, role },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return updated;
+};
+
+const removeMember = async (
+  user: IAuthUser,
+  companyId: string,
+  memberUserId: string,
+  meta: { ip?: string; userAgent?: string },
+) => {
+  await assertCompanyAccess(user, companyId, [
+    CompanyMemberRole.OWNER,
+    CompanyMemberRole.ADMIN,
+  ]);
+  const membership = await prisma.companyMember.findUnique({
+    where: { companyId_userId: { companyId, userId: memberUserId } },
+  });
+  if (!membership) throw new ApiError(httpStatus.NOT_FOUND, "Company member not found");
+  if (membership.role === CompanyMemberRole.OWNER) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "The company owner cannot be removed");
+  }
+
+  await prisma.$transaction([
+    prisma.companyMember.delete({ where: { id: membership.id } }),
+    prisma.user.update({ where: { id: memberUserId }, data: { companyId: null } }),
+  ]);
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "company.memberRemove",
+    entityType: "Company",
+    entityId: companyId,
+    previousValue: { userId: memberUserId },
+    ipAddress: meta.ip,
+    userAgent: meta.userAgent,
+  });
+
+  return { userId: memberUserId, removed: true };
 };
 
 const listCandidates = async (
@@ -423,6 +597,9 @@ export const CompanyServices = {
   update,
   remove,
   getMembers,
+  inviteMember,
+  updateMemberRole,
+  removeMember,
   list,
   listCandidates,
   updateCandidateStatus,

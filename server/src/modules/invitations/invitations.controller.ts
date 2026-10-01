@@ -98,6 +98,28 @@ const listForCandidate = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const getByToken = catchAsync(async (req: Request, res: Response) => {
+  const result = await InvitationServices.getByToken(String(req.params.token));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Invitation retrieved successfully",
+    data: result,
+  });
+});
+
+const acceptByToken = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InvitationServices.acceptByToken(
+    req.user!,
+    String(req.params.token),
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Invitation accepted successfully",
+    data: result,
+  });
+});
+
 export const InvitationController = {
   createForAssessment,
   listForAssessment,
@@ -105,4 +127,6 @@ export const InvitationController = {
   accept,
   reject,
   listForCandidate,
+  getByToken,
+  acceptByToken,
 };

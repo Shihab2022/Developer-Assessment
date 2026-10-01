@@ -116,6 +116,49 @@ const companyAnalytics = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const inviteMember = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await CompanyServices.inviteMember(
+    req.user!,
+    String(req.params.id),
+    req.body,
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Recruiter invitation sent successfully",
+    data: result,
+  });
+});
+
+const updateMemberRole = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await CompanyServices.updateMemberRole(
+    req.user!,
+    String(req.params.id),
+    String(req.params.userId),
+    req.body.role,
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Company member role updated successfully",
+    data: result,
+  });
+});
+
+const removeMember = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await CompanyServices.removeMember(
+    req.user!,
+    String(req.params.id),
+    String(req.params.userId),
+    getMeta(req),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Company member removed successfully",
+    data: result,
+  });
+});
+
 export const CompanyController = {
   create,
   list,
@@ -123,6 +166,9 @@ export const CompanyController = {
   update,
   remove,
   getMembers,
+  inviteMember,
+  updateMemberRole,
+  removeMember,
   listCandidates,
   updateCandidateStatus,
   companyAnalytics,

@@ -7,7 +7,18 @@ import { generateJwtToken, verifyJwtToken } from "../../helpers/jwtHelpers";
 import ApiError from "../../helpers/ApiError";
 import { IAuthUser } from "../../types";
 import { writeAuditLog } from "../../lib/audit";
-import { UserRole, UserStatus } from "../../../generated/prisma/enums";
+import { generateCompanyCode, slugify } from "../../helpers/utils";
+import {
+  buildVerificationEmail,
+  isMailEnabled,
+  sendMail,
+} from "../../lib/mailer";
+import {
+  CompanyMemberRole,
+  UserRole,
+  UserStatus,
+  VerificationTokenType,
+} from "../../../generated/prisma/enums";
 
 const hashToken = (token: string): string =>
   crypto.createHash("sha256").update(token).digest("hex");
@@ -28,8 +39,58 @@ const parseExpiryMs = (expiry: string): number => {
 
 const mapRole = (role: string): UserRole => {
   if (role === UserRole.ADMIN) return UserRole.ADMIN;
+  if (role === UserRole.COMPANY) return UserRole.COMPANY;
   if (role === UserRole.RECRUITER) return UserRole.RECRUITER;
   return UserRole.CANDIDATE;
+};
+
+const uniqueCompanyCode = async (name: string): Promise<string> => {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const code = generateCompanyCode(name);
+    const exists = await prisma.company.findUnique({ where: { code } });
+    if (!exists) return code;
+  }
+  return `COMPANY-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
+};
+
+const uniqueCompanySlug = async (name: string): Promise<string> => {
+  const base = slugify(name) || "company";
+  let candidate = base;
+  let counter = 1;
+  for (;;) {
+    const exists = await prisma.company.findUnique({ where: { slug: candidate } });
+    if (!exists) return candidate;
+    candidate = `${base}-${counter++}`;
+  }
+};
+
+/** Creates a single-use email-verification token and emails the confirm link. */
+const issueEmailVerification = async (user: { id: string; name: string; email: string }) => {
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(
+    Date.now() + config.mail.verification_expires_hours * 60 * 60 * 1000,
+  );
+  await prisma.verificationToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(token),
+      type: VerificationTokenType.EMAIL_VERIFICATION,
+      expiresAt,
+    },
+  });
+  const verifyUrl = `${config.frontend_url}/verify-email?token=${token}`;
+  const rendered = buildVerificationEmail({
+    name: user.name,
+    verifyUrl,
+    expiresInHours: config.mail.verification_expires_hours,
+  });
+  await sendMail({
+    to: user.email,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+  return token;
 };
 
 const issueTokens = async (user: {
@@ -77,12 +138,15 @@ const register = async (
     role?: string;
     phone?: string;
     companyId?: string;
+    /** Friendly company name — used when a COMPANY owner self-registers. */
+    companyName?: string;
+    /** Friendly join code — used when a recruiter joins an existing company. */
+    companyCode?: string;
   },
   meta: { ip?: string; userAgent?: string },
 ) => {
-  const existing = await prisma.user.findUnique({
-    where: { email: payload.email.toLowerCase() },
-  });
+  const email = payload.email.toLowerCase().trim();
+  const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     throw new ApiError(
       httpStatus.CONFLICT,
@@ -97,43 +161,95 @@ const register = async (
     );
   }
 
-  if (payload.role === UserRole.RECRUITER) {
-    if (payload.companyId) {
+  const role = mapRole(payload.role ?? "CANDIDATE");
+
+  // Recruiters join an existing company either with the friendly code (preferred)
+  // or, for backwards compatibility, with the raw company id.
+  let companyId: string | null = null;
+  if (role === UserRole.RECRUITER) {
+    const code = payload.companyCode?.trim().toUpperCase();
+    if (code) {
+      const company = await prisma.company.findFirst({
+        where: { code, deletedAt: null },
+      });
+      if (!company) {
+        throw new ApiError(
+          httpStatus.NOT_FOUND,
+          "That company code was not recognised. Check it with your company owner.",
+        );
+      }
+      companyId = company.id;
+    } else if (payload.companyId) {
       const company = await prisma.company.findFirst({
         where: { id: payload.companyId, deletedAt: null },
       });
       if (!company) {
         throw new ApiError(httpStatus.NOT_FOUND, "Company not found");
       }
+      companyId = company.id;
     }
   }
 
   const hashedPassword = await bcrypt.hash(payload.password, config.bcrypt_salt_rounds);
 
-  const role = mapRole(payload.role ?? "CANDIDATE");
+  const mailEnabled = isMailEnabled();
 
-  const created = await prisma.user.create({
-    data: {
-      name: payload.name,
-      email: payload.email.toLowerCase(),
-      password: hashedPassword,
-      role,
-      phone: payload.phone,
-      companyId:
-        payload.role === UserRole.RECRUITER && payload.companyId
-          ? payload.companyId
-          : null,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      phone: true,
-      companyId: true,
-      status: true,
-      createdAt: true,
-    },
+  const { created, companyCode } = await prisma.$transaction(async (tx) => {
+    let resolvedCompanyId = companyId;
+    let resolvedCompanyCode: string | null = null;
+
+    if (role === UserRole.COMPANY) {
+      const companyName = (
+        payload.companyName?.trim() || `${payload.name}'s Company`
+      ).slice(0, 200);
+      const code = await uniqueCompanyCode(companyName);
+      const company = await tx.company.create({
+        data: {
+          name: companyName,
+          slug: await uniqueCompanySlug(companyName),
+          code,
+        },
+      });
+      resolvedCompanyId = company.id;
+      resolvedCompanyCode = code;
+    }
+
+    const user = await tx.user.create({
+      data: {
+        name: payload.name,
+        email,
+        password: hashedPassword,
+        role,
+        phone: payload.phone,
+        companyId: resolvedCompanyId,
+        // Without SMTP configured the address is auto-verified so the app stays usable.
+        emailVerified: !mailEnabled,
+        emailVerifiedAt: mailEnabled ? null : new Date(),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        companyId: true,
+        status: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+
+    if (resolvedCompanyId && (role === UserRole.COMPANY || role === UserRole.RECRUITER)) {
+      await tx.companyMember.create({
+        data: {
+          companyId: resolvedCompanyId,
+          userId: user.id,
+          role: role === UserRole.COMPANY ? CompanyMemberRole.OWNER : CompanyMemberRole.MEMBER,
+        },
+      });
+    }
+
+    return { created: user, companyCode: resolvedCompanyCode };
   });
 
   await writeAuditLog({
@@ -146,7 +262,30 @@ const register = async (
     userAgent: meta.userAgent,
   });
 
-  return created;
+  if (!mailEnabled) {
+    // No-SMTP / development mode: verify immediately and hand back a session.
+    const tokens = await issueTokens({
+      id: created.id,
+      name: created.name,
+      email: created.email,
+      role: created.role,
+    });
+    return {
+      requiresVerification: false,
+      user: created,
+      companyCode,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
+  }
+
+  await issueEmailVerification(created);
+
+  return {
+    requiresVerification: true,
+    user: created,
+    companyCode,
+  };
 };
 
 const login = async (
@@ -172,6 +311,13 @@ const login = async (
   const passwordMatch = await bcrypt.compare(payload.password, user.password);
   if (!passwordMatch) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid email or password");
+  }
+
+  if (isMailEnabled() && !user.emailVerified) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
+    );
   }
 
   const tokens = await issueTokens({
@@ -321,10 +467,82 @@ const getMe = async (user: IAuthUser) => {
   return profile;
 };
 
+const verifyEmail = async (token: string) => {
+  if (!token) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Verification token is required");
+  }
+  const tokenHash = hashToken(token);
+  const record = await prisma.verificationToken.findUnique({ where: { tokenHash } });
+  if (!record || record.type !== VerificationTokenType.EMAIL_VERIFICATION) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid or unknown verification link");
+  }
+  if (record.usedAt) {
+    throw new ApiError(httpStatus.CONFLICT, "This verification link has already been used");
+  }
+  if (record.expiresAt < new Date()) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "This verification link has expired. Please request a new one.",
+    );
+  }
+
+  const [updated] = await prisma.$transaction([
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { emailVerified: true, emailVerifiedAt: new Date() },
+      select: { id: true, email: true, name: true, emailVerified: true, role: true },
+    }),
+    prisma.verificationToken.update({
+      where: { id: record.id },
+      data: { usedAt: new Date() },
+    }),
+  ]);
+
+  await writeAuditLog({
+    actorId: updated.id,
+    action: "user.emailVerified",
+    entityType: "User",
+    entityId: updated.id,
+  });
+
+  return updated;
+};
+
+const resendVerification = async (payload: { email: string }) => {
+  const email = payload.email.toLowerCase().trim();
+  const user = await prisma.user.findUnique({ where: { email } });
+  // Never reveal whether an account exists.
+  if (!user || user.emailVerified) return { sent: false };
+
+  await prisma.verificationToken.updateMany({
+    where: {
+      userId: user.id,
+      type: VerificationTokenType.EMAIL_VERIFICATION,
+      usedAt: null,
+    },
+    data: { usedAt: new Date() },
+  });
+
+  if (isMailEnabled()) {
+    await issueEmailVerification(user);
+  }
+
+  await writeAuditLog({
+    actorId: user.id,
+    action: "user.verificationResent",
+    entityType: "User",
+    entityId: user.id,
+  });
+
+  return { sent: isMailEnabled() };
+};
+
 export const AuthServices = {
   register,
   login,
   refreshToken,
   logout,
   getMe,
+  verifyEmail,
+  resendVerification,
 };

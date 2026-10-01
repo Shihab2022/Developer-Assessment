@@ -14,6 +14,8 @@ export const endpoints = {
     refresh: "/auth/refresh-token",
     logout: "/auth/logout",
     me: "/auth/me",
+    verifyEmail: "/auth/verify-email",
+    resendVerification: "/auth/resend-verification",
   },
 
   users: {
@@ -27,6 +29,7 @@ export const endpoints = {
     create: "/companies",
     byId: (id: string) => `/companies/${id}`,
     members: (id: string) => `/companies/${id}/members`,
+    member: (id: string, userId: string) => `/companies/${id}/members/${userId}`,
     reports: (id: string) => `/companies/${id}/reports`,
     reportSummary: (id: string) => `/companies/${id}/reports/summary`,
     analytics: (id: string) => `/companies/${id}/analytics`,
@@ -70,6 +73,8 @@ export const endpoints = {
     accept: (id: string) => `/invitations/${id}/accept`,
     reject: (id: string) => `/invitations/${id}/reject`,
     mine: "/candidates/invitations",
+    byToken: (token: string) => `/invitations/token/${token}`,
+    acceptByToken: (token: string) => `/invitations/token/${token}/accept`,
   },
 
   attempts: {

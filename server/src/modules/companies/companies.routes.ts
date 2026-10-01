@@ -5,7 +5,10 @@ import { validate } from "../../middlewares/validate";
 import {
   createCompanySchema,
   idParamSchema,
+  inviteMemberSchema,
+  memberParamsSchema,
   updateCompanySchema,
+  updateMemberRoleSchema,
 } from "./companies.validation";
 import { z } from "zod";
 import { getAllQuerySchema } from "../../helpers/zodSchemas";
@@ -58,6 +61,30 @@ router.get(
   auth(),
   validate(idParamSchema),
   CompanyController.getMembers,
+);
+
+// Company owners/admins manage their own recruiters here.
+router.post(
+  "/:id/members",
+  auth("RECRUITER", "ADMIN"),
+  validate(idParamSchema),
+  validate(inviteMemberSchema),
+  CompanyController.inviteMember,
+);
+
+router.patch(
+  "/:id/members/:userId",
+  auth("RECRUITER", "ADMIN"),
+  validate(memberParamsSchema),
+  validate(updateMemberRoleSchema),
+  CompanyController.updateMemberRole,
+);
+
+router.delete(
+  "/:id/members/:userId",
+  auth("RECRUITER", "ADMIN"),
+  validate(memberParamsSchema),
+  CompanyController.removeMember,
 );
 
 router.get(

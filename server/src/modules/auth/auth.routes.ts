@@ -2,7 +2,13 @@ import express from "express";
 import { AuthController } from "./auth.controller";
 import auth from "../../middlewares/auth";
 import { validate } from "../../middlewares/validate";
-import { loginSchema, refreshTokenSchema, registerSchema } from "./auth.validation";
+import {
+  loginSchema,
+  refreshTokenSchema,
+  registerSchema,
+  resendVerificationSchema,
+  verifyEmailSchema,
+} from "./auth.validation";
 import { loginRateLimiter, registerRateLimiter } from "../../middlewares/rateLimiter";
 
 const router = express.Router();
@@ -14,6 +20,17 @@ router.post(
   AuthController.register,
 );
 router.post("/login", loginRateLimiter, validate(loginSchema), AuthController.login);
+router.post(
+  "/verify-email",
+  validate(verifyEmailSchema),
+  AuthController.verifyEmail,
+);
+router.post(
+  "/resend-verification",
+  loginRateLimiter,
+  validate(resendVerificationSchema),
+  AuthController.resendVerification,
+);
 router.post(
   "/refresh-token",
   validate(refreshTokenSchema),

@@ -43,7 +43,12 @@ const auth = (...roles: Array<"CANDIDATE" | "RECRUITER" | "ADMIN">) => {
         throw new UnauthorizedError("Your account has been suspended");
       }
 
-      if (roles.length > 0 && !roles.includes(user.role)) {
+      // A COMPANY owner/administrator has every recruiter privilege scoped to
+      // their own company, so it is normalized to RECRUITER for authorization.
+      // The real role is still returned by the auth endpoints for the UI.
+      const effectiveRole = user.role === "COMPANY" ? "RECRUITER" : user.role;
+
+      if (roles.length > 0 && !roles.includes(effectiveRole)) {
         throw new ForbiddenError("You do not have permission to access this resource");
       }
 
@@ -51,7 +56,7 @@ const auth = (...roles: Array<"CANDIDATE" | "RECRUITER" | "ADMIN">) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: effectiveRole,
         companyId: user.companyId ?? undefined,
       };
       next();
@@ -87,7 +92,7 @@ export const optionalAuth = async (
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: user.role === "COMPANY" ? "RECRUITER" : user.role,
           companyId: user.companyId ?? undefined,
         };
       }

@@ -6,7 +6,9 @@ import { companiesApi, getErrorMessage, notesApi } from "@/lib/api";
 import type {
   CandidateListParams,
   CreateCompanyPayload,
+  InviteCompanyMemberPayload,
   NoteListParams,
+  UpdateCompanyMemberRolePayload,
   UpdateCompanyPayload,
   UpdateRecruitmentStatusPayload,
 } from "@/lib/api/payloads";
@@ -42,6 +44,45 @@ export function useCompanyMembers(id: string | undefined) {
     queryKey: qk.companies.members(id ?? ""),
     queryFn: () => companiesApi.members(id!),
     enabled: Boolean(id),
+  });
+}
+
+/** Invites (or adds) a recruiter to the company. */
+export function useInviteCompanyMember(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: InviteCompanyMemberPayload) =>
+      companiesApi.inviteMember(companyId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.companies.members(companyId) });
+      toast.success("Recruiter invitation sent");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useUpdateCompanyMemberRole(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: UpdateCompanyMemberRolePayload["role"] }) =>
+      companiesApi.updateMemberRole(companyId, userId, { role }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.companies.members(companyId) });
+      toast.success("Team role updated");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useRemoveCompanyMember(companyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => companiesApi.removeMember(companyId, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.companies.members(companyId) });
+      toast.success("Team member removed");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
 

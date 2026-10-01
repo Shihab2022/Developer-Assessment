@@ -52,11 +52,38 @@ export function useRegister() {
       return authApi.register(payload);
     },
     onSuccess: (data, variables) => {
-      setAuth(data);
-      queryClient.clear();
-      toast.success("Account created. Welcome aboard!");
-      router.replace(variables.redirectTo || dashboardPathForRole(data.user.role));
+      // No-SMTP mode returns a live session immediately.
+      if (!data.requiresVerification && data.accessToken && data.refreshToken) {
+        setAuth({
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        });
+        queryClient.clear();
+        toast.success("Account created. Welcome aboard!");
+        router.replace(variables.redirectTo || dashboardPathForRole(data.user.role));
+        return;
+      }
+      toast.success("Account created. Check your inbox to confirm your email address.");
     },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+/** Confirms an email address using the token from the confirmation link. */
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (token: string) => authApi.verifyEmail(token),
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+/** Re-sends the confirmation email. */
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: (email: string) => authApi.resendVerification(email),
+    onSuccess: () =>
+      toast.success("If an unconfirmed account exists for that email, a new link has been sent."),
     onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
