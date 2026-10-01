@@ -1,16 +1,13 @@
 "use client";
 
-import { use } from "react";
+import { useParams } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessments";
 import { AssessmentForm } from "@/components/recruiter/AssessmentForm";
 import { Spinner } from "@/components/ui/Primitives";
 
-export default function EditAssessmentPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function EditAssessmentPage() {
+  const params = useParams<{ id: string }>();
+  const id = params?.id ?? "";
   const { data: assessment, isLoading } = useAssessment(id);
 
   if (isLoading) return <Spinner className="mx-auto my-12" />;

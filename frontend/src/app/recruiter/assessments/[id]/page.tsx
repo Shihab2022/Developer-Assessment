@@ -1,7 +1,8 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useAssessment, useAssessmentLifecycle } from "@/hooks/useAssessments";
 import { Card, CardBody, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,12 +12,9 @@ import { Spinner } from "@/components/ui/Primitives";
 const TABS = ["Overview", "Problems", "Invitations", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
-export default function AssessmentDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function AssessmentDetailPage() {
+  const params = useParams<{ id: string }>();
+  const id = params?.id ?? "";
   const [tab, setTab] = useState<Tab>("Overview");
   const { data: assessment, isLoading } = useAssessment(id);
   const lifecycle = useAssessmentLifecycle(id);
