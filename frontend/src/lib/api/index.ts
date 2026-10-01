@@ -17,5 +17,6 @@ export { notesApi } from "./notes";
 export { notificationsApi } from "./notifications";
 export { dashboardApi } from "./dashboard";
 export { adminApi } from "./admin";
+export { interviewsApi, interviewSessionApi } from "./interviews";
 
 export type * from "./payloads";

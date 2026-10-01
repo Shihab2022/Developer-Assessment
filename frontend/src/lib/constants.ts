@@ -77,6 +77,50 @@ export const NOTIFICATION_TYPES = [
 
 export const NOTIFICATION_STATUSES = ["UNREAD", "READ"] as const;
 
+/* --------------------------------------------------------- video interviews */
+
+export const INTERVIEW_STATUSES = ["DRAFT", "ACTIVE", "CLOSED", "ARCHIVED"] as const;
+export const INTERVIEW_SESSION_STATUSES = [
+  "NOT_STARTED",
+  "IN_PROGRESS",
+  "PROCESSING",
+  "REVIEWED",
+  "TERMINATED",
+] as const;
+export const INTERVIEW_DECISIONS = ["STRONG_HIRE", "HIRE", "MAYBE", "NO_HIRE"] as const;
+export const INTERVIEW_SENIORITIES = ["JUNIOR", "MID", "SENIOR", "LEAD"] as const;
+export const INTERVIEW_VIOLATION_TYPES = [
+  "TAB_SWITCH",
+  "WINDOW_BLUR",
+  "FULLSCREEN_EXIT",
+  "MULTIPLE_FACES",
+  "DEVICE_DETECTED",
+  "NOISE_DETECTED",
+  "FACE_NOT_VISIBLE",
+  "CAMERA_BLOCKED",
+  "MICROPHONE_BLOCKED",
+  "LOOKING_AWAY",
+  "COPY",
+  "PASTE",
+] as const;
+
+/** Interview creation defaults — mirrors the Prisma/schema defaults. */
+export const DEFAULT_INTERVIEW_SETTINGS = {
+  questionCount: 10,
+  questionTimeSeconds: 300,
+  passScore: 60,
+  maxViolations: 2,
+  seniority: "MID" as const,
+  shuffleQuestions: true,
+  hintsEnabled: true,
+  proctoringEnabled: true,
+  terminateOnCritical: true,
+  aiReviewEnabled: true,
+  showScoreToCandidate: true,
+  useBankQuestions: true,
+};
+
+
 /* ------------------------------------------------------------------ labels */
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -137,6 +181,63 @@ export const NOTIFICATION_ICONS: Record<string, string> = {
   PAYMENT_FAILED: "⚠️",
   ASSESSMENT_EXPIRING: "⏰",
 };
+
+/* ------------------------------------------------- video interview labels */
+
+export const INTERVIEW_SESSION_STATUS_LABELS: Record<string, string> = {
+  NOT_STARTED: "Not started",
+  IN_PROGRESS: "In progress",
+  PROCESSING: "AI reviewing",
+  REVIEWED: "Reviewed",
+  TERMINATED: "Suspended",
+};
+
+export const INTERVIEW_DECISION_LABELS: Record<string, string> = {
+  STRONG_HIRE: "Strong hire",
+  HIRE: "Hire",
+  MAYBE: "Maybe",
+  NO_HIRE: "No hire",
+};
+
+export const INTERVIEW_VERDICT_LABELS: Record<string, string> = {
+  EXCELLENT: "Excellent",
+  GOOD: "Good",
+  FAIR: "Fair",
+  WEAK: "Weak",
+  NO_ANSWER: "No answer",
+};
+
+export const INTERVIEW_SENIORITY_LABELS: Record<string, string> = {
+  JUNIOR: "Junior",
+  MID: "Mid",
+  SENIOR: "Senior",
+  LEAD: "Lead",
+};
+
+export const INTERVIEW_VIOLATION_LABELS: Record<string, string> = {
+  TAB_SWITCH: "Tab switch",
+  WINDOW_BLUR: "Window lost focus",
+  FULLSCREEN_EXIT: "Left full-screen",
+  MULTIPLE_FACES: "Multiple people on camera",
+  DEVICE_DETECTED: "Second device on camera",
+  NOISE_DETECTED: "Background noise / voices",
+  FACE_NOT_VISIBLE: "Face not visible",
+  CAMERA_BLOCKED: "Camera blocked",
+  MICROPHONE_BLOCKED: "Microphone blocked",
+  LOOKING_AWAY: "Looking away repeatedly",
+  COPY: "Copy",
+  PASTE: "Paste",
+};
+
+/** Violations that end the interview and zero the score (requirements 8-10). */
+export const CRITICAL_INTERVIEW_VIOLATIONS = [
+  "DEVICE_DETECTED",
+  "MULTIPLE_FACES",
+  "NOISE_DETECTED",
+  "TAB_SWITCH",
+  "FULLSCREEN_EXIT",
+] as const;
+
 
 export const RISK_LEVEL_LABELS: Record<string, string> = {
   LOW: "Low risk",
@@ -210,6 +311,17 @@ export const STATUS_TONES: Record<string, BadgeTone> = {
   // Risk
   LOW: "green",
   HIGH: "red",
+  // Video interview sessions
+  PROCESSING: "amber",
+  REVIEWED: "green",
+  TERMINATED: "red",
+  // AI hiring recommendation
+  STRONG_HIRE: "green",
+  HIRE: "blue",
+  MAYBE: "amber",
+  NO_HIRE: "red",
+  // Proctoring severity
+  CRITICAL: "red",
 };
 
 /* ------------------------------------------------------- code execution */
@@ -334,6 +446,7 @@ export interface NavItem {
 export const RECRUITER_NAV: NavItem[] = [
   { href: "/recruiter/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
   { href: "/recruiter/assessments", label: "Assessments", icon: "ClipboardList" },
+  { href: "/recruiter/interviews", label: "AI interviews", icon: "Video" },
   { href: "/recruiter/competitions", label: "Competitions", icon: "Trophy" },
   { href: "/recruiter/problems", label: "Question bank", icon: "Library" },
   { href: "/recruiter/templates", label: "Templates", icon: "LayoutTemplate" },

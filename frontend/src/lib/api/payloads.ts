@@ -153,6 +153,23 @@ export interface NotificationListParams extends ListParams {
   status?: string;
 }
 
+/* --------------------------------------------------------- video interviews */
+
+export interface InterviewListParams extends ListParams {
+  /** InterviewStatus */
+  status?: string;
+  /** Technology id from `GET /interviews/technologies`. */
+  technology?: string;
+}
+
+export interface InterviewSessionListParams extends ListParams {
+  /** InterviewSessionStatus */
+  status?: string;
+  /** InterviewDecision */
+  decision?: string;
+}
+
+
 export interface CompareCandidatesParams {
   /** Comma-separated candidate user IDs. */
   candidateIds: string;

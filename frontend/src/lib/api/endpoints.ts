@@ -135,6 +135,35 @@ export const endpoints = {
     candidate: "/dashboard/candidate",
   },
 
+  interviews: {
+    technologies: "/interviews/technologies",
+    list: "/interviews",
+    create: "/interviews",
+    byId: (id: string) => `/interviews/${id}`,
+    publish: (id: string) => `/interviews/${id}/publish`,
+    close: (id: string) => `/interviews/${id}/close`,
+    regenerateQuestions: (id: string) => `/interviews/${id}/regenerate-questions`,
+    questions: (id: string) => `/interviews/${id}/questions`,
+    question: (id: string, questionId: string) => `/interviews/${id}/questions/${questionId}`,
+    sessions: (id: string) => `/interviews/${id}/sessions`,
+    session: (id: string, sessionId: string) => `/interviews/${id}/sessions/${sessionId}`,
+    sessionReview: (id: string, sessionId: string) =>
+      `/interviews/${id}/sessions/${sessionId}/review`,
+    report: (id: string) => `/interviews/${id}/report`,
+  },
+
+  /** Public candidate endpoints — reached with the interview/session link token. */
+  interviewSessions: {
+    byToken: (token: string) => `/interview-sessions/${token}`,
+    start: (token: string) => `/interview-sessions/${token}/start`,
+    state: (token: string) => `/interview-sessions/${token}/state`,
+    violations: (token: string) => `/interview-sessions/${token}/violations`,
+    answer: (token: string, questionId: string) =>
+      `/interview-sessions/${token}/answers/${questionId}`,
+    submit: (token: string) => `/interview-sessions/${token}/submit`,
+    result: (token: string) => `/interview-sessions/${token}/result`,
+  },
+
   admin: {
     users: "/admin/users",
     user: (id: string) => `/admin/users/${id}`,

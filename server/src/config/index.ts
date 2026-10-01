@@ -39,6 +39,20 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
+  // ---- AI interview review (optional: falls back to the built-in rubric engine) ----
+  AI_API_KEY: z.string().optional(),
+  AI_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
+  AI_MODEL: z.string().default("gpt-4o-mini"),
+  AI_TIMEOUT_MS: z.coerce.number().default(45000),
+  AI_ENABLED: z
+    .string()
+    .optional()
+    .transform((v) => v !== "false"),
+  // ---- Video interview defaults ----
+  INTERVIEW_QUESTION_TIME_SECONDS: z.coerce.number().default(300),
+  INTERVIEW_MAX_UPLOAD_MB: z.coerce.number().default(12),
+  INTERVIEW_SESSION_TTL_HOURS: z.coerce.number().default(72),
+  FRONTEND_URL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -91,5 +105,24 @@ export default {
   code_runner_url: env.CODE_RUNNER_URL || process.env.CODE_RUNNER_URL || null,
   allow_local_sandbox:
     env.ALLOW_LOCAL_SANDBOX || process.env.ALLOW_LOCAL_SANDBOX === "true",
+  ai: {
+    /** The LLM provider is used only when a key is present and AI_ENABLED !== "false". */
+    enabled: Boolean(env.AI_API_KEY) && env.AI_ENABLED,
+    api_key: env.AI_API_KEY ?? null,
+    base_url: env.AI_BASE_URL.replace(/\/+$/, ""),
+    model: env.AI_MODEL,
+    timeout_ms: env.AI_TIMEOUT_MS,
+  },
+  interview: {
+    default_question_time_seconds: env.INTERVIEW_QUESTION_TIME_SECONDS,
+    max_upload_mb: env.INTERVIEW_MAX_UPLOAD_MB,
+    session_ttl_hours: env.INTERVIEW_SESSION_TTL_HOURS,
+    /** Public base URL used to build candidate interview links. */
+    link_base_url:
+      env.FRONTEND_URL ||
+      process.env.FRONT_END_BASE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000",
+  },
   isProduction: env.NODE_ENV === "production",
 };

@@ -163,6 +163,64 @@ enum TemplateStatus {
   ACTIVE
   ARCHIVED
 }
+
+// ----------------------------- Video interview enums -----------------------------
+
+enum InterviewStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum InterviewSessionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PROCESSING
+  REVIEWED
+  TERMINATED
+}
+
+enum InterviewQuestionSource {
+  BANK
+  CUSTOM
+}
+
+enum InterviewViolationType {
+  TAB_SWITCH
+  WINDOW_BLUR
+  FULLSCREEN_EXIT
+  MULTIPLE_FACES
+  DEVICE_DETECTED
+  NOISE_DETECTED
+  FACE_NOT_VISIBLE
+  CAMERA_BLOCKED
+  MICROPHONE_BLOCKED
+  LOOKING_AWAY
+  COPY
+  PASTE
+}
+
+enum InterviewViolationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum InterviewViolationDetector {
+  CLIENT
+  AI
+  RECRUITER
+}
+
+enum InterviewDecision {
+  STRONG_HIRE
+  HIRE
+  MAYBE
+  NO_HIRE
+}
+
 // ----------------------------- Models -----------------------------
 
 model User {
@@ -202,6 +260,8 @@ model User {
   notifications      Notification[]
   templatesCreated  AssessmentTemplate[]
   candidateNotes    CandidateNote[]
+  interviewsCreated Interview[]       @relation("InterviewCreator")
+  interviewSessions InterviewSession[] @relation("InterviewCandidate")
 
   @@index([role])
   @@index([status])
@@ -248,6 +308,7 @@ model Company {
   creditTransactions CreditTransaction[]
   templates          AssessmentTemplate[]
   candidateNotes     CandidateNote[]
+  interviews         Interview[]
 
   @@index([name])
 }
@@ -753,3 +814,194 @@ model AttemptSession {
   @@index([sessionId])
   @@index([ipAddress])
 }
+
+// ----------------------------- Video Interview Models -----------------------------
+
+/// A proctored, AI-reviewed video interview (audio + camera) created by a company.
+model Interview {
+  id                  String          @id @default(uuid())
+  companyId           String?
+  company             Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  createdBy           String
+  creator             User            @relation("InterviewCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  title               String
+  description         String?
+  jobRole             String?
+  /// Technology the questions are drawn from (e.g. "javascript", "react").
+  technology          String
+  seniority           String          @default("MID")
+  /// Number of questions served to each candidate (random sample from the bank).
+  questionCount       Int             @default(10)
+  /// Seconds allowed per question. Default 5 minutes, configurable per interview.
+  questionTimeSeconds Int             @default(300)
+  /// Optional hard cap for the whole interview; null = questions * questionTimeSeconds.
+  totalTimeSeconds    Int?
+  shuffleQuestions    Boolean         @default(true)
+  hintsEnabled        Boolean         @default(true)
+  proctoringEnabled   Boolean         @default(true)
+  /// Terminate + zero the session when a CRITICAL violation is detected.
+  terminateOnCritical Boolean         @default(true)
+  aiReviewEnabled     Boolean         @default(true)
+  /// Percentage required to pass (mirrors Assessment.passingScore semantics).
+  passScore           Int             @default(60)
+  /// Non-critical violations tolerated before the session is flagged as high risk.
+  maxViolations       Int             @default(2)
+  /// Public link token — the candidate opens `/interview/<accessToken>`.
+  accessToken         String          @unique
+  status              InterviewStatus @default(DRAFT)
+  expiresAt           DateTime?
+  settings            Json?
+  deletedAt           DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  questions InterviewQuestion[]
+  sessions  InterviewSession[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([technology])
+  @@index([accessToken])
+}
+
+/// A single spoken question, from the built-in technology bank or written by the org.
+model InterviewQuestion {
+  id               String                  @id @default(uuid())
+  interviewId      String
+  interview        Interview               @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  order            Int
+  prompt           String
+  /// Progressive hints revealed by the candidate (requirement 11).
+  hints            String[]                @default([])
+  /// Keywords the AI rubric expects in a strong spoken answer.
+  expectedKeywords String[]                @default([])
+  modelAnswer      String?
+  /// Optional per-question override of `Interview.questionTimeSeconds`.
+  timeSeconds      Int?
+  maxScore         Int                     @default(10)
+  source           InterviewQuestionSource @default(BANK)
+  /// Stable key of the source bank entry (null for custom questions).
+  bankKey          String?
+  difficulty       Difficulty              @default(MEDIUM)
+  topic            String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  answers InterviewAnswer[]
+
+  @@index([interviewId])
+  @@index([source])
+}
+
+/// One candidate's run through an interview, reached through the public link token.
+model InterviewSession {
+  id                String                 @id @default(uuid())
+  interviewId       String
+  interview         Interview              @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  candidateId       String?
+  candidate         User?                  @relation("InterviewCandidate", fields: [candidateId], references: [id], onDelete: SetNull)
+  /// Per-candidate secret embedded in the link (so the org can share one link per person).
+  token             String                 @unique
+  candidateName     String
+  candidateEmail    String
+  status            InterviewSessionStatus @default(NOT_STARTED)
+  startedAt         DateTime?
+  submittedAt       DateTime?
+  reviewedAt        DateTime?
+  terminatedAt      DateTime?
+  /// Why the session was ended early (proctoring violation, expiry, ...).
+  terminationReason String?
+  expiresAt         DateTime?
+  ipAddress         String?
+  userAgent         String?
+  deviceInfo        Json?
+  consentGivenAt    DateTime?
+  totalScore        Int                    @default(0)
+  maxScore          Int                    @default(0)
+  percentage        Float                  @default(0)
+  passesInterview   Boolean                @default(false)
+  /// 100 minus proctoring penalties — shown to the hiring team.
+  integrityScore    Int                    @default(100)
+  riskLevel         String                 @default("LOW")
+  violationCount    Int                    @default(0)
+  decision          InterviewDecision?
+  aiSummary         String?
+  aiStrengths       String[]               @default([])
+  aiImprovements    String[]               @default([])
+  aiReview          Json?
+  /// "openai" | "rubric" — which engine produced the marks.
+  reviewProvider    String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  answers    InterviewAnswer[]
+  violations InterviewViolation[]
+
+  @@index([interviewId])
+  @@index([candidateId])
+  @@index([status])
+  @@index([token])
+}
+
+
+/// The recorded answer for one question: transcript, telemetry and AI marks.
+model InterviewAnswer {
+  id               String            @id @default(uuid())
+  sessionId        String
+  session          InterviewSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  order            Int
+  /// SUBMITTED | SKIPPED | AUTO_SUBMITTED | PENDING
+  status           String            @default("PENDING")
+  transcript       String?
+  /// Optional pointer to externally stored media (org-configured object storage).
+  recordingUrl     String?
+  recordingMime    String?
+  recordingSeconds Int?
+  audioLevelAvg    Float?
+  /// Per-question proctoring telemetry (face counts, brightness, noise samples).
+  videoFrames      Json?
+  /// Small evidence snapshots (base64 JPEG) captured by the candidate's browser.
+  snapshots        Json?
+  hintsUsed        Int               @default(0)
+  hintsRevealed    String[]          @default([])
+  timeSpentSeconds Int?
+  startedAt        DateTime?
+  submittedAt      DateTime?
+  score            Int?
+  maxScore         Int               @default(10)
+  keywordHits      String[]          @default([])
+  missingKeywords  String[]          @default([])
+  aiFeedback       String?
+  aiStrengths      String[]          @default([])
+  aiImprovements   String[]          @default([])
+  aiConfidence     Float?
+  aiReview         Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+}
+
+/// A proctoring signal captured during the interview (tab switch, device use, noise, ...).
+model InterviewViolation {
+  id          String                     @id @default(uuid())
+  sessionId   String
+  session     InterviewSession           @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId  String?
+  type        InterviewViolationType
+  severity    InterviewViolationSeverity @default(MEDIUM)
+  detectedBy  InterviewViolationDetector @default(CLIENT)
+  description String?
+  metadata    Json?
+  /// Small base64 JPEG evidence frame (when the browser could capture one).
+  snapshot    String?
+  occurredAt  DateTime                   @default(now())
+
+  @@index([sessionId])
+  @@index([type])
+  @@index([severity])
+}
+

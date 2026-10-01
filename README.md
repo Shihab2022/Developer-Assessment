@@ -29,6 +29,12 @@ and generating results, reports, and analytics.
 - **Payments (SSLCommerz)** — recruiters purchase credit packages before publishing;
   verified and idempotent callbacks.
 - **Anti-cheating** — proctoring events (tab switch, copy/paste, fullscreen exit, …).
+- **Proctored AI video interviews** — organisations publish a public camera + microphone
+  link; ~10 random questions per technology (each with its own 5-minute timer and hints)
+  plus the organisation's own questions. Using a device, having a second person, background
+  noise, leaving full-screen or switching tabs ends the interview with 0 marks. An AI
+  engine marks every answer and sends marks, feedback and a hiring recommendation to the
+  recruiter.
 - **Audit logs & soft delete** — every critical operation is recorded; entities use `deletedAt`.
 - **Security** — Helmet, CORS, JWT access + refresh rotation, bcrypt, Zod validation,
   rate limiting, and per-resource ownership checks.

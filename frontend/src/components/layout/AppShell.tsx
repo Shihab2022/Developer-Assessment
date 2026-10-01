@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList, Users, Building2, Library,
   FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
   Coins, CreditCard, ShieldCheck, Lock, ScrollText, Menu,
-  LogOut, User as UserIcon, LayoutTemplate,
+  LogOut, User as UserIcon, LayoutTemplate, Video,
 } from "lucide-react";
 import { useLogout } from "@/hooks/useAuth";
 import { useRecruiterDashboard, useCandidateDashboard } from "@/hooks/useDashboard";

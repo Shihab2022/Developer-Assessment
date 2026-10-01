@@ -24,6 +24,7 @@ Complete REST API documentation for the Developer Assessment & Coding Platform.
 - [Assessment Templates](#assessment-templates)
 - [Notes](#notes)
 - [Notifications](#notifications)
+- [Video Interviews (proctored AI)](#video-interviews-proctored-ai)
 - [Dashboard](#dashboard)
 - [Admin](#admin)
 - [Health Check](#health-check)
@@ -808,6 +809,80 @@ Mark a single notification as read. Owned by the current user.
 Mark all of my notifications as read. Returns `{ "updated": 5 }`.
 
 **Notification types:** `ASSESSMENT_INVITATION`, `ASSESSMENT_COMPLETED`, `RESULT_AVAILABLE`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `ASSESSMENT_EXPIRING`.
+
+An AI interview report (ready, or suspended by proctoring) is delivered to the owning
+company as a `RESULT_AVAILABLE` notification whose `data` contains
+`interviewId`, `interviewTitle`, `sessionId` and `terminated`.
+
+---
+
+## Video Interviews (proctored AI)
+
+Organisations create a camera + microphone interview, publish a public link, and the AI
+engine marks every spoken answer. Candidates open the link in a browser — no login
+required — grant camera/microphone access, accept the proctoring policy and answer each
+question out loud, each with its own timer (default 5 minutes, configurable).
+
+### Recruiter/admin — `/api/v1/interviews`
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/interviews/technologies` | Question bank metadata (id, label, size) + defaults |
+| POST | `/interviews` | Create an interview (draws `questionCount` random bank questions + any `customQuestions`) |
+| GET | `/interviews` | List. Query: `page`, `limit`, `q`, `status`, `technology` |
+| GET | `/interviews/:id` | Detail with the full question set, candidate link and session stats |
+| PATCH | `/interviews/:id` | Update settings (time per question, pass mark, proctoring, AI review, …) |
+| DELETE | `/interviews/:id` | Archive (soft delete) |
+| POST | `/interviews/:id/publish` | Publish — the public link is now live |
+| POST | `/interviews/:id/close` | Stop accepting new candidates |
+| POST | `/interviews/:id/regenerate-questions` | Redraw the random bank sample (custom questions are kept, in place) |
+| POST | `/interviews/:id/questions` | Add an organisation-authored question (with hints + expected keywords) |
+| PATCH | `/interviews/:id/questions/:questionId` | Edit a question |
+| DELETE | `/interviews/:id/questions/:questionId` | Remove a question |
+| POST | `/interviews/:id/sessions` | Create a per-candidate invite link (`candidateName`, `candidateEmail`) |
+| GET | `/interviews/:id/sessions` | Sessions with marks, integrity, violations and the AI decision |
+| GET | `/interviews/:id/sessions/:sessionId` | Full AI report: per-question transcript, evidence frames, marks, violations |
+| POST | `/interviews/:id/sessions/:sessionId/review` | Re-run the AI review (e.g. after enabling the LLM provider) |
+| GET | `/interviews/:id/report` | Aggregate report: averages, pass rate, per-question performance, violation breakdown |
+
+### Candidate (public, token-authenticated) — `/api/v1/interview-sessions/:token`
+
+`:token` is either the shared interview link token or a per-candidate invite token.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/:token` | Pre-flight info: interview, policy and the proctoring rules shown for consent |
+| POST | `/:token/start` | Starts/resumes a session (`consentGiven: true`, optional identity, device info) |
+| GET | `/:token/state` | Current proctoring state (status, integrity, termination reason) |
+| POST | `/:token/violations` | Report a proctoring signal; the server decides severity and termination |
+| POST | `/:token/answers/:questionId` | Store one recorded answer (transcript, telemetry, evidence frames, clip) |
+| POST | `/:token/submit` | Finish → runs the AI review and reports marks back to the organisation |
+| GET | `/:token/result` | Candidate-visible outcome (score hidden when the org turns it off) |
+
+### Proctoring policy
+
+The browser only **reports signals**; `interviews.service.ts` assigns severity, deducts
+integrity and decides termination.
+
+| Violation | Severity | Effect |
+| --- | --- | --- |
+| `DEVICE_DETECTED`, `MULTIPLE_FACES`, `NOISE_DETECTED`, `TAB_SWITCH`, `FULLSCREEN_EXIT` | `CRITICAL` | Session ends immediately, suspended, final score **0** |
+| `CAMERA_BLOCKED`, `MICROPHONE_BLOCKED`, `FACE_NOT_VISIBLE` | `HIGH` | −20 integrity |
+| `WINDOW_BLUR`, `LOOKING_AWAY` | `MEDIUM` | −8 integrity |
+| `COPY`, `PASTE` | `LOW` | −2 integrity |
+
+When `terminateOnCritical` is on (default), the first critical violation terminates the
+session; otherwise non-critical violations above `maxViolations` also terminate it.
+
+### AI review
+
+`lib/aiInterview.ts` grades each answer from the transcript, the expected keywords, how
+long the candidate spoke and how many hints were revealed. It uses
+`AI_API_KEY` + any OpenAI-compatible endpoint when configured and otherwise falls back to
+a deterministic rubric engine, so the feature works with no external service. Both
+engines return marks, written feedback, strengths/improvements, matched keywords and a
+confidence; `reviewSession` adds the overall percentage, pass/fail and a hiring
+recommendation (`STRONG_HIRE` / `HIRE` / `MAYBE` / `NO_HIRE`).
 
 ---
 

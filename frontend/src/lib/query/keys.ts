@@ -85,6 +85,21 @@ export const qk = {
     list: (params?: unknown) => ["notifications", "list", params ?? {}] as const,
     unreadCount: ["notifications", "unread-count"] as const,
   },
+  interviews: {
+    all: ["interviews"] as const,
+    list: (params?: unknown) => ["interviews", "list", params ?? {}] as const,
+    detail: (id: string) => ["interviews", "detail", id] as const,
+    technologies: ["interviews", "technologies"] as const,
+    sessions: (id: string, params?: unknown) =>
+      ["interviews", "sessions", id, params ?? {}] as const,
+    session: (id: string, sessionId: string) =>
+      ["interviews", "session", id, sessionId] as const,
+    report: (id: string) => ["interviews", "report", id] as const,
+    /** Candidate-facing (public link). */
+    publicInfo: (token: string) => ["interview-session", token, "info"] as const,
+    result: (token: string) => ["interview-session", token, "result"] as const,
+    state: (token: string) => ["interview-session", token, "state"] as const,
+  },
   dashboard: {
     recruiter: ["dashboard", "recruiter"] as const,
     candidate: ["dashboard", "candidate"] as const,

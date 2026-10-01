@@ -582,4 +582,5 @@ export interface AntiCheatEventPayload {
 // ---------------------------------------------------------------- platform modules
 
 export * from "./types.platform";
+export * from "./types.interview";
 

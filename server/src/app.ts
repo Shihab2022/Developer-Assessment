@@ -21,6 +21,12 @@ app.use(
     credentials: true,
   }),
 );
+// Interviews carry recorded-answer evidence (small JPEG snapshots), so this
+// prefix needs a larger body limit than the rest of the API.
+app.use(
+  "/api/v1/interview-sessions",
+  express.json({ limit: `${config.interview.max_upload_mb}mb` }),
+);
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());

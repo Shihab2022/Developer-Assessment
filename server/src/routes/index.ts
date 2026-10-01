@@ -37,6 +37,7 @@ import { AssessmentTemplateRouter } from "../modules/assessment-templates/assess
 import { NoteRouter } from "../modules/notes/notes.routes";
 import { NotificationRouter } from "../modules/notifications/notifications.routes";
 import { DashboardRouter } from "../modules/dashboard/dashboard.routes";
+import { InterviewRouter, InterviewSessionRouter } from "../modules/interviews/interviews.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerDocument } from "../docs/swagger";
 
@@ -109,6 +110,12 @@ router.use("/notifications", NotificationRouter);
 
 // Dashboard: /api/v1/dashboard
 router.use("/dashboard", DashboardRouter);
+
+// Video interviews: /api/v1/interviews (recruiter/admin)
+router.use("/interviews", InterviewRouter);
+
+// Video interview sessions: /api/v1/interview-sessions (public candidate link)
+router.use("/interview-sessions", InterviewSessionRouter);
 
 // Swagger docs: /api/docs
 router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

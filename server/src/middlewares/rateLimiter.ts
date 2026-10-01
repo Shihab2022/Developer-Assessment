@@ -81,6 +81,19 @@ export const invitationRateLimiter = rateLimit({
   },
 });
 
+export const interviewSessionRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 600,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  skip: skipInTest,
+  message: {
+    success: false,
+    message: "Too many interview requests. Please wait a moment and try again.",
+    errors: [],
+  },
+});
+
 export const generalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 300,

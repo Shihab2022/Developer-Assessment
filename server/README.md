@@ -22,6 +22,14 @@ submissions, and generating reports.
   callbacks are verified and idempotent.
 - **Anti-cheating** — proctoring events (tab switch, copy/paste, fullscreen exit, …)
   with server-captured IP and user-agent.
+- **Proctored AI video interviews** — an organisation publishes a public camera +
+  microphone link; questions are drawn at random from a per-technology bank (default 10,
+  each with its own 5-minute timer and hints) plus the organisation's own questions.
+  A second device, a second person, background noise, leaving full-screen or switching
+  tabs ends the session and scores it 0. Every answer is graded by an AI engine
+  (transcript + proctoring telemetry; LLM when `AI_API_KEY` is set, otherwise a
+  deterministic rubric) and the marks, per-question feedback and hiring recommendation
+  are delivered to the recruiter.
 - **Audit logs** — every critical operation is recorded.
 - **Soft delete** — all major entities use `deletedAt`.
 - **Security** — Helmet, CORS, JWT access + refresh tokens with rotation, bcrypt hashing,
@@ -34,9 +42,10 @@ src/
 ├── app.ts / server.ts        # Express app, security middleware, graceful shutdown
 ├── config/                   # Zod-validated environment configuration
 ├── helpers/                  # ApiError hierarchy, catchAsync, JWT, response, pagination
-├── lib/                      # Prisma client, Redis, audit logger, code runner sandbox
+├── lib/                      # Prisma client, Redis, audit logger, code runner sandbox, AI interview review
+├── data/interview-bank/      # Per-technology spoken-question bank (prompts, hints, expected keywords)
 ├── middlewares/              # auth (JWT + role), validate (Zod), rate limit, error handler
-├── modules/                  # One folder per domain
+├── modules/                  # One folder per domain (incl. `interviews`)
 │   └── <domain>/
 │       ├── <domain>.controller.ts
 │       ├── <domain>.service.ts
@@ -67,6 +76,12 @@ cp .env.example .env
 | `SSLCOMMERZ_IS_LIVE` | `false` for sandbox |
 | `CODE_RUNNER_URL` | Remote isolated code execution service (optional) |
 | `ALLOW_LOCAL_SANDBOX` | Enable local Node `vm` fallback for dev only (`true`/`false`) |
+| `AI_API_KEY` / `AI_BASE_URL` / `AI_MODEL` | Optional OpenAI-compatible provider used to mark interviews (falls back to the built-in rubric engine) |
+| `AI_ENABLED` | Set to `false` to force the rubric engine |
+| `INTERVIEW_QUESTION_TIME_SECONDS` | Default time per question (300 = 5 minutes) |
+| `INTERVIEW_MAX_UPLOAD_MB` | Body limit for interview answer uploads (transcript + evidence + clip) |
+| `INTERVIEW_SESSION_TTL_HOURS` | How long a candidate link stays usable |
+| `FRONTEND_URL` | Public base URL used to build candidate interview links |
 | `SEED_*` | Local/dev seed credentials |
 
 ## Database Setup
@@ -348,6 +363,37 @@ All endpoints hang off **`http://localhost:5000/api/v1`**. Protected endpoints r
 | GET | `/notifications/unread-count` | Unread notification count | 🔐 |
 | PATCH | `/notifications/:id/read` | Mark a notification as read | 🔐 |
 | POST | `/notifications/read-all` | Mark all notifications as read | 🔐 |
+
+### Video interviews — `/api/v1/interviews` (recruiter/admin)
+
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| GET | `/interviews/technologies` | Question bank metadata + defaults | 🔐 |
+| POST | `/interviews` | Create an interview (random bank questions + custom ones) | 🧑‍💼 |
+| GET | `/interviews` | List interviews | 🔐 |
+| GET | `/interviews/:id` | Detail, question set, candidate link, stats | 🔐 |
+| PATCH | `/interviews/:id` | Update settings | 🧑‍💼 |
+| DELETE | `/interviews/:id` | Archive | 🧑‍💼 |
+| POST | `/interviews/:id/publish` / `/close` | Publish / close to new candidates | 🧑‍💼 |
+| POST | `/interviews/:id/regenerate-questions` | Redraw the random bank sample | 🧑‍💼 |
+| POST/PATCH/DELETE | `/interviews/:id/questions[/:questionId]` | Manage the organisation's own questions | 🧑‍💼 |
+| POST | `/interviews/:id/sessions` | Create a per-candidate invite link | 🧑‍💼 |
+| GET | `/interviews/:id/sessions` | Sessions with marks, integrity and decision | 🔐 |
+| GET | `/interviews/:id/sessions/:sessionId` | Full AI report (transcripts, evidence, marks) | 🔐 |
+| POST | `/interviews/:id/sessions/:sessionId/review` | Re-run the AI review | 🧑‍💼 |
+| GET | `/interviews/:id/report` | Aggregate report for the hiring team | 🔐 |
+
+### Candidate link — `/api/v1/interview-sessions/:token` (public)
+
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| GET | `/interview-sessions/:token` | Pre-flight info + proctoring policy | 🔗 |
+| POST | `/interview-sessions/:token/start` | Start/resume (camera + mic consent) | 🔗 |
+| GET | `/interview-sessions/:token/state` | Proctoring state (status, integrity) | 🔗 |
+| POST | `/interview-sessions/:token/violations` | Report a proctoring signal | 🔗 |
+| POST | `/interview-sessions/:token/answers/:questionId` | Store a recorded answer | 🔗 |
+| POST | `/interview-sessions/:token/submit` | Finish + trigger the AI review | 🔗 |
+| GET | `/interview-sessions/:token/result` | Candidate-visible result | 🔗 |
 
 ### Dashboard — `/api/v1/dashboard`
 
