@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, LayoutDashboard, Menu, X } from "lucide-react";
+import { ArrowRight, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { BrandLogo } from "@/components/brand/Logo";
-import { dashboardPathForRole } from "@/lib/constants";
+import { useLogout } from "@/hooks/useAuth";
+import { ROLE_LABELS, ROLE_TONES, dashboardPathForRole } from "@/lib/constants";
 import { HEADER_ROUTE_LINKS, LANDING_NAV, resolveNavHref } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/store/auth";
@@ -30,6 +32,7 @@ const MOBILE_LINK_CLASS =
 export function SiteHeader() {
   const user = useCurrentUser();
   const pathname = usePathname();
+  const logout = useLogout();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -39,6 +42,10 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleLogout = () => {
+    logout.mutate();
+  };
 
   return (
     <header
@@ -69,12 +76,26 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle className="hidden sm:inline-flex" />
           {user ? (
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <Link href={dashboardPathForRole(user.role)}>
-                <LayoutDashboard />
-                Dashboard
-              </Link>
-            </Button>
+            <div className="hidden items-center gap-2 sm:flex">
+              <Badge tone={ROLE_TONES[user.role]} size="sm" className="hidden md:inline-flex">
+                {ROLE_LABELS[user.role]}
+              </Badge>
+              <Button asChild size="sm">
+                <Link href={dashboardPathForRole(user.role)}>
+                  <LayoutDashboard />
+                  Dashboard
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={logout.isPending}
+              >
+                <LogOut />
+                Log out
+              </Button>
+            </div>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -125,11 +146,29 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+            {user && (
+              <div className="pt-3">
+                <Badge tone={ROLE_TONES[user.role]} size="sm">
+                  {ROLE_LABELS[user.role]}
+                </Badge>
+              </div>
+            )}
             <div className="flex items-center gap-2 pt-3">
               {user ? (
-                <Button asChild className="flex-1">
-                  <Link href={dashboardPathForRole(user.role)}>Go to dashboard</Link>
-                </Button>
+                <>
+                  <Button asChild className="flex-1">
+                    <Link href={dashboardPathForRole(user.role)}>Go to dashboard</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleLogout}
+                    disabled={logout.isPending}
+                  >
+                    <LogOut />
+                    Log out
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button asChild variant="outline" className="flex-1">

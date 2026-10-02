@@ -24,13 +24,20 @@ export interface LandingNavLink {
   label: string;
 }
 
+/**
+ * Primary header navigation.
+ *
+ * `Home` is the only real route in this list (the landing page itself); the
+ * rest are in-page anchors that `resolveNavHref` rewrites for the current path.
+ * Competitions and FAQ are intentionally left out of the header — they remain
+ * reachable from the footer and the landing-page sections.
+ */
 export const LANDING_NAV: LandingNavLink[] = [
+  { href: "/", label: "Home" },
   { href: "#exams", label: "Exams" },
   { href: "#practice", label: "Practice" },
   { href: "#playground", label: "Playground" },
-  { href: "#competitions", label: "Competitions" },
   { href: "#question-bank", label: "Question bank" },
-  { href: "#faq", label: "FAQ" },
 ];
 
 /**

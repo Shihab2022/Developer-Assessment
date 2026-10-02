@@ -130,6 +130,14 @@ export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Administrator",
 };
 
+/** Badge tone used wherever a signed-in user's role is rendered as a chip. */
+export const ROLE_TONES: Record<Role, BadgeTone> = {
+  CANDIDATE: "blue",
+  RECRUITER: "violet",
+  COMPANY: "indigo",
+  ADMIN: "red",
+};
+
 export const DIFFICULTY_LABELS: Record<string, string> = {
   EASY: "Easy",
   MEDIUM: "Medium",

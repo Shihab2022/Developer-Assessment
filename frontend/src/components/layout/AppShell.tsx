@@ -15,9 +15,17 @@ import { useCurrentUser } from "@/store/auth";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { BrandLogo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
-import { navForRole, isNavActive, dashboardPathForRole, type NavItem } from "@/lib/constants";
+import {
+  navForRole,
+  isNavActive,
+  dashboardPathForRole,
+  ROLE_LABELS,
+  ROLE_TONES,
+  type NavItem,
+} from "@/lib/constants";
 import type { Role } from "@/lib/types";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -123,6 +131,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <Badge tone={ROLE_TONES[user.role]} size="sm" className="hidden sm:inline-flex">
+              {ROLE_LABELS[user.role]}
+            </Badge>
             <NotificationBell />
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={() => router.push(dashboardPathForRole(user.role))} className="h-9 w-9 rounded-full p-0" aria-label="Go to dashboard">
