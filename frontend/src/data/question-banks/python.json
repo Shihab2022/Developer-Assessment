@@ -2,7 +2,7 @@
   "technology": "python",
   "label": "Python",
   "description": "Core Python MCQ: data structures, mutability, scoping, comprehensions, exceptions and iterators for web developers.",
-  "source": "Authored for DevAssess",
+  "source": "Authored for SkillGauge",
   "questionCount": 10,
   "levels": [
     { "id": "L1", "label": "Fundamental" },

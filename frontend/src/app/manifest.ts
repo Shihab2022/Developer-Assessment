@@ -5,7 +5,7 @@ import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/constants";
  * Web app manifest (Next.js metadata file → served at `/manifest.webmanifest`).
  *
  * It makes the platform installable: the browser/OS shows the `</>` tile from
- * `scripts/generate-brand-assets.mjs` under the name `DevAssess`.
+ * `scripts/generate-brand-assets.mjs` under the name `SkillGauge`.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

@@ -174,24 +174,24 @@ export function isPythonRuntimeReady(): boolean {
 function pythonStdinPrelude(stdin: string): string {
   const literal = JSON.stringify(stdin);
   return `# ------------------------------------------------- Input tab (stdin) ---
-import builtins as __devassess_builtins
-import io as __devassess_io
-import sys as __devassess_sys
+import builtins as __skillgauge_builtins
+import io as __skillgauge_io
+import sys as __skillgauge_sys
 
-__devassess_sys.stdin = __devassess_io.StringIO(${literal})
-__devassess_lines = iter(__devassess_sys.stdin.readlines())
+__skillgauge_sys.stdin = __skillgauge_io.StringIO(${literal})
+__skillgauge_lines = iter(__skillgauge_sys.stdin.readlines())
 
 
-def __devassess_input(prompt=""):
+def __skillgauge_input(prompt=""):
     if prompt:
         print(prompt, end="")
     try:
-        return next(__devassess_lines).rstrip("\\n")
+        return next(__skillgauge_lines).rstrip("\\n")
     except StopIteration:
         raise EOFError("EOF when reading a line")
 
 
-__devassess_builtins.input = __devassess_input`;
+__skillgauge_builtins.input = __skillgauge_input`;
 }
 
 function createPythonWorker(): Worker | null {

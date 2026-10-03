@@ -13,12 +13,12 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 async function main() {
   const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
 
-  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@devassess.local";
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@skillgauge.local";
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "Admin123!";
   const recruiterEmail = process.env.SEED_RECRUITER_EMAIL ?? "recruiter@techcorp.dev";
   const recruiterPassword = process.env.SEED_RECRUITER_PASSWORD ?? "Recruit123!";
   const candidateEmail =
-    process.env.SEED_CANDIDATE_EMAIL ?? "candidate@devassess.local";
+    process.env.SEED_CANDIDATE_EMAIL ?? "candidate@skillgauge.local";
   const candidatePassword = process.env.SEED_CANDIDATE_PASSWORD ?? "Candid8te!";
 
   console.log("Seeding database...");

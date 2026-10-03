@@ -59,7 +59,7 @@ export default function CompanyRegisterPage() {
         </span>
       }
       title="Register your company"
-      subtitle="Found your company, invite recruiters and publish assessments."
+      subtitle="B2B workspace: found your team, invite recruiters, publish assessments and run video interviews."
       footer={
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}

@@ -7,7 +7,7 @@ export const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 /** Broadcast when the session is no longer recoverable (consumed by providers). */
-export const SESSION_EXPIRED_EVENT = "devassess:session-expired";
+export const SESSION_EXPIRED_EVENT = "skillgauge:session-expired";
 
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

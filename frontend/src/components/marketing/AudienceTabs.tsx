@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Building2, GraduationCap, UserRound } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LANDING_AUDIENCES } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,16 @@ export function AudienceTabs() {
             >
               <Icon className="size-4" />
               {item.label}
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                  item.kind === "B2B"
+                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"
+                    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+                )}
+              >
+                {item.kind}
+              </span>
             </button>
           );
         })}
@@ -54,7 +65,15 @@ export function AudienceTabs() {
 
       <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_1fr]">
         <div>
-          <h3 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+          <div className="flex items-center gap-2">
+            <Badge tone={audience.kind === "B2B" ? "indigo" : "green"} size="sm">
+              {audience.kind}
+            </Badge>
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {audience.kind === "B2B" ? "For organisations" : "For individuals"}
+            </span>
+          </div>
+          <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
             {audience.headline}
           </h3>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">

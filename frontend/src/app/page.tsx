@@ -123,18 +123,18 @@ export default function HomePage() {
             <div className="animate-fade-up">
               <span className="section-eyebrow">
                 <Sparkles className="size-3.5" />
-                Exams · practice · contests
+                B2B for teams · B2C for learners
               </span>
 
               <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.35rem]">
-                Practise like it is a judge.
-                <span className="gradient-text"> Get graded like it counts.</span>
+                Measure real skill.
+                <span className="gradient-text"> For teams that hire, and people who learn.</span>
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-                {APP_NAME} is one workspace for technical exams, practice-arena problems and your own
-                online compiler — plus everything a company, university or coding club needs to host a
-                competition end to end.
+                {APP_NAME} is one platform with two front doors. Companies and institutes run timed,
+                proctored exams, AI video interviews and competitions. Individual developers practise
+                free, sit the same exams and keep scorecards that prove what they actually know.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -145,18 +145,18 @@ export default function HomePage() {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="#playground">
+                  <Link href="#audience">
                     <Play />
-                    Run your first snippet
+                    See it for teams
                   </Link>
                 </Button>
               </div>
 
               <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
                 {[
-                  "Free practice and compiler",
-                  "No credit card required",
-                  "Candidates, companies and institutes",
+                  "Free for individual learners",
+                  "Teams pay per candidate, not per seat",
+                  "One question bank behind both",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-1.5">
                     <Check className="size-3.5 text-success" strokeWidth={3} />
@@ -515,10 +515,22 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                <div className="mt-7">
-                  <AudienceTabs />
-                </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- audiences */}
+        <section id="audience" className="scroll-mt-20 border-b border-border py-16 lg:py-24">
+          <div className="container">
+            <SectionHeading
+              eyebrow="Two audiences · one engine"
+              title="Who SkillGauge is for"
+              description="SkillGauge is deliberately both. Teams (B2B) buy it to assess at scale — hiring rounds, video interviews, cohort exams and contests. Individuals (B2C) use it free to practise, sit the same exams and collect proof of skill."
+            />
+
+            <div className="mt-12">
+              <AudienceTabs />
             </div>
           </div>
         </section>
@@ -721,17 +733,17 @@ export default function HomePage() {
               />
               <div className="relative">
                 <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                  Your next exam, session or contest starts with one account
+                  One account for learners. One workspace for teams.
                 </h2>
                 <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-white/85">
-                  Practise on your own, sit a technology exam, or bring your whole team and host a
-                  competition. Everything runs on the same engine — one timer, one evaluation
-                  pipeline, one audit trail.
+                  Sign up free to practise, sit technology exams and keep scorecards you can share —
+                  or create a workspace and invite your team to run hiring rounds, AI video
+                  interviews and competitions. Same engine, same timer, same evaluation pipeline.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                   <Button asChild size="lg" variant="secondary">
                     <Link href="/register">
-                      Create a free account
+                      Get started free
                       <ArrowRight />
                     </Link>
                   </Button>
@@ -741,11 +753,12 @@ export default function HomePage() {
                     variant="outline"
                     className="border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                   >
-                    <Link href="/login">Sign in to your workspace</Link>
+                    <Link href="/register/company">Create a team workspace</Link>
                   </Button>
                 </div>
                 <p className="mt-5 text-xs text-white/70">
-                  Candidates, recruiters and administrators each get their own workspace.
+                  B2C accounts are free. B2B workspaces are for companies, institutes and coding
+                  clubs — and you pay per candidate, not per seat.
                 </p>
               </div>
             </div>

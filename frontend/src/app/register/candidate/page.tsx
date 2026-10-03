@@ -70,7 +70,7 @@ function CandidateForm() {
         </span>
       }
       title="Create your candidate account"
-      subtitle="Take assessments invited by recruiters and see your results."
+      subtitle="Free for individuals: practise, take invited exams and keep scorecards you can share."
       footer={
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}

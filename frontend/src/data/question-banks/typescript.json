@@ -2,7 +2,7 @@
   "technology": "typescript",
   "label": "TypeScript",
   "description": "Type-system MCQ: inference, unions and narrowing, generics, utility types, strict mode and conditional types.",
-  "source": "Authored for DevAssess",
+  "source": "Authored for SkillGauge",
   "questionCount": 12,
   "levels": [
     { "id": "L1", "label": "Fundamental" },

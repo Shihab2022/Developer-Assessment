@@ -43,23 +43,37 @@ const CORNER_RADIUS = 15;
 /** Stroke width in design units (matches `stroke-width="5.2"`). */
 const STROKE = 5.2;
 
-/** `</>` glyph: chevrons + slash, as polylines on the 64-unit grid. */
+/**
+ * SkillGauge mark, drawn as strokes on the 64-unit design grid.
+ *
+ * It mirrors `src/app/icon.svg` exactly — a dial arc, a needle reading 50° and
+ * a hub — so the rasterised PNG/ICO icons match the inline SVG in the app.
+ */
+const GAUGE = { cx: 32, cy: 38, r: 17, from: 200, to: -20, steps: 36 };
+const NEEDLE_FROM = [32, 38];
+/** 50° at radius 15 — the needle sits just inside the dial arc. */
+const NEEDLE_TO = [41.64, 26.51];
+const HUB = { x: 32, y: 38, r: 4 };
+
+const WHITE = [255, 255, 255];
+const NEEDLE_COLOR = [0xa5, 0xf3, 0xfc];
+
+/** Polyline approximation of the dial arc (angles in degrees, y-axis down). */
+function arcPoints({ cx, cy, r, from, to, steps }) {
+  const points = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const angle = ((from + ((to - from) * i) / steps) * Math.PI) / 180;
+    points.push([cx + r * Math.cos(angle), cy - r * Math.sin(angle)]);
+  }
+  return points;
+}
+
 const GLYPH_STROKES = [
-  [
-    [23, 19],
-    [12.5, 32],
-    [23, 45],
-  ],
-  [
-    [41, 19],
-    [51.5, 32],
-    [41, 45],
-  ],
-  [
-    [33.5, 18.5],
-    [30.5, 45.5],
-  ],
+  { color: WHITE, points: arcPoints(GAUGE) },
+  { color: NEEDLE_COLOR, points: [NEEDLE_FROM, NEEDLE_TO] },
 ];
+
+const GLYPH_DOTS = [{ ...HUB, color: WHITE }];
 
 const SUPERSAMPLE = 4;
 
@@ -98,17 +112,20 @@ function insideTile(x, y) {
   return Math.hypot(dx - limit, dy - limit) <= CORNER_RADIUS;
 }
 
-/** True when a design-space point is covered by the white glyph. */
-function insideGlyph(x, y) {
+/** Glyph colour at a design-space point, or `null` when the pixel is bare tile. */
+function glyphAt(x, y) {
   const radius = STROKE / 2;
   for (const stroke of GLYPH_STROKES) {
-    for (let i = 0; i < stroke.length - 1; i += 1) {
-      const [ax, ay] = stroke[i];
-      const [bx, by] = stroke[i + 1];
-      if (distanceToSegment(x, y, ax, ay, bx, by) <= radius) return true;
+    for (let i = 0; i < stroke.points.length - 1; i += 1) {
+      const [ax, ay] = stroke.points[i];
+      const [bx, by] = stroke.points[i + 1];
+      if (distanceToSegment(x, y, ax, ay, bx, by) <= radius) return stroke.color;
     }
   }
-  return false;
+  for (const dot of GLYPH_DOTS) {
+    if (Math.hypot(x - dot.x, y - dot.y) <= dot.r) return dot.color;
+  }
+  return null;
 }
 
 /** Renders one square RGBA buffer of `size` px. */
@@ -130,9 +147,8 @@ function render(size) {
           const y = (py + (sy + 0.5) / SUPERSAMPLE) * scale;
           if (!insideTile(x, y)) continue;
 
-          const color = insideGlyph(x, y)
-            ? [255, 255, 255]
-            : tileColor((x / VIEWBOX + y / VIEWBOX) / 2);
+          const color =
+            glyphAt(x, y) ?? tileColor((x / VIEWBOX + y / VIEWBOX) / 2);
           r += color[0];
           g += color[1];
           b += color[2];

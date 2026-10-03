@@ -127,7 +127,7 @@ export const renderEmailLayout = ({
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(15,23,42,0.08);">
           <tr>
             <td style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:24px 28px;">
-              <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:-0.02em;">DevAssess</span>
+              <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:-0.02em;">SkillGauge</span>
             </td>
           </tr>
           <tr>
@@ -148,7 +148,7 @@ export const renderEmailLayout = ({
           <tr>
             <td style="padding:18px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;">
               <p style="margin:0;font-size:12px;color:#94a3b8;">
-                This message was sent by DevAssess. If you were not expecting it, you can ignore it.
+                This message was sent by SkillGauge. If you were not expecting it, you can ignore it.
               </p>
             </td>
           </tr>
@@ -174,7 +174,7 @@ export const buildVerificationEmail = ({
   verifyUrl: string;
   expiresInHours: number;
 }): RenderedEmail => ({
-  subject: "Confirm your DevAssess email address",
+  subject: "Confirm your SkillGauge email address",
   html: renderEmailLayout({
     heading: `Welcome, ${name}!`,
     intro:
@@ -185,7 +185,7 @@ export const buildVerificationEmail = ({
     ctaLabel: "Confirm my email",
     ctaUrl: verifyUrl,
   }),
-  text: `Welcome, ${name}! Confirm your DevAssess email address: ${verifyUrl}\nThis link expires in ${expiresInHours} hours.`,
+  text: `Welcome, ${name}! Confirm your SkillGauge email address: ${verifyUrl}\nThis link expires in ${expiresInHours} hours.`,
 });
 
 export const buildInvitationEmail = ({
@@ -374,10 +374,10 @@ export const buildRecruiterInviteEmail = ({
   companyCode: string;
   acceptUrl: string;
 }): RenderedEmail => ({
-  subject: `${inviterName} invited you to join ${companyName} on DevAssess`,
+  subject: `${inviterName} invited you to join ${companyName} on SkillGauge`,
   html: renderEmailLayout({
     heading: `You have been invited to join ${companyName}`,
-    intro: `${inviterName} has invited you to help run "${companyName}" assessments on DevAssess. Create your recruiter account and use the company code below to join.`,
+    intro: `${inviterName} has invited you to help run "${companyName}" assessments on SkillGauge. Create your recruiter account and use the company code below to join.`,
     bodyHtml: `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:18px;border:1px solid #e2e8f0;border-radius:12px;">
       <tr><td style="padding:14px 16px;font-size:14px;color:#334155;">
         <strong style="color:#0f172a;">Company code:</strong>
@@ -390,7 +390,7 @@ export const buildRecruiterInviteEmail = ({
     ctaUrl: acceptUrl,
     footer: `Hi ${invitedName}, if you were not expecting this invitation you can ignore this email.`,
   }),
-  text: `${inviterName} invited you to join ${companyName} on DevAssess. Company code: ${companyCode}. Register: ${acceptUrl}`,
+  text: `${inviterName} invited you to join ${companyName} on SkillGauge. Company code: ${companyCode}. Register: ${acceptUrl}`,
 });
 
 export default sendMail;

@@ -127,7 +127,7 @@ export const useExamsStore = create<ExamsState>()(
         set((state) => ({ attempts: state.attempts.filter((attempt) => attempt.id !== attemptId) })),
     }),
     {
-      name: "devassess-exams",
+      name: "skillgauge-exams",
       storage: createJSONStorage(() => localStorage),
       version: 1,
     },

@@ -146,7 +146,7 @@ SMTP_PORT=465            # 465 = implicit TLS; use 587 + SMTP_SECURE=false for S
 SMTP_SECURE="true"
 SMTP_USERNAME="you@gmail.com"
 SMTP_PASSWORD="xxxx xxxx xxxx xxxx"   # 16-character Gmail App Password
-MAIL_FROM="DevAssess <you@gmail.com>" # optional; defaults to DevAssess <SMTP_USERNAME>
+MAIL_FROM="SkillGauge <you@gmail.com>" # optional; defaults to SkillGauge <SMTP_USERNAME>
 MAIL_ENABLED="true"
 EMAIL_VERIFICATION_EXPIRES_IN_HOURS=24
 ```
@@ -155,7 +155,7 @@ EMAIL_VERIFICATION_EXPIRES_IN_HOURS=24
 
 1. Turn on 2-Step Verification for the Google Account.
 2. Google Account → **Security** → **App passwords**.
-3. Create one named e.g. "DevAssess SMTP" → Google returns a 16-character
+3. Create one named e.g. "SkillGauge SMTP" → Google returns a 16-character
    password. Paste it into `SMTP_PASSWORD`.
 
 > Your normal Google password will **not** work when 2-Step Verification is on.
@@ -365,8 +365,8 @@ cd ../frontend && npm install && npm run dev                    # :3000
 | Role | Email | Password |
 |---|---|---|
 | Recruiter | `recruiter@techcorp.dev` | `Recruit123!` |
-| Candidate | `candidate@devassess.local` | `Candid8te!` |
-| Admin | `admin@devassess.local` | `Admin123!` |
+| Candidate | `candidate@skillgauge.local` | `Candid8te!` |
+| Admin | `admin@skillgauge.local` | `Admin123!` |
 
 * Seed company join code: **`TECHCOR-0001`**
 * Seed exam link: `/invitations/join?token=demo-candidate-token-0001`

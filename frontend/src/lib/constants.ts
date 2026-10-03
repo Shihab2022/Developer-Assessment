@@ -435,10 +435,15 @@ export function languageLabel(value?: string | null): string {
 
 /* ------------------------------------------------------- app metadata */
 
-export const APP_NAME = "DevAssess";
-export const APP_TAGLINE = "Assessment & coding platform for engineering hiring";
+export const APP_NAME = "SkillGauge";
+/**
+ * Dual-audience positioning: SkillGauge is sold to **teams** (B2B — companies,
+ * institutes, coding clubs) and to **individuals** (B2C — learners and
+ * candidates), so the tagline and description always name both sides.
+ */
+export const APP_TAGLINE = "Measure real skills — for hiring teams and for learners";
 export const APP_DESCRIPTION =
-  "Build coding, multiple-choice and written assessments, invite candidates, run server-timed attempts with proctoring signals, and evaluate results with per-skill analytics.";
+  "SkillGauge is a B2B and B2C skills platform: companies, institutes and coding clubs run timed, proctored exams and AI video interviews from a shared question bank, while individual learners practise, sit exams and earn shareable scorecards.";
 
 /* ------------------------------------------------------- navigation */
 

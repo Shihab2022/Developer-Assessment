@@ -60,7 +60,7 @@ export const usePlaygroundStore = create<PlaygroundState>()(
         set({ drafts: {}, stdin: {}, language: DEFAULT_PLAYGROUND_LANGUAGE, autoPreview: true }),
     }),
     {
-      name: "devassess-playground",
+      name: "skillgauge-playground",
       storage: createJSONStorage(() => localStorage),
       version: 2,
       /** v1 had no Input tab, so a v1 payload simply has no stdin entries. */

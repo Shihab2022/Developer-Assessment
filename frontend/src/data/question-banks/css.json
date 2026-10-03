@@ -2,7 +2,7 @@
   "technology": "css",
   "label": "CSS",
   "description": "Selectors, specificity, the cascade, layout with Flexbox and Grid, responsive units and modern CSS features.",
-  "source": "Authored for DevAssess",
+  "source": "Authored for SkillGauge",
   "questionCount": 10,
   "levels": [
     { "id": "L1", "label": "Fundamental" },

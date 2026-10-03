@@ -1,4 +1,4 @@
-# Developer Assessment & Coding Platform — Backend
+# SkillGauge — Backend API
 
 A production-ready, multi-role REST API for creating technical assessments, managing
 coding/MCQ/written problems, inviting candidates, running timed attempts, evaluating
@@ -92,7 +92,7 @@ cp .env.example .env
 | `FRONTEND_URL` | Public base URL used to build candidate links (email confirmation + invitations) |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | SMTP server (defaults to `smtp.gmail.com:465`, implicit TLS) |
 | `SMTP_USERNAME` / `SMTP_PASSWORD` | Google account + **App Password** used to send mail |
-| `MAIL_FROM` | From header (defaults to `DevAssess <SMTP_USERNAME>`) |
+| `MAIL_FROM` | From header (defaults to `SkillGauge <SMTP_USERNAME>`) |
 | `MAIL_ENABLED` | `false` disables outbound email (registrations auto-verify) |
 | `EMAIL_VERIFICATION_EXPIRES_IN_HOURS` | Confirmation-link lifetime (default 24) |
 | `SEED_*` | Local/dev seed credentials |
@@ -483,7 +483,7 @@ POST /api/v1/auth/register
 ```json
 {
   "name": "Cody Candidate",
-  "email": "candidate@devassess.local",
+  "email": "candidate@skillgauge.local",
   "password": "Candid8te!",
   "role": "CANDIDATE"
 }

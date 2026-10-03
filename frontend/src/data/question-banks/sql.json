@@ -2,7 +2,7 @@
   "technology": "sql",
   "label": "SQL",
   "description": "Query-writing MCQ: filtering, joins, aggregation, NULL semantics, indexes and transactions for application developers.",
-  "source": "Authored for DevAssess",
+  "source": "Authored for SkillGauge",
   "questionCount": 10,
   "levels": [
     { "id": "L1", "label": "Fundamental" },

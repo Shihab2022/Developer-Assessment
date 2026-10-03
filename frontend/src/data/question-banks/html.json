@@ -2,7 +2,7 @@
   "technology": "html",
   "label": "HTML",
   "description": "Semantic markup, accessibility, forms, media and browser behaviour questions for web app development.",
-  "source": "Authored for DevAssess",
+  "source": "Authored for SkillGauge",
   "questionCount": 10,
   "levels": [
     { "id": "L1", "label": "Fundamental" },

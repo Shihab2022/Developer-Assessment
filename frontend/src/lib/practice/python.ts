@@ -58,77 +58,77 @@ export function buildPythonHarness(options: {
   const marker = JSON.stringify(PYTHON_RESULT_MARKER);
   const casesLiteral = JSON.stringify(JSON.stringify(payload));
 
-  return `# ------------------------------------------------- DevAssess harness ---
-import json as __devassess_json
-import time as __devassess_time
+  return `# ------------------------------------------------- SkillGauge harness ---
+import json as __skillgauge_json
+import time as __skillgauge_time
 
-__devassess_cases = __devassess_json.loads(${casesLiteral})
-__devassess_names = [${names}]
-__devassess_wanted = "${pythonFunctionName(functionName)}"
+__skillgauge_cases = __skillgauge_json.loads(${casesLiteral})
+__skillgauge_names = [${names}]
+__skillgauge_wanted = "${pythonFunctionName(functionName)}"
 
 
-def __devassess_emit(payload):
+def __skillgauge_emit(payload):
     print(${marker} + payload)
 
 
-def __devassess_dumps(value):
+def __skillgauge_dumps(value):
     try:
-        return __devassess_json.dumps(value, default=str)
+        return __skillgauge_json.dumps(value, default=str)
     except Exception:
-        return __devassess_json.dumps(repr(value))
+        return __skillgauge_json.dumps(repr(value))
 
 
-def __devassess_millis(started):
-    return round((__devassess_time.perf_counter() - started) * 1000, 3)
+def __skillgauge_millis(started):
+    return round((__skillgauge_time.perf_counter() - started) * 1000, 3)
 
 
 # A previous run in this session may have defined the same name; drop it so a
 # stale function can never answer this run's tests.
-for __devassess_name in __devassess_names:
-    globals().pop(__devassess_name, None)
+for __skillgauge_name in __skillgauge_names:
+    globals().pop(__skillgauge_name, None)
 
 # -------------------------------------------------------------- your code ---
 ${code}
 
 # ----------------------------------------------------------- test runner ---
-def __devassess_resolve():
-    for __devassess_name in __devassess_names:
-        __devassess_candidate = globals().get(__devassess_name)
-        if callable(__devassess_candidate):
-            return __devassess_candidate
+def __skillgauge_resolve():
+    for __skillgauge_name in __skillgauge_names:
+        __skillgauge_candidate = globals().get(__skillgauge_name)
+        if callable(__skillgauge_candidate):
+            return __skillgauge_candidate
     raise NameError(
-        "No function named '" + __devassess_wanted + "' was found. "
+        "No function named '" + __skillgauge_wanted + "' was found. "
         "Keep the given signature so the tests can call it."
     )
 
 
 try:
-    __devassess_solution = __devassess_resolve()
-except Exception as __devassess_error:
-    __devassess_emit(
-        __devassess_json.dumps({"fatal": type(__devassess_error).__name__ + ": " + str(__devassess_error)})
+    __skillgauge_solution = __skillgauge_resolve()
+except Exception as __skillgauge_error:
+    __skillgauge_emit(
+        __skillgauge_json.dumps({"fatal": type(__skillgauge_error).__name__ + ": " + str(__skillgauge_error)})
     )
 else:
-    for __devassess_case in __devassess_cases:
-        __devassess_started = __devassess_time.perf_counter()
+    for __skillgauge_case in __skillgauge_cases:
+        __skillgauge_started = __skillgauge_time.perf_counter()
         try:
-            __devassess_value = __devassess_solution(*__devassess_case["args"])
-        except Exception as __devassess_error:
-            __devassess_emit(
+            __skillgauge_value = __skillgauge_solution(*__skillgauge_case["args"])
+        except Exception as __skillgauge_error:
+            __skillgauge_emit(
                 '{"index": %d, "ms": %s, "error": %s}'
                 % (
-                    __devassess_case["index"],
-                    __devassess_millis(__devassess_started),
-                    __devassess_dumps(type(__devassess_error).__name__ + ": " + str(__devassess_error)),
+                    __skillgauge_case["index"],
+                    __skillgauge_millis(__skillgauge_started),
+                    __skillgauge_dumps(type(__skillgauge_error).__name__ + ": " + str(__skillgauge_error)),
                 )
             )
         else:
-            __devassess_emit(
+            __skillgauge_emit(
                 '{"index": %d, "ms": %s, "value": %s}'
                 % (
-                    __devassess_case["index"],
-                    __devassess_millis(__devassess_started),
-                    __devassess_dumps(__devassess_value),
+                    __skillgauge_case["index"],
+                    __skillgauge_millis(__skillgauge_started),
+                    __skillgauge_dumps(__skillgauge_value),
                 )
             )
 `;

@@ -26,7 +26,7 @@ const JUDGE0_URL = "https://ce.judge0.com/submissions?base64_encoded=false&wait=
 /** Judge0 language id for Java (verified against the live instance). */
 const JUDGE0_JAVA_LANGUAGE_ID = 62;
 /** go.dev asks clients to identify themselves with a unique user agent. */
-const USER_AGENT = `DevAssess-Playground/1.0 (${
+const USER_AGENT = `SkillGauge-Playground/1.0 (${
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://github.com/Shihab2022/Developer-Assessment"
 })`;
 

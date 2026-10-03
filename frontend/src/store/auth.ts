@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
       setHydrated: (hydrated) => set({ hydrated }),
     }),
     {
-      name: "devassess-auth",
+      name: "skillgauge-auth",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,

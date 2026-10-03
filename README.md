@@ -1,8 +1,12 @@
-# Developer Assessment & Coding Platform
+# SkillGauge — Developer Assessment & Coding Platform
 
-A production-ready, multi-role REST API for creating **coding / MCQ / written** technical
-assessments, inviting candidates, running **server-timed attempts**, evaluating submissions,
-and generating results, reports, and analytics.
+**SkillGauge** is a B2B **and** B2C technical assessment platform — one engine, two audiences:
+
+- **B2B** — companies, institutes and coding clubs create **coding / MCQ / written** assessments,
+  run **server-timed attempts**, invite candidates to proctored **AI video interviews** and host
+  end-to-end competitions, with results, reports and analytics.
+- **B2C** — individual developers register for free, practise on a large problem bank, sit the
+  same technology exams in a browser-based compiler, and keep scorecards they can share.
 
 ## 📚 Documentation
 
@@ -103,9 +107,9 @@ npm run dev                 # → http://localhost:5000
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | `admin@devassess.local` | `Admin123!` |
+| Admin | `admin@skillgauge.local` | `Admin123!` |
 | Recruiter | `recruiter@techcorp.dev` | `Recruit123!` |
-| Candidate | `candidate@devassess.local` | `Candid8te!` |
+| Candidate | `candidate@skillgauge.local` | `Candid8te!` |
 
 ## 🌐 API Overview
 
@@ -315,7 +319,7 @@ POST /api/v1/auth/register
 ```json
 {
   "name": "Cody Candidate",
-  "email": "candidate@devassess.local",
+  "email": "candidate@skillgauge.local",
   "password": "Candid8te!",
   "role": "CANDIDATE"
 }

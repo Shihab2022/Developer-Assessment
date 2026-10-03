@@ -14,7 +14,7 @@ import type { ConsoleLevel, ConsoleLine, PlaygroundLanguage } from "./types";
  */
 
 /** Marker that identifies messages coming from our own preview iframe. */
-export const PREVIEW_MESSAGE_SOURCE = "devassess-playground";
+export const PREVIEW_MESSAGE_SOURCE = "skillgauge-playground";
 
 /** Tailwind Play CDN, pinned to the Tailwind version the frontend compiles with. */
 export const TAILWIND_CDN_URL = "https://cdn.tailwindcss.com/3.4.19";

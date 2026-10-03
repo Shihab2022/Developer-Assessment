@@ -8,31 +8,39 @@ const OPTIONS = [
   {
     href: "/register/candidate",
     icon: GraduationCap,
-    title: "Register as a Candidate",
-    desc: "Take invited assessments and keep track of your results.",
+    kind: "B2C",
+    title: "I'm here to learn or get hired",
+    desc: "Practise free, sit technology exams and keep scorecards you can share with recruiters.",
     tint: "bg-primary-50 text-primary-600 dark:bg-primary-950/50 dark:text-primary-300",
   },
   {
     href: "/register/recruiter",
     icon: Briefcase,
-    title: "Register as a Recruiter",
-    desc: "Join your company with a join code and start inviting candidates.",
+    kind: "B2B",
+    title: "I'm hiring at a company or institute",
+    desc: "Join your organisation with a join code and start inviting candidates.",
     tint: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300",
   },
   {
     href: "/register/company",
     icon: Building2,
-    title: "Register a Company",
-    desc: "Create your company, manage recruiters and publish assessments.",
+    kind: "B2B",
+    title: "I'm setting up a team workspace",
+    desc: "Create your organisation, manage recruiters, publish assessments and run video interviews.",
     tint: "bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300",
   },
 ];
+
+const KIND_TINT: Record<string, string> = {
+  B2B: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300",
+  B2C: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
+};
 
 export default function RegisterPage() {
   return (
     <AuthShell
       title="Create your account"
-      subtitle="Choose the option that fits how you'll use the platform."
+      subtitle="SkillGauge works two ways: free for individuals, a workspace for teams and institutes."
       footer={
         <p className="text-center text-sm text-muted-foreground">
           Already registered?{" "}
@@ -43,7 +51,7 @@ export default function RegisterPage() {
       }
     >
       <div className="space-y-3">
-        {OPTIONS.map(({ href, icon: Icon, title, desc, tint }) => (
+        {OPTIONS.map(({ href, icon: Icon, kind, title, desc, tint }) => (
           <Link
             key={href}
             href={href}
@@ -53,7 +61,14 @@ export default function RegisterPage() {
               <Icon className="size-5" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-foreground">{title}</span>
+              <span className="flex items-center gap-2">
+                <span className="block text-sm font-semibold text-foreground">{title}</span>
+                <span
+                  className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${KIND_TINT[kind] ?? KIND_TINT.B2C}`}
+                >
+                  {kind}
+                </span>
+              </span>
               <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                 {desc}
               </span>

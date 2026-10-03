@@ -302,7 +302,7 @@ export const useCompetitionsStore = create<CompetitionsState>()(
       reset: () => set({ competitions: [], ownQuestions: [], entries: [] }),
     }),
     {
-      name: "devassess-competitions",
+      name: "skillgauge-competitions",
       storage: createJSONStorage(() => localStorage),
       version: 1,
     },

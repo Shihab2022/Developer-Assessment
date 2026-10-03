@@ -1,9 +1,9 @@
 {
   "info": {
-    "name": "Developer Assessment & Coding Platform API",
-    "description": "Backend REST API for the Developer Assessment & Coding Platform.\n\n## Base URL\n{{baseUrl}}/api/v1 (default: http://localhost:5000/api/v1)\n\n## Authentication\nMost endpoints require a Bearer JWT access token in the Authorization header:\n`Authorization: Bearer {{accessToken}}`\n\n## Roles\n- **CANDIDATE** - Register, login, take assessments, submit answers, view own results\n- **RECRUITER** - Manage company, create problems/assessments, invite candidates, evaluate submissions, view reports/analytics\n- **ADMIN** - Platform-wide management: users, companies, problems, payments, audit logs\n\n## Flow\n1. Register or Login → get accessToken + refreshToken\n2. Create a Company\n3. Create Problems (MCQ, Coding, Written)\n4. Create an Assessment\n5. Add Problems to Assessment\n6. Invite Candidates\n7. Candidates Start Attempt → Save Answers → Submit\n8. System evaluates (MCQ auto, Written manual, Coding sandbox)\n9. Generate Reports & Analytics\n\n## Payment Endpoints\nSSLCommerz payment callbacks (/success, /fail, /cancel, /ipn) are public - no Bearer auth needed.\nIn test/mock mode without SSLCommerz credentials, use the mock gateway URL returned by initiate.\n\n## Postman Variables\nSet these after login/register: accessToken, refreshToken, userId, companyId, problemId, assessmentId, invitationId, attemptId, mcqOptionId, answerId, submissionId, paymentId, transactionId, resultId.\n\n## Environment\n- baseUrl: http://localhost:5000/api/v1\n- Run `npm run db:seed` first — the collection is pre-wired to the seeded users and the seeded payment package (`00000000-0000-4000-8000-000000000005`, Starter Pack — 10 credits / BDT 2000).\n- Seed users: admin@devassess.local / Admin123! · recruiter@techcorp.dev / Recruit123! · candidate@devassess.local / Candid8te!.\n- Dynamic IDs (problems, assessments, attempts, answers, results, payments) are captured into collection variables by test scripts; run requests top-to-bottom within each folder.",
+    "name": "SkillGauge API",
+    "description": "Backend REST API for the SkillGauge platform.\n\n## Base URL\n{{baseUrl}}/api/v1 (default: http://localhost:5000/api/v1)\n\n## Authentication\nMost endpoints require a Bearer JWT access token in the Authorization header:\n`Authorization: Bearer {{accessToken}}`\n\n## Roles\n- **CANDIDATE** - Register, login, take assessments, submit answers, view own results\n- **RECRUITER** - Manage company, create problems/assessments, invite candidates, evaluate submissions, view reports/analytics\n- **ADMIN** - Platform-wide management: users, companies, problems, payments, audit logs\n\n## Flow\n1. Register or Login → get accessToken + refreshToken\n2. Create a Company\n3. Create Problems (MCQ, Coding, Written)\n4. Create an Assessment\n5. Add Problems to Assessment\n6. Invite Candidates\n7. Candidates Start Attempt → Save Answers → Submit\n8. System evaluates (MCQ auto, Written manual, Coding sandbox)\n9. Generate Reports & Analytics\n\n## Payment Endpoints\nSSLCommerz payment callbacks (/success, /fail, /cancel, /ipn) are public - no Bearer auth needed.\nIn test/mock mode without SSLCommerz credentials, use the mock gateway URL returned by initiate.\n\n## Postman Variables\nSet these after login/register: accessToken, refreshToken, userId, companyId, problemId, assessmentId, invitationId, attemptId, mcqOptionId, answerId, submissionId, paymentId, transactionId, resultId.\n\n## Environment\n- baseUrl: http://localhost:5000/api/v1\n- Run `npm run db:seed` first — the collection is pre-wired to the seeded users and the seeded payment package (`00000000-0000-4000-8000-000000000005`, Starter Pack — 10 credits / BDT 2000).\n- Seed users: admin@skillgauge.local / Admin123! · recruiter@techcorp.dev / Recruit123! · candidate@skillgauge.local / Candid8te!.\n- Dynamic IDs (problems, assessments, attempts, answers, results, payments) are captured into collection variables by test scripts; run requests top-to-bottom within each folder.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "devassess-platform-api"
+    "_exporter_id": "skillgauge-platform-api"
   },
   "variable": [
     {
@@ -84,7 +84,7 @@
             "url": "{{baseUrl}}/auth/register",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@devassess.local\",\n  \"password\": \"Candid8te!\",\n  \"role\": \"CANDIDATE\",\n  \"phone\": \"+8801700000000\"\n}"
+              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@skillgauge.local\",\n  \"password\": \"Candid8te!\",\n  \"role\": \"CANDIDATE\",\n  \"phone\": \"+8801700000000\"\n}"
             }
           },
           "auth": {
@@ -763,7 +763,7 @@
             "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@devassess.local\" }\n  ]\n}"
+              "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@skillgauge.local\" }\n  ]\n}"
             }
           },
           "event": [

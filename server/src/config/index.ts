@@ -155,7 +155,7 @@ export default {
     password: env.SMTP_PASSWORD ?? null,
     from:
       env.MAIL_FROM ||
-      (env.SMTP_USERNAME ? `DevAssess <${env.SMTP_USERNAME}>` : "DevAssess <no-reply@devassess.local>"),
+      (env.SMTP_USERNAME ? `SkillGauge <${env.SMTP_USERNAME}>` : "SkillGauge <no-reply@skillgauge.local>"),
     verification_expires_hours: env.EMAIL_VERIFICATION_EXPIRES_IN_HOURS,
   },
   isProduction: env.NODE_ENV === "production",

@@ -96,7 +96,7 @@ export const LANDING_STATS: LandingStat[] = [
   {
     value: `${ROLES.length}`,
     label: "Workspace roles",
-    hint: "Candidate, recruiter or institute, administrator",
+    hint: "Teams and institutes, plus individual learners and administrators",
   },
 ];
 
@@ -449,6 +449,8 @@ export const LANDING_STEPS: LandingStep[] = [
 export interface LandingAudience {
   id: string;
   label: string;
+  /** Which side of the marketplace this audience sits on. */
+  kind: "B2B" | "B2C";
   headline: string;
   description: string;
   bullets: string[];
@@ -459,24 +461,26 @@ export const LANDING_AUDIENCES: LandingAudience[] = [
   {
     id: "companies",
     label: "Companies",
+    kind: "B2B",
     headline: "Hiring rounds that scale past the take-home",
     description:
-      "Stand up a screening round or a full hiring drive and compare every candidate on the same paper.",
+      "SkillGauge for teams: stand up a screening round or a full hiring drive, add proctored AI video interviews when you need to hear candidates explain their thinking, and compare everyone on the same paper.",
     bullets: [
       "Screen candidates with a timed technical round you can reuse next quarter",
+      "Add proctored AI video interviews with an email-secured, per-candidate link",
       "Shortlist on score, rank and skill breakdown instead of gut feel",
-      "Keep question quality honest with per-question difficulty analytics",
       "Add the whole panel as company members with owner, admin or member roles",
-      "Print-ready reports for hiring managers and audit trails for compliance",
+      "Company-level analytics, candidate notes and audit trails for compliance",
     ],
     cta: { label: "Start hiring", href: "/register" },
   },
   {
     id: "institutes",
     label: "Institutes",
+    kind: "B2B",
     headline: "Classroom exams and coding clubs in one place",
     description:
-      "Run semester tests, lab practicals and inter-college contests on the same question bank your students practise on.",
+      "SkillGauge for education: run semester tests, lab practicals and inter-college contests on the same question bank your students already practise on.",
     bullets: [
       "Bulk-invite a cohort and track who started, finished or went quiet",
       "Set an open window so a whole section can sit the paper together",
@@ -488,18 +492,19 @@ export const LANDING_AUDIENCES: LandingAudience[] = [
   },
   {
     id: "candidates",
-    label: "Candidates",
+    label: "Individuals",
+    kind: "B2C",
     headline: "Prove the skill, not the résumé",
     description:
-      "Practise daily, sit real exams and collect scorecards you can share with anyone who asks for proof.",
+      "SkillGauge for individuals: practise for free, sit real technology exams, compete in open contests and collect scorecards you can send to any recruiter who asks for proof.",
     bullets: [
       "Free-form practice across every supported technology, at your own pace",
+      "A browser-based compiler for ten languages — nothing to install",
       "Mock exams under the same server-timed conditions as the real thing",
       "Feedback that tells you which questions failed and where the time went",
       "A profile showing problems solved, exam scores and contest ranks",
-      "Shareable scorecards so a recruiter sees evidence on the first read",
     ],
-    cta: { label: "Create a profile", href: "/register" },
+    cta: { label: "Create a free profile", href: "/register" },
   },
 ];
 
@@ -560,6 +565,16 @@ export interface LandingFaq {
 
 export const LANDING_FAQ: LandingFaq[] = [
   {
+    question: "Is SkillGauge for companies, for schools, or for individual learners?",
+    answer:
+      "All three, on one engine. Teams (B2B) get a company workspace for building papers, running hiring rounds and AI video interviews, managing candidates and reading analytics. Institutes (B2B) run the same machinery for cohorts and inter-college contests. Individuals (B2C) get a free account to practise, sit technology exams, join open competitions and keep a portfolio of scorecards. Everyone draws on the same question bank, so learners rehearse on what employers actually assess.",
+  },
+  {
+    question: "What does it cost?",
+    answer:
+      "Practice, the online compiler and the technology exams are free for individual learners — no credit card required. Teams run on a credit balance: each candidate invitation consumes one credit from the company pool and credits are topped up in packages, so you only pay for the assessments you actually run.",
+  },
+  {
     question: "Do I need an account to practise or sit an exam?",
     answer:
       "Yes. An account is what keeps your submissions, attempt history and results together — that history is the point of the platform. Registration is free for candidates.",
@@ -610,31 +625,31 @@ export interface LandingFooterGroup {
 }
 
 export const LANDING_FOOTER_GROUPS: LandingFooterGroup[] = [
-   {
-    title: "Learn",
+  {
+    title: "For individuals (B2C)",
     links: [
       { label: "Technology exams", href: "/exams" },
       { label: "Practice arena", href: "/practice" },
       { label: "Online compiler", href: "/playground" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Open competitions", href: "/competitions" },
     ],
   },
   {
-    title: "Host",
+    title: "For teams (B2B)",
     links: [
-      { label: "Competitions", href: "#competitions" },
-      { label: "Question bank", href: "#question-bank" },
-      { label: "How it works", href: "#how-it-works" },
-      { label: "Sign in", href: "/login" },
+      { label: "Hiring assessments", href: "#exams" },
+      { label: "AI video interviews", href: "#insights" },
+      { label: "Question bank & authoring", href: "#question-bank" },
+      { label: "Host a competition", href: "#competitions" },
     ],
   },
   {
-    title: "Account",
+    title: "Account & help",
     links: [
       { label: "Create an account", href: "/register" },
-      { label: "Candidate workspace", href: "/login" },
-      { label: "Recruiter workspace", href: "/login" },
-      { label: "Institute workspace", href: "/login" },
+      { label: "Sign in", href: "/login" },
+      { label: "How it works", href: "#how-it-works" },
+      { label: "FAQ", href: "#faq" },
     ],
   },
 ];

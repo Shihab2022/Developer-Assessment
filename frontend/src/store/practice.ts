@@ -110,7 +110,7 @@ export const usePracticeStore = create<PracticeState>()(
       reset: () => set({ solved: {}, drafts: {}, language: {} }),
     }),
     {
-      name: "devassess-practice",
+      name: "skillgauge-practice",
       storage: createJSONStorage(() => localStorage),
       version: 2,
       /**

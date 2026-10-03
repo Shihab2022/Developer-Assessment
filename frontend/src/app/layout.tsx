@@ -24,7 +24,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
  * Site-wide metadata.
  *
  * Page-level `title`s are plain names ("Practice arena"); the template below
- * appends the app name, so every tab reads `Practice arena — DevAssess`.
+ * appends the app name, so every tab reads `Practice arena — SkillGauge`.
  */
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

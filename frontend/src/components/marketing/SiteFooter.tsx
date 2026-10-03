@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Code2, Github } from "lucide-react";
+import { Github } from "lucide-react";
+import { BrandMark } from "@/components/brand/Logo";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import { LANDING_FOOTER_GROUPS, resolveNavHref } from "@/lib/marketing";
 
@@ -22,17 +23,16 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-sky-500 text-white">
-                <Code2 className="size-5" strokeWidth={2.2} />
-              </span>
+              <BrandMark />
               <span className="text-base font-semibold tracking-tight text-foreground">
                 {APP_NAME}
               </span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{APP_DESCRIPTION}</p>
             <p className="mt-4 text-xs text-muted-foreground">
-              Built on a multi-role REST API with server-timed attempts, sandboxed code execution and
-              full audit logging.
+              B2B for companies, institutes and coding clubs — B2C for individual learners. Built on a
+              multi-role REST API with server-timed attempts, sandboxed code execution and full audit
+              logging.
             </p>
           </div>
 

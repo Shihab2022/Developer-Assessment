@@ -74,7 +74,7 @@ function RecruiterForm() {
         </span>
       }
       title="Join your company as a recruiter"
-      subtitle="Create your account and start inviting candidates to assessments."
+      subtitle="B2B: create your account and start inviting candidates to assessments."
       footer={
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
