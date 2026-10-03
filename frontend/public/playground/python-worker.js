@@ -98,6 +98,11 @@ self.onmessage = function (event) {
   var request = event.data || {};
   var id = request.id;
   var code = typeof request.code === "string" ? request.code : "";
+  // The host app passes its CDN location so a deployment can self-host Pyodide
+  // (see NEXT_PUBLIC_PYODIDE_CDN_BASE); the pinned default above still applies.
+  if (typeof request.pyodideBase === "string" && request.pyodideBase) {
+    PYODIDE_BASE = request.pyodideBase;
+  }
   var startedAt = Date.now();
 
   if (busy) {

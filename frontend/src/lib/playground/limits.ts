@@ -5,6 +5,8 @@
  * page can quote the numbers in its copy without importing the client runner.
  */
 
+import { CODE_RUNNER_URL } from "@/lib/env";
+
 /** Wall-clock budget for JavaScript / TypeScript snippets. */
 export const SCRIPT_TIMEOUT_MS = 6_000;
 /** The first Python run downloads the runtime, so it gets a bigger budget. */
@@ -33,7 +35,7 @@ export const REMOTE_TIMEOUT_MS = 30_000;
  * CORS calls from a browser tab. Pointing this at your own (or whitelisted)
  * Piston makes it the preferred runner, with the proxy as fallback.
  */
-export const REMOTE_RUNNER_URL = process.env.NEXT_PUBLIC_CODE_RUNNER_URL?.trim() || null;
+export const REMOTE_RUNNER_URL = CODE_RUNNER_URL;
 
 /** Same-origin proxy that fans Go/Java out to the public sandboxes. */
 export const REMOTE_PROXY_URL = "/api/playground/execute";

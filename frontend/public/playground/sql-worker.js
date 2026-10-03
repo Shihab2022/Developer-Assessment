@@ -134,6 +134,11 @@ self.onmessage = function (event) {
   var request = event.data || {};
   var id = request.id;
   var code = typeof request.code === "string" ? request.code : "";
+  // The host app passes its CDN location so a deployment can self-host sql.js
+  // (see NEXT_PUBLIC_SQLJS_CDN_BASE); the pinned default above still applies.
+  if (typeof request.sqljsBase === "string" && request.sqljsBase) {
+    SQLJS_BASE = request.sqljsBase;
+  }
   var startedAt = Date.now();
 
   if (busy) {

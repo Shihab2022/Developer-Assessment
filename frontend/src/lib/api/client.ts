@@ -1,10 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/auth";
 import type { ApiEnvelope, ApiErrorField, Meta, Paginated } from "../types";
+import { API_BASE_URL } from "@/lib/env";
 
-export const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1"
-).replace(/\/+$/, "");
+export { API_BASE_URL };
 
 /** Broadcast when the session is no longer recoverable (consumed by providers). */
 export const SESSION_EXPIRED_EVENT = "skillgauge:session-expired";

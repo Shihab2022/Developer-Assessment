@@ -6,6 +6,7 @@ import { Github } from "lucide-react";
 import { BrandMark } from "@/components/brand/Logo";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import { LANDING_FOOTER_GROUPS, resolveNavHref } from "@/lib/marketing";
+import { REPO_URL } from "@/lib/env";
 
 /**
  * Marketing footer: brand blurb, anchor link groups and the legal strip.
@@ -64,7 +65,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>Assessment API v1</span>
             <a
-              href="https://github.com/Shihab2022/Developer-Assessment"
+              href={REPO_URL}
               target="_blank"
               rel="noreferrer noopener"
               className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"

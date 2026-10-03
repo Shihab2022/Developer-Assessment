@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { REPO_URL } from "@/lib/env";
 import type { RemoteExecuteOutcome } from "@/lib/playground/types";
 
 /**
@@ -20,15 +21,16 @@ import type { RemoteExecuteOutcome } from "@/lib/playground/types";
  */
 
 /** Official Go playground — form-encoded, free for public use (go.dev/play). */
-const GO_PLAYGROUND_URL = "https://go.dev/_/compile?backend=";
+const GO_PLAYGROUND_URL =
+  process.env.GO_PLAYGROUND_URL ?? "https://go.dev/_/compile?backend=";
 /** Public Judge0 CE instance (judge0.com), used for Java. */
-const JUDGE0_URL = "https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
+const JUDGE0_URL =
+  process.env.JUDGE0_URL ??
+  "https://ce.judge0.com/submissions?base64_encoded=false&wait=true";
 /** Judge0 language id for Java (verified against the live instance). */
-const JUDGE0_JAVA_LANGUAGE_ID = 62;
+const JUDGE0_JAVA_LANGUAGE_ID = Number(process.env.JUDGE0_JAVA_LANGUAGE_ID ?? 62);
 /** go.dev asks clients to identify themselves with a unique user agent. */
-const USER_AGENT = `SkillGauge-Playground/1.0 (${
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://github.com/Shihab2022/Developer-Assessment"
-})`;
+const USER_AGENT = `SkillGauge-Playground/1.0 (${REPO_URL})`;
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_CODE_LENGTH = 50_000;

@@ -1,3 +1,4 @@
+import { PLAYGROUND_CDNS } from "@/lib/env";
 import type { ConsoleLevel, ConsoleLine, PlaygroundLanguage } from "./types";
 
 /**
@@ -17,7 +18,7 @@ import type { ConsoleLevel, ConsoleLine, PlaygroundLanguage } from "./types";
 export const PREVIEW_MESSAGE_SOURCE = "skillgauge-playground";
 
 /** Tailwind Play CDN, pinned to the Tailwind version the frontend compiles with. */
-export const TAILWIND_CDN_URL = "https://cdn.tailwindcss.com/3.4.19";
+export const TAILWIND_CDN_URL = PLAYGROUND_CDNS.tailwind;
 
 /** Injected into HTML previews so utility classes are compiled in the iframe. */
 const TAILWIND_CDN_SNIPPET = `<script src="${TAILWIND_CDN_URL}"></script>`;
@@ -124,10 +125,10 @@ function insertAfterHead(documentText: string, snippet: string): string {
 }
 
 /** CDN builds used by the React + MUI tab (all inside the sandboxed frame). */
-const REACT_CDN = "https://unpkg.com/react@18.3.1/umd/react.production.min.js";
-const REACT_DOM_CDN = "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js";
-const MUI_CDN = "https://unpkg.com/@mui/material@5.15.20/umd/material-ui.production.min.js";
-const BABEL_CDN = "https://unpkg.com/@babel/standalone@7.24.7/babel.min.js";
+const REACT_CDN = PLAYGROUND_CDNS.react;
+const REACT_DOM_CDN = PLAYGROUND_CDNS.reactDom;
+const MUI_CDN = PLAYGROUND_CDNS.mui;
+const BABEL_CDN = PLAYGROUND_CDNS.babel;
 
 /**
  * Wraps JSX source in a document that mounts it as a React app.
@@ -146,7 +147,7 @@ function muiDocument(code: string): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+<link rel="stylesheet" href="${PLAYGROUND_CDNS.font}" />
 <script crossorigin src="${REACT_CDN}"></script>
 <script crossorigin src="${REACT_DOM_CDN}"></script>
 <script src="${MUI_CDN}"></script>

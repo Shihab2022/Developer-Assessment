@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { SITE_URL } from "@/lib/env";
 import { Providers } from "./providers";
 
 const inter = Inter({
@@ -17,8 +18,8 @@ const interMono = Inter({
   display: "swap",
 });
 
-/** Canonical origin used to resolve Open Graph URLs. */
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+/** Canonical origin used to resolve Open Graph URLs (from `src/lib/env.ts`). */
+const siteUrl = SITE_URL;
 
 /**
  * Site-wide metadata.

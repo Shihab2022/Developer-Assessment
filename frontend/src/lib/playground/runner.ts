@@ -1,5 +1,6 @@
 "use client";
 
+import { PLAYGROUND_CDNS } from "@/lib/env";
 import type { PlaygroundRunRequest, PlaygroundRunResponse } from "@/workers/playground.worker";
 import {
   PYTHON_LOAD_TIMEOUT_MS,
@@ -297,7 +298,7 @@ export async function runPython(options: {
         );
       };
 
-      worker.postMessage({ id: requestId, code: program });
+      worker.postMessage({ id: requestId, code: program, pyodideBase: PLAYGROUND_CDNS.pyodide });
     });
   } finally {
     pythonBusy = false;
@@ -419,7 +420,7 @@ export async function runSql(options: {
         );
       };
 
-      worker.postMessage({ id: requestId, code });
+      worker.postMessage({ id: requestId, code, sqljsBase: PLAYGROUND_CDNS.sqljs });
     });
   } finally {
     sqlBusy = false;
