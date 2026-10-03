@@ -6,6 +6,8 @@ import { useState } from "react";
 import {
   ArrowLeft,
   ClipboardCopy,
+  LibraryBig,
+  Mail,
   RefreshCw,
   Trash2,
   Users,
@@ -18,15 +20,18 @@ import { Input, Label, Textarea } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Select";
 import { SwitchField } from "@/components/ui/Checkbox";
 import { Skeleton } from "@/components/ui/Primitives";
+import { InterviewBankPicker } from "@/components/interviews/InterviewBankPicker";
+import { InterviewInviteCard } from "@/components/interviews/InterviewInviteCard";
+import { InterviewSettingsForm } from "@/components/interviews/InterviewSettingsForm";
 import {
   useAddQuestion,
-  useCreateSessionLink,
   useDeleteInterview,
   useInterview,
   useInterviewLifecycle,
   useInterviewSessions,
   useRegenerateQuestions,
   useRemoveQuestion,
+  useResendInterviewInvite,
   useUpdateInterview,
 } from "@/hooks/useInterviews";
 import {
@@ -47,10 +52,9 @@ export default function InterviewDetailPage() {
   const regenerate = useRegenerateQuestions(id);
   const addQuestion = useAddQuestion(id);
   const removeQuestion = useRemoveQuestion(id);
-  const createLink = useCreateSessionLink(id);
+  const resend = useResendInterviewInvite(id);
 
-  const [candidateName, setCandidateName] = useState("");
-  const [candidateEmail, setCandidateEmail] = useState("");
+  const [bankOpen, setBankOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [hintsInput, setHintsInput] = useState("");
   const [keywordsInput, setKeywordsInput] = useState("");
@@ -191,42 +195,25 @@ export default function InterviewDetailPage() {
             </div>
 
             <div className="rounded-lg border border-border p-4">
-              <p className="mb-3 text-sm font-medium text-foreground">
-                Invite a specific candidate
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                  placeholder="Candidate name"
-                  value={candidateName}
-                  onChange={(event) => setCandidateName(event.target.value)}
-                />
-                <Input
-                  placeholder="candidate@example.com"
-                  type="email"
-                  value={candidateEmail}
-                  onChange={(event) => setCandidateEmail(event.target.value)}
-                />
+              <p className="mb-2 text-sm font-medium text-foreground">Link schedule</p>
+              <div className="grid gap-3 text-sm sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Active from</p>
+                  <p className="font-medium text-foreground">
+                    {data.startsAt ? formatDateTime(data.startsAt) : "Immediately on publish"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Closes at</p>
+                  <p className="font-medium text-foreground">
+                    {data.expiresAt ? formatDateTime(data.expiresAt) : "No expiry set"}
+                  </p>
+                </div>
               </div>
-              <Button
-                className="mt-3"
-                size="sm"
-                disabled={!candidateName.trim() || !candidateEmail.trim()}
-                loading={createLink.isPending}
-                onClick={() => {
-                  createLink.mutate(
-                    { candidateName: candidateName.trim(), candidateEmail: candidateEmail.trim() },
-                    {
-                      onSuccess: (result) => {
-                        void copyToClipboard(result.link);
-                        setCandidateName("");
-                        setCandidateEmail("");
-                      },
-                    },
-                  );
-                }}
-              >
-                Create personal link
-              </Button>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Candidates can only open the link inside this window. Invite them below — each one
+                gets a personal link emailed to their inbox.
+              </p>
             </div>
           </CardBody>
         </Card>
@@ -250,21 +237,34 @@ export default function InterviewDetailPage() {
         </Card>
       </div>
 
+      <div className="mt-4">
+        <InterviewInviteCard interviewId={id} />
+      </div>
+
+      <div className="mt-4">
+        <InterviewSettingsForm interview={data} />
+      </div>
 
       <Card className="mt-4">
         <CardHeader
           title={`Questions (${questions.length})`}
           subtitle="Bank questions are random per interview — regenerate for a new set"
           action={
-            <Button
-              size="sm"
-              variant="outline"
-              loading={regenerate.isPending}
-              onClick={() => regenerate.mutate({ keepCustomQuestions: true })}
-            >
-              <RefreshCw className="size-4" />
-              Regenerate from bank
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => setBankOpen(true)}>
+                <LibraryBig className="size-4" />
+                Add from bank
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                loading={regenerate.isPending}
+                onClick={() => regenerate.mutate({ keepCustomQuestions: true })}
+              >
+                <RefreshCw className="size-4" />
+                Reshuffle random set
+              </Button>
+            </div>
           }
         />
         <CardBody className="space-y-4">
@@ -416,7 +416,16 @@ export default function InterviewDetailPage() {
                 </tr>
               </thead>
               <tbody>
-                {sessionRows.map((session) => (
+                {sessions.isPending &&
+                  [0, 1, 2, 3].map((row) => (
+                    <tr key={`sk-${row}`} className="border-b border-border last:border-0">
+                      <td colSpan={6} className="py-3">
+                        <Skeleton className="h-9 w-full" />
+                      </td>
+                    </tr>
+                  ))}
+                {!sessions.isPending &&
+                sessionRows.map((session) => (
                   <tr key={session.id} className="border-b border-border last:border-0">
                     <td className="py-3">
                       <p className="font-medium text-foreground">{session.candidateName}</p>
@@ -457,18 +466,33 @@ export default function InterviewDetailPage() {
                       {session.decision ? INTERVIEW_DECISION_LABELS[session.decision] : "—"}
                     </td>
                     <td className="py-3 text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/recruiter/interviews/${id}/sessions/${session.id}`}>
-                          View report
-                        </Link>
-                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => resend.mutate(session.id)}
+                          disabled={resend.isPending}
+                          title={
+                            session.emailSentAt
+                              ? "Invite email sent — send it again"
+                              : "Send the invite email"
+                          }
+                        >
+                          <Mail className="size-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link href={`/recruiter/interviews/${id}/sessions/${session.id}`}>
+                            View report
+                          </Link>
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {sessionRows.length === 0 && (
+          {!sessions.isPending && sessionRows.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
               No candidates yet. Share the link above — every session appears here with its AI
               report.
@@ -479,83 +503,62 @@ export default function InterviewDetailPage() {
 
 
       <Card className="mt-4">
-        <CardHeader title="Interview settings" subtitle="Applies to new sessions" />
-        <CardBody className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <Label htmlFor="setting-time">Time per question (seconds)</Label>
-            <Input
-              id="setting-time"
-              type="number"
-              min={30}
-              max={3600}
-              defaultValue={data.questionTimeSeconds}
-              onBlur={(event) => update.mutate({ questionTimeSeconds: Number(event.target.value) })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="setting-pass">Pass mark (%)</Label>
-            <Input
-              id="setting-pass"
-              type="number"
-              min={0}
-              max={100}
-              defaultValue={data.passScore}
-              onBlur={(event) => update.mutate({ passScore: Number(event.target.value) })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="setting-violations">Violations tolerated</Label>
-            <Input
-              id="setting-violations"
-              type="number"
-              min={0}
-              max={20}
-              defaultValue={data.maxViolations}
-              onBlur={(event) => update.mutate({ maxViolations: Number(event.target.value) })}
-            />
-          </div>
-          <div className="space-y-3 sm:col-span-3">
-            <SwitchField
-              id="setting-hints"
-              checked={data.hintsEnabled}
-              onCheckedChange={(checked) => update.mutate({ hintsEnabled: checked })}
-              label="Allow hints"
-            />
-            <SwitchField
-              id="setting-proctoring"
-              checked={data.proctoringEnabled}
-              onCheckedChange={(checked) => update.mutate({ proctoringEnabled: checked })}
-              label="Proctoring enabled"
-            />
-            <SwitchField
-              id="setting-terminate"
-              checked={data.terminateOnCritical}
-              onCheckedChange={(checked) => update.mutate({ terminateOnCritical: checked })}
-              label="Suspend on critical violations (score 0)"
-            />
-            <SwitchField
-              id="setting-ai"
-              checked={data.aiReviewEnabled}
-              onCheckedChange={(checked) => update.mutate({ aiReviewEnabled: checked })}
-              label="AI review of answers"
-            />
-            <SwitchField
-              id="setting-show-score"
-              checked={
-                (data.settings as { showScoreToCandidate?: boolean } | null)
-                  ?.showScoreToCandidate !== false
-              }
-              onCheckedChange={(checked) => update.mutate({ showScoreToCandidate: checked })}
-              label="Show the score to the candidate"
-            />
-          </div>
-          <p className="text-xs text-muted-foreground sm:col-span-3">
+        <CardHeader
+          icon={<Users className="size-4" />}
+          title="Round behaviour"
+          subtitle="Applies to new sessions — toggles update immediately"
+        />
+        <CardBody className="grid gap-3 sm:grid-cols-2">
+          <SwitchField
+            id="setting-hints"
+            checked={data.hintsEnabled}
+            onCheckedChange={(checked) => update.mutate({ hintsEnabled: checked })}
+            label="Allow hints"
+          />
+          <SwitchField
+            id="setting-proctoring"
+            checked={data.proctoringEnabled}
+            onCheckedChange={(checked) => update.mutate({ proctoringEnabled: checked })}
+            label="Proctoring enabled"
+          />
+          <SwitchField
+            id="setting-terminate"
+            checked={data.terminateOnCritical}
+            onCheckedChange={(checked) => update.mutate({ terminateOnCritical: checked })}
+            label="Suspend on critical violations (score 0)"
+          />
+          <SwitchField
+            id="setting-ai"
+            checked={data.aiReviewEnabled}
+            onCheckedChange={(checked) => update.mutate({ aiReviewEnabled: checked })}
+            label="AI review of answers"
+          />
+          <SwitchField
+            id="setting-show-score"
+            checked={
+              (data.settings as { showScoreToCandidate?: boolean } | null)
+                ?.showScoreToCandidate !== false
+            }
+            onCheckedChange={(checked) => update.mutate({ showScoreToCandidate: checked })}
+            label="Show the score to the candidate"
+          />
+          <p className="text-xs text-muted-foreground sm:col-span-2">
             A session marked{" "}
             <strong>{INTERVIEW_SESSION_STATUS_LABELS.TERMINATED?.toLowerCase()}</strong> was ended
             by proctoring and always scores 0. Last updated {formatDateTime(data.updatedAt)}.
           </p>
         </CardBody>
       </Card>
+
+      <InterviewBankPicker
+        interviewId={id}
+        technology={data.technology}
+        existingKeys={(data.questions ?? [])
+          .filter((question) => question.source === "BANK" && question.bankKey)
+          .map((question) => question.bankKey as string)}
+        open={bankOpen}
+        onOpenChange={setBankOpen}
+      />
     </>
   );
 }

@@ -15,6 +15,7 @@ import {
   INTERVIEW_SENIORITIES,
 } from "@/lib/constants";
 import type { CreateInterviewPayload, InterviewSeniority } from "@/lib/types";
+import { toDateTimeInputValue } from "@/lib/utils";
 
 export default function NewInterviewPage() {
   const technologies = useInterviewTechnologies();
@@ -42,10 +43,19 @@ export default function NewInterviewPage() {
     DEFAULT_INTERVIEW_SETTINGS.showScoreToCandidate,
   );
   const [useBankQuestions, setUseBank] = useState(DEFAULT_INTERVIEW_SETTINGS.useBankQuestions);
+  /** Requirement 7 — both ends of the active window are mandatory. */
+  const [startsAt, setStartsAt] = useState(() => toDateTimeInputValue(new Date()));
+  const [expiresAt, setExpiresAt] = useState(() =>
+    toDateTimeInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+  );
 
   const options = technologies.data?.technologies ?? [];
   const defaults = technologies.data?.defaults;
-  const canSubmit = title.trim().length >= 3 && Boolean(technology);
+  const windowValid =
+    Boolean(startsAt) &&
+    Boolean(expiresAt) &&
+    new Date(expiresAt).getTime() > new Date(startsAt).getTime();
+  const canSubmit = title.trim().length >= 3 && Boolean(technology) && windowValid;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -65,7 +75,8 @@ export default function NewInterviewPage() {
       aiReviewEnabled,
       passScore,
       maxViolations,
-      expiresAt: null,
+      startsAt: new Date(startsAt).toISOString(),
+      expiresAt: new Date(expiresAt).toISOString(),
       showScoreToCandidate,
       useBankQuestions,
       customQuestions: [],
@@ -166,6 +177,47 @@ export default function NewInterviewPage() {
           </CardBody>
         </Card>
 
+        <Card>
+          <CardHeader
+            title="Schedule — when is this link active?"
+            subtitle="Both fields are required. Candidates can only open the link inside this window."
+          />
+          <CardBody className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="starts-at">Link active from *</Label>
+                <Input
+                  id="starts-at"
+                  type="datetime-local"
+                  required
+                  value={startsAt}
+                  onChange={(event) => setStartsAt(event.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Before this time the link shows “not active yet”.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="expires-at">Exam closes at *</Label>
+                <Input
+                  id="expires-at"
+                  type="datetime-local"
+                  required
+                  value={expiresAt}
+                  onChange={(event) => setExpiresAt(event.target.value)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  After this time no candidate can start or continue.
+                </p>
+              </div>
+            </div>
+            {!windowValid && (startsAt || expiresAt) && (
+              <p className="text-xs font-medium text-destructive">
+                The exam close time must be after the link activation time.
+              </p>
+            )}
+          </CardBody>
+        </Card>
 
         <Card>
           <CardHeader

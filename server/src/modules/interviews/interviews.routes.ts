@@ -3,9 +3,14 @@ import { InterviewController } from "./interviews.controller";
 import auth, { optionalAuth } from "../../middlewares/auth";
 import { validate } from "../../middlewares/validate";
 import {
+  addBankQuestionsSchema,
   addQuestionSchema,
+  bankQuerySchema,
+  candidateSearchSchema,
+  confirmVerifyCodeSchema,
   createInterviewSchema,
   createSessionLinkSchema,
+  inviteCandidatesSchema,
   interviewListQuerySchema,
   interviewParamsSchema,
   interviewQuestionParamsSchema,
@@ -13,6 +18,7 @@ import {
   interviewSessionsQuerySchema,
   regenerateQuestionsSchema,
   reportViolationSchema,
+  requestVerifyCodeSchema,
   saveAnswerSchema,
   sessionTokenParamsSchema,
   startSessionSchema,
@@ -33,6 +39,16 @@ import {
 export const InterviewRouter = express.Router();
 
 InterviewRouter.get("/technologies", auth(), InterviewController.technologies);
+
+/** Browse the built-in bank and search existing candidates — must precede `/:id`. */
+InterviewRouter.get("/bank", auth(), validate(bankQuerySchema), InterviewController.bank);
+
+InterviewRouter.get(
+  "/candidates",
+  auth("RECRUITER", "ADMIN"),
+  validate(candidateSearchSchema),
+  InterviewController.searchCandidates,
+);
 
 InterviewRouter.post(
   "/",
@@ -106,6 +122,29 @@ InterviewRouter.delete(
   InterviewController.removeQuestion,
 );
 
+/** Cherry-pick additional questions from the built-in bank (requirement 6). */
+InterviewRouter.post(
+  "/:id/questions/from-bank",
+  auth("RECRUITER", "ADMIN"),
+  validate(addBankQuestionsSchema),
+  InterviewController.addBankQuestions,
+);
+
+/** Invite candidates (by email) to this interview — emails the secured link. */
+InterviewRouter.post(
+  "/:id/invitations",
+  auth("RECRUITER", "ADMIN"),
+  validate(inviteCandidatesSchema),
+  InterviewController.inviteCandidates,
+);
+
+InterviewRouter.post(
+  "/:id/sessions/:sessionId/resend",
+  auth("RECRUITER", "ADMIN"),
+  validate(interviewSessionParamsSchema),
+  InterviewController.resendInvite,
+);
+
 InterviewRouter.post(
   "/:id/sessions",
   auth("RECRUITER", "ADMIN"),
@@ -160,6 +199,21 @@ InterviewSessionRouter.post(
   optionalAuth,
   validate(startSessionSchema),
   InterviewController.startSession,
+);
+
+/** Email-ownership gate for personal invite links (link security, requirement 5). */
+InterviewSessionRouter.post(
+  "/:token/verify/request",
+  interviewSessionRateLimiter,
+  validate(requestVerifyCodeSchema),
+  InterviewController.requestVerifyCode,
+);
+
+InterviewSessionRouter.post(
+  "/:token/verify/confirm",
+  submissionRateLimiter,
+  validate(confirmVerifyCodeSchema),
+  InterviewController.confirmVerifyCode,
 );
 
 InterviewSessionRouter.get(

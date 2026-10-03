@@ -87,6 +87,9 @@ export interface Interview {
   maxViolations: number;
   accessToken: string;
   status: InterviewStatus;
+  /** When the candidate link becomes active (required at creation). */
+  startsAt?: string | null;
+  /** When the exam closes to candidates (required at creation). */
   expiresAt?: string | null;
   settings?: Record<string, unknown> | null;
   createdAt: string;
@@ -98,7 +101,6 @@ export interface Interview {
   questions?: InterviewQuestion[];
   stats?: { sessionTotal: number; reviewedTotal: number; terminatedTotal: number };
 }
-
 export interface InterviewSessionSummary {
   id: string;
   token: string;
@@ -119,6 +121,13 @@ export interface InterviewSessionSummary {
   terminatedAt?: string | null;
   terminationReason?: string | null;
   reviewProvider?: string | null;
+  /** When the invitation email (with the secured link) was dispatched. */
+  emailSentAt?: string | null;
+  /** Set once the candidate proved ownership of the invited address. */
+  emailVerifiedAt?: string | null;
+  expiresAt?: string | null;
+  /** Personal candidate link for this session (built by the API). */
+  link?: string;
   answerTotal?: number;
   violationTotal?: number;
 }
@@ -274,7 +283,10 @@ export interface CreateInterviewPayload {
   aiReviewEnabled: boolean;
   passScore: number;
   maxViolations: number;
-  expiresAt?: string | null;
+  /** When the candidate link becomes active — required at creation. */
+  startsAt: string;
+  /** When the exam closes to candidates — required at creation. */
+  expiresAt: string;
   showScoreToCandidate: boolean;
   useBankQuestions: boolean;
   customQuestions: CustomQuestionPayload[];
@@ -302,12 +314,20 @@ export interface PublicInterviewInfo {
     technology: string;
     seniority: InterviewSeniority;
     questionTimeSeconds: number;
+    totalTimeSeconds?: number | null;
     hintsEnabled: boolean;
     passScore: number;
+    startsAt?: string | null;
+    expiresAt?: string | null;
     company?: { name: string; logo?: string | null } | null;
   };
   questionTotal: number;
   requiresIdentity: boolean;
+  /** A personal invite link only works for its invited email (link security). */
+  requiresEmailVerification?: boolean;
+  emailVerified?: boolean;
+  /** The masked address the invitation was sent to. */
+  invitedEmail?: string | null;
   session?: {
     token: string;
     candidateName: string;
@@ -316,6 +336,7 @@ export interface PublicInterviewInfo {
     startedAt?: string | null;
     expiresAt?: string | null;
     terminationReason?: string | null;
+    emailVerifiedAt?: string | null;
   } | null;
   policy: {
     proctoringEnabled: boolean;
@@ -438,3 +459,73 @@ export interface InterviewSessionResult {
   reviewProvider?: string | null;
 }
 
+/* ------------------------------------------------- recruiting (invite + bank) */
+
+/** An existing platform candidate the recruiter can invite to this interview. */
+export interface InterviewCandidateOption {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  /** How many exams this person has already sat on the platform. */
+  examsTaken: number;
+}
+
+export interface InterviewInviteCandidateInput {
+  email: string;
+  name?: string;
+  /** Defaults to true on the server (the invitation email carries the link). */
+  sendEmail?: boolean;
+}
+
+export interface InterviewInviteCandidatesPayload {
+  candidates: InterviewInviteCandidateInput[];
+}
+
+export interface InviteCandidatesResult {
+  invited: number;
+  emailed: number;
+  results: {
+    sessionId: string;
+    token: string;
+    email: string;
+    name: string;
+    link: string;
+    emailed: boolean;
+    reused: boolean;
+  }[];
+}
+
+/** One question from the built-in bank, browsable in the recruiter UI. */
+export interface InterviewBankQuestion {
+  key: string;
+  topic: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+  prompt: string;
+  hints: string[];
+  keywords: string[];
+}
+
+export interface InterviewBank {
+  technology: string;
+  label: string;
+  total: number;
+  questions: InterviewBankQuestion[];
+}
+
+/** `POST /interview-sessions/:token/verify/request` */
+export interface RequestVerificationCodeResult {
+  sent: boolean;
+  alreadyVerified: boolean;
+  email: string;
+  expiresInMinutes: number;
+  /** Returned only when email is disabled so local development still works. */
+  devCode?: string;
+}
+
+/** `POST /interview-sessions/:token/verify/confirm` */
+export interface ConfirmVerificationCodeResult {
+  verified: boolean;
+  email: string;
+}

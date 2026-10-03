@@ -211,6 +211,74 @@ const report = catchAsync(async (req: AuthRequest, res: Response) => {
 });
 
 
+/* --------------------------------------------------- recruiter: bank questions */
+
+const bank = catchAsync(async (req: AuthRequest, res: Response) => {
+  const query = req.query as { technology: string; q?: string };
+  const result = InterviewService.listBankQuestions(query.technology, query.q);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Question bank retrieved successfully",
+    data: result,
+  });
+});
+
+const addBankQuestions = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.addBankQuestions(
+    req.user!,
+    String(req.params.id),
+    (req.body as { keys: string[] }).keys,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message: "Questions added from the bank",
+    data: result,
+  });
+});
+
+/* ------------------------------------------------------ recruiter: invitations */
+
+const inviteCandidates = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.inviteCandidates(
+    req.user!,
+    String(req.params.id),
+    req.body as { candidates: { email: string; name?: string; sendEmail?: boolean }[] },
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    message:
+      result.emailed > 0
+        ? `Invited ${result.invited} candidate(s) — ${result.emailed} email(s) sent`
+        : `Invited ${result.invited} candidate(s). Email is not configured, so share the links directly.`,
+    data: result,
+  });
+});
+
+const searchCandidates = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.searchInvitableCandidates(
+    req.user!,
+    req.query as { q?: string; limit?: number },
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Candidates retrieved successfully",
+    data: result,
+  });
+});
+
+const resendInvite = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.resendInvite(
+    req.user!,
+    String(req.params.id),
+    String(req.params.sessionId),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Invitation email sent again",
+    data: result,
+  });
+});
+
 /* -------------------------------------------------------- candidate (public) */
 
 const publicInterview = catchAsync(async (req: AuthRequest, res: Response) => {
@@ -290,6 +358,29 @@ const sessionResult = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+/* ------------------------------------------------ candidate: email verification */
+
+const requestVerifyCode = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.requestVerificationCode(String(req.params.token));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Verification code sent",
+    data: result,
+  });
+});
+
+const confirmVerifyCode = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.confirmVerificationCode(
+    String(req.params.token),
+    (req.body as { code: string }).code,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Email verified — you can start the interview",
+    data: result,
+  });
+});
+
 export const InterviewController = {
   technologies,
   create,
@@ -303,6 +394,11 @@ export const InterviewController = {
   addQuestion,
   updateQuestion,
   removeQuestion,
+  bank,
+  addBankQuestions,
+  inviteCandidates,
+  searchCandidates,
+  resendInvite,
   createSessionLink,
   listSessions,
   getSessionReport,
@@ -315,5 +411,7 @@ export const InterviewController = {
   saveAnswer,
   submitSession,
   sessionResult,
+  requestVerifyCode,
+  confirmVerifyCode,
 };
 

@@ -10,6 +10,7 @@ import type {
   CreateInterviewPayload,
   CreateSessionLinkPayload,
   CustomQuestionPayload,
+  InterviewInviteCandidatesPayload,
   UpdateInterviewPayload,
 } from "@/lib/types";
 
@@ -99,14 +100,9 @@ export function useInterviewLifecycle(id: string) {
   return useMutation({
     mutationFn: (action: "publish" | "close") =>
       action === "publish" ? interviewsApi.publish(id) : interviewsApi.close(id),
-    onSuccess: (interview) => {
-      queryClient.invalidateQueries({ queryKey: qk.interviews.all });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.interviews.detail(id) });
-      toast.success(
-        interview.status === "ACTIVE"
-          ? "Published — share the candidate link below"
-          : "Interview closed to new candidates",
-      );
+      queryClient.invalidateQueries({ queryKey: qk.interviews.all });
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });
@@ -125,6 +121,7 @@ export function useDeleteInterview() {
     onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
+
 
 /* ------------------------------------------------------------- questions */
 
@@ -157,8 +154,13 @@ export function useAddQuestion(id: string) {
 export function useUpdateQuestion(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ questionId, payload }: { questionId: string; payload: Partial<CustomQuestionPayload> }) =>
-      interviewsApi.updateQuestion(id, questionId, payload),
+    mutationFn: ({
+      questionId,
+      payload,
+    }: {
+      questionId: string;
+      payload: Partial<CustomQuestionPayload>;
+    }) => interviewsApi.updateQuestion(id, questionId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.interviews.detail(id) });
       toast.success("Question updated");
@@ -185,7 +187,8 @@ export function useRemoveQuestion(id: string) {
 export function useCreateSessionLink(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateSessionLinkPayload) => interviewsApi.createSessionLink(id, payload),
+    mutationFn: (payload: CreateSessionLinkPayload) =>
+      interviewsApi.createSessionLink(id, payload),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: qk.interviews.sessions(id) });
       toast.success(result.reused ? "Existing link reused" : "Candidate link created");
@@ -203,6 +206,75 @@ export function useReReviewSession(id: string, sessionId: string) {
       queryClient.invalidateQueries({ queryKey: qk.interviews.report(id) });
       queryClient.invalidateQueries({ queryKey: qk.interviews.all });
       toast.success("AI review re-run with the latest engine");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+
+/* --------------------------------------------------------------- bank questions */
+
+/** Browses the built-in bank so the org can cherry-pick extra questions (req 6). */
+export function useInterviewBank(technology: string | undefined, q = "", enabled = true) {
+  return useQuery({
+    queryKey: qk.interviews.bank(technology ?? "", q),
+    queryFn: () => interviewsApi.bank({ technology: technology!, q: q || undefined }),
+    enabled: Boolean(technology) && enabled,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Existing platform candidates (people who already sat other exams). */
+export function useInterviewCandidates(q = "", enabled = true) {
+  return useQuery({
+    queryKey: qk.interviews.candidates(q),
+    queryFn: () => interviewsApi.candidates({ q: q || undefined, limit: 25 }),
+    enabled,
+    staleTime: 30_000,
+  });
+}
+
+export function useAddBankQuestions(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (keys: string[]) => interviewsApi.addFromBank(id, keys),
+    onSuccess: (questions) => {
+      queryClient.invalidateQueries({ queryKey: qk.interviews.detail(id) });
+      toast.success(`${questions.length} question(s) added from the bank`);
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+/* -------------------------------------------------------------------- invites */
+
+/** Sends personal, secured interview links (the invitation email carries them). */
+export function useInviteToInterview(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: InterviewInviteCandidatesPayload) =>
+      interviewsApi.invite(id, payload),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: qk.interviews.sessions(id) });
+      queryClient.invalidateQueries({ queryKey: qk.interviews.detail(id) });
+      queryClient.invalidateQueries({ queryKey: qk.interviews.all });
+      if (result.emailed > 0) {
+        toast.success(`Invited ${result.invited} candidate(s) — ${result.emailed} email(s) sent`);
+      } else {
+        toast.info(`Invited ${result.invited} candidate(s). Email is off — copy the links below.`);
+      }
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+export function useResendInterviewInvite(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sessionId: string) => interviewsApi.resendInvite(id, sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.interviews.sessions(id) });
+      toast.success("Invitation email sent again");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

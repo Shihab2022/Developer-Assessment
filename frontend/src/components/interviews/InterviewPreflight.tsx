@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Input, Label } from "@/components/ui/Input";
+import { useConfirmInterviewCode, useRequestInterviewCode } from "@/hooks/useInterviewSession";
+import { getErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { PublicInterviewInfo } from "@/lib/types";
 
@@ -64,6 +66,16 @@ export function InterviewPreflight({ info, proctor, starting, onStart }: Props) 
   const [requested, setRequested] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
+  /** Link security: prove you own the address the invitation was sent to. */
+  const token = info.session?.token ?? "";
+  const requestCode = useRequestInterviewCode(token);
+  const confirmCode = useConfirmInterviewCode(token);
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(Boolean(info.session?.emailVerifiedAt));
+  const [devCode, setDevCode] = useState<string | undefined>(undefined);
+
+  const needsEmailVerification = Boolean(info.requiresEmailVerification);
+
   const cameraReady = proctor.cameraStatus === "ready";
   const micReady = proctor.micStatus === "ready";
   const devicesReady = cameraReady && micReady;
@@ -77,11 +89,33 @@ export function InterviewPreflight({ info, proctor, starting, onStart }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    // Personal links: send the one-time code automatically so the candidate can
+    // prove ownership of the invited mailbox before starting (requirement 5).
+    if (needsEmailVerification && token && !codeSent && !requestCode.isPending) {
+      requestCode.mutate(undefined, {
+        onSuccess: (result) => {
+          setCodeSent(true);
+          setDevCode(result.devCode);
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [needsEmailVerification, token]);
+
+  const verifying = requestCode.isPending || confirmCode.isPending;
+
+  const handleVerify = () => {
+    if (code.trim().length !== 6) return;
+    confirmCode.mutate(code.trim());
+  };
+
   const canSubmit = useMemo(() => {
     if (!devicesReady || !consent || starting) return false;
+    if (needsEmailVerification) return false;
     if (!info.requiresIdentity) return true;
     return Boolean(name.trim() && email.trim());
-  }, [devicesReady, consent, starting, info.requiresIdentity, name, email]);
+  }, [devicesReady, consent, starting, info.requiresIdentity, name, email, needsEmailVerification]);
 
   const requestDevices = async () => {
     setLocalError(null);
@@ -239,6 +273,72 @@ export function InterviewPreflight({ info, proctor, starting, onStart }: Props) 
                   autoComplete="email"
                 />
               </div>
+            </div>
+          )}
+
+          {needsEmailVerification && (
+            <div className="space-y-3 rounded-lg border border-primary-200 bg-primary-50 p-4 text-sm dark:border-primary-800 dark:bg-primary-950/40">
+              <p className="font-semibold text-primary-900 dark:text-primary-100">
+                Verify it&apos;s you before starting
+              </p>
+              <p className="text-primary-900/80 dark:text-primary-100/90">
+                This personal link belongs to{" "}
+                <span className="font-medium">
+                  {info.invitedEmail ?? info.session?.candidateEmail}
+                </span>
+                . We send a 6-digit code to that inbox — only the owner of this address can take
+                this interview.
+              </p>
+
+              {devCode && (
+                <p className="rounded-md bg-amber-100 px-3 py-2 text-xs text-amber-900">
+                  Email is disabled in this environment — your code is{" "}
+                  <strong className="font-mono tracking-wider">{devCode}</strong>.
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="w-44">
+                  <Label htmlFor="verify-code">6-digit code</Label>
+                  <Input
+                    id="verify-code"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="123456"
+                    className="font-mono tracking-[0.4em]"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") handleVerify();
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleVerify}
+                  disabled={code.length !== 6 || verifying}
+                  loading={verifying}
+                >
+                  Verify email
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => requestCode.mutate()}
+                  disabled={requestCode.isPending}
+                >
+                  {codeSent ? "Resend code" : "Send code"}
+                </Button>
+              </div>
+
+              {confirmCode.isError && (
+                <p className="text-xs font-medium text-destructive">
+                  {getErrorMessage(confirmCode.error)}
+                </p>
+              )}
+              {!codeSent && requestCode.isPending && (
+                <p className="text-xs text-primary-800/80">Sending your code…</p>
+              )}
             </div>
           )}
 

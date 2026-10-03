@@ -231,6 +231,96 @@ export const buildInvitationEmail = ({
   };
 };
 
+/**
+ * Interview invitation. The `candidateUrl` is a **personal, secured** link —
+ * only the invited email address can open it (the candidate must verify
+ * ownership of this address before the interview starts).
+ */
+export const buildInterviewInviteEmail = ({
+  candidateName,
+  companyName,
+  interviewTitle,
+  jobRole,
+  durationMinutes,
+  candidateUrl,
+  recruiterName,
+  opensAt,
+  expiresAt,
+}: {
+  candidateName?: string;
+  companyName: string;
+  interviewTitle: string;
+  jobRole?: string | null;
+  durationMinutes: number;
+  candidateUrl: string;
+  recruiterName?: string;
+  opensAt?: Date | null;
+  expiresAt?: Date | null;
+}): RenderedEmail => {
+  const window =
+    opensAt || expiresAt
+      ? `<p style="margin:12px 0 0;font-size:13px;color:#64748b;">${
+          opensAt ? `Available from <strong>${opensAt.toUTCString()}</strong>` : "Available now"
+        }${expiresAt ? ` until <strong>${expiresAt.toUTCString()}</strong>` : ""}.</p>`
+      : "";
+  return {
+    subject: `${companyName} invited you to a video interview`,
+    html: renderEmailLayout({
+      heading: `${companyName} invited you to a video interview`,
+      intro: `Hi ${candidateName || "there"},${
+        recruiterName ? ` ${recruiterName}` : " the hiring team"
+      } has invited you to a proctored video interview${
+        jobRole ? ` for the ${escapeHtml(jobRole)} role` : ""
+      }.`,
+      bodyHtml: `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-top:18px;border:1px solid #e2e8f0;border-radius:12px;">
+        <tr><td style="padding:14px 16px;font-size:14px;color:#334155;">
+          <strong style="color:#0f172a;">Interview:</strong> ${escapeHtml(interviewTitle)}<br />
+          <strong style="color:#0f172a;">Company:</strong> ${escapeHtml(companyName)}<br />
+          <strong style="color:#0f172a;">Approx. length:</strong> ${durationMinutes} minutes
+        </td></tr>
+      </table>${window}`,
+      ctaLabel: "Open my interview",
+      ctaUrl: candidateUrl,
+      footer: `This link is personal and tied to ${escapeHtml(
+        "this email address",
+      )}. You will be asked to verify this address before the interview starts — do not forward it. Camera and microphone access are required.`,
+    }),
+    text: `${companyName} invited you to a video interview${
+      jobRole ? ` for the ${jobRole} role` : ""
+    }: "${interviewTitle}" (~${durationMinutes} minutes).\nOpen (personal link): ${candidateUrl}\nVerify this email address before starting. Do not forward this link.`,
+  };
+};
+
+/** One-time code shown to prove ownership of the invited email address. */
+export const buildInterviewVerificationEmail = ({
+  candidateName,
+  companyName,
+  interviewTitle,
+  code,
+  expiresInMinutes,
+}: {
+  candidateName?: string;
+  companyName: string;
+  interviewTitle: string;
+  code: string;
+  expiresInMinutes: number;
+}): RenderedEmail => ({
+  subject: `Your interview verification code: ${code}`,
+  html: renderEmailLayout({
+    heading: "Verify it's you",
+    intro: `Hi ${candidateName || "there"}, use the code below to confirm this email address and start your ${escapeHtml(
+      companyName,
+    )} interview ("${escapeHtml(interviewTitle)}").`,
+    bodyHtml: `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;">
+      <tr><td style="padding:14px 22px;border:1px solid #e2e8f0;border-radius:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:30px;font-weight:700;letter-spacing:0.3em;color:#0f172a;">${escapeHtml(
+        code,
+      )}</td></tr>
+    </table>
+    <p style="margin:0;font-size:13px;color:#64748b;">This code expires in ${expiresInMinutes} minutes. If you did not request it, you can ignore this email.</p>`,
+  }),
+  text: `Your interview verification code is ${code}. It expires in ${expiresInMinutes} minutes.`,
+});
+
 export const buildResultEmail = ({
   candidateName,
   assessmentTitle,

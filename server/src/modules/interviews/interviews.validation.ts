@@ -55,6 +55,8 @@ const interviewSettingsShape = {
   aiReviewEnabled: z.boolean().default(true),
   passScore: z.coerce.number().int().min(0).max(100).default(60),
   maxViolations: z.coerce.number().int().min(0).max(20).default(2),
+  /** When the candidate link becomes active. */
+  startsAt: z.string().datetime().nullish(),
   expiresAt: z.string().datetime().nullish(),
   /** Candidate-visible behaviour after submission. */
   showScoreToCandidate: z.boolean().default(true),
@@ -77,13 +79,20 @@ export const createInterviewSchema = z.object({
   body: z
     .object({
       ...interviewSettingsShape,
+      /** Requirement: the active window is mandatory when creating an interview. */
+      startsAt: z.string().datetime({ offset: true, message: "Link activation time is required" }),
+      expiresAt: z.string().datetime({ offset: true, message: "Exam close time is required" }),
       /** Optional custom questions added at creation time (requirement 7). */
       customQuestions: z.array(customQuestionSchema).max(30).default([]),
       /** When false the organisation supplies every question itself. */
       useBankQuestions: z.boolean().default(true),
       companyId: z.string().uuid().optional(),
     })
-    .strict(),
+    .strict()
+    .refine(
+      (value) => new Date(value.expiresAt).getTime() > new Date(value.startsAt).getTime(),
+      { message: "The exam close time must be after the link activation time", path: ["expiresAt"] },
+    ),
 });
 
 export const updateInterviewSchema = z.object({
@@ -105,7 +114,8 @@ export const updateInterviewSchema = z.object({
       aiReviewEnabled: z.boolean().optional(),
       passScore: z.coerce.number().int().min(0).max(100).optional(),
       maxViolations: z.coerce.number().int().min(0).max(20).optional(),
-      expiresAt: z.string().datetime().nullish(),
+      startsAt: z.string().datetime({ offset: true }).nullish(),
+      expiresAt: z.string().datetime({ offset: true }).nullish(),
       showScoreToCandidate: z.boolean().optional(),
       status: z.enum(["DRAFT", "ACTIVE", "CLOSED", "ARCHIVED"]).optional(),
     })
@@ -265,3 +275,73 @@ export const updateQuestionSchema = z.object({
   body: customQuestionSchema.partial().strict(),
 });
 
+/* -------------------------------------------------- recruiter: invitations */
+
+/** Invite one or more candidates to a video interview (emails the secured link). */
+export const inviteCandidatesSchema = z.object({
+  params: interviewParamsSchema.shape.params,
+  body: z
+    .object({
+      candidates: z
+        .array(
+          z
+            .object({
+              email: emailSchema,
+              name: z.string().max(120).optional(),
+              /** Send the invitation email immediately (default true). */
+              sendEmail: z.boolean().default(true),
+            })
+            .strict(),
+        )
+        .min(1, "Add at least one candidate")
+        .max(200),
+    })
+    .strict(),
+});
+
+/** Search existing platform users (e.g. people who sat other exams). */
+export const candidateSearchSchema = z.object({
+  query: z.object({
+    q: z.string().max(120).optional(),
+    limit: z.coerce.number().int().min(1).max(50).optional(),
+  }),
+});
+
+/* ---------------------------------------------------- recruiter: bank questions */
+
+/** Browse the built-in interview question bank for a technology. */
+export const bankQuerySchema = z.object({
+  query: z.object({
+    technology: z.string().min(2).max(60),
+    q: z.string().max(120).optional(),
+  }),
+});
+
+/** Add selected bank questions to an interview (requirement 6). */
+export const addBankQuestionsSchema = z.object({
+  params: interviewParamsSchema.shape.params,
+  body: z
+    .object({
+      keys: z.array(z.string().min(1).max(120)).min(1).max(60),
+    })
+    .strict(),
+});
+
+/* ------------------------------------------------ candidate: email verification */
+
+/** Ask for a one-time code to prove ownership of the invited email address. */
+export const requestVerifyCodeSchema = z.object({
+  params: sessionTokenParamsSchema.shape.params,
+});
+
+/** Submit the one-time code; on success the session is bound to the email owner. */
+export const confirmVerifyCodeSchema = z.object({
+  params: sessionTokenParamsSchema.shape.params,
+  body: z
+    .object({
+      code: z
+        .string()
+        .regex(/^\d{6}$/, "Enter the 6-digit code from your email"),
+    })
+    .strict(),
+});

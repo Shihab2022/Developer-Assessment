@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Select";
+import { Skeleton } from "@/components/ui/Primitives";
 import { useInterviewLifecycle, useInterviews } from "@/hooks/useInterviews";
 import { useDebouncedValue } from "@/hooks/useUi";
 import {
@@ -84,7 +85,7 @@ function InterviewsContent() {
     router.replace(`?${params.toString()}`);
   };
 
-  const { data } = useInterviews({
+  const { data, isPending } = useInterviews({
     q: debouncedQ,
     status: (statusFilter || undefined) as (typeof INTERVIEW_STATUSES)[number] | undefined,
     page,
@@ -143,7 +144,16 @@ function InterviewsContent() {
                 </tr>
               </thead>
               <tbody>
-                {interviews.map((interview) => (
+                {isPending &&
+                  [0, 1, 2, 3, 4].map((row) => (
+                    <tr key={`sk-${row}`} className="border-b border-border last:border-0">
+                      <td colSpan={5} className="py-3">
+                        <Skeleton className="h-9 w-full" />
+                      </td>
+                    </tr>
+                  ))}
+                {!isPending &&
+                interviews.map((interview) => (
                   <tr key={interview.id} className="border-b border-border last:border-0">
                     <td className="py-3">
                       <Link
@@ -188,7 +198,7 @@ function InterviewsContent() {
             </table>
           </div>
 
-          {interviews.length === 0 && (
+          {!isPending && interviews.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
               No interviews yet — create one to draw a random question set for a technology and
               share the candidate link.

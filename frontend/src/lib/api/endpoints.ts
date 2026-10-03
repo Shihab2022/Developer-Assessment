@@ -149,11 +149,18 @@ export const endpoints = {
     close: (id: string) => `/interviews/${id}/close`,
     regenerateQuestions: (id: string) => `/interviews/${id}/regenerate-questions`,
     questions: (id: string) => `/interviews/${id}/questions`,
+    questionsFromBank: (id: string) => `/interviews/${id}/questions/from-bank`,
     question: (id: string, questionId: string) => `/interviews/${id}/questions/${questionId}`,
     sessions: (id: string) => `/interviews/${id}/sessions`,
     session: (id: string, sessionId: string) => `/interviews/${id}/sessions/${sessionId}`,
     sessionReview: (id: string, sessionId: string) =>
       `/interviews/${id}/sessions/${sessionId}/review`,
+    invite: (id: string) => `/interviews/${id}/invitations`,
+    resendInvite: (id: string, sessionId: string) =>
+      `/interviews/${id}/sessions/${sessionId}/resend`,
+    /** Reference data — must be declared before `byId` is resolved for `/candidates`. */
+    bank: "/interviews/bank",
+    candidates: "/interviews/candidates",
     report: (id: string) => `/interviews/${id}/report`,
   },
 
@@ -162,6 +169,8 @@ export const endpoints = {
     byToken: (token: string) => `/interview-sessions/${token}`,
     start: (token: string) => `/interview-sessions/${token}/start`,
     state: (token: string) => `/interview-sessions/${token}/state`,
+    requestCode: (token: string) => `/interview-sessions/${token}/verify/request`,
+    confirmCode: (token: string) => `/interview-sessions/${token}/verify/confirm`,
     violations: (token: string) => `/interview-sessions/${token}/violations`,
     answer: (token: string, questionId: string) =>
       `/interview-sessions/${token}/answers/${questionId}`,

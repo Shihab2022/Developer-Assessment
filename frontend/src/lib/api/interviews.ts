@@ -1,19 +1,25 @@
 import { apiDelete, apiGet, apiGetPaginated, apiPatch, apiPost } from "@/lib/api";
 import { compactParams } from "@/lib/utils";
 import type {
+  ConfirmVerificationCodeResult,
   CreateInterviewPayload,
   CreateSessionLinkPayload,
   CustomQuestionPayload,
   Interview,
+  InterviewBank,
+  InterviewCandidateOption,
   InterviewQuestion,
   InterviewReport,
   InterviewSessionReport,
   InterviewSessionResult,
   InterviewSessionSummary,
   InterviewTechnologyOption,
+  InterviewInviteCandidatesPayload,
+  InviteCandidatesResult,
   PublicInterviewInfo,
   ReportViolationPayload,
   ReportViolationResult,
+  RequestVerificationCodeResult,
   SessionState,
   StartSessionPayload,
   StartSessionResult,
@@ -82,6 +88,27 @@ export const interviewsApi = {
     apiPost<InterviewSessionResult>(endpoints.interviews.sessionReview(id, sessionId)),
 
   report: (id: string) => apiGet<InterviewReport>(endpoints.interviews.report(id)),
+
+  /** Browse the built-in question bank for a technology (requirement 6). */
+  bank: (params: { technology: string; q?: string }) =>
+    apiGet<InterviewBank>(endpoints.interviews.bank, { params: compactParams({ ...params }) }),
+
+  /** Existing platform candidates (e.g. people who already sat other exams). */
+  candidates: (params?: { q?: string; limit?: number }) =>
+    apiGet<InterviewCandidateOption[]>(endpoints.interviews.candidates, {
+      params: compactParams({ ...(params ?? {}) }),
+    }),
+
+  addFromBank: (id: string, keys: string[]) =>
+    apiPost<InterviewQuestion[]>(endpoints.interviews.questionsFromBank(id), { keys }),
+
+  invite: (id: string, payload: InterviewInviteCandidatesPayload) =>
+    apiPost<InviteCandidatesResult>(endpoints.interviews.invite(id), payload),
+
+  resendInvite: (id: string, sessionId: string) =>
+    apiPost<{ sessionId: string; email: string; sentAt: string }>(
+      endpoints.interviews.resendInvite(id, sessionId),
+    ),
 };
 
 /* ------------------------------------------------- candidate (public link) */
@@ -111,6 +138,14 @@ export const interviewSessionApi = {
 
   result: (token: string) =>
     apiGet<InterviewSessionResult>(endpoints.interviewSessions.result(token)),
+
+  /** Asks the server to email a one-time code to the invited address. */
+  requestCode: (token: string) =>
+    apiPost<RequestVerificationCodeResult>(endpoints.interviewSessions.requestCode(token)),
+
+  /** Confirms the code so this email owner (and only they) can start. */
+  confirmCode: (token: string, code: string) =>
+    apiPost<ConfirmVerificationCodeResult>(endpoints.interviewSessions.confirmCode(token), { code }),
 };
 
 export default interviewsApi;

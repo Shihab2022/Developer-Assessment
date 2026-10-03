@@ -90,6 +90,8 @@ export const qk = {
     list: (params?: unknown) => ["interviews", "list", params ?? {}] as const,
     detail: (id: string) => ["interviews", "detail", id] as const,
     technologies: ["interviews", "technologies"] as const,
+    bank: (technology: string, q?: string) => ["interviews", "bank", technology, q ?? ""] as const,
+    candidates: (q?: string) => ["interviews", "candidates", q ?? ""] as const,
     sessions: (id: string, params?: unknown) =>
       ["interviews", "sessions", id, params ?? {}] as const,
     session: (id: string, sessionId: string) =>

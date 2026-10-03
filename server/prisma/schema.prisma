@@ -878,6 +878,9 @@ model Interview {
   /// Public link token — the candidate opens `/interview/<accessToken>`.
   accessToken         String          @unique
   status              InterviewStatus @default(DRAFT)
+  /// When the candidate link becomes active (required at creation). Null = active as soon as published.
+  startsAt            DateTime?
+  /// When the exam closes to candidates (required at creation).
   expiresAt           DateTime?
   settings            Json?
   deletedAt           DateTime?
@@ -945,6 +948,13 @@ model InterviewSession {
   userAgent         String?
   deviceInfo        Json?
   consentGivenAt    DateTime?
+  /// When the invitation email (with the personal, secured exam link) was sent.
+  emailSentAt       DateTime?
+  /// Set once the invited email owner proved ownership of the address (link security).
+  emailVerifiedAt   DateTime?
+  /// SHA-256 hash of the 6-digit verification code emailed to the invited address.
+  verificationCodeHash      String?
+  verificationCodeExpiresAt DateTime?
   totalScore        Int                    @default(0)
   maxScore          Int                    @default(0)
   percentage        Float                  @default(0)

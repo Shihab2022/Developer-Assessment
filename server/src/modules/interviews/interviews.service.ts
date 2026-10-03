@@ -8,11 +8,18 @@ import { IAuthUser } from "../../types";
 import {
   DEFAULT_QUESTION_COUNT,
   DEFAULT_QUESTION_TIME_SECONDS,
+  getInterviewTopic,
   isSupportedTechnology,
   listInterviewTopics,
   pickBankQuestions,
   type BankQuestion,
 } from "../../data/interview-bank";
+import {
+  buildInterviewInviteEmail,
+  buildInterviewVerificationEmail,
+  isMailEnabled,
+  sendMail,
+} from "../../lib/mailer";
 import {
   reviewAnswer,
   reviewSession,
@@ -71,10 +78,17 @@ const HUMAN_VIOLATION_LABEL: Record<InterviewViolationType, string> = {
 };
 
 const LINK_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+/** How long an emailed email-ownership code stays valid. */
+const VERIFICATION_CODE_TTL_MS = 1000 * 60 * 15; // 15 minutes
 
 /* -------------------------------------------------------------------- helpers */
 
 const newToken = () => crypto.randomBytes(24).toString("base64url");
+
+/** Six-digit, zero-padded email verification code. */
+const newVerificationCode = () => String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
+const hashVerificationCode = (code: string) =>
+  crypto.createHash("sha256").update(code).digest("hex");
 
 const serializeSettings = (body: Record<string, unknown>) => {
   const settings: Record<string, unknown> = {};
@@ -148,7 +162,8 @@ const createInterview = async (
     aiReviewEnabled: boolean;
     passScore: number;
     maxViolations: number;
-    expiresAt?: string | null;
+    startsAt: string;
+    expiresAt: string;
     showScoreToCandidate: boolean;
     useBankQuestions: boolean;
     customQuestions: {
@@ -206,7 +221,8 @@ const createInterview = async (
       maxViolations: body.maxViolations,
       accessToken: newToken(),
       status: InterviewStatus.DRAFT,
-      expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+      startsAt: new Date(body.startsAt),
+      expiresAt: new Date(body.expiresAt),
       settings: serializeSettings(body) as never,
       questions: {
         create: [
@@ -354,8 +370,20 @@ const updateInterview = async (
     }
     data.technology = data.technology.toLowerCase();
   }
+  if (body.startsAt !== undefined) {
+    data.startsAt = body.startsAt ? new Date(body.startsAt as string) : null;
+  }
   if (body.expiresAt !== undefined) {
     data.expiresAt = body.expiresAt ? new Date(body.expiresAt as string) : null;
+  }
+  // Guard the active window when either end is being changed (requirement 7).
+  const nextStartsAt = (data.startsAt ?? interview.startsAt) as Date | null;
+  const nextExpiresAt = (data.expiresAt ?? interview.expiresAt) as Date | null;
+  if (nextStartsAt && nextExpiresAt && nextExpiresAt.getTime() <= nextStartsAt.getTime()) {
+    throw new ApiError(
+      httpStatus.UNPROCESSABLE_ENTITY,
+      "The exam close time must be after the link activation time",
+    );
   }
   if (body.showScoreToCandidate !== undefined) {
     const settings = (interview.settings as Record<string, unknown> | null) ?? {};
@@ -631,6 +659,270 @@ const createSessionLink = async (
   };
 };
 
+/* ------------------------------------------------ recruiter: invite candidates */
+
+/** Masks an email for display: `ab***@example.com`. */
+const maskEmail = (email: string) => {
+  const [name = "", domain] = email.split("@");
+  if (!domain) return email;
+  const visible = name.slice(0, 2);
+  return `${visible}${"*".repeat(Math.max(name.length - visible.length, 1))}@${domain}`;
+};
+
+/** Searches existing platform users (e.g. candidates who sat other exams). */
+const searchInvitableCandidates = async (
+  _user: IAuthUser,
+  query: { q?: string; limit?: number },
+) => {
+  const limit = Math.min(Math.max(Number(query.limit) || 12, 1), 50);
+  const where: Record<string, unknown> = { deletedAt: null, role: "CANDIDATE" };
+  if (query.q && query.q.trim()) {
+    const q = query.q.trim();
+    where.OR = [
+      { email: { contains: q, mode: "insensitive" } },
+      { name: { contains: q, mode: "insensitive" } },
+    ];
+  }
+  const candidates = await prisma.user.findMany({
+    where,
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      _count: { select: { attempts: true, interviewSessions: true } },
+    },
+  });
+  return candidates.map(({ _count, ...candidate }) => ({
+    ...candidate,
+    examsTaken: _count.attempts + _count.interviewSessions,
+  }));
+};
+
+/** Builds + sends the personal, secured interview link. Never throws. */
+const sendInterviewInviteEmail = async (
+  session: { id: string; token: string; candidateName: string; candidateEmail: string },
+  interview: {
+    id: string;
+    title: string;
+    jobRole: string | null;
+    companyId: string | null;
+    questionCount: number;
+    questionTimeSeconds: number;
+    totalTimeSeconds: number | null;
+    startsAt: Date | null;
+    expiresAt: Date | null;
+  },
+  actor: IAuthUser,
+) => {
+  if (!isMailEnabled()) return false;
+  const [company, creator] = await Promise.all([
+    interview.companyId
+      ? prisma.company.findUnique({ where: { id: interview.companyId }, select: { name: true } })
+      : Promise.resolve(null),
+    prisma.user.findUnique({ where: { id: actor.id }, select: { name: true, email: true } }),
+  ]);
+  const candidateUrl = `${config.interview.link_base_url}/interview/${session.token}`;
+  const durationMinutes = Math.max(
+    1,
+    Math.round(
+      (interview.totalTimeSeconds ?? interview.questionCount * interview.questionTimeSeconds) / 60,
+    ),
+  );
+  const rendered = buildInterviewInviteEmail({
+    candidateName: session.candidateName,
+    companyName: company?.name ?? "the hiring team",
+    interviewTitle: interview.title,
+    jobRole: interview.jobRole,
+    durationMinutes,
+    candidateUrl,
+    recruiterName: creator?.name,
+    opensAt: interview.startsAt,
+    expiresAt: interview.expiresAt,
+  });
+  const sent = await sendMail({
+    to: session.candidateEmail,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    replyTo: creator?.email,
+  });
+  if (sent) {
+    await prisma.interviewSession.update({
+      where: { id: session.id },
+      data: { emailSentAt: new Date() },
+    });
+  }
+  return sent;
+};
+
+/** Invites one or more candidates (by email) and emails each a secured link. */
+const inviteCandidates = async (
+  user: IAuthUser,
+  interviewId: string,
+  body: { candidates: { email: string; name?: string; sendEmail?: boolean }[] },
+) => {
+  const interview = await assertInterviewAccess(user, interviewId);
+  const results: {
+    sessionId: string;
+    token: string;
+    email: string;
+    name: string;
+    link: string;
+    emailed: boolean;
+    reused: boolean;
+  }[] = [];
+
+  for (const candidate of body.candidates) {
+    const email = candidate.email.toLowerCase().trim();
+    let reused = true;
+    let session = await prisma.interviewSession.findFirst({
+      where: { interviewId, candidateEmail: email, status: { in: ["NOT_STARTED", "IN_PROGRESS"] } },
+    });
+
+    if (!session) {
+      reused = false;
+      const existingUser = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: "insensitive" } },
+        select: { id: true, name: true },
+      });
+      session = await prisma.interviewSession.create({
+        data: {
+          interviewId,
+          candidateId: existingUser?.id ?? null,
+          token: newToken(),
+          candidateName:
+            candidate.name?.trim() || existingUser?.name || email.split("@")[0] || "Candidate",
+          candidateEmail: email,
+          expiresAt: interview.expiresAt ?? new Date(Date.now() + LINK_TTL_MS),
+        },
+      });
+    }
+
+    const link = `${config.interview.link_base_url}/interview/${session.token}`;
+    const emailed =
+      candidate.sendEmail === false ? false : await sendInterviewInviteEmail(session, interview, user);
+
+    await writeAuditLog({
+      actorId: user.id,
+      action: "interview.session.invite",
+      entityType: "InterviewSession",
+      entityId: session.id,
+      newValue: { interviewId, candidateEmail: email, emailed, reused },
+    });
+
+    results.push({
+      sessionId: session.id,
+      token: session.token,
+      email,
+      name: session.candidateName,
+      link,
+      emailed,
+      reused,
+    });
+  }
+
+  return {
+    invited: results.length,
+    emailed: results.filter((row) => row.emailed).length,
+    results,
+  };
+};
+
+/** Re-sends the invitation email for an existing candidate session. */
+const resendInvite = async (user: IAuthUser, interviewId: string, sessionId: string) => {
+  const interview = await assertInterviewAccess(user, interviewId);
+  const session = await prisma.interviewSession.findFirst({
+    where: { id: sessionId, interviewId },
+  });
+  if (!session) throw new ApiError(httpStatus.NOT_FOUND, "Candidate session not found");
+
+  const emailed = await sendInterviewInviteEmail(session, interview, user);
+  if (!emailed) {
+    throw new ApiError(
+      httpStatus.SERVICE_UNAVAILABLE,
+      "Email is not configured — copy the candidate link and share it directly",
+    );
+  }
+  return { sessionId, email: session.candidateEmail, emailed: true, sentAt: new Date() };
+};
+
+/* ------------------------------------------------- recruiter: bank questions */
+
+/** Lists the built-in bank questions for a technology so the org can cherry-pick. */
+const listBankQuestions = (technology: string, q?: string) => {
+  const topic = getInterviewTopic(technology);
+  if (!topic) {
+    throw new ApiError(httpStatus.NOT_FOUND, `No interview question bank for "${technology}"`);
+  }
+  const needle = q?.trim().toLowerCase();
+  const questions = topic.questions
+    .filter(
+      (question) =>
+        !needle ||
+        question.prompt.toLowerCase().includes(needle) ||
+        question.topic.toLowerCase().includes(needle) ||
+        question.key.toLowerCase().includes(needle),
+    )
+    .map((question) => ({
+      key: question.key,
+      topic: question.topic,
+      difficulty: question.difficulty,
+      prompt: question.prompt,
+      hints: question.hints,
+      keywords: question.keywords,
+    }));
+  return { technology: topic.id, label: topic.label, total: topic.questions.length, questions };
+};
+
+/** Adds selected bank questions to an interview (requirement 6). */
+const addBankQuestions = async (user: IAuthUser, interviewId: string, keys: string[]) => {
+  const interview = await assertInterviewAccess(user, interviewId);
+  const topic = getInterviewTopic(interview.technology);
+  if (!topic) {
+    throw new ApiError(httpStatus.UNPROCESSABLE_ENTITY, "This interview has no question bank");
+  }
+  const bankByKey = new Map(topic.questions.map((question) => [question.key, question]));
+  const existing = await prisma.interviewQuestion.findMany({
+    where: { interviewId },
+    orderBy: { order: "desc" },
+    select: { order: true, bankKey: true, source: true },
+  });
+  let order = existing[0]?.order ?? 0;
+  const alreadyAdded = new Set(
+    existing.filter((q) => q.source === "BANK" && q.bankKey).map((q) => q.bankKey as string),
+  );
+
+  const toAdd: Record<string, unknown>[] = [];
+  for (const key of keys) {
+    if (alreadyAdded.has(key)) continue;
+    const bank = bankByKey.get(key);
+    if (!bank) continue;
+    order += 1;
+    toAdd.push({ interviewId, ...bankQuestionData(bank, order) });
+  }
+  if (!toAdd.length) {
+    throw new ApiError(httpStatus.CONFLICT, "Those questions are already part of this interview");
+  }
+
+  await prisma.interviewQuestion.createMany({ data: toAdd as never });
+  await prisma.interview.update({
+    where: { id: interviewId },
+    data: { questionCount: { increment: toAdd.length } },
+  });
+  await writeAuditLog({
+    actorId: user.id,
+    action: "interview.question.add-from-bank",
+    entityType: "Interview",
+    entityId: interviewId,
+    newValue: { added: toAdd.length, keys },
+  });
+  return prisma.interviewQuestion.findMany({ where: { interviewId }, orderBy: { order: "asc" } });
+};
+
 /* ------------------------------------------------------------- public helpers */
 
 const riskLevelFor = (integrityScore: number) =>
@@ -700,6 +992,7 @@ const resolveLink = async (token: string) => {
 const assertInterviewOpen = (interview: {
   status: string;
   deletedAt: Date | null;
+  startsAt: Date | null;
   expiresAt: Date | null;
 }) => {
   if (interview.deletedAt || interview.status === "ARCHIVED" || interview.status === "CLOSED") {
@@ -707,6 +1000,12 @@ const assertInterviewOpen = (interview: {
   }
   if (interview.status === "DRAFT") {
     throw new ApiError(httpStatus.CONFLICT, "This interview has not been published yet");
+  }
+  if (interview.startsAt && interview.startsAt > new Date()) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      `This interview link is not active yet. It opens on ${interview.startsAt.toUTCString()}`,
+    );
   }
   if (interview.expiresAt && interview.expiresAt < new Date()) {
     throw new ApiError(httpStatus.CONFLICT, "This interview link has expired");
@@ -721,10 +1020,13 @@ const publicInterviewPayload = (interview: {
   technology: string;
   seniority: string;
   questionTimeSeconds: number;
+  totalTimeSeconds: number | null;
   hintsEnabled: boolean;
   proctoringEnabled: boolean;
   passScore: number;
   companyId: string | null;
+  startsAt: Date | null;
+  expiresAt: Date | null;
 }) => ({
   id: interview.id,
   title: interview.title,
@@ -733,8 +1035,11 @@ const publicInterviewPayload = (interview: {
   technology: interview.technology,
   seniority: interview.seniority,
   questionTimeSeconds: interview.questionTimeSeconds,
+  totalTimeSeconds: interview.totalTimeSeconds,
   hintsEnabled: interview.hintsEnabled,
   passScore: interview.passScore,
+  startsAt: interview.startsAt,
+  expiresAt: interview.expiresAt,
 });
 
 /** Pre-flight info: what the candidate is about to take, and the proctoring rules. */
@@ -757,6 +1062,10 @@ const getPublicInterview = async (token: string) => {
     interview: { ...publicInterviewPayload(interview), company },
     questionTotal,
     requiresIdentity: mode === "interview",
+    /** A personal invite link is bound to one email address (link security). */
+    requiresEmailVerification: mode === "session" && !session?.emailVerifiedAt,
+    emailVerified: mode === "interview" || Boolean(session?.emailVerifiedAt),
+    invitedEmail: session?.candidateEmail ?? null,
     session: session
       ? {
           token: session.token,
@@ -785,6 +1094,110 @@ const getPublicInterview = async (token: string) => {
   };
 };
 
+/* ------------------------------------------- public: email verification (link security) */
+
+/**
+ * Emails a one-time code to the invited address so the candidate can prove the
+ * personal link belongs to them (requirement 5). Only the owner of the invited
+ * mailbox can read the code, so only they can start the interview.
+ */
+const requestVerificationCode = async (token: string) => {
+  const { session, interview, mode } = await resolveLink(token);
+  assertInterviewOpen(interview);
+  if (mode !== "session" || !session) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "This link does not require email verification");
+  }
+  if (session.emailVerifiedAt) {
+    return {
+      sent: true,
+      alreadyVerified: true,
+      email: maskEmail(session.candidateEmail),
+      expiresInMinutes: 0,
+    };
+  }
+
+  const code = newVerificationCode();
+  await prisma.interviewSession.update({
+    where: { id: session.id },
+    data: {
+      verificationCodeHash: hashVerificationCode(code),
+      verificationCodeExpiresAt: new Date(Date.now() + VERIFICATION_CODE_TTL_MS),
+    },
+  });
+
+  const expiresInMinutes = Math.round(VERIFICATION_CODE_TTL_MS / 60000);
+  let sent = false;
+  if (isMailEnabled()) {
+    const company = interview.companyId
+      ? await prisma.company.findUnique({
+          where: { id: interview.companyId },
+          select: { name: true },
+        })
+      : null;
+    const rendered = buildInterviewVerificationEmail({
+      candidateName: session.candidateName,
+      companyName: company?.name ?? "the hiring team",
+      interviewTitle: interview.title,
+      code,
+      expiresInMinutes,
+    });
+    sent = await sendMail({
+      to: session.candidateEmail,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+    });
+  }
+
+  return {
+    sent,
+    alreadyVerified: false,
+    email: maskEmail(session.candidateEmail),
+    expiresInMinutes,
+    // With no SMTP configured we return the code so local development still works.
+    ...(sent ? {} : { devCode: code }),
+  };
+};
+
+/** Confirms the one-time code and binds the session to the invited email owner. */
+const confirmVerificationCode = async (token: string, code: string) => {
+  const { session, interview, mode } = await resolveLink(token);
+  assertInterviewOpen(interview);
+  if (mode !== "session" || !session) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "This link does not require email verification");
+  }
+  if (session.emailVerifiedAt) {
+    return { verified: true, email: session.candidateEmail };
+  }
+  if (
+    !session.verificationCodeHash ||
+    !session.verificationCodeExpiresAt ||
+    session.verificationCodeExpiresAt < new Date()
+  ) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "That code has expired — request a new one");
+  }
+  if (hashVerificationCode(code) !== session.verificationCodeHash) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "That code is not correct");
+  }
+
+  await prisma.interviewSession.update({
+    where: { id: session.id },
+    data: {
+      emailVerifiedAt: new Date(),
+      verificationCodeHash: null,
+      verificationCodeExpiresAt: null,
+    },
+  });
+  await writeAuditLog({
+    actorId: session.candidateId ?? undefined,
+    action: "interview.session.email-verified",
+    entityType: "InterviewSession",
+    entityId: session.id,
+    newValue: { email: session.candidateEmail },
+  });
+  return { verified: true, email: session.candidateEmail };
+};
+
 /* -------------------------------------------------------------- public: start */
 
 /**
@@ -808,6 +1221,15 @@ const startSession = async (
   const resolved = await resolveLink(token);
   const interview = resolved.interview;
   assertInterviewOpen(interview);
+
+  // A personal invite link only works for the email address it was sent to:
+  // the candidate must have proved ownership of that address first (link security).
+  if (resolved.mode === "session" && resolved.session && !resolved.session.emailVerifiedAt) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      "Verify the email address this invitation was sent to before starting the interview",
+    );
+  }
 
   let session = resolved.session;
   if (!session) {
@@ -1503,6 +1925,9 @@ const listSessions = async (
         terminatedAt: true,
         terminationReason: true,
         reviewProvider: true,
+        emailSentAt: true,
+        emailVerifiedAt: true,
+        expiresAt: true,
         _count: { select: { answers: true, violations: true } },
       },
     }),
@@ -1511,6 +1936,7 @@ const listSessions = async (
   return {
     data: data.map(({ _count, ...session }) => ({
       ...session,
+      link: `${config.interview.link_base_url}/interview/${session.token}`,
       answerTotal: _count.answers,
       violationTotal: _count.violations,
     })),
@@ -1771,8 +2197,13 @@ export const InterviewService = {
   addCustomQuestion,
   updateQuestion,
   deleteQuestion,
+  listBankQuestions,
+  addBankQuestions,
   // recruiter: sessions & reporting
   createSessionLink,
+  searchInvitableCandidates,
+  inviteCandidates,
+  resendInvite,
   listSessions,
   getSessionReport,
   reReviewSession,
@@ -1780,6 +2211,8 @@ export const InterviewService = {
   // candidate (public link)
   getPublicInterview,
   startSession,
+  requestVerificationCode,
+  confirmVerificationCode,
   reportViolation,
   getSessionState,
   saveAnswer,

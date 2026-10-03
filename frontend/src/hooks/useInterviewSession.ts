@@ -83,3 +83,27 @@ export function useInterviewResult(token: string | undefined, options?: { enable
     retry: false,
   });
 }
+
+/**
+ * Email-ownership gate (requirement 5): asks the server to email a one-time
+ * code to the address the invitation was sent to.
+ */
+export function useRequestInterviewCode(token: string) {
+  return useMutation({
+    mutationFn: () => interviewSessionApi.requestCode(token),
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
+
+/** Confirms the code; on success the public info query is refreshed. */
+export function useConfirmInterviewCode(token: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => interviewSessionApi.confirmCode(token, code),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.interviews.publicInfo(token) });
+      toast.success("Email verified — you can start the interview");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
