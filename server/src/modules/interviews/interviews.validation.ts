@@ -60,6 +60,17 @@ const interviewSettingsShape = {
   expiresAt: z.string().datetime().nullish(),
   /** Candidate-visible behaviour after submission. */
   showScoreToCandidate: z.boolean().default(true),
+  /** When enabled the candidate is also emailed their result after submission. */
+  sendResultToCandidate: z.boolean().default(true),
+  /**
+   * Multiple technologies the random question set is drawn from. The first
+   * entry becomes `technology` (the primary label); the rest widen the pool.
+   */
+  technologies: z
+    .array(z.string().min(2, "Technology is required").max(60))
+    .min(1, "Pick at least one technology")
+    .max(10)
+    .optional(),
 };
 
 export const customQuestionSchema = z
@@ -117,9 +128,27 @@ export const updateInterviewSchema = z.object({
       startsAt: z.string().datetime({ offset: true }).nullish(),
       expiresAt: z.string().datetime({ offset: true }).nullish(),
       showScoreToCandidate: z.boolean().optional(),
+      sendResultToCandidate: z.boolean().optional(),
+      technologies: interviewSettingsShape.technologies.optional(),
       status: z.enum(["DRAFT", "ACTIVE", "CLOSED", "ARCHIVED"]).optional(),
     })
     .strict(),
+});
+
+/** Re-opens a closed exam so candidates can take it again (requirement 7). */
+export const reopenInterviewSchema = z.object({
+  params: interviewParamsSchema.shape.params,
+  body: z
+    .object({
+      /**
+       * Optional new close time. When omitted and the previous window has
+       * already expired, the exam is extended by a default window so the link
+       * actually becomes usable again.
+       */
+      expiresAt: z.string().datetime({ offset: true }).nullish(),
+    })
+    .strict()
+    .default({}),
 });
 
 export const regenerateQuestionsSchema = z.object({
@@ -294,7 +323,7 @@ export const inviteCandidatesSchema = z.object({
             .strict(),
         )
         .min(1, "Add at least one candidate")
-        .max(200),
+        .max(500),
     })
     .strict(),
 });

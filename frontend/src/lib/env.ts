@@ -1,14 +1,17 @@
 /**
- * Central environment configuration.
+ * Absolute, shareable links for this frontend.
  *
+ * Share links MUST come from `NEXT_PUBLIC_SITE_URL` (see `.env.example`), so a
+ * deployment can publish the public origin once instead of leaking wherever
+ * the recruiter's browser happens to be (`window.location.origin` is only the
+ * local host during development).
+ * Only `NEXT_PUBLIC_*` variables are referenced in this module: Next.js inlines
+ * them into the browser bundle, so they must never hold secrets.
  * Every external URL the app depends on is read here — and only here — so a
  * deployment can point at different hosts without editing code. Each value has
  * a local-development fallback, which means the app still runs with no `.env`
  * at all. The full list, with an explanation of each variable, lives in
  * `.env.example` at the project root.
- *
- * Only `NEXT_PUBLIC_*` variables are referenced in this module: Next.js inlines
- * them into the browser bundle, so they must never hold secrets.
  */
 
 /** Trims a value and returns `undefined` when it is empty. */
@@ -40,6 +43,13 @@ export const API_BASE_URL = readUrl(
 
 /** Canonical origin of this frontend (Open Graph, share links, metadata). */
 export const SITE_URL = readUrl(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000");
+
+/**
+ * Builds an absolute, shareable URL for an in-app path — always rooted at
+ * `SITE_URL`, never at `window.location.origin` (requirement 1).
+ */
+export const publicUrl = (path: string): string =>
+  `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
 /** Public source repository — linked from the footer and quoted in the UA string. */
 export const REPO_URL = readUrl(

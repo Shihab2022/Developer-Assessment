@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 interface Props {
   interviewId: string;
   technology: string;
+  /** Extra technologies the exam pools from (requirement 4), if any. */
+  technologies?: string[] | null;
   /** Bank keys already present so they cannot be added twice. */
   existingKeys: string[];
   open: boolean;
@@ -26,14 +28,23 @@ interface Props {
 export function InterviewBankPicker({
   interviewId,
   technology,
+  technologies,
   existingKeys,
   open,
   onOpenChange,
 }: Props) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [activeTechnology, setActiveTechnology] = useState(technology);
 
-  const bank = useInterviewBank(technology, "", open);
+  const technologyTabs = useMemo(() => {
+    const ids = [technology, ...(technologies ?? [])].filter(
+      (id, index, list) => Boolean(id) && list.indexOf(id) === index,
+    );
+    return ids;
+  }, [technology, technologies]);
+
+  const bank = useInterviewBank(activeTechnology, "", open);
   const add = useAddBankQuestions(interviewId);
 
   const already = useMemo(() => new Set(existingKeys), [existingKeys]);
@@ -66,6 +77,24 @@ export function InterviewBankPicker({
               : "Loading the built-in bank…"}
           </p>
         </ModalHeader>
+          {technologyTabs.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              {technologyTabs.map((tabId) => (
+                <Button
+                  key={tabId}
+                  size="sm"
+                  variant={tabId === activeTechnology ? "primary" : "outline"}
+                  onClick={() => {
+                    setActiveTechnology(tabId);
+                    setSelected({});
+                  }}
+                >
+                  {tabId}
+                </Button>
+              ))}
+            </div>
+          )}
+
 
         <div className="space-y-3">
           <div className="relative">

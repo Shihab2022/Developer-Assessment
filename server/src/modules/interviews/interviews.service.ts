@@ -2,7 +2,7 @@ import crypto from "crypto";
 import httpStatus from "http-status";
 import { prisma } from "../../lib/prisma";
 import ApiError from "../../helpers/ApiError";
-import { writeAuditLog } from "../../lib/audit";
+import { writeAuditLog, writeAuditLogs } from "../../lib/audit";
 import config from "../../config";
 import { IAuthUser } from "../../types";
 import {
@@ -12,11 +12,13 @@ import {
   isSupportedTechnology,
   listInterviewTopics,
   pickBankQuestions,
+  resolveTechnologyIds,
   type BankQuestion,
 } from "../../data/interview-bank";
 import {
   buildInterviewInviteEmail,
   buildInterviewVerificationEmail,
+  buildResultEmail,
   isMailEnabled,
   sendMail,
 } from "../../lib/mailer";
@@ -95,7 +97,45 @@ const serializeSettings = (body: Record<string, unknown>) => {
   if (body.showScoreToCandidate !== undefined) {
     settings.showScoreToCandidate = body.showScoreToCandidate;
   }
+  if (body.sendResultToCandidate !== undefined) {
+    settings.sendResultToCandidate = body.sendResultToCandidate;
+  }
+  if (body.technologies !== undefined) {
+    settings.technologies = body.technologies;
+  }
   return settings;
+};
+
+/* ------------------------------------------------- multi-technology helpers */
+
+/**
+ * The full set of technologies an interview draws its random question sample
+ * from. `Interview.technology` holds the primary label for display/back-compat;
+ * `settings.technologies` carries every selected technology (requirement 4).
+ */
+const interviewTechnologies = (
+  interview: { technology: string; settings: unknown },
+): string[] => {
+  const settings = (interview.settings as Record<string, unknown> | null) ?? {};
+  const raw = Array.isArray(settings.technologies)
+    ? (settings.technologies as unknown[]).filter((value): value is string => typeof value === "string")
+    : [];
+  const resolved = resolveTechnologyIds([...raw, interview.technology]);
+  return resolved.length ? resolved : [interview.technology];
+};
+
+/** Validates a submitted technology list and returns canonical ids. */
+const resolveTechnologyOrThrow = (values: readonly string[]): string[] => {
+  const invalid = values.filter((value) => !isSupportedTechnology(value));
+  if (invalid.length) {
+    throw new ApiError(
+      httpStatus.UNPROCESSABLE_ENTITY,
+      `No interview question bank for "${invalid[0]}". Available technologies: ${listInterviewTopics()
+        .map((topic) => topic.id)
+        .join(", ")}`,
+    );
+  }
+  return resolveTechnologyIds(values);
 };
 
 const questionTimeFor = (
@@ -165,6 +205,9 @@ const createInterview = async (
     startsAt: string;
     expiresAt: string;
     showScoreToCandidate: boolean;
+    sendResultToCandidate: boolean;
+    /** Optional wider set of technologies (requirement 4). */
+    technologies?: string[];
     useBankQuestions: boolean;
     customQuestions: {
       prompt: string;
@@ -179,18 +222,12 @@ const createInterview = async (
     companyId?: string;
   },
 ) => {
-  if (!isSupportedTechnology(body.technology)) {
-    throw new ApiError(
-      httpStatus.UNPROCESSABLE_ENTITY,
-      `No interview question bank for "${body.technology}". Available technologies: ${listInterviewTopics()
-        .map((topic) => topic.id)
-        .join(", ")}`,
-    );
-  }
+  const technologies = resolveTechnologyOrThrow([...(body.technologies ?? []), body.technology]);
+  const primaryTechnology = technologies[0] ?? body.technology;
 
   const companyId = user.role === "ADMIN" ? (body.companyId ?? user.companyId) : user.companyId;
   const bankQuestions = body.useBankQuestions
-    ? pickBankQuestions(body.technology, body.questionCount)
+    ? pickBankQuestions(technologies, body.questionCount)
     : [];
 
   if (!bankQuestions.length && !body.customQuestions.length) {
@@ -207,7 +244,7 @@ const createInterview = async (
       title: body.title,
       description: body.description ?? null,
       jobRole: body.jobRole ?? null,
-      technology: body.technology.trim().toLowerCase(),
+      technology: primaryTechnology,
       seniority: body.seniority,
       questionCount: bankQuestions.length + body.customQuestions.length || body.questionCount,
       questionTimeSeconds: body.questionTimeSeconds,
@@ -223,7 +260,10 @@ const createInterview = async (
       status: InterviewStatus.DRAFT,
       startsAt: new Date(body.startsAt),
       expiresAt: new Date(body.expiresAt),
-      settings: serializeSettings(body) as never,
+      settings: {
+        ...serializeSettings(body),
+        technologies,
+      } as never,
       questions: {
         create: [
           ...bankQuestions.map((question, index) => bankQuestionData(question, index + 1)),
@@ -364,11 +404,16 @@ const updateInterview = async (
   for (const key of copyable) {
     if (body[key] !== undefined) data[key] = body[key];
   }
-  if (typeof data.technology === "string") {
-    if (!isSupportedTechnology(data.technology)) {
-      throw new ApiError(httpStatus.UNPROCESSABLE_ENTITY, "Unsupported technology");
-    }
-    data.technology = data.technology.toLowerCase();
+  if (typeof data.technology === "string" && !body.technologies) {
+    data.technology = resolveTechnologyOrThrow([data.technology])[0];
+  }
+  if (body.technologies !== undefined) {
+    const technologies = resolveTechnologyOrThrow(body.technologies as string[]);
+    data.technology = technologies[0];
+    data.settings = {
+      ...((interview.settings as Record<string, unknown> | null) ?? {}),
+      ...serializeSettings({ technologies }),
+    };
   }
   if (body.startsAt !== undefined) {
     data.startsAt = body.startsAt ? new Date(body.startsAt as string) : null;
@@ -385,9 +430,20 @@ const updateInterview = async (
       "The exam close time must be after the link activation time",
     );
   }
+  const settingsPatch: Record<string, unknown> = {};
   if (body.showScoreToCandidate !== undefined) {
-    const settings = (interview.settings as Record<string, unknown> | null) ?? {};
-    data.settings = { ...settings, showScoreToCandidate: body.showScoreToCandidate };
+    settingsPatch.showScoreToCandidate = body.showScoreToCandidate;
+  }
+  if (body.sendResultToCandidate !== undefined) {
+    settingsPatch.sendResultToCandidate = body.sendResultToCandidate;
+  }
+  if (Object.keys(settingsPatch).length) {
+    data.settings = {
+      ...((data.settings as Record<string, unknown> | null) ??
+        (interview.settings as Record<string, unknown> | null) ??
+        {}),
+      ...settingsPatch,
+    };
   }
   if (!Object.keys(data).length) {
     throw new ApiError(httpStatus.BAD_REQUEST, "No updatable fields provided");
@@ -447,6 +503,72 @@ const setStatus = async (
   };
 };
 
+/** Default window applied when re-opening an exam that has already expired. */
+const REOPEN_DEFAULT_WINDOW_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
+
+/**
+ * Re-opens a closed exam so candidates can take it again (requirement 7).
+ *
+ * Setting the status back to `ACTIVE` is not enough on its own: `assertInterviewOpen`
+ * also rejects links whose `expiresAt` is in the past, so a closed-and-expired exam
+ * must get a fresh window or the shared link still fails. The recruiter can pass an
+ * explicit `expiresAt`; otherwise an expired window is extended by a default 7 days.
+ */
+const reopenInterview = async (
+  user: IAuthUser,
+  interviewId: string,
+  body: { expiresAt?: string | null } = {},
+) => {
+  const interview = await assertInterviewAccess(user, interviewId);
+  if (interview.status !== InterviewStatus.CLOSED && interview.status !== InterviewStatus.DRAFT) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      interview.status === InterviewStatus.ACTIVE
+        ? "This exam is already open — close it first if you want to reset the window"
+        : "Archived exams cannot be re-opened",
+    );
+  }
+  const now = new Date();
+  const data: Record<string, unknown> = { status: InterviewStatus.ACTIVE };
+  let expiresAt = interview.expiresAt;
+  let extended = false;
+
+  if (body.expiresAt) {
+    expiresAt = new Date(body.expiresAt);
+    extended = true;
+  } else if (!expiresAt || expiresAt.getTime() <= now.getTime()) {
+    expiresAt = new Date(now.getTime() + REOPEN_DEFAULT_WINDOW_MS);
+    extended = true;
+  }
+
+  const nextStartsAt = interview.startsAt && interview.startsAt > now ? interview.startsAt : now;
+  if (expiresAt && expiresAt.getTime() <= nextStartsAt.getTime()) {
+    throw new ApiError(
+      httpStatus.UNPROCESSABLE_ENTITY,
+      "The exam close time must be after the link activation time",
+    );
+  }
+  data.expiresAt = expiresAt;
+  // Keep the link live from now so a stale future start date cannot block it.
+  if (interview.startsAt && interview.startsAt > now) data.startsAt = now;
+
+  const updated = await prisma.interview.update({ where: { id: interviewId }, data: data as never });
+  await writeAuditLog({
+    actorId: user.id,
+    action: "interview.reopen",
+    entityType: "Interview",
+    entityId: interviewId,
+    previousValue: { status: interview.status, expiresAt: interview.expiresAt },
+    newValue: { status: updated.status, expiresAt: updated.expiresAt, extended },
+  });
+
+  return {
+    ...updated,
+    extended,
+    candidateLink: `${config.interview.link_base_url}/interview/${updated.accessToken}`,
+  };
+};
+
 /* ------------------------------------------------------ recruiter: questions */
 
 const regenerateQuestions = async (
@@ -469,7 +591,7 @@ const regenerateQuestions = async (
   // questions are subtracted from the number of bank questions drawn.
   await prisma.interviewQuestion.deleteMany({ where: { interviewId, source: "BANK" } });
   const bankCount = Math.max(1, count - keptCustom.length);
-  const bankQuestions = pickBankQuestions(interview.technology, bankCount);
+  const bankQuestions = pickBankQuestions(interviewTechnologies(interview), bankCount);
 
   await prisma.interviewQuestion.createMany({
     data: bankQuestions.map((question, index) => ({
@@ -776,6 +898,12 @@ const inviteCandidates = async (
     reused: boolean;
   }[] = [];
 
+  /** Sessions waiting for their invitation email (sent concurrently below). */
+  const pending: {
+    session: { id: string; token: string; candidateName: string; candidateEmail: string };
+  }[] = [];
+  const auditEntries: Parameters<typeof writeAuditLogs>[0] = [];
+
   for (const candidate of body.candidates) {
     const email = candidate.email.toLowerCase().trim();
     let reused = true;
@@ -803,15 +931,24 @@ const inviteCandidates = async (
     }
 
     const link = `${config.interview.link_base_url}/interview/${session.token}`;
-    const emailed =
-      candidate.sendEmail === false ? false : await sendInterviewInviteEmail(session, interview, user);
+    const wantsEmail = candidate.sendEmail !== false;
+    if (wantsEmail) {
+      pending.push({
+        session: {
+          id: session.id,
+          token: session.token,
+          candidateName: session.candidateName,
+          candidateEmail: session.candidateEmail,
+        },
+      });
+    }
 
-    await writeAuditLog({
+    auditEntries.push({
       actorId: user.id,
       action: "interview.session.invite",
       entityType: "InterviewSession",
       entityId: session.id,
-      newValue: { interviewId, candidateEmail: email, emailed, reused },
+      newValue: { interviewId, candidateEmail: email, emailed: wantsEmail, reused },
     });
 
     results.push({
@@ -820,10 +957,35 @@ const inviteCandidates = async (
       email,
       name: session.candidateName,
       link,
-      emailed,
+      emailed: false,
       reused,
     });
   }
+
+  /*
+   * Send the invitation emails with bounded concurrency so inviting 100+ (up to
+   * 500) candidates does not serialise one SMTP round-trip after another. Each
+   * worker pulls the next pending item off a shared cursor, which is safe because
+   * the increment happens synchronously before any `await`.
+   */
+  const EMAIL_CONCURRENCY = 8;
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < pending.length) {
+      const index = cursor;
+      cursor += 1;
+      const item = pending[index];
+      if (!item) continue;
+      const sent = await sendInterviewInviteEmail(item.session, interview, user);
+      const target = results.find((row) => row.sessionId === item.session.id);
+      if (target) target.emailed = sent;
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(EMAIL_CONCURRENCY, pending.length) }, () => worker()),
+  );
+
+  await writeAuditLogs(auditEntries);
 
   return {
     invited: results.length,
@@ -881,11 +1043,17 @@ const listBankQuestions = (technology: string, q?: string) => {
 /** Adds selected bank questions to an interview (requirement 6). */
 const addBankQuestions = async (user: IAuthUser, interviewId: string, keys: string[]) => {
   const interview = await assertInterviewAccess(user, interviewId);
-  const topic = getInterviewTopic(interview.technology);
-  if (!topic) {
+  const bankByKey = new Map<string, BankQuestion>();
+  for (const technology of interviewTechnologies(interview)) {
+    const topic = getInterviewTopic(technology);
+    if (!topic) continue;
+    for (const question of topic.questions) {
+      bankByKey.set(question.key, question);
+    }
+  }
+  if (!bankByKey.size) {
     throw new ApiError(httpStatus.UNPROCESSABLE_ENTITY, "This interview has no question bank");
   }
-  const bankByKey = new Map(topic.questions.map((question) => [question.key, question]));
   const existing = await prisma.interviewQuestion.findMany({
     where: { interviewId },
     orderBy: { order: "desc" },
@@ -931,6 +1099,57 @@ const riskLevelFor = (integrityScore: number) =>
 const showScoreToCandidate = (settings: unknown) => {
   const value = (settings as Record<string, unknown> | null)?.showScoreToCandidate;
   return value === undefined ? true : Boolean(value);
+};
+
+/** Whether the organisation also emails the result to the candidate (requirement 5). */
+const sendResultToCandidate = (settings: unknown) => {
+  const value = (settings as Record<string, unknown> | null)?.sendResultToCandidate;
+  return value === undefined ? true : Boolean(value);
+};
+
+/**
+ * Emails the candidate their result once it is ready (requirement 5).
+ *
+ * Only fires when the organisation shares the score **and** has the result
+ * email switched on — otherwise the candidate sees nothing and receives nothing.
+ * Never throws: a mail failure must not break the submission flow.
+ */
+const emailResultIfEnabled = async (session: {
+  candidateName: string;
+  candidateEmail: string;
+  token: string;
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  passesInterview: boolean;
+  status: string;
+  interview: {
+    title: string;
+    settings: unknown;
+    expiresAt: Date | null;
+  };
+}) => {
+  const settings = session.interview.settings;
+  if (!showScoreToCandidate(settings)) return;
+  if (!sendResultToCandidate(settings)) return;
+  if (session.status !== "REVIEWED") return;
+  if (!isMailEnabled()) return;
+
+  const rendered = buildResultEmail({
+    candidateName: session.candidateName,
+    assessmentTitle: session.interview.title,
+    percentage: session.percentage,
+    passed: session.passesInterview,
+    earnedPoints: session.totalScore,
+    totalPoints: session.maxScore,
+    resultUrl: `${config.interview.link_base_url}/interview/${session.token}`,
+  });
+  await sendMail({
+    to: session.candidateEmail,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
 };
 
 /** Notifies every recruiter of the owning company that a report is ready. */
@@ -1868,6 +2087,8 @@ const submitSession = async (
     },
   });
 
+  await emailResultIfEnabled({ ...updated, interview });
+
   return candidateResultPayload(updated, interview.settings);
 };
 
@@ -2192,6 +2413,7 @@ export const InterviewService = {
     setStatus(user, interviewId, InterviewStatus.ACTIVE, "publish"),
   closeInterview: (user: IAuthUser, interviewId: string) =>
     setStatus(user, interviewId, InterviewStatus.CLOSED, "close"),
+  reopenInterview,
   // recruiter: questions
   regenerateQuestions,
   addCustomQuestion,

@@ -9,6 +9,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Input, Label } from "@/components/ui/Input";
 import type { Competition } from "@/lib/competitions/types";
 import { isJoinable } from "@/lib/competitions/paper";
+import { publicUrl } from "@/lib/env";
 import { copyToClipboard, formatDateTime } from "@/lib/utils";
 
 /**
@@ -26,8 +27,7 @@ export function CompetitionDetailCards({
   onPublish: () => void;
   onClose: () => void;
 }) {
-  const shareUrl =
-    typeof window !== "undefined" ? `${window.location.origin}/competitions/${competition.id}` : "";
+  const shareUrl = publicUrl(`/competitions/${competition.id}`);
   const joinable = isJoinable(competition);
 
   const copy = async (text: string, label: string) => {

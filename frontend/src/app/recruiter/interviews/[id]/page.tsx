@@ -17,6 +17,7 @@ import { Badge, DifficultyBadge, StatusBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader, DescriptionList, PageHeader } from "@/components/ui/Card";
 import { Input, Label, Textarea } from "@/components/ui/Input";
+import { Modal, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle } from "@/components/ui/Modal";
 import { SelectField } from "@/components/ui/Select";
 import { SwitchField } from "@/components/ui/Checkbox";
 import { Skeleton } from "@/components/ui/Primitives";
@@ -38,7 +39,7 @@ import {
   INTERVIEW_DECISION_LABELS,
   INTERVIEW_SESSION_STATUS_LABELS,
 } from "@/lib/constants";
-import { copyToClipboard, formatDateTime, parseCommaList } from "@/lib/utils";
+import { copyToClipboard, formatDateTime, parseCommaList, toDateTimeInputValue } from "@/lib/utils";
 
 export default function InterviewDetailPage() {
   const params = useParams<{ id: string }>();
@@ -55,6 +56,11 @@ export default function InterviewDetailPage() {
   const resend = useResendInterviewInvite(id);
 
   const [bankOpen, setBankOpen] = useState(false);
+  /** Requirement 6 — closing an exam asks for confirmation with full details. */
+  const [closeOpen, setCloseOpen] = useState(false);
+  /** Requirement 7 — re-opening a closed exam can also set a fresh close time. */
+  const [reopenOpen, setReopenOpen] = useState(false);
+  const [reopenExpiresAt, setReopenExpiresAt] = useState("");
   const [prompt, setPrompt] = useState("");
   const [hintsInput, setHintsInput] = useState("");
   const [keywordsInput, setKeywordsInput] = useState("");
@@ -82,8 +88,27 @@ export default function InterviewDetailPage() {
   }
 
   const data = interview.data;
+  const settings = (data.settings ?? {}) as { showScoreToCandidate?: boolean; sendResultToCandidate?: boolean; technologies?: string[] };
   const questions = data.questions ?? [];
   const sessionRows = sessions.data?.data ?? [];
+  const resultShared = (settings.showScoreToCandidate ?? true) && (settings.sendResultToCandidate ?? true);
+
+  const setShareResult = (checked: boolean) => {
+    update.mutate({ showScoreToCandidate: checked, sendResultToCandidate: checked });
+  };
+
+  const confirmClose = () => {
+    setCloseOpen(false);
+    lifecycle.mutate("close");
+  };
+
+  const confirmReopen = () => {
+    setReopenOpen(false);
+    lifecycle.mutate({
+      action: "reopen",
+      expiresAt: reopenExpiresAt ? new Date(reopenExpiresAt).toISOString() : undefined,
+    });
+  };
 
   const addCustomQuestion = () => {
     if (prompt.trim().length < 10) {
@@ -144,10 +169,27 @@ export default function InterviewDetailPage() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => lifecycle.mutate("close")}
-                loading={lifecycle.isPending}
+                onClick={() => setCloseOpen(true)}
+                disabled={lifecycle.isPending}
               >
                 Close to new candidates
+              </Button>
+            )}
+            {data.status === "CLOSED" && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setReopenExpiresAt(
+                    data.expiresAt && new Date(data.expiresAt).getTime() > Date.now()
+                      ? toDateTimeInputValue(data.expiresAt)
+                      : toDateTimeInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+                  );
+                  setReopenOpen(true);
+                }}
+                loading={lifecycle.isPending}
+              >
+                <RefreshCw className="size-4" />
+                Re-open exam
               </Button>
             )}
             <Button
@@ -230,6 +272,10 @@ export default function InterviewDetailPage() {
                 { label: "Suspended", value: data.stats?.terminatedTotal ?? 0 },
                 { label: "AI review", value: data.aiReviewEnabled ? "On" : "Off" },
                 { label: "Proctoring", value: data.proctoringEnabled ? "On" : "Off" },
+                {
+                  label: "Share result with candidate",
+                  value: resultShared ? "On (score + email)" : "Off (hidden, no email)",
+                },
                 { label: "Answers get", value: `${data.maxViolations} tolerated violations` },
               ]}
             />
@@ -535,12 +581,9 @@ export default function InterviewDetailPage() {
           />
           <SwitchField
             id="setting-show-score"
-            checked={
-              (data.settings as { showScoreToCandidate?: boolean } | null)
-                ?.showScoreToCandidate !== false
-            }
-            onCheckedChange={(checked) => update.mutate({ showScoreToCandidate: checked })}
-            label="Show the score to the candidate"
+            checked={resultShared}
+            onCheckedChange={setShareResult}
+            label="Share the result with the candidate"
           />
           <p className="text-xs text-muted-foreground sm:col-span-2">
             A session marked{" "}
@@ -553,12 +596,101 @@ export default function InterviewDetailPage() {
       <InterviewBankPicker
         interviewId={id}
         technology={data.technology}
+        technologies={settings.technologies}
         existingKeys={(data.questions ?? [])
           .filter((question) => question.source === "BANK" && question.bankKey)
           .map((question) => question.bankKey as string)}
         open={bankOpen}
         onOpenChange={setBankOpen}
       />
+
+      {/* ---------- requirement 6: confirm closing, with the full picture ---------- */}
+      <Modal open={closeOpen} onOpenChange={setCloseOpen}>
+        <ModalContent size="md">
+          <ModalHeader>
+            <ModalTitle>Close this exam?</ModalTitle>
+            <ModalDescription>
+              Candidates will no longer be able to start, join or continue this exam. Existing
+              answers and completed reviews are kept.
+            </ModalDescription>
+          </ModalHeader>
+
+          <DescriptionList
+            columns={1}
+            items={[
+              { label: "Exam", value: data.title },
+              { label: "Status now", value: data.status },
+              {
+                label: "Questions served",
+                value: `${questions.length} question${questions.length === 1 ? "" : "s"}`,
+              },
+              { label: "Sessions so far", value: data.stats?.sessionTotal ?? 0 },
+              { label: "Reviewed", value: data.stats?.reviewedTotal ?? 0 },
+              {
+                label: "Exam window",
+                value:
+                  data.startsAt || data.expiresAt
+                    ? `${data.startsAt ? formatDateTime(data.startsAt) : "—"} → ${
+                        data.expiresAt ? formatDateTime(data.expiresAt) : "—"
+                      }`
+                    : "No window set",
+              },
+              {
+                label: "Result sharing",
+                value: resultShared
+                  ? "ON — candidates see their result and get it by email"
+                  : "OFF — candidates see nothing and get no email",
+              },
+            ]}
+          />
+
+          <ModalFooter>
+            <Button variant="ghost" onClick={() => setCloseOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="outline" onClick={confirmClose} loading={lifecycle.isPending}>
+              Yes, close the exam
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* ---------- requirement 7: re-open with a fresh, usable close time ---------- */}
+      <Modal open={reopenOpen} onOpenChange={setReopenOpen}>
+        <ModalContent size="md">
+          <ModalHeader>
+            <ModalTitle>Re-open this exam?</ModalTitle>
+            <ModalDescription>
+              Candidates will be able to take the exam again. If the old close time has already
+              passed, give a new one so the link actually works.
+            </ModalDescription>
+          </ModalHeader>
+
+          <div>
+            <Label htmlFor="reopen-expires">Exam closes at (optional)</Label>
+            <Input
+              id="reopen-expires"
+              type="datetime-local"
+              value={reopenExpiresAt}
+              onChange={(event) => setReopenExpiresAt(event.target.value)}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Leave the suggested +7 days value, or leave blank to let the server extend an
+              expired window automatically.
+            </p>
+          </div>
+
+          <ModalFooter>
+            <Button variant="ghost" onClick={() => setReopenOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmReopen} loading={lifecycle.isPending}>
+              <RefreshCw className="size-4" />
+              Re-open exam
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

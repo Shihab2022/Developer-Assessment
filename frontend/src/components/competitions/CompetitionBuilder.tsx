@@ -24,6 +24,7 @@ import {
   libraryTechnologyRow,
 } from "@/lib/competitions/library";
 import { createInviteCode } from "@/lib/competitions/paper";
+import { publicUrl } from "@/lib/env";
 import type {
   Competition,
   CompetitionAccess,
@@ -260,10 +261,7 @@ export function CompetitionBuilder({ competition }: { competition?: Competition 
     toast.info("New code generated");
   };
 
-  const shareUrl =
-    competition && typeof window !== "undefined"
-      ? `${window.location.origin}/competitions/${competition.id}`
-      : "";
+  const shareUrl = competition ? publicUrl(`/competitions/${competition.id}`) : "";
 
   const steps = ["Basics", "Paper", "Publish"];
 

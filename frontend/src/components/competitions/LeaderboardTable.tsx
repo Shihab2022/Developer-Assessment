@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { downloadCsv } from "@/lib/utils";
 import { leaderboardRows } from "@/lib/competitions/scoring";
 import type { Competition, CompetitionEntry } from "@/lib/competitions/types";
+import { publicUrl } from "@/lib/env";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,7 +36,7 @@ export function LeaderboardTable({
   const writtenItems = competition.items.filter((item) => item.source === "own");
 
   const copyLink = async () => {
-    const url = `${window.location.origin}/competitions/${competition.id}`;
+    const url = publicUrl(`/competitions/${competition.id}`);
     try {
       await navigator.clipboard.writeText(url);
     } catch {

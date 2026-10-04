@@ -98,11 +98,18 @@ export function useUpdateInterview(id: string) {
 export function useInterviewLifecycle(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (action: "publish" | "close") =>
-      action === "publish" ? interviewsApi.publish(id) : interviewsApi.close(id),
-    onSuccess: () => {
+    mutationFn: (action: "publish" | "close" | { action: "reopen"; expiresAt?: string }) =>
+      typeof action === "string"
+        ? action === "publish"
+          ? interviewsApi.publish(id)
+          : interviewsApi.close(id)
+        : interviewsApi.reopen(id, { expiresAt: action.expiresAt ?? null }),
+    onSuccess: (interview) => {
       queryClient.invalidateQueries({ queryKey: qk.interviews.detail(id) });
       queryClient.invalidateQueries({ queryKey: qk.interviews.all });
+      if ((interview as { extended?: boolean } | undefined)?.extended) {
+        toast.success("Exam re-opened — the close time was extended so the link works again");
+      }
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

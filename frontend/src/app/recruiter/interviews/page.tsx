@@ -35,6 +35,7 @@ function InterviewActions({ interviewId, status }: { interviewId: string; status
           variant="ghost"
           size="iconSm"
           aria-label="Publish"
+          title="Publish — the candidate link goes live"
           disabled={lifecycle.isPending}
           onClick={() => lifecycle.mutate("publish")}
         >
@@ -45,11 +46,26 @@ function InterviewActions({ interviewId, status }: { interviewId: string; status
         <Button
           variant="ghost"
           size="iconSm"
-          aria-label="Close to new candidates"
-          disabled={lifecycle.isPending}
-          onClick={() => lifecycle.mutate("close")}
+          aria-label="Close — open the exam to review the details first"
+          title="Close — open the exam to review the details first"
+          asChild
         >
-          <RefreshCw className="size-4 text-amber-600" />
+          <Link href={`/recruiter/interviews/${interviewId}`}>
+            <RefreshCw className="size-4 text-amber-600" />
+          </Link>
+        </Button>
+      )}
+      {status === "CLOSED" && (
+        <Button
+          variant="ghost"
+          size="iconSm"
+          aria-label="Re-open — open the exam to set a fresh close time"
+          title="Re-open — open the exam to set a fresh close time"
+          asChild
+        >
+          <Link href={`/recruiter/interviews/${interviewId}`}>
+            <RefreshCw className="size-4 text-emerald-600" />
+          </Link>
         </Button>
       )}
     </>

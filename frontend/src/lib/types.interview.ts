@@ -271,6 +271,8 @@ export interface CreateInterviewPayload {
   description?: string;
   jobRole?: string;
   technology: string;
+  /** Extra technologies — the random question set is drawn across all of them. */
+  technologies?: string[];
   seniority: InterviewSeniority;
   questionCount: number;
   /** Seconds per question — defaults to 300 (5 minutes) on the server. */
@@ -288,6 +290,8 @@ export interface CreateInterviewPayload {
   /** When the exam closes to candidates — required at creation. */
   expiresAt: string;
   showScoreToCandidate: boolean;
+  /** Requirement 5 — email the result to the candidate alongside showing it. */
+  sendResultToCandidate?: boolean;
   useBankQuestions: boolean;
   customQuestions: CustomQuestionPayload[];
   companyId?: string;

@@ -6,11 +6,14 @@ import { ClipboardCopy, Mail, Search, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { Input, Label } from "@/components/ui/Input";
+import { Input, Label, Textarea } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Primitives";
 import { useDebouncedValue } from "@/hooks/useUi";
 import { useInterviewCandidates, useInviteToInterview } from "@/hooks/useInterviews";
-import { cn, copyToClipboard, isEmail } from "@/lib/utils";
+import { cn, copyToClipboard, isEmail, parseEmailList } from "@/lib/utils";
+
+/** Maximum emails per bulk paste (mirrors the server `/invitations` limit). */
+const MAX_BULK_EMAILS = 500;
 
 interface Props {
   interviewId: string;
@@ -26,6 +29,12 @@ export function InterviewInviteCard({ interviewId }: Props) {
 
   const [candidateName, setCandidateName] = useState("");
   const [candidateEmail, setCandidateEmail] = useState("");
+  /**
+   * Requirement 3 — bulk paste: the recruiter drops in up to 500 emails at
+   * once (comma / newline / semicolon separated) and every one of them is
+   * invited with its own personal, secured exam link in a single request.
+   */
+  const [bulkEmails, setBulkEmails] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Record<string, { name: string; email: string }>>({});
   const debouncedSearch = useDebouncedValue(search, 350);
@@ -33,6 +42,11 @@ export function InterviewInviteCard({ interviewId }: Props) {
   const candidates = useInterviewCandidates(debouncedSearch);
   const candidateRows = candidates.data ?? [];
   const selectedCount = useMemo(() => Object.keys(selected).length, [selected]);
+
+  const parsedBulk = useMemo(() => parseEmailList(bulkEmails), [bulkEmails]);
+  const validBulk = useMemo(() => parsedBulk.filter(isEmail), [parsedBulk]);
+  const invalidBulk = parsedBulk.length - validBulk.length;
+  const bulkCapped = validBulk.length > MAX_BULK_EMAILS;
 
   const sendOne = () => {
     if (!isEmail(candidateEmail.trim())) {
@@ -49,6 +63,27 @@ export function InterviewInviteCard({ interviewId }: Props) {
         onSuccess: () => {
           setCandidateName("");
           setCandidateEmail("");
+        },
+      },
+    );
+  };
+
+  const sendBulk = () => {
+    if (!validBulk.length || bulkCapped) return;
+    invite.mutate(
+      {
+        candidates: validBulk
+          .slice(0, MAX_BULK_EMAILS)
+          .map((email) => ({ email, sendEmail: true })),
+      },
+      {
+        onSuccess: (result) => {
+          setBulkEmails("");
+          if (invalidBulk > 0) {
+            toast.info(
+              `Invited ${result.invited} candidate(s) — skipped ${invalidBulk} invalid entr${invalidBulk === 1 ? "y" : "ies"}.`,
+            );
+          }
         },
       },
     );
@@ -130,6 +165,42 @@ export function InterviewInviteCard({ interviewId }: Props) {
                 <ClipboardCopy className="size-4" />
                 Copy last link
               </Button>
+            )}
+          </div>
+        </div>
+
+        {/* ---------- requirement 3: paste 100+ emails and invite them all ---------- */}
+        <div className="rounded-lg border border-border p-4">
+          <p className="mb-1 text-sm font-medium text-foreground">Invite many at once</p>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Paste up to {MAX_BULK_EMAILS} emails separated by commas, new lines or semicolons —
+            every address gets its own personal exam link by email.
+          </p>
+          <div>
+            <Label htmlFor="invite-bulk">Email list</Label>
+            <Textarea
+              id="invite-bulk"
+              rows={5}
+              placeholder="a@gmail.com, b@gmail.com, c@gmail.com"
+              value={bulkEmails}
+              onChange={(event) => setBulkEmails(event.target.value)}
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Button
+              size="sm"
+              onClick={sendBulk}
+              loading={invite.isPending}
+              disabled={!validBulk.length || bulkCapped}
+            >
+              <Mail className="size-4" />
+              Invite {validBulk.length || ""} candidate{validBulk.length === 1 ? "" : "s"}
+            </Button>
+            {validBulk.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {validBulk.length} valid{invalidBulk > 0 ? ` · ${invalidBulk} invalid skipped` : ""}
+                {bulkCapped ? ` · max ${MAX_BULK_EMAILS} per batch` : ""}
+              </span>
             )}
           </div>
         </div>

@@ -55,6 +55,10 @@ export const interviewsApi = {
 
   close: (id: string) => apiPost<Interview>(endpoints.interviews.close(id)),
 
+  /** Re-opens a closed exam so candidates can take it again (requirement 7). */
+  reopen: (id: string, payload?: { expiresAt?: string | null }) =>
+    apiPost<Interview & { extended?: boolean }>(endpoints.interviews.reopen(id), payload ?? {}),
+
   regenerateQuestions: (id: string, payload?: { questionCount?: number; keepCustomQuestions?: boolean }) =>
     apiPost<InterviewQuestion[]>(
       endpoints.interviews.regenerateQuestions(id),

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { Input, Label, Textarea } from "@/components/ui/Input";
 import { SelectField } from "@/components/ui/Select";
-import { SwitchField } from "@/components/ui/Checkbox";
+import { CheckboxField, SwitchField } from "@/components/ui/Checkbox";
 import { useCreateInterview, useInterviewTechnologies } from "@/hooks/useInterviews";
 import {
   DEFAULT_INTERVIEW_SETTINGS,
@@ -24,7 +24,12 @@ export default function NewInterviewPage() {
   const [title, setTitle] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [description, setDescription] = useState("");
-  const [technology, setTechnology] = useState("javascript");
+  /**
+   * Requirement 4 — one or more technologies. The first entry is the primary
+   * (displayed on the interview) but the random question set is drawn across
+   * every selected technology.
+   */
+  const [technologyIds, setTechnologyIds] = useState<string[]>(["javascript"]);
   const [seniority, setSeniority] = useState<string>(DEFAULT_INTERVIEW_SETTINGS.seniority);
   const [questionCount, setQuestionCount] = useState(DEFAULT_INTERVIEW_SETTINGS.questionCount);
   const [questionTimeSeconds, setQuestionTimeSeconds] = useState(
@@ -42,6 +47,13 @@ export default function NewInterviewPage() {
   const [showScoreToCandidate, setShowScore] = useState(
     DEFAULT_INTERVIEW_SETTINGS.showScoreToCandidate,
   );
+  /**
+   * Requirement 5 — when ON the candidate sees the score after submitting and
+   * also receives it by email; when OFF the candidate sees nothing and gets no
+   * email. Kept in step with `showScoreToCandidate` so the two behave as one
+   * "share the result" option.
+   */
+  const [sendResultToCandidate, setSendResult] = useState(true);
   const [useBankQuestions, setUseBank] = useState(DEFAULT_INTERVIEW_SETTINGS.useBankQuestions);
   /** Requirement 7 — both ends of the active window are mandatory. */
   const [startsAt, setStartsAt] = useState(() => toDateTimeInputValue(new Date()));
@@ -55,7 +67,30 @@ export default function NewInterviewPage() {
     Boolean(startsAt) &&
     Boolean(expiresAt) &&
     new Date(expiresAt).getTime() > new Date(startsAt).getTime();
-  const canSubmit = title.trim().length >= 3 && Boolean(technology) && windowValid;
+  const bankTotal = useMemo(
+    () =>
+      options
+        .filter((option) => technologyIds.includes(option.id))
+        .reduce((total, option) => total + (option.questionCount ?? 0), 0),
+    [options, technologyIds],
+  );
+  const canSubmit = title.trim().length >= 3 && technologyIds.length > 0 && windowValid;
+
+  const toggleTechnology = (id: string) => {
+    setTechnologyIds((prev) => {
+      if (prev.includes(id)) {
+        const next = prev.filter((item) => item !== id);
+        // Keep at least one technology — fall back to the first bank entry.
+        return next.length > 0 ? next : prev;
+      }
+      return [...prev, id];
+    });
+  };
+
+  const setShareResult = (checked: boolean) => {
+    setShowScore(checked);
+    setSendResult(checked);
+  };
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -63,7 +98,8 @@ export default function NewInterviewPage() {
       title: title.trim(),
       description: description.trim() || undefined,
       jobRole: jobRole.trim() || undefined,
-      technology,
+      technology: technologyIds[0] ?? "javascript",
+      technologies: technologyIds.length > 1 ? technologyIds : undefined,
       seniority: seniority as InterviewSeniority,
       questionCount,
       questionTimeSeconds,
@@ -78,6 +114,7 @@ export default function NewInterviewPage() {
       startsAt: new Date(startsAt).toISOString(),
       expiresAt: new Date(expiresAt).toISOString(),
       showScoreToCandidate,
+      sendResultToCandidate,
       useBankQuestions,
       customQuestions: [],
     };
@@ -89,7 +126,7 @@ export default function NewInterviewPage() {
     <>
       <PageHeader
         title="New AI video interview"
-        subtitle="Questions are drawn at random from the selected technology bank"
+        subtitle="Tick one or more technologies — 10 random questions are drawn across the selection"
         breadcrumbs={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/recruiter/interviews">
@@ -116,18 +153,6 @@ export default function NewInterviewPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="technology">Technology</Label>
-                <SelectField
-                  id="technology"
-                  value={technology}
-                  onValueChange={setTechnology}
-                  options={options.map((option) => ({
-                    value: option.id,
-                    label: `${option.label} (${option.questionCount} questions)`,
-                  }))}
-                />
-              </div>
-              <div>
                 <Label htmlFor="seniority">Seniority</Label>
                 <SelectField
                   id="seniority"
@@ -139,6 +164,34 @@ export default function NewInterviewPage() {
                   }))}
                 />
               </div>
+            </div>
+
+            {/* Requirement 4 — multiple technologies; the random question set is
+                drawn across every ticked bank. */}
+            <div>
+              <Label>Technologies ({technologyIds.length} selected)</Label>
+              <p className="-mt-0.5 mb-2 text-xs text-muted-foreground">
+                The exam draws {questionCount} random question{questionCount === 1 ? "" : "s"} across
+                the selected technologies ({bankTotal} questions in the pool).
+              </p>
+              <div className="thin-scrollbar grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border p-3 sm:grid-cols-2">
+                {(options.length > 0 ? options : [{ id: "javascript", label: "JavaScript", questionCount: 0 }]).map(
+                  (option) => (
+                    <CheckboxField
+                      key={option.id}
+                      id={`technology-${option.id}`}
+                      checked={technologyIds.includes(option.id)}
+                      onCheckedChange={() => toggleTechnology(option.id)}
+                      label={`${option.label} (${option.questionCount} questions)`}
+                    />
+                  ),
+                )}
+              </div>
+              {technologyIds.length === 0 && (
+                <p className="mt-1 text-xs font-medium text-destructive">
+                  Pick at least one technology — the exam needs a question pool.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -317,8 +370,13 @@ export default function NewInterviewPage() {
               <SwitchField
                 id="show-score"
                 checked={showScoreToCandidate}
-                onCheckedChange={setShowScore}
-                label="Show the score to the candidate"
+                onCheckedChange={setShareResult}
+                label="Share the result with the candidate"
+                description={
+                  sendResultToCandidate
+                    ? "The candidate sees the score after submitting and also receives it by email."
+                    : "OFF — the candidate sees nothing and no result email is sent."
+                }
               />
             </div>
 

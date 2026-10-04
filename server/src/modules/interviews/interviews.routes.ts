@@ -18,6 +18,7 @@ import {
   interviewSessionsQuerySchema,
   regenerateQuestionsSchema,
   reportViolationSchema,
+  reopenInterviewSchema,
   requestVerifyCodeSchema,
   saveAnswerSchema,
   sessionTokenParamsSchema,
@@ -92,6 +93,14 @@ InterviewRouter.post(
   auth("RECRUITER", "ADMIN"),
   validate(interviewParamsSchema),
   InterviewController.close,
+);
+
+/** Re-opens a closed exam so candidates can take it again (requirement 7). */
+InterviewRouter.post(
+  "/:id/reopen",
+  auth("RECRUITER", "ADMIN"),
+  validate(reopenInterviewSchema),
+  InterviewController.reopen,
 );
 
 InterviewRouter.post(

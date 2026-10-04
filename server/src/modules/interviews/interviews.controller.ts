@@ -93,6 +93,19 @@ const close = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+const reopen = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await InterviewService.reopenInterview(
+    req.user!,
+    String(req.params.id),
+    (req.body ?? {}) as { expiresAt?: string | null },
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Interview re-opened — the candidate link is live again",
+    data: result,
+  });
+});
+
 /* ------------------------------------------------------- recruiter: questions */
 
 const regenerateQuestions = catchAsync(async (req: AuthRequest, res: Response) => {
@@ -390,6 +403,7 @@ export const InterviewController = {
   remove,
   publish,
   close,
+  reopen,
   regenerateQuestions,
   addQuestion,
   updateQuestion,

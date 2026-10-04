@@ -147,6 +147,7 @@ export const endpoints = {
     byId: (id: string) => `/interviews/${id}`,
     publish: (id: string) => `/interviews/${id}/publish`,
     close: (id: string) => `/interviews/${id}/close`,
+    reopen: (id: string) => `/interviews/${id}/reopen`,
     regenerateQuestions: (id: string) => `/interviews/${id}/regenerate-questions`,
     questions: (id: string) => `/interviews/${id}/questions`,
     questionsFromBank: (id: string) => `/interviews/${id}/questions/from-bank`,
