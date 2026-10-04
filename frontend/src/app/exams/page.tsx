@@ -13,7 +13,7 @@ import { iconForTech } from "@/lib/question-banks/icons";
 export const metadata: Metadata = {
   title: "Technology exams",
   description:
-    "Take a timed, auto-graded MCQ exam in JavaScript, TypeScript, Python, HTML, CSS, or SQL. Questions are randomised for every attempt.",
+    "Take a timed, auto-graded MCQ exam in JavaScript, TypeScript, Python, HTML, CSS, SQL, React, Next.js, or DevOps. Questions are randomised for every attempt.",
 };
 
 export default function ExamsIndexPage() {
@@ -27,7 +27,7 @@ export default function ExamsIndexPage() {
           <p className="mt-4 max-w-2xl text-muted-foreground mx-auto">
             Pick a technology and take a timed, auto-graded exam drawn from that
             skill's question pool. Questions and options are randomised for every
-            attempt, and the clock is server-authoritative.
+            attempt, and the per-question clock is enforced for the whole paper.
           </p>
         </div>
 
@@ -36,7 +36,7 @@ export default function ExamsIndexPage() {
             {TECHNOLOGIES.length} technologies · {formatNumber(TOTAL_QUESTIONS)} questions
           </span>
           <Button asChild size="sm" variant="outline">
-            <Link href="/login">Sign in to save your results</Link>
+            <Link href="/login">Sign in to take an exam</Link>
           </Button>
         </div>
 

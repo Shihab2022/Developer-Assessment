@@ -14,6 +14,7 @@ const LOADERS: Record<string, () => Promise<{ default: QuestionBank }>> = {
   react: () => import("@/data/question-banks/react.json").then((m) => ({ default: m.default as unknown as QuestionBank })),
   nextjs: () => import("@/data/question-banks/nextjs.json").then((m) => ({ default: m.default as unknown as QuestionBank })),
   sql: () => import("@/data/question-banks/sql.json").then((m) => ({ default: m.default as unknown as QuestionBank })),
+  devops: () => import("@/data/question-banks/devops.json").then((m) => ({ default: m.default as unknown as QuestionBank })),
 };
 
 export async function loadBank(technology: TechnologyId | string): Promise<QuestionBank> {

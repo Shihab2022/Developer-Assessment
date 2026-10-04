@@ -11,7 +11,9 @@
     "verify:practice": "node scripts/verify-practice-bank.mjs",
     "verify:practice:python": "node scripts/verify-practice-bank.mjs --python",
     "generate:practice": "node scripts/generate-practice-bank.mjs",
-    "generate:brand": "node scripts/generate-brand-assets.mjs"
+    "generate:brand": "node scripts/generate-brand-assets.mjs",
+    "verify:banks": "node scripts/verify-question-banks.mjs",
+    "build:banks": "node scripts/build-question-banks.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

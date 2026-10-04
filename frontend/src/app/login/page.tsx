@@ -250,9 +250,9 @@ function LoginForm() {
                 </Link>
               </p>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-                <SignupPill href="/register/candidate" icon={Users} label="Candidate" />
-                <SignupPill href="/register/recruiter" icon={Users} label="Recruiter" />
-                <SignupPill href="/register/company" icon={Building2} label="Company" />
+                <SignupPill href={next ? `/register/candidate?next=${encodeURIComponent(next)}` : "/register/candidate"} icon={Users} label="Candidate" />
+                <SignupPill href={next ? `/register/recruiter?next=${encodeURIComponent(next)}` : "/register/recruiter"} icon={Users} label="Recruiter" />
+                <SignupPill href={next ? `/register/company?next=${encodeURIComponent(next)}` : "/register/company"} icon={Building2} label="Company" />
               </div>
             </div>
           </div>

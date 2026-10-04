@@ -94,6 +94,15 @@ export const TECHNOLOGY_CATALOG: TechnologyCatalogEntry[] = [
     accent: "from-teal-500 to-cyan-500",
     highlights: ["Joins", "Aggregation", "Indexes", "Transactions"],
   },
+  {
+    id: "devops",
+    label: "DevOps",
+    description:
+      "Scenario-based MCQ across the delivery stack: Docker & Kubernetes, MongoDB, PostgreSQL, Redis, and CI/CD pipelines.",
+    icon: "Boxes",
+    accent: "from-emerald-500 to-teal-700",
+    highlights: ["Docker & Kubernetes", "MongoDB", "PostgreSQL", "Redis"],
+  },
 ];
 
 export function catalogById(id: string): TechnologyCatalogEntry | undefined {

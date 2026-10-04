@@ -3,159 +3,1243 @@
   "label": "HTML",
   "description": "Semantic markup, accessibility, forms, media and browser behaviour questions for web app development.",
   "source": "Authored for SkillGauge",
-  "questionCount": 10,
+  "questionCount": 40,
   "levels": [
-    { "id": "L1", "label": "Fundamental" },
-    { "id": "L2", "label": "Intermediate" },
-    { "id": "L3", "label": "Advanced" }
+    {
+      "id": "L1",
+      "label": "Fundamental"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced"
+    }
   ],
   "topics": [
-    "Document Structure", "Semantic HTML", "Accessibility", "Forms & Validation",
-    "Links & Assets", "Media Elements", "Tables", "SEO & Metadata",
-    "Script Loading", "Web Storage & APIs"
+    "Document Structure",
+    "Semantic HTML",
+    "Accessibility",
+    "Forms & Validation",
+    "Script Loading",
+    "Links & Assets",
+    "Media Elements",
+    "Tables",
+    "SEO & Metadata"
   ],
-  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
-  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "difficultyCounts": {
+    "EASY": 14,
+    "MEDIUM": 14,
+    "HARD": 12
+  },
+  "levelCounts": {
+    "L1": 14,
+    "L2": 14,
+    "L3": 12
+  },
   "questions": [
     {
-      "id": "html-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Document Structure", "difficulty": "EASY",
+      "id": "html----q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Document Structure",
+      "difficulty": "EASY",
       "title": "What is the purpose of `<!DOCTYPE html>`?",
       "prompt": "What is the purpose of `<!DOCTYPE html>`?",
       "content": [],
       "options": [
-        { "id": "A", "text": "It imports the HTML5 specification into the page" },
-        { "id": "B", "text": "It switches the browser into standards mode so CSS and layout follow the spec instead of legacy quirks" },
-        { "id": "C", "text": "It declares the character encoding as UTF-8" },
-        { "id": "D", "text": "It is required for JavaScript to run" }
+        {
+          "id": "A",
+          "text": "It imports the HTML5 specification into the page"
+        },
+        {
+          "id": "B",
+          "text": "It switches the browser into standards mode so CSS and layout follow the spec instead of legacy quirks"
+        },
+        {
+          "id": "C",
+          "text": "It declares the character encoding as UTF-8"
+        },
+        {
+          "id": "D",
+          "text": "It is required for JavaScript to run"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "A missing or outdated doctype puts the browser into quirks mode, where box sizing and layout differ. Character encoding is declared separately with `<meta charset=\"utf-8\">`."
     },
     {
-      "id": "html-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Semantic HTML", "difficulty": "EASY",
+      "id": "html----q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Semantic HTML",
+      "difficulty": "EASY",
       "title": "Why prefer `<nav>`, `<main>` and `<footer>` over a page of `<div>` elements?",
       "prompt": "Why prefer `<nav>`, `<main>` and `<footer>` over a page of `<div>` elements?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Semantic elements render faster because the browser skips their layout" },
-        { "id": "B", "text": "They convey document structure to browsers, assistive technology and search engines, and give screen-reader users landmarks to navigate by" },
-        { "id": "C", "text": "Only semantic elements can contain text nodes" },
-        { "id": "D", "text": "A `<div>` cannot be styled with CSS" }
+        {
+          "id": "A",
+          "text": "Semantic elements render faster because the browser skips their layout"
+        },
+        {
+          "id": "B",
+          "text": "They convey document structure to browsers, assistive technology and search engines, and give screen-reader users landmarks to navigate by"
+        },
+        {
+          "id": "C",
+          "text": "Only semantic elements can contain text nodes"
+        },
+        {
+          "id": "D",
+          "text": "A `<div>` cannot be styled with CSS"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "Landmark roles come for free from semantic elements, which improves keyboard navigation and SEO. Rendering speed is not the reason, and `<div>` is styleable like any other element."
     },
     {
-      "id": "html-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Accessibility", "difficulty": "EASY",
+      "id": "html----q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Accessibility",
+      "difficulty": "EASY",
       "title": "Which is the most accessible way to label a text input?",
       "prompt": "Which is the most accessible way to label a text input?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`<input type=\"text\" placeholder=\"Email\">`" },
-        { "id": "B", "text": "`<label for=\"email\">Email</label><input id=\"email\" type=\"email\">`" },
-        { "id": "C", "text": "`<input type=\"email\" title=\"Email\">`" },
-        { "id": "D", "text": "`<span>Email</span><input type=\"email\">`" }
+        {
+          "id": "A",
+          "text": "`<input type=\"text\" placeholder=\"Email\">`"
+        },
+        {
+          "id": "B",
+          "text": "`<label for=\"email\">Email</label><input id=\"email\" type=\"email\">`"
+        },
+        {
+          "id": "C",
+          "text": "`<input type=\"email\" title=\"Email\">`"
+        },
+        {
+          "id": "D",
+          "text": "`<span>Email</span><input type=\"email\">`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "A programmatically associated `<label>` gives the input an accessible name, enlarges the click target and is announced by screen readers. Placeholder text disappears on input and is not a label substitute."
     },
     {
-      "id": "html-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Forms & Validation", "difficulty": "EASY",
+      "id": "html----q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Forms & Validation",
+      "difficulty": "EASY",
       "title": "What does adding `required` to an `<input>` do?",
       "prompt": "What does adding `required` to an `<input>` do?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Nothing by itself — validation must be written in JavaScript" },
-        { "id": "B", "text": "It enables constraint validation, so submitting an empty value blocks the submit and shows a validation message" },
-        { "id": "C", "text": "It marks the field with a red border in every browser" },
-        { "id": "D", "text": "It only affects how the field is rendered on mobile" }
+        {
+          "id": "A",
+          "text": "Nothing by itself — validation must be written in JavaScript"
+        },
+        {
+          "id": "B",
+          "text": "It enables constraint validation, so submitting an empty value blocks the submit and shows a validation message"
+        },
+        {
+          "id": "C",
+          "text": "It marks the field with a red border in every browser"
+        },
+        {
+          "id": "D",
+          "text": "It only affects how the field is rendered on mobile"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`required`, `type`, `pattern` and `min`/`max` participate in native constraint validation checked on submit, extensible through the Constraint Validation API."
     },
     {
-      "id": "html-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Script Loading", "difficulty": "MEDIUM",
+      "id": "html----q0005",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Script Loading",
+      "difficulty": "MEDIUM",
       "title": "What is the difference between `<script defer>` and `<script async>`?",
       "prompt": "What is the difference between `<script defer>` and `<script async>`?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Both download in parallel, but `defer` executes after parsing in document order while `async` executes as soon as it is downloaded" },
-        { "id": "B", "text": "`defer` blocks parsing; `async` does not" },
-        { "id": "C", "text": "`async` keeps document order; `defer` does not" },
-        { "id": "D", "text": "They are equivalent for external scripts" }
+        {
+          "id": "A",
+          "text": "Both download in parallel, but `defer` executes after parsing in document order while `async` executes as soon as it is downloaded"
+        },
+        {
+          "id": "B",
+          "text": "`defer` blocks parsing; `async` does not"
+        },
+        {
+          "id": "C",
+          "text": "`async` keeps document order; `defer` does not"
+        },
+        {
+          "id": "D",
+          "text": "They are equivalent for external scripts"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Both attributes avoid render-blocking downloads. `defer` keeps execution order and runs before `DOMContentLoaded`, so it suits app bundles; `async` suits independent scripts such as analytics."
     },
     {
-      "id": "html-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Links & Assets", "difficulty": "MEDIUM",
+      "id": "html----q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Links & Assets",
+      "difficulty": "MEDIUM",
       "title": "A profile page is at `/users/7` and links to `href=\"edit\"`. Where does it go?",
       "prompt": "A profile page is at `/users/7` and links to `href=\"edit\"`. Where does it go?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`/edit`" },
-        { "id": "B", "text": "`/users/edit`" },
-        { "id": "C", "text": "`/users/7/edit`" },
-        { "id": "D", "text": "It depends on the `<base>` element; otherwise the request fails" }
+        {
+          "id": "A",
+          "text": "`/edit`"
+        },
+        {
+          "id": "B",
+          "text": "`/users/edit`"
+        },
+        {
+          "id": "C",
+          "text": "`/users/7/edit`"
+        },
+        {
+          "id": "D",
+          "text": "It depends on the `<base>` element; otherwise the request fails"
+        }
       ],
       "correctOptionId": "C",
       "explanation": "A relative URL resolves against the current document URL, so `edit` resolves to `/users/7/edit`. `/users/edit` would need `href=\"/users/edit\"` or `href=\"../edit\"`."
     },
     {
-      "id": "html-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Media Elements", "difficulty": "MEDIUM",
+      "id": "html----q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Media Elements",
+      "difficulty": "MEDIUM",
       "title": "Why does `alt` text matter on `<img>`, and what belongs in it?",
       "prompt": "Why does `alt` text matter on `<img>`, and what belongs in it?",
       "content": [],
       "options": [
-        { "id": "A", "text": "It is only used by search engines to rank the page" },
-        { "id": "B", "text": "It is read by screen readers and shown if the image fails; it should describe the image's purpose, and decorative images should use `alt=\"\"`" },
-        { "id": "C", "text": "It is a tooltip shown on hover, so it should hold a caption" },
-        { "id": "D", "text": "It is required only for PNG images" }
+        {
+          "id": "A",
+          "text": "It is only used by search engines to rank the page"
+        },
+        {
+          "id": "B",
+          "text": "It is read by screen readers and shown if the image fails; it should describe the image's purpose, and decorative images should use `alt=\"\"`"
+        },
+        {
+          "id": "C",
+          "text": "It is a tooltip shown on hover, so it should hold a caption"
+        },
+        {
+          "id": "D",
+          "text": "It is required only for PNG images"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`alt` is the accessible replacement for the image. Empty `alt` is the correct way to mark purely decorative images so screen readers skip them instead of reading a file name."
     },
     {
-      "id": "html-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Tables", "difficulty": "MEDIUM",
+      "id": "html----q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Tables",
+      "difficulty": "MEDIUM",
       "title": "Which attributes connect a data cell to its header in a complex table?",
       "prompt": "Which attributes connect a data cell to its header in a complex table?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`scope` on `<td>` and `headers` on `<th>`" },
-        { "id": "B", "text": "`headers` on `<td>` pointing at `id` attributes on the `<th>` cells it belongs to" },
-        { "id": "C", "text": "`aria-label` on every `<td>`" },
-        { "id": "D", "text": "`colspan` and `rowspan`" }
+        {
+          "id": "A",
+          "text": "`scope` on `<td>` and `headers` on `<th>`"
+        },
+        {
+          "id": "B",
+          "text": "`headers` on `<td>` pointing at `id` attributes on the `<th>` cells it belongs to"
+        },
+        {
+          "id": "C",
+          "text": "`aria-label` on every `<td>`"
+        },
+        {
+          "id": "D",
+          "text": "`colspan` and `rowspan`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "For multi-level headers, `<th id=\"...\">` plus `<td headers=\"...\">` associates cells with the right headers. `scope` on `<th>` handles simple tables, and `colspan`/`rowspan` only control layout."
     },
     {
-      "id": "html-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "SEO & Metadata", "difficulty": "HARD",
+      "id": "html----q0009",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "SEO & Metadata",
+      "difficulty": "HARD",
       "title": "A single-page app serves the same `index.html` for every route. What is the consequence?",
       "prompt": "A single-page app serves the same `index.html` for every route. What is the consequence?",
       "content": [],
       "options": [
-        { "id": "A", "text": "None — crawlers execute JavaScript exactly like users" },
-        { "id": "B", "text": "Every route shares one title and description unless the document head is updated per route (or content is pre-rendered/server-rendered), which hurts SEO and link previews" },
-        { "id": "C", "text": "Only the favicon stops loading" },
-        { "id": "D", "text": "The browser caches the wrong route" }
+        {
+          "id": "A",
+          "text": "None — crawlers execute JavaScript exactly like users"
+        },
+        {
+          "id": "B",
+          "text": "Every route shares one title and description unless the document head is updated per route (or content is pre-rendered/server-rendered), which hurts SEO and link previews"
+        },
+        {
+          "id": "C",
+          "text": "Only the favicon stops loading"
+        },
+        {
+          "id": "D",
+          "text": "The browser caches the wrong route"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "Crawler support for client rendering is inconsistent. Per-route metadata (Next.js `metadata`/`generateMetadata`, or prerendering) gives each URL its own title, description and social preview."
     },
     {
-      "id": "html-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Forms & Validation", "difficulty": "HARD",
+      "id": "html----q0010",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Forms & Validation",
+      "difficulty": "HARD",
       "title": "Which input type is the right choice for a quantity between 1 and 10 that must be keyboard-friendly?",
       "prompt": "Which input type is the right choice for a quantity between 1 and 10 that must be keyboard-friendly?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`<input type=\"range\" min=\"1\" max=\"10\">`" },
-        { "id": "B", "text": "`<input type=\"number\" min=\"1\" max=\"10\" inputmode=\"numeric\">`" },
-        { "id": "C", "text": "`<input type=\"text\" pattern=\"[1-9]|10\">`" },
-        { "id": "D", "text": "`<select>` with ten `<option>` elements" }
+        {
+          "id": "A",
+          "text": "`<input type=\"range\" min=\"1\" max=\"10\">`"
+        },
+        {
+          "id": "B",
+          "text": "`<input type=\"number\" min=\"1\" max=\"10\" inputmode=\"numeric\">`"
+        },
+        {
+          "id": "C",
+          "text": "`<input type=\"text\" pattern=\"[1-9]|10\">`"
+        },
+        {
+          "id": "D",
+          "text": "`<select>` with ten `<option>` elements"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`type=\"number\"` keeps typing and arrow-key stepping, participates in `min`/`max` validation and still shows a numeric keypad via `inputmode`. A range slider is poor for precise entry and a select adds unnecessary interaction."
+    },
+    {
+      "id": "html----q0011",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Document Structure",
+      "difficulty": "EASY",
+      "title": "Which element must be the direct child of `<html>`?",
+      "prompt": "Which element must be the direct child of `<html>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`<body>` and `<head>`"
+        },
+        {
+          "id": "B",
+          "text": "Only `<body>`"
+        },
+        {
+          "id": "C",
+          "text": "The doctype"
+        },
+        {
+          "id": "D",
+          "text": "`<header>`"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "The document element `<html>` contains exactly two children: `<head>` (metadata) and `<body>` (visible content)."
+    },
+    {
+      "id": "html----q0012",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Semantic HTML",
+      "difficulty": "EASY",
+      "title": "What is the main benefit of using `<main>` over a `<div>`?",
+      "prompt": "What is the main benefit of using `<main>` over a `<div>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It is styled larger"
+        },
+        {
+          "id": "B",
+          "text": "It gives screen readers and browser tools a landmark for the page's primary content"
+        },
+        {
+          "id": "C",
+          "text": "It makes HTML valid only when required"
+        },
+        {
+          "id": "D",
+          "text": "It loads faster"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Landmarks such as `<main>`, `<nav>` and `<aside>` let assistive technology jump between page regions; a div gives no such meaning."
+    },
+    {
+      "id": "html----q0013",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Accessibility",
+      "difficulty": "EASY",
+      "title": "What does the `alt` attribute provide for an image?",
+      "prompt": "What does the `alt` attribute provide for an image?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A tooltip"
+        },
+        {
+          "id": "B",
+          "text": "A text alternative read aloud when the image cannot be displayed"
+        },
+        {
+          "id": "C",
+          "text": "A lazy-loading hint"
+        },
+        {
+          "id": "D",
+          "text": "The image's dimensions"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "alt text is both the fallback when the image fails to load and what screen readers announce."
+    },
+    {
+      "id": "html----q0014",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Forms & Validation",
+      "difficulty": "EASY",
+      "title": "Which input type gives mobile users a numeric keypad?",
+      "prompt": "Which input type gives mobile users a numeric keypad?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "type=\"text\""
+        },
+        {
+          "id": "B",
+          "text": "type=\"number\""
+        },
+        {
+          "id": "C",
+          "text": "type=\"button\""
+        },
+        {
+          "id": "D",
+          "text": "type=\"hidden\""
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "type=\"number\" (and type=\"tel\"/type=\"numeric\" variants) signals a numeric entry, prompting the on-screen numeric keypad."
+    },
+    {
+      "id": "html----q0015",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Media Elements",
+      "difficulty": "EASY",
+      "title": "What does the `controls` attribute on `<video>` do?",
+      "prompt": "What does the `controls` attribute on `<video>` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Autoplays the video"
+        },
+        {
+          "id": "B",
+          "text": "Displays the browser's default play/pause/seek controls"
+        },
+        {
+          "id": "C",
+          "text": "Mutes the video"
+        },
+        {
+          "id": "D",
+          "text": "Pauses the video"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Without `controls` the player has no UI; the attribute is the standard way to expose the native control bar."
+    },
+    {
+      "id": "html----q0016",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Links & Assets",
+      "difficulty": "EASY",
+      "title": "Which attribute opens a link in a new tab?",
+      "prompt": "Which attribute opens a link in a new tab?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "target=\"_blank\""
+        },
+        {
+          "id": "B",
+          "text": "href=\"_blank\""
+        },
+        {
+          "id": "C",
+          "text": "rel=\"blank\""
+        },
+        {
+          "id": "D",
+          "text": "window=\"new\""
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`target=\"_blank\"` requests a new browsing context; pair it with `rel=\"noopener\"` for safety."
+    },
+    {
+      "id": "html----q0017",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Tables",
+      "difficulty": "EASY",
+      "title": "Which element contains the actual data cells of a table?",
+      "prompt": "Which element contains the actual data cells of a table?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`<thead>`"
+        },
+        {
+          "id": "B",
+          "text": "`<tbody>`"
+        },
+        {
+          "id": "C",
+          "text": "`<caption>`"
+        },
+        {
+          "id": "D",
+          "text": "`<colgroup>`"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`<thead>`/`<tfoot>` hold header/footer rows; `<tbody>` groups the body rows (and is often added automatically by the parser)."
+    },
+    {
+      "id": "html----q0018",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Semantic HTML",
+      "difficulty": "EASY",
+      "title": "What is the correct heading hierarchy for a page?",
+      "prompt": "What is the correct heading hierarchy for a page?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Any order, as long as they are large"
+        },
+        {
+          "id": "B",
+          "text": "One h1 for the page title, then headings without skipping levels as sections nest"
+        },
+        {
+          "id": "C",
+          "text": "Five h1 elements are fine"
+        },
+        {
+          "id": "D",
+          "text": "Headings must go in reverse order"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A single h1 per page (its main topic) with sequential h2/h3… levels lets screen readers reconstruct the outline."
+    },
+    {
+      "id": "html----q0019",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Document Structure",
+      "difficulty": "EASY",
+      "title": "Where does `<title>` belong?",
+      "prompt": "Where does `<title>` belong?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Inside `<body>`"
+        },
+        {
+          "id": "B",
+          "text": "Inside `<head>`"
+        },
+        {
+          "id": "C",
+          "text": "Before the doctype"
+        },
+        {
+          "id": "D",
+          "text": "It can go anywhere"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`<title>` is document metadata, so it lives in `<head>`; the browser shows it in the tab and it is required for valid HTML5."
+    },
+    {
+      "id": "html----q0020",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Accessibility",
+      "difficulty": "EASY",
+      "title": "What does a `label` element's `for` attribute do?",
+      "prompt": "What does a `label` element's `for` attribute do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Styles the input"
+        },
+        {
+          "id": "B",
+          "text": "Associates the label with an input so clicking the text focuses the control and screen readers announce it"
+        },
+        {
+          "id": "C",
+          "text": "Hides the label"
+        },
+        {
+          "id": "D",
+          "text": "Sets the input's value"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The `for`/`id` pairing makes the whole label clickable and binds the accessible name to the control."
+    },
+    {
+      "id": "html----q0021",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Script Loading",
+      "difficulty": "MEDIUM",
+      "title": "What is the difference between `defer` and `async` on a `<script>` tag?",
+      "prompt": "What is the difference between `defer` and `async` on a `<script>` tag?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "defer blocks parsing, async does not"
+        },
+        {
+          "id": "B",
+          "text": "Both are fetched in parallel — defer runs after parsing in order, async runs as soon as it's ready (possibly mid-parse, out of order)"
+        },
+        {
+          "id": "C",
+          "text": "async blocks parsing, defer does not"
+        },
+        {
+          "id": "D",
+          "text": "They are synonyms"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "defer preserves order and waits for the DOM; async scripts execute the moment they load, so order and DOM readiness are both lost."
+    },
+    {
+      "id": "html----q0022",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Forms & Validation",
+      "difficulty": "MEDIUM",
+      "title": "Which attribute makes a form field required before submit?",
+      "prompt": "Which attribute makes a form field required before submit?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "required"
+        },
+        {
+          "id": "B",
+          "text": "validate"
+        },
+        {
+          "id": "C",
+          "text": "mandatory"
+        },
+        {
+          "id": "D",
+          "text": "novalidate"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "The `required` attribute triggers the browser's native validation; `novalidate` on the form is what *disables* validation."
+    },
+    {
+      "id": "html----q0023",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Semantic HTML",
+      "difficulty": "MEDIUM",
+      "title": "When should `<article>` be preferred over `<section>`?",
+      "prompt": "When should `<article>` be preferred over `<section>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Never — they are interchangeable"
+        },
+        {
+          "id": "B",
+          "text": "When the content makes sense as a standalone, distributable unit (a post, a card) without needing the surrounding context"
+        },
+        {
+          "id": "C",
+          "text": "Only inside a `<nav>`"
+        },
+        {
+          "id": "D",
+          "text": "For every div"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`<article>` marks self-contained content; `<section>` groups thematically related content that normally needs a heading."
+    },
+    {
+      "id": "html----q0024",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Tables",
+      "difficulty": "MEDIUM",
+      "title": "How do you make a cell span two columns?",
+      "prompt": "How do you make a cell span two columns?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "colspan=\"2\""
+        },
+        {
+          "id": "B",
+          "text": "span=\"2\""
+        },
+        {
+          "id": "C",
+          "text": "cols=\"2\""
+        },
+        {
+          "id": "D",
+          "text": "width=\"2\""
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`colspan` spans columns (and `rowspan` spans rows) on `<th>`/`<td>`."
+    },
+    {
+      "id": "html----q0025",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Links & Assets",
+      "difficulty": "MEDIUM",
+      "title": "What does `rel=\"noopener\"` protect against on external links?",
+      "prompt": "What does `rel=\"noopener\"` protect against on external links?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Popup blocking"
+        },
+        {
+          "id": "B",
+          "text": "The opened page using `window.opener` to navigate your tab (reverse tabnabbing)"
+        },
+        {
+          "id": "C",
+          "text": "DNS prefetching"
+        },
+        {
+          "id": "D",
+          "text": "Screen readers"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Without noopener, the new tab receives `window.opener` and can replace your page with a phishing lookalike. Modern browsers default to noopener, but the attribute documents intent."
+    },
+    {
+      "id": "html----q0026",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "SEO & Metadata",
+      "difficulty": "MEDIUM",
+      "title": "Which meta tag controls how a page appears in search results?",
+      "prompt": "Which meta tag controls how a page appears in search results?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "meta charset"
+        },
+        {
+          "id": "B",
+          "text": "meta name=\"description\""
+        },
+        {
+          "id": "C",
+          "text": "meta http-equiv"
+        },
+        {
+          "id": "D",
+          "text": "meta viewport"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The description meta is the usual source of the snippet text under a result; the others affect encoding, policy and mobile layout."
+    },
+    {
+      "id": "html----q0027",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Accessibility",
+      "difficulty": "MEDIUM",
+      "title": "A linked image repeats the link's visible text in its alt attribute. Why is that a problem?",
+      "prompt": "A linked image repeats the link's visible text in its alt attribute. Why is that a problem?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Images cannot be linked"
+        },
+        {
+          "id": "B",
+          "text": "The alt text becomes part of the link's accessible name — if it repeats the link text, the announcement becomes verbose"
+        },
+        {
+          "id": "C",
+          "text": "It invalidates HTML"
+        },
+        {
+          "id": "D",
+          "text": "It breaks lazy loading"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Screen readers announce link names as a whole; alt text that duplicates surrounding words creates noisy 'click here' style links."
+    },
+    {
+      "id": "html----q0028",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Document Structure",
+      "difficulty": "MEDIUM",
+      "title": "What does `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` achieve?",
+      "prompt": "What does `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` achieve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Sets the page's pixel width only"
+        },
+        {
+          "id": "B",
+          "text": "Makes the layout viewport match the device width at 1× zoom — the foundation of mobile-friendly pages"
+        },
+        {
+          "id": "C",
+          "text": "Disables zooming"
+        },
+        {
+          "id": "D",
+          "text": "Applies device-independent pixel ratios"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Without this tag mobile browsers lay out at a ~980px viewport and shrink it; adding it enables responsive CSS to work as designed."
+    },
+    {
+      "id": "html----q0029",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Forms & Validation",
+      "difficulty": "MEDIUM",
+      "title": "Why is `<input type=\"email\">` better than `type=\"text\"` for an email field?",
+      "prompt": "Why is `<input type=\"email\">` better than `type=\"text\"` for an email field?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It validates the format server-side"
+        },
+        {
+          "id": "B",
+          "text": "It performs built-in client-side format validation and, on mobile, presents an appropriate keyboard"
+        },
+        {
+          "id": "C",
+          "text": "It prevents form submission"
+        },
+        {
+          "id": "D",
+          "text": "It encrypts the value"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The email type gives free browser validation and tailored keyboards; real submission checks still belong on the server."
+    },
+    {
+      "id": "html----q0030",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Media Elements",
+      "difficulty": "MEDIUM",
+      "title": "What is the purpose of `<track kind=\"subtitles\">` inside `<video>`?",
+      "prompt": "What is the purpose of `<track kind=\"subtitles\">` inside `<video>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Adds controls"
+        },
+        {
+          "id": "B",
+          "text": "Provides timed text tracks for captions/subtitles/cues that the player renders"
+        },
+        {
+          "id": "C",
+          "text": "Compresses the video"
+        },
+        {
+          "id": "D",
+          "text": "Cues the audio"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The `<track>` element supplies WebVTT cues; kind selects captions, subtitles, descriptions, chapters or metadata."
+    },
+    {
+      "id": "html----q0031",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Script Loading",
+      "difficulty": "HARD",
+      "title": "Why can `defer` still delay the first paint on a page?",
+      "prompt": "Why can `defer` still delay the first paint on a page?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It never delays painting"
+        },
+        {
+          "id": "B",
+          "text": "The browser must finish fetching all defer scripts before DOMContentLoaded — a slow third-party defer script stalls interactive time"
+        },
+        {
+          "id": "C",
+          "text": "It re-renders the DOM"
+        },
+        {
+          "id": "D",
+          "text": "It disables CSS animation"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "defer scripts run in order right after parsing; a large or slow file keeps the main thread waiting, which shows up as a long TTI."
+    },
+    {
+      "id": "html----q0032",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Script Loading",
+      "difficulty": "HARD",
+      "title": "Where does an inline `<script>` without async/defer execute?",
+      "prompt": "Where does an inline `<script>` without async/defer execute?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "After the document is parsed"
+        },
+        {
+          "id": "B",
+          "text": "Immediately where it appears, pausing HTML parsing at that point"
+        },
+        {
+          "id": "C",
+          "text": "At DOMContentLoaded"
+        },
+        {
+          "id": "D",
+          "text": "On the next frame"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Classic inline scripts block parsing — inline code can only reach elements parsed *before* it, which is why scripts usually sit at the end or defer."
+    },
+    {
+      "id": "html----q0033",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Accessibility",
+      "difficulty": "HARD",
+      "title": "What is the practical difference between `aria-label` and `aria-labelledby`?",
+      "prompt": "What is the practical difference between `aria-label` and `aria-labelledby`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "None"
+        },
+        {
+          "id": "B",
+          "text": "aria-label supplies the accessible name inline; aria-labelledby points at another element's id whose text becomes the name"
+        },
+        {
+          "id": "C",
+          "text": "aria-label only works on buttons"
+        },
+        {
+          "id": "D",
+          "text": "aria-labelledby overrides alt text"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "labelledby is used when the name already exists visibly elsewhere on the page, keeping the two in sync; aria-label writes it directly."
+    },
+    {
+      "id": "html----q0034",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Forms & Validation",
+      "difficulty": "HARD",
+      "title": "Why does `novalidate` on a form sometimes get added with JS validation?",
+      "prompt": "Why does `novalidate` on a form sometimes get added with JS validation?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It speeds up submit"
+        },
+        {
+          "id": "B",
+          "text": "To suppress the browser's built-in popup so a custom, consistent error UI can be shown instead"
+        },
+        {
+          "id": "C",
+          "text": "It is required by HTML5"
+        },
+        {
+          "id": "D",
+          "text": "It disables required fields"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "novalidate takes over validation from the browser — the form's JS must then enforce (and communicate) the same rules itself."
+    },
+    {
+      "id": "html----q0035",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Semantic HTML",
+      "difficulty": "HARD",
+      "title": "Why is `<button>` preferable to a clickable `<div>`?",
+      "prompt": "Why is `<button>` preferable to a clickable `<div>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It is easier to style"
+        },
+        {
+          "id": "B",
+          "text": "It is focusable, activatable by keyboard/screen readers, and carries button semantics natively"
+        },
+        {
+          "id": "C",
+          "text": "It validates HTML"
+        },
+        {
+          "id": "D",
+          "text": "It avoids event delegation"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A div needs JavaScript, tabIndex, key handlers and ARIA just to reach parity — the native button already has all of it."
+    },
+    {
+      "id": "html----q0036",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Links & Assets",
+      "difficulty": "HARD",
+      "title": "What problem does `loading=\"lazy\"` on an `<img>` solve — and what does it change?",
+      "prompt": "What problem does `loading=\"lazy\"` on an `<img>` solve — and what does it change?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Compression; images get smaller"
+        },
+        {
+          "id": "B",
+          "text": "It defers off-screen images until near the viewport, changing when (not whether) they load and their measured load events"
+        },
+        {
+          "id": "C",
+          "text": "It retries failed loads"
+        },
+        {
+          "id": "D",
+          "text": "It removes the image from the accessibility tree"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Lazy loading cuts initial bandwidth but can push image downloads past first paint and after LCP, hurting the metric it was meant to help."
+    },
+    {
+      "id": "html----q0037",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "SEO & Metadata",
+      "difficulty": "HARD",
+      "title": "Why is a `<meta name=\"robots\" content=\"noindex\">` on a staging page often missed?",
+      "prompt": "Why is a `<meta name=\"robots\" content=\"noindex\">` on a staging page often missed?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Google ignores it"
+        },
+        {
+          "id": "B",
+          "text": "Crawlers must be able to fetch the page to read the meta tag — blocked robots.txt prevents noindex from ever being seen"
+        },
+        {
+          "id": "C",
+          "text": "It only affects Bing"
+        },
+        {
+          "id": "D",
+          "text": "It must be in the head of the sitemap"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Noindex is evaluated during a crawl. If robots.txt disallows fetching, the directive never arrives and the page can still be indexed from external links."
+    },
+    {
+      "id": "html----q0038",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Document Structure",
+      "difficulty": "HARD",
+      "title": "What happens when `<main>` appears twice on one page?",
+      "prompt": "What happens when `<main>` appears twice on one page?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "It is invalid — only one visible non-hidden `<main>` is allowed per document"
+        },
+        {
+          "id": "C",
+          "text": "The second replaces the first"
+        },
+        {
+          "id": "D",
+          "text": "Both become landmarks"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Landmarks must be unique; two mains make 'jump to main' ambiguous for assistive technology."
+    },
+    {
+      "id": "html----q0039",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Media Elements",
+      "difficulty": "HARD",
+      "title": "Why does `<video autoplay>` often fail without `muted`?",
+      "prompt": "Why does `<video autoplay>` often fail without `muted`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Autoplay is not implemented"
+        },
+        {
+          "id": "B",
+          "text": "Browser policies block unmuted autoplay; muted autoplay is the allowed escape hatch"
+        },
+        {
+          "id": "C",
+          "text": "The video file must be muted"
+        },
+        {
+          "id": "D",
+          "text": "It needs the controls attribute"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "To protect users from surprise audio, Chrome and friends reject autoplaying audio — keeping the media muted lets the video start."
+    },
+    {
+      "id": "html----q0040",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Tables",
+      "difficulty": "HARD",
+      "title": "What does `<table><caption>` provide that a heading above the table does not?",
+      "prompt": "What does `<table><caption>` provide that a heading above the table does not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "An accessible table title that screen readers announce with the table itself"
+        },
+        {
+          "id": "C",
+          "text": "Column sorting"
+        },
+        {
+          "id": "D",
+          "text": "Sticky headers"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "caption is programmatically associated with the table, so assistive tech reads it as the table's name when navigating."
     }
-  ]
+  ],
+  "generatedAt": "2026-10-04T07:39:52.112Z"
 }

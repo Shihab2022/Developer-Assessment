@@ -3,159 +3,1243 @@
   "label": "Python",
   "description": "Core Python MCQ: data structures, mutability, scoping, comprehensions, exceptions and iterators for web developers.",
   "source": "Authored for SkillGauge",
-  "questionCount": 10,
+  "questionCount": 39,
   "levels": [
-    { "id": "L1", "label": "Fundamental" },
-    { "id": "L2", "label": "Intermediate" },
-    { "id": "L3", "label": "Advanced" }
+    {
+      "id": "L1",
+      "label": "Fundamental"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced"
+    }
   ],
   "topics": [
-    "Data Types", "Mutability", "Lists & Slicing", "Dictionaries",
-    "Functions & Arguments", "Scope & Closures", "Comprehensions", "Exceptions",
-    "Iterators & Generators", "Strings & Formatting"
+    "Data Types",
+    "Mutability",
+    "Lists & Slicing",
+    "Strings & Formatting",
+    "Dictionaries",
+    "Scope & Closures",
+    "Comprehensions",
+    "Exceptions",
+    "Iterators & Generators"
   ],
-  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
-  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "difficultyCounts": {
+    "EASY": 13,
+    "MEDIUM": 14,
+    "HARD": 12
+  },
+  "levelCounts": {
+    "L1": 13,
+    "L2": 14,
+    "L3": 12
+  },
   "questions": [
     {
-      "id": "py-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Data Types", "difficulty": "EASY",
+      "id": "py----q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Data Types",
+      "difficulty": "EASY",
       "title": "What is the type of `3 / 2` in Python 3?",
       "prompt": "What is the type of `3 / 2` in Python 3?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`int` with value `1`" },
-        { "id": "B", "text": "`float` with value `1.5` — `/` is true division" },
-        { "id": "C", "text": "`Decimal`" },
-        { "id": "D", "text": "It raises `ZeroDivisionError`" }
+        {
+          "id": "A",
+          "text": "`int` with value `1`"
+        },
+        {
+          "id": "B",
+          "text": "`float` with value `1.5` — `/` is true division"
+        },
+        {
+          "id": "C",
+          "text": "`Decimal`"
+        },
+        {
+          "id": "D",
+          "text": "It raises `ZeroDivisionError`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "Python 3's `/` always returns a float. Floor division `//` returns an int (and a float when an operand is a float)."
     },
     {
-      "id": "py-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Mutability", "difficulty": "EASY",
+      "id": "py----q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Mutability",
+      "difficulty": "EASY",
       "title": "Why is a mutable default argument considered a bug?",
       "prompt": "Why is a mutable default argument considered a bug?",
-      "content": [ { "type": "code", "language": "python", "value": "def add_item(item, items=[]):\n    items.append(item)\n    return items\n\nadd_item(\"a\")\nadd_item(\"b\")" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "python",
+          "value": "def add_item(item, items=[]):\n    items.append(item)\n    return items\n\nadd_item(\"a\")\nadd_item(\"b\")"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "The default list is created once at function definition and shared across calls, so it returns `['a', 'b']`" },
-        { "id": "B", "text": "Each call creates a fresh list, so it returns `['b']`" },
-        { "id": "C", "text": "Python raises a `TypeError` for mutable defaults" },
-        { "id": "D", "text": "The list becomes a tuple automatically" }
+        {
+          "id": "A",
+          "text": "The default list is created once at function definition and shared across calls, so it returns `['a', 'b']`"
+        },
+        {
+          "id": "B",
+          "text": "Each call creates a fresh list, so it returns `['b']`"
+        },
+        {
+          "id": "C",
+          "text": "Python raises a `TypeError` for mutable defaults"
+        },
+        {
+          "id": "D",
+          "text": "The list becomes a tuple automatically"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Default values are evaluated once when the `def` executes. Use `items=None` and `items = items if items is not None else []` inside the body."
     },
     {
-      "id": "py-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Lists & Slicing", "difficulty": "EASY",
+      "id": "py----q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Lists & Slicing",
+      "difficulty": "EASY",
       "title": "What does `nums[::-1]` return?",
       "prompt": "What does `nums[::-1]` return?",
-      "content": [ { "type": "code", "language": "python", "value": "nums = [1, 2, 3]\nprint(nums[::-1])\nprint(nums)" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "python",
+          "value": "nums = [1, 2, 3]\nprint(nums[::-1])\nprint(nums)"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`[3, 2, 1]` and then `[1, 2, 3]` — slicing returns a new list and does not mutate" },
-        { "id": "B", "text": "`[3, 2, 1]` twice, because the slice reversed the original" },
-        { "id": "C", "text": "`None` twice" },
-        { "id": "D", "text": "A `TypeError`, because step cannot be negative" }
+        {
+          "id": "A",
+          "text": "`[3, 2, 1]` and then `[1, 2, 3]` — slicing returns a new list and does not mutate"
+        },
+        {
+          "id": "B",
+          "text": "`[3, 2, 1]` twice, because the slice reversed the original"
+        },
+        {
+          "id": "C",
+          "text": "`None` twice"
+        },
+        {
+          "id": "D",
+          "text": "A `TypeError`, because step cannot be negative"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "A step of `-1` walks the sequence backwards and builds a new list. `nums.reverse()` or `nums[:] = nums[::-1]` would mutate in place."
     },
     {
-      "id": "py-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Strings & Formatting", "difficulty": "EASY",
+      "id": "py----q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Strings & Formatting",
+      "difficulty": "EASY",
       "title": "Which is the idiomatic way to build a string from parts in modern Python?",
       "prompt": "Which is the idiomatic way to build a string from parts in modern Python?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Concatenating with `+` in a loop" },
-        { "id": "B", "text": "`\" \".join(parts)` or an f-string such as `f\"{user} scored {score}\"`" },
-        { "id": "C", "text": "Using `%` formatting with a tuple" },
-        { "id": "D", "text": "Calling `str(list(parts))`" }
+        {
+          "id": "A",
+          "text": "Concatenating with `+` in a loop"
+        },
+        {
+          "id": "B",
+          "text": "`\" \".join(parts)` or an f-string such as `f\"{user} scored {score}\"`"
+        },
+        {
+          "id": "C",
+          "text": "Using `%` formatting with a tuple"
+        },
+        {
+          "id": "D",
+          "text": "Calling `str(list(parts))`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`str.join` is O(n) for many parts (repeated `+` is quadratic in the common case) and f-strings are the readable, evaluated-at-runtime formatting introduced in Python 3.6."
     },
     {
-      "id": "py-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Dictionaries", "difficulty": "MEDIUM",
+      "id": "py----q0005",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Dictionaries",
+      "difficulty": "MEDIUM",
       "title": "What is the safest way to read a config value that may be missing?",
       "prompt": "What is the safest way to read a config value that may be missing?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`config[\"timeout\"]` wrapped in a broad `except:`" },
-        { "id": "B", "text": "`config.get(\"timeout\", 30)`" },
-        { "id": "C", "text": "`config.keys().index(\"timeout\")`" },
-        { "id": "D", "text": "`config.pop(\"timeout\")`" }
+        {
+          "id": "A",
+          "text": "`config[\"timeout\"]` wrapped in a broad `except:`"
+        },
+        {
+          "id": "B",
+          "text": "`config.get(\"timeout\", 30)`"
+        },
+        {
+          "id": "C",
+          "text": "`config.keys().index(\"timeout\")`"
+        },
+        {
+          "id": "D",
+          "text": "`config.pop(\"timeout\")`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`dict.get(key, default)` returns the default instead of raising `KeyError`. `pop` removes the entry, and a bare `except:` hides unrelated bugs."
     },
     {
-      "id": "py-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Scope & Closures", "difficulty": "MEDIUM",
+      "id": "py----q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Scope & Closures",
+      "difficulty": "MEDIUM",
       "title": "What does this print, and why?",
       "prompt": "What does this print, and why?",
-      "content": [ { "type": "code", "language": "python", "value": "total = 0\n\ndef add(amount):\n    total = total + amount\n\nadd(5)" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "python",
+          "value": "total = 0\n\ndef add(amount):\n    total = total + amount\n\nadd(5)"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`UnboundLocalError` — assigning inside the function makes `total` local, so reading it before assignment fails; use `global total` or restructure" },
-        { "id": "B", "text": "`5` — Python resolves names to the enclosing scope at call time" },
-        { "id": "C", "text": "`0` — the assignment is silently ignored" },
-        { "id": "D", "text": "`NameError: name 'amount' is not defined`" }
+        {
+          "id": "A",
+          "text": "`UnboundLocalError` — assigning inside the function makes `total` local, so reading it before assignment fails; use `global total` or restructure"
+        },
+        {
+          "id": "B",
+          "text": "`5` — Python resolves names to the enclosing scope at call time"
+        },
+        {
+          "id": "C",
+          "text": "`0` — the assignment is silently ignored"
+        },
+        {
+          "id": "D",
+          "text": "`NameError: name 'amount' is not defined`"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Any assignment in a function body makes the name local for the whole function unless declared `global`/`nonlocal`, so the right-hand read sees an unbound local."
     },
     {
-      "id": "py-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Comprehensions", "difficulty": "MEDIUM",
+      "id": "py----q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Comprehensions",
+      "difficulty": "MEDIUM",
       "title": "Which comprehension squares only the even numbers?",
       "prompt": "Which comprehension squares only the even numbers?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`[n ** 2 for n in nums if n % 2 == 0]`" },
-        { "id": "B", "text": "`[n ** 2 if n % 2 == 0 for n in nums]`" },
-        { "id": "C", "text": "`[n ** 2 for n in nums, n % 2 == 0]`" },
-        { "id": "D", "text": "`{n: n ** 2 for n in nums if n % 2}`" }
+        {
+          "id": "A",
+          "text": "`[n ** 2 for n in nums if n % 2 == 0]`"
+        },
+        {
+          "id": "B",
+          "text": "`[n ** 2 if n % 2 == 0 for n in nums]`"
+        },
+        {
+          "id": "C",
+          "text": "`[n ** 2 for n in nums, n % 2 == 0]`"
+        },
+        {
+          "id": "D",
+          "text": "`{n: n ** 2 for n in nums if n % 2}`"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "The trailing `if` filters elements. `B` is invalid syntax (a conditional expression needs an `else`), and `D` builds a dict keyed by odd `n`."
     },
     {
-      "id": "py-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Exceptions", "difficulty": "MEDIUM",
+      "id": "py----q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Exceptions",
+      "difficulty": "MEDIUM",
       "title": "What does this handler print?",
       "prompt": "What does this handler print?",
-      "content": [ { "type": "code", "language": "python", "value": "try:\n    value = int(\"12a\")\nexcept ValueError:\n    print(\"bad number\")\nelse:\n    print(value)\nfinally:\n    print(\"done\")" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "python",
+          "value": "try:\n    value = int(\"12a\")\nexcept ValueError:\n    print(\"bad number\")\nelse:\n    print(value)\nfinally:\n    print(\"done\")"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`bad number` then `done` — `else` runs only when no exception was raised" },
-        { "id": "B", "text": "`bad number`, then `12a`, then `done`" },
-        { "id": "C", "text": "`done` only" },
-        { "id": "D", "text": "Nothing — the exception propagates because `ValueError` is not caught" }
+        {
+          "id": "A",
+          "text": "`bad number` then `done` — `else` runs only when no exception was raised"
+        },
+        {
+          "id": "B",
+          "text": "`bad number`, then `12a`, then `done`"
+        },
+        {
+          "id": "C",
+          "text": "`done` only"
+        },
+        {
+          "id": "D",
+          "text": "Nothing — the exception propagates because `ValueError` is not caught"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "`int(\"12a\")` raises `ValueError`, so the `else` block is skipped; `finally` always runs."
     },
     {
-      "id": "py-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "Iterators & Generators", "difficulty": "HARD",
+      "id": "py----q0009",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Iterators & Generators",
+      "difficulty": "HARD",
       "title": "A generator is consumed twice in a loop-heavy report. What happens on the second pass?",
       "prompt": "A generator is consumed twice in a loop-heavy report. What happens on the second pass?",
-      "content": [ { "type": "code", "language": "python", "value": "def pages():\n    yield 1\n    yield 2\n\nrows = pages()\nprint(sum(rows))\nprint(list(rows))" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "python",
+          "value": "def pages():\n    yield 1\n    yield 2\n\nrows = pages()\nprint(sum(rows))\nprint(list(rows))"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "The second pass yields nothing — a generator is exhausted after one iteration, so `list(rows)` is `[]`; materialise with `list(pages())` if you need it twice" },
-        { "id": "B", "text": "The generator restarts automatically from the beginning" },
-        { "id": "C", "text": "A `StopIteration` propagates and crashes the program" },
-        { "id": "D", "text": "The second pass re-runs the function body from the first `yield`" }
+        {
+          "id": "A",
+          "text": "The second pass yields nothing — a generator is exhausted after one iteration, so `list(rows)` is `[]`; materialise with `list(pages())` if you need it twice"
+        },
+        {
+          "id": "B",
+          "text": "The generator restarts automatically from the beginning"
+        },
+        {
+          "id": "C",
+          "text": "A `StopIteration` propagates and crashes the program"
+        },
+        {
+          "id": "D",
+          "text": "The second pass re-runs the function body from the first `yield`"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Generators are one-shot iterators: once exhausted they are empty. Call the generator function again or store a list to iterate more than once."
     },
     {
-      "id": "py-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Mutability", "difficulty": "HARD",
+      "id": "py----q0010",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Mutability",
+      "difficulty": "HARD",
       "title": "Why can a `dict` key be a tuple but not a list?",
       "prompt": "Why can a `dict` key be a tuple but not a list?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Dict keys must be hashable; a list's hash would change when its contents change, so only immutable types such as tuples can be keys" },
-        { "id": "B", "text": "Lists are too large to store as keys" },
-        { "id": "C", "text": "Tuples are sorted internally, lists are not" },
-        { "id": "D", "text": "A tuple is copied on assignment, a list is not" }
+        {
+          "id": "A",
+          "text": "Dict keys must be hashable; a list's hash would change when its contents change, so only immutable types such as tuples can be keys"
+        },
+        {
+          "id": "B",
+          "text": "Lists are too large to store as keys"
+        },
+        {
+          "id": "C",
+          "text": "Tuples are sorted internally, lists are not"
+        },
+        {
+          "id": "D",
+          "text": "A tuple is copied on assignment, a list is not"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Hashing relies on the value staying stable. Mutable containers do not define `__hash__`, so `d[[1, 2]] = \"x\"` raises `TypeError: unhashable type: 'list'`. A tuple of immutables is hashable (a tuple containing a list is not)."
+    },
+    {
+      "id": "py----q0011",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Data Types",
+      "difficulty": "EASY",
+      "title": "Which object is immutable?",
+      "prompt": "Which object is immutable?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A list"
+        },
+        {
+          "id": "B",
+          "text": "A dictionary"
+        },
+        {
+          "id": "C",
+          "text": "A tuple"
+        },
+        {
+          "id": "D",
+          "text": "A bytearray"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Tuples, strings, bytes and numbers are immutable; lists, dicts and sets can change after creation."
+    },
+    {
+      "id": "py----q0012",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Lists & Slicing",
+      "difficulty": "EASY",
+      "title": "What does `letters[1:4]` return?",
+      "prompt": "What does `letters[1:4]` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Items at indexes 1, 2, 3"
+        },
+        {
+          "id": "B",
+          "text": "Items at indexes 1, 2, 3, 4"
+        },
+        {
+          "id": "C",
+          "text": "Items 1 through the end"
+        },
+        {
+          "id": "D",
+          "text": "An error"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Slices are half-open: the start is included and the stop excluded, so [1:4] takes indexes 1, 2 and 3."
+    },
+    {
+      "id": "py----q0013",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Lists & Slicing",
+      "difficulty": "EASY",
+      "title": "What is the last index of a list of five items?",
+      "prompt": "What is the last index of a list of five items?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "5"
+        },
+        {
+          "id": "B",
+          "text": "4"
+        },
+        {
+          "id": "C",
+          "text": "-1"
+        },
+        {
+          "id": "D",
+          "text": "Depends on the Python version"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Python uses zero-based indexing, so a length-5 list runs 0..4; `list[-1]` also references the last item."
+    },
+    {
+      "id": "py----q0014",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Strings & Formatting",
+      "difficulty": "EASY",
+      "title": "What does `\"hi\".upper()` return?",
+      "prompt": "What does `\"hi\".upper()` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "\"hi\""
+        },
+        {
+          "id": "B",
+          "text": "\"HI\""
+        },
+        {
+          "id": "C",
+          "text": "None"
+        },
+        {
+          "id": "D",
+          "text": "An error"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "String methods never mutate — they return a new string, so the return value must be used."
+    },
+    {
+      "id": "py----q0015",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Scope & Closures",
+      "difficulty": "EASY",
+      "title": "Where does a module-level variable live?",
+      "prompt": "Where does a module-level variable live?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "local scope"
+        },
+        {
+          "id": "B",
+          "text": "the global namespace"
+        },
+        {
+          "id": "C",
+          "text": "built-in scope"
+        },
+        {
+          "id": "D",
+          "text": "an enclosing function"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Module-level names live in the global namespace; functions read from it before falling back to builtins."
+    },
+    {
+      "id": "py----q0016",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Dictionaries",
+      "difficulty": "EASY",
+      "title": "How do you read a dictionary value without raising KeyError?",
+      "prompt": "How do you read a dictionary value without raising KeyError?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "dict.get(key, default)"
+        },
+        {
+          "id": "B",
+          "text": "dict[key]"
+        },
+        {
+          "id": "C",
+          "text": "dict.at(key)"
+        },
+        {
+          "id": "D",
+          "text": "dict.fetch(key)"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`get` returns the optional default when the key is missing; `[]` raises KeyError instead."
+    },
+    {
+      "id": "py----q0017",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Exceptions",
+      "difficulty": "EASY",
+      "title": "Which keyword catches an exception?",
+      "prompt": "Which keyword catches an exception?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "except"
+        },
+        {
+          "id": "B",
+          "text": "catch"
+        },
+        {
+          "id": "C",
+          "text": "handle"
+        },
+        {
+          "id": "D",
+          "text": "rescue"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`try: … except E: …` (optionally `as e`) handles errors; Python has no catch or rescue keyword."
+    },
+    {
+      "id": "py----q0018",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Comprehensions",
+      "difficulty": "EASY",
+      "title": "What does `[n*n for n in range(4)]` produce?",
+      "prompt": "What does `[n*n for n in range(4)]` produce?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "[0, 1, 4, 9]"
+        },
+        {
+          "id": "B",
+          "text": "[1, 4, 9, 16]"
+        },
+        {
+          "id": "C",
+          "text": "[0, 1, 2, 3]"
+        },
+        {
+          "id": "D",
+          "text": "range(4)"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "range(4) yields 0..3 and the comprehension squares each value — 0, 1, 4, 9."
+    },
+    {
+      "id": "py----q0019",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Iterators & Generators",
+      "difficulty": "EASY",
+      "title": "What does `iter([1,2,3])` return?",
+      "prompt": "What does `iter([1,2,3])` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A list"
+        },
+        {
+          "id": "B",
+          "text": "An iterator that yields each element once"
+        },
+        {
+          "id": "C",
+          "text": "A tuple copy"
+        },
+        {
+          "id": "D",
+          "text": "The number 3"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "iter() wraps the sequence in an iterator; next() then yields one item per call until StopIteration."
+    },
+    {
+      "id": "py----q0020",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Lists & Slicing",
+      "difficulty": "MEDIUM",
+      "title": "What does `a = b[:]` do versus `a = b`?",
+      "prompt": "What does `a = b[:]` do versus `a = b`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are equivalent"
+        },
+        {
+          "id": "B",
+          "text": "It makes a shallow copy — mutating a leaves b alone, but nested objects are shared"
+        },
+        {
+          "id": "C",
+          "text": "It deep-copies everything"
+        },
+        {
+          "id": "D",
+          "text": "It sorts b"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Slicing copies the container only; elements inside are referenced, so nested mutable objects remain shared."
+    },
+    {
+      "id": "py----q0021",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Mutability",
+      "difficulty": "MEDIUM",
+      "title": "Why is a mutable default argument a classic bug?",
+      "prompt": "Why is a mutable default argument a classic bug?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It is forbidden syntax"
+        },
+        {
+          "id": "B",
+          "text": "The default object is created once at definition time and shared by every call"
+        },
+        {
+          "id": "C",
+          "text": "It doubles memory"
+        },
+        {
+          "id": "D",
+          "text": "It raises TypeError"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Append to a default list and the change persists for later calls. The fix is `arg=None`, creating the object inside the function."
+    },
+    {
+      "id": "py----q0022",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Data Types",
+      "difficulty": "MEDIUM",
+      "title": "What does `is` compare that `==` does not?",
+      "prompt": "What does `is` compare that `==` does not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Value equality"
+        },
+        {
+          "id": "B",
+          "text": "Object identity — whether both names point at the same object"
+        },
+        {
+          "id": "C",
+          "text": "Only the type"
+        },
+        {
+          "id": "D",
+          "text": "Hash values"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`==` compares values; `is` compares identity. Two equal strings built separately can compare equal without being the same object."
+    },
+    {
+      "id": "py----q0023",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Dictionaries",
+      "difficulty": "MEDIUM",
+      "title": "How does `dict.keys()` differ from `list(d)`?",
+      "prompt": "How does `dict.keys()` differ from `list(d)`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "keys() is a live view supporting set operations; list(d) snapshots the keys"
+        },
+        {
+          "id": "C",
+          "text": "keys() returns tuples"
+        },
+        {
+          "id": "D",
+          "text": "list(d) returns values"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Views stay in sync with the dict and support |, & and -; the list is a fixed snapshot taken at that moment."
+    },
+    {
+      "id": "py----q0024",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Scope & Closures",
+      "difficulty": "MEDIUM",
+      "title": "When is `nonlocal` required in a nested function?",
+      "prompt": "When is `nonlocal` required in a nested function?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "To read a global"
+        },
+        {
+          "id": "B",
+          "text": "To rebind a name in an enclosing function's scope instead of creating a local one"
+        },
+        {
+          "id": "C",
+          "text": "To import a module"
+        },
+        {
+          "id": "D",
+          "text": "For recursion only"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`global` targets the module scope while `nonlocal` targets the nearest enclosing function — both must precede an assignment."
+    },
+    {
+      "id": "py----q0025",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Exceptions",
+      "difficulty": "MEDIUM",
+      "title": "In `try / except / else / finally`, when does `else` run?",
+      "prompt": "In `try / except / else / finally`, when does `else` run?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Always"
+        },
+        {
+          "id": "B",
+          "text": "Only when no exception was raised"
+        },
+        {
+          "id": "C",
+          "text": "After finally"
+        },
+        {
+          "id": "D",
+          "text": "Only when an exception was caught"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "else runs when the try body completed cleanly; finally runs unconditionally, last, before control leaves the construct."
+    },
+    {
+      "id": "py----q0026",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Comprehensions",
+      "difficulty": "MEDIUM",
+      "title": "What is the result of `{k: v for k, v in pairs if v}`?",
+      "prompt": "What is the result of `{k: v for k, v in pairs if v}`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A set"
+        },
+        {
+          "id": "B",
+          "text": "A dict keeping only truthy values"
+        },
+        {
+          "id": "C",
+          "text": "A list of tuples"
+        },
+        {
+          "id": "D",
+          "text": "A SyntaxError"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`key: value` makes it a dict comprehension and the trailing `if` filters out falsy values."
+    },
+    {
+      "id": "py----q0027",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Strings & Formatting",
+      "difficulty": "MEDIUM",
+      "title": "What does the f-string format spec `{value:>10.3f}` produce?",
+      "prompt": "What does the f-string format spec `{value:>10.3f}` produce?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A plain float"
+        },
+        {
+          "id": "B",
+          "text": "The value right-aligned in a 10-wide field with exactly 3 decimals"
+        },
+        {
+          "id": "C",
+          "text": "Rounding to 10 decimals"
+        },
+        {
+          "id": "D",
+          "text": "Zero padding"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`>` aligns right, `10` is the width, `.3f` fixed-point with precision 3 — the usual table formatting."
+    },
+    {
+      "id": "py----q0028",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Iterators & Generators",
+      "difficulty": "MEDIUM",
+      "title": "What is the main benefit of a generator function?",
+      "prompt": "What is the main benefit of a generator function?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It runs faster in all cases"
+        },
+        {
+          "id": "B",
+          "text": "It yields values lazily, so only one item is held in memory at a time"
+        },
+        {
+          "id": "C",
+          "text": "It makes code synchronous"
+        },
+        {
+          "id": "D",
+          "text": "It caches all results"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Generators keep only their frame state, so even a very large (or infinite) sequence can be consumed in constant memory."
+    },
+    {
+      "id": "py----q0029",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Lists & Slicing",
+      "difficulty": "MEDIUM",
+      "title": "What does `sorted(xs, key=len, reverse=True)` return?",
+      "prompt": "What does `sorted(xs, key=len, reverse=True)` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "xs sorted in place, longest last"
+        },
+        {
+          "id": "B",
+          "text": "A new list sorted by length, longest first, with xs unchanged"
+        },
+        {
+          "id": "C",
+          "text": "A tuple"
+        },
+        {
+          "id": "D",
+          "text": "Only the longest item"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "sorted() never mutates its input; key supplies the comparison and reverse=True flips ascending to descending."
+    },
+    {
+      "id": "py----q0030",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Mutability",
+      "difficulty": "HARD",
+      "title": "What does `dict.fromkeys([\"a\",\"b\"], 0)` share between the two entries?",
+      "prompt": "What does `dict.fromkeys([\"a\",\"b\"], 0)` share between the two entries?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "Only the integer 0 (immutable, so it is harmless)"
+        },
+        {
+          "id": "C",
+          "text": "A list object"
+        },
+        {
+          "id": "D",
+          "text": "The key objects"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "fromkeys assigns the *same* value object to every key — harmless for ints/strings, but `fromkeys(keys, [])` would share one list across all keys."
+    },
+    {
+      "id": "py----q0031",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Scope & Closures",
+      "difficulty": "HARD",
+      "title": "What is the LEGB rule for name resolution?",
+      "prompt": "What is the LEGB rule for name resolution?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Local, Enclosing, Global, Built-in — in that order"
+        },
+        {
+          "id": "B",
+          "text": "Global, Enclosing, Local, Built-in"
+        },
+        {
+          "id": "C",
+          "text": "Built-in, Global, Local, Enclosing"
+        },
+        {
+          "id": "D",
+          "text": "Enclosing, Local, Global, Built-in"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Python looks up a bare name in Local → Enclosing → Global → Built-in scopes, stopping at the first match."
+    },
+    {
+      "id": "py----q0032",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Iterators & Generators",
+      "difficulty": "HARD",
+      "title": "What does `yield from sub_gen()` do?",
+      "prompt": "What does `yield from sub_gen()` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Simply returns sub_gen"
+        },
+        {
+          "id": "B",
+          "text": "Delegates to the sub-generator, yielding its values and passing send/throw through — flattening the chain"
+        },
+        {
+          "id": "C",
+          "text": "Converts to a coroutine"
+        },
+        {
+          "id": "D",
+          "text": "Runs it in a thread"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "yield from is delegation: it yields every value from the inner generator and forwards send()/throw() directly to it."
+    },
+    {
+      "id": "py----q0033",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Data Types",
+      "difficulty": "HARD",
+      "title": "Why are strings but not lists usable as dict keys?",
+      "prompt": "Why are strings but not lists usable as dict keys?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Strings are faster"
+        },
+        {
+          "id": "B",
+          "text": "Strings are immutable and hashable; mutable containers have no stable hash"
+        },
+        {
+          "id": "C",
+          "text": "Lists are reserved by Python"
+        },
+        {
+          "id": "D",
+          "text": "Only strings support =="
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Keys must be hashable and unchanging, otherwise the bucket they were placed in could silently go stale."
+    },
+    {
+      "id": "py----q0034",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Exceptions",
+      "difficulty": "HARD",
+      "title": "What does `except Exception:` fail to catch?",
+      "prompt": "What does `except Exception:` fail to catch?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "RuntimeError"
+        },
+        {
+          "id": "B",
+          "text": "SystemExit, KeyboardInterrupt and GeneratorExit — those derive from BaseException, not Exception"
+        },
+        {
+          "id": "C",
+          "text": "TypeError"
+        },
+        {
+          "id": "D",
+          "text": "ValueError"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Catching Exception is idiomatic for application errors, while process-level signals (BaseException) are deliberately allowed to escape."
+    },
+    {
+      "id": "py----q0035",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Comprehensions",
+      "difficulty": "HARD",
+      "title": "Why is a large list comprehension sometimes replaced with a generator expression?",
+      "prompt": "Why is a large list comprehension sometimes replaced with a generator expression?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Generators are always faster"
+        },
+        {
+          "id": "B",
+          "text": "The generator avoids allocating the entire list, trading index access for constant memory"
+        },
+        {
+          "id": "C",
+          "text": "List comprehensions are deprecated"
+        },
+        {
+          "id": "D",
+          "text": "Generators support zip"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Use a generator when you consume values once (sum, any, for-loop); use a list when you need to index, len() or iterate repeatedly."
+    },
+    {
+      "id": "py----q0036",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Dictionaries",
+      "difficulty": "HARD",
+      "title": "What does `d.setdefault(k, factory_fn())` do that `d.get(k)` does not?",
+      "prompt": "What does `d.setdefault(k, factory_fn())` do that `d.get(k)` does not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Only reads"
+        },
+        {
+          "id": "B",
+          "text": "It always calls factory_fn() eagerly, and inserts its result when the key is missing"
+        },
+        {
+          "id": "C",
+          "text": "It is lazy"
+        },
+        {
+          "id": "D",
+          "text": "It removes the key"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "setdefault evaluates its default eagerly — passing a value (not a lambda) computes work even when the key exists, a common trap."
+    },
+    {
+      "id": "py----q0037",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Lists & Slicing",
+      "difficulty": "HARD",
+      "title": "What is the output of `xs[::-1]`?",
+      "prompt": "What is the output of `xs[::-1]`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The same list reversed in place"
+        },
+        {
+          "id": "B",
+          "text": "A new list that is the reverse of xs, leaving xs untouched"
+        },
+        {
+          "id": "C",
+          "text": "An error"
+        },
+        {
+          "id": "D",
+          "text": "xs sorted descending"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A negative step copies and reverses; because it is a slice it returns a new list — xs itself is unchanged."
+    },
+    {
+      "id": "py----q0038",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Scope & Closures",
+      "difficulty": "HARD",
+      "title": "In a module, why does an assignment inside a function make a name local even if a global exists?",
+      "prompt": "In a module, why does an assignment inside a function make a name local even if a global exists?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It does not"
+        },
+        {
+          "id": "B",
+          "text": "Python decides scope at compile time — any assignment to a name in a function makes it local for the whole function, shadowing the global"
+        },
+        {
+          "id": "C",
+          "text": "Globals are always shadowed"
+        },
+        {
+          "id": "D",
+          "text": "Only with `from x import *`"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The compiler classifies the name as local on first assignment, so reading before it raises UnboundLocalError — the classic local-variable trap."
+    },
+    {
+      "id": "py----q0039",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Strings & Formatting",
+      "difficulty": "HARD",
+      "title": "Why does `\"\".join(chunks)` beat `total += chunk` when concatenating many strings?",
+      "prompt": "Why does `\"\".join(chunks)` beat `total += chunk` when concatenating many strings?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It does not"
+        },
+        {
+          "id": "B",
+          "text": "Strings are immutable, so each += reallocates and copies; join pre-sizes once and copies in a single pass"
+        },
+        {
+          "id": "C",
+          "text": "Because += is invalid for strings"
+        },
+        {
+          "id": "D",
+          "text": "Only on Python 2"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Repeated += is O(n²) due to reallocation; str.join performs one allocation — the standard performance idiom for building strings."
     }
-  ]
+  ],
+  "generatedAt": "2026-10-04T07:39:52.113Z"
 }

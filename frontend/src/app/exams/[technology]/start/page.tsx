@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { ExamSetup } from "@/components/exams/ExamSetup";
 import { catalogById, metaFromBank } from "@/lib/question-banks/catalog";
 import { loadBank } from "@/lib/question-banks/load";
-import { useExamsStore } from "@/store/exams";
+import { resumableAttemptFor, useExamsHydrated, useExamsStore } from "@/store/exams";
 import type { QuestionBank, TechnologyId } from "@/lib/question-banks/types";
 
 interface StartProps {
@@ -26,9 +26,18 @@ export default function ExamStartPage({ params }: StartProps) {
   const [error, setError] = useState<string | null>(null);
 
   const attempts = useExamsStore((state) => state.attempts);
-  const activeAttemptId = attempts.find(
-    (attempt) => attempt.technology === technology && attempt.status === "IN_PROGRESS",
-  )?.id;
+  const reconcileExpired = useExamsStore((state) => state.reconcileExpired);
+  const hydrated = useExamsHydrated();
+
+  // Only attempts that are still in progress *and* still have time left can be
+  // resumed — anything the clock ran out on is marked EXPIRED first.
+  const resumableAttempt = hydrated
+    ? resumableAttemptFor(attempts, technology)
+    : undefined;
+
+  useEffect(() => {
+    if (hydrated) reconcileExpired();
+  }, [hydrated, reconcileExpired]);
 
   useEffect(() => {
     if (!catalogById(technology)) {
@@ -63,7 +72,8 @@ export default function ExamStartPage({ params }: StartProps) {
     <ExamSetup
       meta={meta}
       bank={bank}
-      activeAttemptId={activeAttemptId}
+      activeAttemptId={resumableAttempt?.id}
+      activeAttemptStartedAt={resumableAttempt?.startedAt}
       onStart={(attemptId) => router.push(`/exams/${technology}/attempt/${attemptId}`)}
     />
   );

@@ -1,4 +1,5 @@
 import {
+  Boxes,
   Braces,
   Code2,
   Database,
@@ -17,6 +18,7 @@ import {
 
 const TECH_ICONS: Record<string, LucideIcon> = {
   Braces,
+  Boxes,
   Code2,
   Database,
   FileCode2,
@@ -34,6 +36,7 @@ export function iconForTech(technologyId: string): LucideIcon {
     sql: "Database",
     react: "Code2",
     nextjs: "FileCode2",
+    devops: "Boxes",
   };
   const name = metaNames[technologyId] ?? "Library";
   return TECH_ICONS[name] ?? Library;

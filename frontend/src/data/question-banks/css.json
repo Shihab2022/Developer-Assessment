@@ -3,159 +3,1244 @@
   "label": "CSS",
   "description": "Selectors, specificity, the cascade, layout with Flexbox and Grid, responsive units and modern CSS features.",
   "source": "Authored for SkillGauge",
-  "questionCount": 10,
+  "questionCount": 40,
   "levels": [
-    { "id": "L1", "label": "Fundamental" },
-    { "id": "L2", "label": "Intermediate" },
-    { "id": "L3", "label": "Advanced" }
+    {
+      "id": "L1",
+      "label": "Fundamental"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced"
+    }
   ],
   "topics": [
-    "Box Model", "Selectors & Specificity", "Cascade & Inheritance", "Units & Sizing",
-    "Flexbox", "Grid", "Positioning", "Responsive Design",
-    "Transitions & Animations", "Custom Properties"
+    "Box Model",
+    "Selectors & Specificity",
+    "Cascade & Inheritance",
+    "Units & Sizing",
+    "Flexbox",
+    "Grid",
+    "Positioning",
+    "Responsive Design",
+    "Transitions & Animations",
+    "Custom Properties"
   ],
-  "difficultyCounts": { "EASY": 4, "MEDIUM": 4, "HARD": 2 },
-  "levelCounts": { "L1": 4, "L2": 4, "L3": 2 },
+  "difficultyCounts": {
+    "EASY": 14,
+    "MEDIUM": 14,
+    "HARD": 12
+  },
+  "levelCounts": {
+    "L1": 14,
+    "L2": 14,
+    "L3": 12
+  },
   "questions": [
     {
-      "id": "css-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Box Model", "difficulty": "EASY",
+      "id": "css-----q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Box Model",
+      "difficulty": "EASY",
       "title": "With `box-sizing: border-box`, what does `width: 200px` mean?",
       "prompt": "With `box-sizing: border-box`, what does `width: 200px` mean?",
       "content": [],
       "options": [
-        { "id": "A", "text": "The content box is 200px and padding plus border are added on top" },
-        { "id": "B", "text": "The total box — content, padding and border together — is 200px" },
-        { "id": "C", "text": "The margin box is 200px" },
-        { "id": "D", "text": "Only the border is 200px" }
+        {
+          "id": "A",
+          "text": "The content box is 200px and padding plus border are added on top"
+        },
+        {
+          "id": "B",
+          "text": "The total box — content, padding and border together — is 200px"
+        },
+        {
+          "id": "C",
+          "text": "The margin box is 200px"
+        },
+        {
+          "id": "D",
+          "text": "Only the border is 200px"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`border-box` includes padding and border inside the declared width, which is why most resets apply it globally. With the default `content-box` the element grows past 200px."
     },
     {
-      "id": "css-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Selectors & Specificity", "difficulty": "EASY",
+      "id": "css-----q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Selectors & Specificity",
+      "difficulty": "EASY",
       "title": "Which selector wins between `.card .title` and `#main .title`?",
       "prompt": "Which selector wins between `.card .title` and `#main .title`?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`.card .title`, because two classes beat one class" },
-        { "id": "B", "text": "`#main .title`, because an ID contributes more specificity than any number of classes" },
-        { "id": "C", "text": "Whichever appears later in the stylesheet" },
-        { "id": "D", "text": "They tie and the browser picks one at random" }
+        {
+          "id": "A",
+          "text": "`.card .title`, because two classes beat one class"
+        },
+        {
+          "id": "B",
+          "text": "`#main .title`, because an ID contributes more specificity than any number of classes"
+        },
+        {
+          "id": "C",
+          "text": "Whichever appears later in the stylesheet"
+        },
+        {
+          "id": "D",
+          "text": "They tie and the browser picks one at random"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "Specificity compares (ids, classes/attributes/pseudo-classes, elements) column by column. `#main .title` is (1,1,0) versus (0,2,0), so the ID wins before source order is considered."
     },
     {
-      "id": "css-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "Cascade & Inheritance", "difficulty": "EASY",
+      "id": "css-----q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "EASY",
       "title": "Which properties are inherited by child elements by default?",
       "prompt": "Which properties are inherited by child elements by default?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`color` and `font-family`" },
-        { "id": "B", "text": "`margin` and `padding`" },
-        { "id": "C", "text": "`border` and `background`" },
-        { "id": "D", "text": "`width` and `height`" }
+        {
+          "id": "A",
+          "text": "`color` and `font-family`"
+        },
+        {
+          "id": "B",
+          "text": "`margin` and `padding`"
+        },
+        {
+          "id": "C",
+          "text": "`border` and `background`"
+        },
+        {
+          "id": "D",
+          "text": "`width` and `height`"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Typography properties inherit so a single `body` rule styles the page; box model and layout properties do not, which is why they must be set per element."
     },
     {
-      "id": "css-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Units & Sizing", "difficulty": "EASY",
+      "id": "css-----q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Units & Sizing",
+      "difficulty": "EASY",
       "title": "Why is `1rem` usually preferred over `1em` for component spacing?",
       "prompt": "Why is `1rem` usually preferred over `1em` for component spacing?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`rem` is relative to the root font size, so values stay predictable instead of compounding through nested `em` contexts" },
-        { "id": "B", "text": "`em` is not a valid CSS unit" },
-        { "id": "C", "text": "`rem` ignores the user's font-size preference" },
-        { "id": "D", "text": "`em` only works inside media queries" }
+        {
+          "id": "A",
+          "text": "`rem` is relative to the root font size, so values stay predictable instead of compounding through nested `em` contexts"
+        },
+        {
+          "id": "B",
+          "text": "`em` is not a valid CSS unit"
+        },
+        {
+          "id": "C",
+          "text": "`rem` ignores the user's font-size preference"
+        },
+        {
+          "id": "D",
+          "text": "`em` only works inside media queries"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "`rem` resolves against the root element's font size while `em` resolves against the element's own font size, so nested components compound. Both respect the user's font-size setting."
     },
     {
-      "id": "css-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Flexbox", "difficulty": "MEDIUM",
+      "id": "css-----q0005",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Flexbox",
+      "difficulty": "MEDIUM",
       "title": "In a flex container, what does `flex: 1` set on an item?",
       "prompt": "In a flex container, what does `flex: 1` set on an item?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`flex-grow: 1; flex-shrink: 1; flex-basis: 0%` — the item absorbs free space equally" },
-        { "id": "B", "text": "`flex-grow: 1` only, leaving `flex-basis` at `auto`" },
-        { "id": "C", "text": "`flex-basis: 1px` and nothing else" },
-        { "id": "D", "text": "It centres the item along the cross axis" }
+        {
+          "id": "A",
+          "text": "`flex-grow: 1; flex-shrink: 1; flex-basis: 0%` — the item absorbs free space equally"
+        },
+        {
+          "id": "B",
+          "text": "`flex-grow: 1` only, leaving `flex-basis` at `auto`"
+        },
+        {
+          "id": "C",
+          "text": "`flex-basis: 1px` and nothing else"
+        },
+        {
+          "id": "D",
+          "text": "It centres the item along the cross axis"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "The shorthand expands to `1 1 0%`, so items share leftover space after their own content needs are met. Centring on the cross axis is `align-items`, not `flex`."
     },
     {
-      "id": "css-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Grid", "difficulty": "MEDIUM",
+      "id": "css-----q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Grid",
+      "difficulty": "MEDIUM",
       "title": "Which declaration makes a responsive grid of cards with a minimum width of 240px that grows to fill the row?",
       "prompt": "Which declaration makes a responsive grid of cards with a minimum width of 240px that grows to fill the row?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`" },
-        { "id": "B", "text": "`grid-template-columns: repeat(3, minmax(240px, 1fr))`" },
-        { "id": "C", "text": "`grid-auto-flow: column`" },
-        { "id": "D", "text": "`display: flex; flex-wrap: wrap` with `width: 240px` on each card" }
+        {
+          "id": "A",
+          "text": "`grid-template-columns: repeat(auto-fill, minmax(240px, 1fr))`"
+        },
+        {
+          "id": "B",
+          "text": "`grid-template-columns: repeat(3, minmax(240px, 1fr))`"
+        },
+        {
+          "id": "C",
+          "text": "`grid-auto-flow: column`"
+        },
+        {
+          "id": "D",
+          "text": "`display: flex; flex-wrap: wrap` with `width: 240px` on each card"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "`auto-fill` creates as many 240px-or-wider tracks as fit, so no media queries are needed. A fixed `repeat(3, ...)` stays three columns on every screen."
     },
     {
-      "id": "css-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Positioning", "difficulty": "MEDIUM",
+      "id": "css-----q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Positioning",
+      "difficulty": "MEDIUM",
       "title": "A badge must sit at the top-right corner of its parent card. What is required?",
       "prompt": "A badge must sit at the top-right corner of its parent card. What is required?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`position: absolute; top: 0; right: 0` on the badge and `position: relative` on the card" },
-        { "id": "B", "text": "`position: fixed` on the badge alone" },
-        { "id": "C", "text": "`position: sticky; top: 0` on the badge" },
-        { "id": "D", "text": "`float: right` on the badge" }
+        {
+          "id": "A",
+          "text": "`position: absolute; top: 0; right: 0` on the badge and `position: relative` on the card"
+        },
+        {
+          "id": "B",
+          "text": "`position: fixed` on the badge alone"
+        },
+        {
+          "id": "C",
+          "text": "`position: sticky; top: 0` on the badge"
+        },
+        {
+          "id": "D",
+          "text": "`float: right` on the badge"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Absolutely positioned elements resolve against the nearest positioned ancestor, so the card needs `position: relative`. `fixed` attaches to the viewport and `sticky` is for scroll behaviour."
     },
     {
-      "id": "css-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Responsive Design", "difficulty": "MEDIUM",
+      "id": "css-----q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Responsive Design",
+      "difficulty": "MEDIUM",
       "title": "Why does `@media (max-width: 767px)` avoid the classic breakpoint overlap bug?",
       "prompt": "Why does `@media (max-width: 767px)` avoid the classic breakpoint overlap bug?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Because fractional device widths are impossible, so `max-width: 767px` and `min-width: 768px` cannot both match" },
-        { "id": "B", "text": "Because media queries only support integers" },
-        { "id": "C", "text": "Because `max-width` is evaluated in device pixels rather than CSS pixels" },
-        { "id": "D", "text": "It does not — overlap must be solved with `!important`" }
+        {
+          "id": "A",
+          "text": "Because fractional device widths are impossible, so `max-width: 767px` and `min-width: 768px` cannot both match"
+        },
+        {
+          "id": "B",
+          "text": "Because media queries only support integers"
+        },
+        {
+          "id": "C",
+          "text": "Because `max-width` is evaluated in device pixels rather than CSS pixels"
+        },
+        {
+          "id": "D",
+          "text": "It does not — overlap must be solved with `!important`"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Using `max-width: 767.98px` (or the integer trick) keeps mobile and desktop rules mutually exclusive; `max-width: 768px` plus `min-width: 768px` would both match at exactly 768px."
     },
     {
-      "id": "css-q0009", "level": "L3", "levelLabel": "Advanced", "topic": "Transitions & Animations", "difficulty": "HARD",
+      "id": "css-----q0009",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Transitions & Animations",
+      "difficulty": "HARD",
       "title": "A hover animation janks the layout. Which property pair keeps it on the compositor?",
       "prompt": "A hover animation janks the layout. Which property pair keeps it on the compositor?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`width` and `height`" },
-        { "id": "B", "text": "`top` and `left`" },
-        { "id": "C", "text": "`transform` and `opacity`" },
-        { "id": "D", "text": "`margin` and `padding`" }
+        {
+          "id": "A",
+          "text": "`width` and `height`"
+        },
+        {
+          "id": "B",
+          "text": "`top` and `left`"
+        },
+        {
+          "id": "C",
+          "text": "`transform` and `opacity`"
+        },
+        {
+          "id": "D",
+          "text": "`margin` and `padding`"
+        }
       ],
       "correctOptionId": "C",
       "explanation": "`transform` and `opacity` can be handled by the compositor thread without re-running layout or paint, so they animate at full frame rate. Geometry properties trigger layout on every frame."
     },
     {
-      "id": "css-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "Custom Properties", "difficulty": "HARD",
+      "id": "css-----q0010",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Custom Properties",
+      "difficulty": "HARD",
       "title": "What happens when a `var()` reference points at an undefined custom property and no fallback is given?",
       "prompt": "What happens when a `var()` reference points at an undefined custom property and no fallback is given?",
       "content": [],
       "options": [
-        { "id": "A", "text": "The declaration is invalid at computed-value time, so the property falls back to its inherited or initial value" },
-        { "id": "B", "text": "The browser treats it as an empty string and keeps the layout" },
-        { "id": "C", "text": "The rule is dropped at parse time like a normal syntax error" },
-        { "id": "D", "text": "It inherits the value from the nearest sibling" }
+        {
+          "id": "A",
+          "text": "The declaration is invalid at computed-value time, so the property falls back to its inherited or initial value"
+        },
+        {
+          "id": "B",
+          "text": "The browser treats it as an empty string and keeps the layout"
+        },
+        {
+          "id": "C",
+          "text": "The rule is dropped at parse time like a normal syntax error"
+        },
+        {
+          "id": "D",
+          "text": "It inherits the value from the nearest sibling"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Custom properties are resolved at computed-value time, so a missing variable makes the declaration \"invalid at computed-value time\" — the property becomes `unset`, not a parse error. `var(--x, fallback)` avoids it."
+    },
+    {
+      "id": "css-----q0011",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Selectors & Specificity",
+      "difficulty": "EASY",
+      "title": "What specificity do these rules carry: `.btn.primary` vs `#submit`?",
+      "prompt": "What specificity do these rules carry: `.btn.primary` vs `#submit`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "(0,2,0) beats (1,0,0)"
+        },
+        {
+          "id": "B",
+          "text": "(1,0,0) beats (0,2,0) — an id outweighs any number of classes"
+        },
+        {
+          "id": "C",
+          "text": "They tie, so the later rule wins"
+        },
+        {
+          "id": "D",
+          "text": "Specificity only applies to inline styles"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Specificity is counted as (ids, classes, elements): `.btn.primary` is (0,2,0) and `#submit` is (1,0,0). The id wins before source order is even considered."
+    },
+    {
+      "id": "css-----q0012",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "EASY",
+      "title": "Which properties do NOT inherit from a parent element by default?",
+      "prompt": "Which properties do NOT inherit from a parent element by default?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "color and font-size"
+        },
+        {
+          "id": "B",
+          "text": "border and background"
+        },
+        {
+          "id": "C",
+          "text": "visibility and line-height"
+        },
+        {
+          "id": "D",
+          "text": "cursor and direction"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Colour and typography inherit; box-level paint properties (border, background) belong to each element and must be restated explicitly."
+    },
+    {
+      "id": "css-----q0013",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Box Model",
+      "difficulty": "EASY",
+      "title": "Without `box-sizing`, what does `width: 200px` describe on a bordered element?",
+      "prompt": "Without `box-sizing`, what does `width: 200px` describe on a bordered element?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Content + padding + border"
+        },
+        {
+          "id": "B",
+          "text": "Content only — padding and border are added on top"
+        },
+        {
+          "id": "C",
+          "text": "The margin box"
+        },
+        {
+          "id": "D",
+          "text": "Exactly 200px of the viewport"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The default `content-box` sizes the content only; padding and border grow the element past its declared width."
+    },
+    {
+      "id": "css-----q0014",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Units & Sizing",
+      "difficulty": "EASY",
+      "title": "What does `font-size: 2rem` resolve to on an element whose parent is 32px?",
+      "prompt": "What does `font-size: 2rem` resolve to on an element whose parent is 32px?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "64px — 2 × the parent"
+        },
+        {
+          "id": "B",
+          "text": "32px — rem is relative to the html root, not the parent"
+        },
+        {
+          "id": "C",
+          "text": "2px"
+        },
+        {
+          "id": "D",
+          "text": "Depends on the parent's font-weight"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`rem` is always relative to the root (html) font size; `em` is the one that resolves against the parent."
+    },
+    {
+      "id": "css-----q0015",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Flexbox",
+      "difficulty": "EASY",
+      "title": "Which declaration turns a div into a flex container?",
+      "prompt": "Which declaration turns a div into a flex container?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "display: flex"
+        },
+        {
+          "id": "B",
+          "text": "flex: 1"
+        },
+        {
+          "id": "C",
+          "text": "position: flex"
+        },
+        {
+          "id": "D",
+          "text": "flex-direction: row"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`display: flex` establishes the flex formatting context; `flex` and `flex-direction` are properties of its *children* / axis."
+    },
+    {
+      "id": "css-----q0016",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Selectors & Specificity",
+      "difficulty": "EASY",
+      "title": "What does the selector `article > p` match?",
+      "prompt": "What does the selector `article > p` match?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Every p inside article, at any depth"
+        },
+        {
+          "id": "B",
+          "text": "Only p elements that are direct children of article"
+        },
+        {
+          "id": "C",
+          "text": "The first p after an article"
+        },
+        {
+          "id": "D",
+          "text": "Sibling paragraphs of article"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The child combinator `>` is depth-1 only; descendants at any depth would use a space."
+    },
+    {
+      "id": "css-----q0017",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Positioning",
+      "difficulty": "EASY",
+      "title": "What does `position: absolute` do to an element with `top: 10px`?",
+      "prompt": "What does `position: absolute` do to an element with `top: 10px`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Offsets it 10px from the nearest positioned ancestor (or the page)"
+        },
+        {
+          "id": "B",
+          "text": "Always offsets from the viewport"
+        },
+        {
+          "id": "C",
+          "text": "Moves it into the document flow"
+        },
+        {
+          "id": "D",
+          "text": "Centres it horizontally"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Absolutely positioned boxes are offset from their nearest positioned ancestor's padding box; with none present, the initial containing block."
+    },
+    {
+      "id": "css-----q0018",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Units & Sizing",
+      "difficulty": "EASY",
+      "title": "Which unit is relative to the viewport width?",
+      "prompt": "Which unit is relative to the viewport width?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "vw"
+        },
+        {
+          "id": "B",
+          "text": "rem"
+        },
+        {
+          "id": "C",
+          "text": "em"
+        },
+        {
+          "id": "D",
+          "text": "ch"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`vw`/`vh` are viewport-relative (1vw = 1% of viewport width), while rem/em resolve against fonts."
+    },
+    {
+      "id": "css-----q0019",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "EASY",
+      "title": "Where does `font-family: Arial` on `<body>` apply?",
+      "prompt": "Where does `font-family: Arial` on `<body>` apply?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Only to body itself"
+        },
+        {
+          "id": "B",
+          "text": "To body and everything that inherits font-family"
+        },
+        {
+          "id": "C",
+          "text": "Only to headings"
+        },
+        {
+          "id": "D",
+          "text": "Nowhere — font-family never inherits"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "font-family is an inherited property, so descendants inherit it unless they set their own value."
+    },
+    {
+      "id": "css-----q0020",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Positioning",
+      "difficulty": "EASY",
+      "title": "What is the default value of `position` for a normal div?",
+      "prompt": "What is the default value of `position` for a normal div?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "static"
+        },
+        {
+          "id": "B",
+          "text": "relative"
+        },
+        {
+          "id": "C",
+          "text": "absolute"
+        },
+        {
+          "id": "D",
+          "text": "fixed"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`static` is the default: the element sits in normal flow and is not a containing block for absolutely positioned descendants."
+    },
+    {
+      "id": "css-----q0021",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Flexbox",
+      "difficulty": "MEDIUM",
+      "title": "A child has `flex: 1`, another `flex: 2`. What differs?",
+      "prompt": "A child has `flex: 1`, another `flex: 2`. What differs?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Their base sizes only"
+        },
+        {
+          "id": "B",
+          "text": "Their share of free space — the second grows twice as fast once both are past their flex-basis"
+        },
+        {
+          "id": "C",
+          "text": "Their minimum widths"
+        },
+        {
+          "id": "D",
+          "text": "Their order in the container"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "After the flex-basis is satisfied, remaining free space is distributed in proportion to the flex-grow factor, so 2 grows faster than 1."
+    },
+    {
+      "id": "css-----q0022",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Grid",
+      "difficulty": "MEDIUM",
+      "title": "What does `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))` do?",
+      "prompt": "What does `grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Creates exactly three 200px columns"
+        },
+        {
+          "id": "B",
+          "text": "Fills each row with as many columns as fit, each between 200px and equal-width"
+        },
+        {
+          "id": "C",
+          "text": "Forces every column to 200px"
+        },
+        {
+          "id": "D",
+          "text": "Merges cells that are empty"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`auto-fill` packs as many tracks as the container allows; `minmax(200px, 1fr)` lets each track grow but never shrink below 200px — the classic responsive grid."
+    },
+    {
+      "id": "css-----q0023",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Transitions & Animations",
+      "difficulty": "MEDIUM",
+      "title": "What does `transition: transform 0.3s ease` animate?",
+      "prompt": "What does `transition: transform 0.3s ease` animate?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Every property"
+        },
+        {
+          "id": "B",
+          "text": "Only transform, for 300ms, with an ease timing function"
+        },
+        {
+          "id": "C",
+          "text": "Only duration"
+        },
+        {
+          "id": "D",
+          "text": "The whole document's layout"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The shorthand is `property duration timing-function`; only the listed property transitions, everything else changes instantly."
+    },
+    {
+      "id": "css-----q0024",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Responsive Design",
+      "difficulty": "MEDIUM",
+      "title": "Why do media queries generally be written small→large (min-width) in a mobile-first design?",
+      "prompt": "Why do media queries generally be written small→large (min-width) in a mobile-first design?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Because min-width queries are faster to parse"
+        },
+        {
+          "id": "B",
+          "text": "So base styles are the mobile default and each query only *adds* rules as space grows, avoiding override fights"
+        },
+        {
+          "id": "C",
+          "text": "It is a browser requirement"
+        },
+        {
+          "id": "D",
+          "text": "It lets rem units work"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Mobile-first means the baseline is the narrowest layout; each larger breakpoint then adds or overrides exactly what it needs."
+    },
+    {
+      "id": "css-----q0025",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Custom Properties",
+      "difficulty": "MEDIUM",
+      "title": "What happens when a custom property falls back: `var(--brand, #333)` and `--brand` is not defined?",
+      "prompt": "What happens when a custom property falls back: `var(--brand, #333)` and `--brand` is not defined?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The declaration is invalid at computed-value time"
+        },
+        {
+          "id": "B",
+          "text": "The fallback `#333` is used"
+        },
+        {
+          "id": "C",
+          "text": "The browser picks a default colour"
+        },
+        {
+          "id": "D",
+          "text": "An error is logged and the rule dropped"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`var()`'s second argument is a fallback used when the custom property is missing or invalid — the rule survives."
+    },
+    {
+      "id": "css-----q0026",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Box Model",
+      "difficulty": "MEDIUM",
+      "title": "Which pair collapses vertical margins in normal flow?",
+      "prompt": "Which pair collapses vertical margins in normal flow?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Adjacent vertical margins of in-flow blocks collapse"
+        },
+        {
+          "id": "B",
+          "text": "Two floats' margins"
+        },
+        {
+          "id": "C",
+          "text": "Flex children' margins"
+        },
+        {
+          "id": "D",
+          "text": "Padding of a table cell"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Block-level vertical margins in normal flow collapse into one; flex/grid items and absolutely positioned boxes never collapse margins."
+    },
+    {
+      "id": "css-----q0027",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Selectors & Specificity",
+      "difficulty": "MEDIUM",
+      "title": "What does `:nth-child(odd)` select on a list of ten items?",
+      "prompt": "What does `:nth-child(odd)` select on a list of ten items?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Items 1, 3, 5…"
+        },
+        {
+          "id": "B",
+          "text": "Items 2, 4, 6…"
+        },
+        {
+          "id": "C",
+          "text": "Every second item starting at 1"
+        },
+        {
+          "id": "D",
+          "text": "Only li elements"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`odd` maps to positions 1, 3, 5… — the item's position among *all* siblings, not among elements of the same type."
+    },
+    {
+      "id": "css-----q0028",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "MEDIUM",
+      "title": "Which statement about `!important` is true?",
+      "prompt": "Which statement about `!important` is true?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It wins all specificity comparisons of normal declarations"
+        },
+        {
+          "id": "B",
+          "text": "It increases an element's specificity value"
+        },
+        {
+          "id": "C",
+          "text": "It is scoped to a media query"
+        },
+        {
+          "id": "D",
+          "text": "It only works on inherited properties"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "A declaration marked important outranks every normal declaration regardless of specificity — which is exactly why it's a last resort."
+    },
+    {
+      "id": "css-----q0029",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Units & Sizing",
+      "difficulty": "MEDIUM",
+      "title": "Why do container queries change layout design compared to media queries?",
+      "prompt": "Why do container queries change layout design compared to media queries?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are faster"
+        },
+        {
+          "id": "B",
+          "text": "They respond to the container's own size, so the same component adapts wherever it is placed"
+        },
+        {
+          "id": "C",
+          "text": "They support more units"
+        },
+        {
+          "id": "D",
+          "text": "They only work in print"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Media queries ask 'how wide is the viewport?'; container queries ask 'how wide is my parent?' letting a component adapt independently of page layout."
+    },
+    {
+      "id": "css-----q0030",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Grid",
+      "difficulty": "MEDIUM",
+      "title": "What do `gap` on a flex container and `gap` on a grid container have in common?",
+      "prompt": "What do `gap` on a flex container and `gap` on a grid container have in common?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Grid does not support gap"
+        },
+        {
+          "id": "B",
+          "text": "They both create spacing between tracks/items without the double-margin problem"
+        },
+        {
+          "id": "C",
+          "text": "They only work with justify-content"
+        },
+        {
+          "id": "D",
+          "text": "They require grid-gap instead"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`gap` works on both layout modes and places space only *between* items, avoiding the adjacent-margin collapse/space-adding issues of margins."
+    },
+    {
+      "id": "css-----q0031",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "HARD",
+      "title": "Why can `all: unset` on a button still leave it looking like a link later?",
+      "prompt": "Why can `all: unset` on a button still leave it looking like a link later?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It does not work on form controls"
+        },
+        {
+          "id": "B",
+          "text": "unset resolves each property to its inherited or initial value — but any later rule that targets the element outranks it"
+        },
+        {
+          "id": "C",
+          "text": "It requires !important"
+        },
+        {
+          "id": "D",
+          "text": "It is only valid inside @layer"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "unset maps inherited properties to inherit and non-inherited ones to initial; the cascade order afterwards decides everything else, so specificity still rules."
+    },
+    {
+      "id": "css-----q0032",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Flexbox",
+      "difficulty": "HARD",
+      "title": "What is the effect of `min-width: 0` on a flex child that refuses to shrink?",
+      "prompt": "What is the effect of `min-width: 0` on a flex child that refuses to shrink?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It disables flex-grow"
+        },
+        {
+          "id": "B",
+          "text": "It removes the automatic content-based minimum, letting the item shrink below its intrinsic size"
+        },
+        {
+          "id": "C",
+          "text": "It makes the child a grid item"
+        },
+        {
+          "id": "D",
+          "text": "It centres the child"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Flex items default to `min-width: auto`, so long content can block shrinking. Setting `min-width: 0` (or overflow: hidden) makes the item actually shrinkable."
+    },
+    {
+      "id": "css-----q0033",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Grid",
+      "difficulty": "HARD",
+      "title": "What does `grid-column: 1 / -1` do?",
+      "prompt": "What does `grid-column: 1 / -1` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Spans from column 1 to the last explicit column line"
+        },
+        {
+          "id": "B",
+          "text": "Spans all implicit columns too"
+        },
+        {
+          "id": "C",
+          "text": "Deletes the second column"
+        },
+        {
+          "id": "D",
+          "text": "Centres the item"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Negative line numbers index the explicit grid's end lines: `-1` is the last explicit line, so the item spans the full explicit width."
+    },
+    {
+      "id": "css-----q0034",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Positioning",
+      "difficulty": "HARD",
+      "title": "How does `position: sticky` differ from `fixed`?",
+      "prompt": "How does `position: sticky` differ from `fixed`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "sticky stays in normal flow until it crosses its sticky threshold, then offsets — it never leaves its container; fixed always positions against the viewport"
+        },
+        {
+          "id": "C",
+          "text": "fixed also uses top/left thresholds"
+        },
+        {
+          "id": "D",
+          "text": "sticky requires a transform ancestor"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Sticky is 'relative until it sticks': it scrolls with the page and is bounded by its ancestor. Fixed is always viewport-anchored."
+    },
+    {
+      "id": "css-----q0035",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Cascade & Inheritance",
+      "difficulty": "HARD",
+      "title": "What does wrapping rules in `@layer base { ... }` change?",
+      "prompt": "What does wrapping rules in `@layer base { ... }` change?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing visually"
+        },
+        {
+          "id": "B",
+          "text": "Layer order is compared before specificity, so an unlayered or later-layered rule can beat a higher-specificity layered one"
+        },
+        {
+          "id": "C",
+          "text": "It converts rules to !important"
+        },
+        {
+          "id": "D",
+          "text": "It scopes selectors to the layer"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Cascade layers rank *before* specificity within the normal origin: an unlayered rule always beats a layered one, letting teams order frameworks deliberately."
+    },
+    {
+      "id": "css-----q0036",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Custom Properties",
+      "difficulty": "HARD",
+      "title": "Why is `--brand: red !important;` unusual for custom properties?",
+      "prompt": "Why is `--brand: red !important;` unusual for custom properties?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "!important is forbidden on custom properties"
+        },
+        {
+          "id": "B",
+          "text": "!important is not allowed — custom property precedence is resolved purely by cascade order and scope"
+        },
+        {
+          "id": "C",
+          "text": "It makes the variable global"
+        },
+        {
+          "id": "D",
+          "text": "It has no effect on inherited values"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Custom properties follow normal cascade rules only; the !important keyword is invalid in their declaration grammar."
+    },
+    {
+      "id": "css-----q0037",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Transitions & Animations",
+      "difficulty": "HARD",
+      "title": "Which property animates cheapest — and why does it matter?",
+      "prompt": "Which property animates cheapest — and why does it matter?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "top"
+        },
+        {
+          "id": "B",
+          "text": "transform and opacity — the compositor can animate them without relayout/paint"
+        },
+        {
+          "id": "C",
+          "text": "width"
+        },
+        {
+          "id": "D",
+          "text": "margin"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Top/left/width trigger layout (and paint) on every frame; transform/opacity are handled by the GPU compositor, keeping the main thread free."
+    },
+    {
+      "id": "css-----q0038",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Box Model",
+      "difficulty": "HARD",
+      "title": "A 1600px-wide layout uses margins on a 1600px screen — the common cause?",
+      "prompt": "A 1600px-wide layout uses margins on a 1600px screen — the common cause?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "border-box sizing"
+        },
+        {
+          "id": "B",
+          "text": "Horizontal percentage margins summing to 100% plus content width overflowing the viewport"
+        },
+        {
+          "id": "C",
+          "text": "font-size scaling"
+        },
+        {
+          "id": "D",
+          "text": "A missing clearfix"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Percentage margins are relative to the *containing block*, so left:5% + right:5% + width:100% = 110%. Classic cause of horizontal overflow."
+    },
+    {
+      "id": "css-----q0039",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Selectors & Specificity",
+      "difficulty": "HARD",
+      "title": "What specificity does an inline `style` attribute beat?",
+      "prompt": "What specificity does an inline `style` attribute beat?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing — same as an id"
+        },
+        {
+          "id": "B",
+          "text": "All normal selectors; only an inline !important beats it"
+        },
+        {
+          "id": "C",
+          "text": "Only classes"
+        },
+        {
+          "id": "D",
+          "text": "It depends on source order"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Inline styles sit above id selectors in the cascade (like specificity (1,0,0,0)); an inline !important declaration is one of the last resorts above it."
+    },
+    {
+      "id": "css-----q0040",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Responsive Design",
+      "difficulty": "HARD",
+      "title": "In a mobile-first design, why avoid `max-width` media queries as the primary structure?",
+      "prompt": "In a mobile-first design, why avoid `max-width` media queries as the primary structure?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They parse slower"
+        },
+        {
+          "id": "B",
+          "text": "They layer overrides over the desktop styles, so base rules can leak; min-width queries grow the layout additively instead"
+        },
+        {
+          "id": "C",
+          "text": "They do not support rem"
+        },
+        {
+          "id": "D",
+          "text": "They break print styles"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "max-width queries force every later rule to undo the earlier one, which compounds as breakpoints multiply; min-width keeps each addition local."
     }
-  ]
+  ],
+  "generatedAt": "2026-10-04T07:39:52.108Z"
 }

@@ -3,8 +3,8 @@
   "label": "Next.js",
   "description": "Scenario-based App Router MCQ: routing and layouts, data fetching and Server Actions, caching and SEO, advanced server rendering and runtime architecture.",
   "source": "https://github.com/Shihab2022/interview-question/blob/main/Next.js/next-mcq.md",
-  "generatedAt": "2026-09-17T16:37:41.673Z",
-  "questionCount": 20,
+  "generatedAt": "2026-10-04T07:39:52.117Z",
+  "questionCount": 61,
   "levels": [
     {
       "id": "L1",
@@ -30,18 +30,19 @@
     "Architecture & Runtime"
   ],
   "difficultyCounts": {
-    "EASY": 10,
-    "MEDIUM": 10
+    "EASY": 15,
+    "MEDIUM": 19,
+    "HARD": 27
   },
   "levelCounts": {
-    "L1": 5,
-    "L2": 5,
-    "L3": 5,
+    "L1": 10,
+    "L2": 14,
+    "L3": 32,
     "L4": 5
   },
   "questions": [
     {
-      "id": "nx-q0001",
+      "id": "nx--q0001",
       "level": "L1",
       "levelLabel": "Fundamental (Junior / Associate)",
       "topic": "App Router Fundamentals",
@@ -76,7 +77,7 @@
       "explanation": "In the Next.js App Router, the `page.tsx` file is the UI unique to a route segment and the only file that makes a route publicly accessible. `app/dashboard/settings/page.tsx` is the file rendered at `/dashboard/settings`.\n**Why the distractors are wrong:**\n- **A** — `app/dashboard/layout.tsx` wraps all routes under `/dashboard` but does not render content at any specific URL on its own.\n- **B** — `app/dashboard/settings/layout.tsx` wraps children under `/dashboard/settings` but is not itself the rendered content.\n- **D** — `app/layout.tsx` is the root layout that wraps every page in the app but renders nothing specifically at `/dashboard/settings`."
     },
     {
-      "id": "nx-q0002",
+      "id": "nx--q0002",
       "level": "L1",
       "levelLabel": "Fundamental (Junior / Associate)",
       "topic": "App Router Fundamentals",
@@ -112,7 +113,7 @@
       "explanation": "Layouts in the App Router preserve their state and DOM nodes across navigations between sibling and child routes. This is a core advantage of the App Router over the Pages Router, where page-level wrappers (`_app.tsx`) were re-mounted on every navigation.\n**Why the distractors are wrong:**\n- **A** — Describes Pages Router behavior or full-page reload behavior, not App Router segment layouts.\n- **C** — Next.js App Router layouts persist during client-side navigation, not only on the initial load.\n- **D** — The key distinction is that the component is not destroyed and re-mounted; it can re-render if its props change, but React will reconcile the DOM rather than replace it."
     },
     {
-      "id": "nx-q0003",
+      "id": "nx--q0003",
       "level": "L1",
       "levelLabel": "Fundamental (Junior / Associate)",
       "topic": "App Router Fundamentals",
@@ -148,7 +149,7 @@
       "explanation": "By default, all components in `app/` are React Server Components and cannot use `useState`, browser APIs, or event handlers like `onClick`. Adding `'use client'` at the top of the file marks it as a Client Component boundary, enabling the use of React hooks and browser interactivity.\n**Why the distractors are wrong:**\n- **A** — `export const runtime = 'edge'` configures the server execution environment for a route or middleware; it has no effect on component type (Server vs. Client).\n- **C** — Moving to `pages/` would work but is not the minimum required change; it also adopts an entirely different router architecture.\n- **D** — `<Suspense>` handles async loading states and streaming; it does not grant access to React hooks in Server Components."
     },
     {
-      "id": "nx-q0004",
+      "id": "nx--q0004",
       "level": "L1",
       "levelLabel": "Fundamental (Junior / Associate)",
       "topic": "App Router Fundamentals",
@@ -184,7 +185,7 @@
       "explanation": "In the App Router, dynamic route segment values are passed to `page.tsx` and `layout.tsx` components via the `params` prop. The object keys mirror the folder bracket names: for `[id]`, the key is `id`.\n**Why the distractors are wrong:**\n- **B** — `query` is not a recognized prop in the App Router. It was a `router.query` pattern in the Pages Router.\n- **C** — `useRouter()` from `next/navigation` (App Router) exposes navigation methods but does not expose `query`. Dynamic params are accessed via the `useParams()` hook in Client Components or via the `params` prop in Server Components.\n- **D** — `searchParams` is a separate App Router prop used for URL query strings (e.g., `?tab=settings`), not for dynamic path segments defined with bracket syntax."
     },
     {
-      "id": "nx-q0005",
+      "id": "nx--q0005",
       "level": "L1",
       "levelLabel": "Fundamental (Junior / Associate)",
       "topic": "App Router Fundamentals",
@@ -214,7 +215,7 @@
       "explanation": "`[[...slug]]` is an **optional catch-all** route. When `slug` is absent (i.e., the URL is `/docs`), the segment receives `undefined`. When segments are present (e.g., `/docs/guide/intro`), it receives `['guide', 'intro']`. This makes it the only option that matches both the zero-segment and multi-segment cases.\n**Why the distractors are wrong:**\n- **A** — `[...slug]` is a **required** catch-all. It does not match the base path `/docs` because at least one segment is mandatory; accessing `/docs` would return a 404.\n- **C** — `[slug]` matches exactly one dynamic segment (e.g., `/docs/intro`) and does not match zero or multiple segments.\n- **D** — Parentheses `(slug)` in the App Router denote **Route Groups**, which affect layout organization without creating URL segments. They do not create catch-all patterns."
     },
     {
-      "id": "nx-q0006",
+      "id": "nx--q0006",
       "level": "L2",
       "levelLabel": "Intermediate (Mid-Level)",
       "topic": "Data Fetching & Server Actions",
@@ -250,7 +251,7 @@
       "explanation": "`next: { revalidate: 3600 }` configures Incremental Static Regeneration (ISR) via Next.js\\'s server-side Data Cache. The response is stored in the cache and served to subsequent requests. After 3,600 seconds (1 hour), the next incoming request triggers a background regeneration while continuing to serve the stale cached response — the classic stale-while-revalidate pattern.\n**Why the distractors are wrong:**\n- **A** — Describes a fully static page with `cache: 'force-cache'` and no revalidation period; that page would never update post-deployment.\n- **B** — Describes `cache: 'no-store'` or `export const dynamic = 'force-dynamic'`, which bypass the Data Cache entirely.\n- **D** — `next: { revalidate }` controls Next.js\\'s **server-side** Data Cache, not the browser cache or service workers."
     },
     {
-      "id": "nx-q0007",
+      "id": "nx--q0007",
       "level": "L2",
       "levelLabel": "Intermediate (Mid-Level)",
       "topic": "Data Fetching & Server Actions",
@@ -284,7 +285,7 @@
       "explanation": "Option D is the canonical pattern. A dedicated file marked `'use server'` exports one or more server functions. A Server Component page imports and passes the action as the `<form action={...}>` prop. This pattern cleanly separates concerns and works for both Server and Client Component consumers.\n**Why the distractors are wrong:**\n- **A** — A file marked `'use client'` cannot contain inline `'use server'` function directives. The two module-level directives are mutually exclusive; Next.js will throw a build error.\n- **B** — Technically valid (an inline `'use server'` inside a Server Component function body is permitted), but Option D represents the recommended architectural pattern.\n- **C** — Placing `'use server'` at the module level of a file that also exports a React component as its default export would mark all exports (including the component) as server-only, causing a build error when Next.js attempts to render the component."
     },
     {
-      "id": "nx-q0008",
+      "id": "nx--q0008",
       "level": "L2",
       "levelLabel": "Intermediate (Mid-Level)",
       "topic": "Data Fetching & Server Actions",
@@ -320,7 +321,7 @@
       "explanation": "These two options have subtle but important semantic differences. `cache: 'no-store'` (a Web Fetch API standard option) instructs Next.js never to read from or write to the Data Cache. `next: { revalidate: 0 }` still participates in the Data Cache infrastructure but with a TTL of zero, which means cached entries are immediately considered stale — the background revalidation cycle still applies. Their interactions with `generateStaticParams` and route-segment `dynamic` config can differ in edge cases.\n**Why the distractors are wrong:**\n- **A** — They are not identical. Their behavior diverges in how they interact with the Data Cache and the route rendering mode determination.\n- **C** — `revalidate: 0` is an explicitly documented and valid Next.js option used to force dynamic rendering via the Data Cache path.\n- **D** — Both options affect Next.js\\'s server-side Data Cache. Neither option directly controls the browser HTTP cache."
     },
     {
-      "id": "nx-q0009",
+      "id": "nx--q0009",
       "level": "L2",
       "levelLabel": "Intermediate (Mid-Level)",
       "topic": "Data Fetching & Server Actions",
@@ -354,7 +355,7 @@
       "explanation": "`generateMetadata` is the App Router\\'s native mechanism for generating dynamic metadata per request. It receives `{ params, searchParams }`, can perform async data fetching, and returns a metadata object. Next.js automatically renders the result as `<title>`, `<meta>`, and `<link>` tags in the `<head>`.\n**Why the distractors are wrong:**\n- **A** — Static `export const metadata` is evaluated once at build time and cannot reference runtime values like `params.id`. It produces the same metadata for every product.\n- **C** — `react-helmet` is a client-side library. It injects tags into the DOM after JavaScript loads, which means search engine crawlers may not see the correct metadata. The App Router\\'s Metadata API renders tags server-side.\n- **D** — `getServerSideProps` is a Pages Router API that does not exist in the App Router. Even in the Pages Router, it could not directly populate `<head>` tags — that required a separate `<Head>` component from `next/head`."
     },
     {
-      "id": "nx-q0010",
+      "id": "nx--q0010",
       "level": "L2",
       "levelLabel": "Intermediate (Mid-Level)",
       "topic": "Data Fetching & Server Actions",
@@ -388,7 +389,7 @@
       "explanation": "Hydration errors occur when the HTML rendered on the server does not match what React generates during client-side hydration. `Math.random()` produces a unique value on each invocation, so the `id` generated during SSR will differ from the one generated during the client hydration pass, producing a mismatch that React cannot reconcile.\n**Why the distractors are wrong:**\n- **A** — `NEXT_PUBLIC_BUILD_TIME` is a build-time environment variable inlined into both the server bundle and the client bundle during the build. Its value is identical in both environments.\n- **B** — `useState(false)` has a deterministic initial value (`false`) that is the same in both the server render and the client hydration pass. No mismatch occurs.\n- **D** — A static string literal (`Hello World`) is byte-for-byte identical in server-rendered HTML and client hydration output. No mismatch."
     },
     {
-      "id": "nx-q0011",
+      "id": "nx--q0011",
       "level": "L3",
       "levelLabel": "Advanced (Senior)",
       "topic": "Advanced Server Rendering",
@@ -424,7 +425,7 @@
       "explanation": "Partial Prerendering (PPR) is designed precisely for this pattern. At build time, Next.js renders the static parts of the page (`<StaticHeader>`) and the `<Suspense>` fallback (`<p>Loading feed…</p>`) into a static HTML shell that is cached on the CDN. When a user visits `/feed`, the shell is served instantly. The server then streams the rendered output of `<DynamicFeed>` (which reads `cookies()` and is therefore dynamic) into the open Suspense hole.\n**Why the distractors are wrong:**\n- **A** — PPR specifically avoids this full-blocking behavior. The static shell is the whole point.\n- **C** — PPR never renders dynamic components (those using `cookies()`, `headers()`, etc.) at build time. The dynamic boundary is intentional.\n- **D** — PPR fully supports dynamic APIs like `cookies()` and `headers()` within `<Suspense>` boundaries. This is the core use case of the feature."
     },
     {
-      "id": "nx-q0012",
+      "id": "nx--q0012",
       "level": "L3",
       "levelLabel": "Advanced (Senior)",
       "topic": "Advanced Server Rendering",
@@ -460,7 +461,7 @@
       "explanation": "In Next.js middleware `matcher` config, `:path*` is a named parameter with a wildcard that matches **zero or more** path segments. This means the pattern `/dashboard/:path*` matches `/dashboard` (zero additional segments), `/dashboard/analytics`, `/dashboard/users/edit`, and so on.\n**Why the distractors are wrong:**\n- **A** — Without a `matcher` config (or with `matcher: ['/']`), middleware runs on all routes. The presence of a `matcher` explicitly limits its scope.\n- **B** — `:path*` matches sub-routes because `*` allows zero or more segments. To match only the exact paths, the config would be `matcher: ['/dashboard', '/admin']` with no wildcard.\n- **D** — `:path` is Next.js path-matching syntax for a named parameter, not a literal URL string. The colon prefix denotes a pattern parameter, not a URL literal character."
     },
     {
-      "id": "nx-q0013",
+      "id": "nx--q0013",
       "level": "L3",
       "levelLabel": "Advanced (Senior)",
       "topic": "Advanced Server Rendering",
@@ -496,7 +497,7 @@
       "explanation": "Both approaches are documented Next.js mechanisms and are interchangeable for this use case. Calling `noStore()` at the top of the Server Component\\'s async function body signals to Next.js at render time that this component must not be statically cached. Exporting `export const dynamic = 'force-dynamic'` is the route-segment-level config equivalent that forces the entire route segment into dynamic rendering mode.\n**Why the distractors are wrong:**\n- **A** — `noStore()` is designed for Server Components. `useEffect` is a Client Component hook and cannot be used in a Server Component. Attempting this would cause a build error."
     },
     {
-      "id": "nx-q0014",
+      "id": "nx--q0014",
       "level": "L3",
       "levelLabel": "Advanced (Senior)",
       "topic": "Advanced Server Rendering",
@@ -537,7 +538,7 @@
       "explanation": "This is a **Broken Object Level Authorization (BOLA)** vulnerability, also known as Insecure Direct Object Reference (IDOR). Any authenticated user who knows (or can guess) a `postId` can call `deletePost` to delete it — there is no verification that the requestor owns the post. An attacker can enumerate IDs and delete other users' content. The fix is to retrieve the current session, verify the authenticated user\\'s identity, and confirm ownership before executing the deletion.\n**Why the distractors are wrong:**\n- **A** — The function is correctly declared with `async`. This is not a bug.\n- **B** — Server Actions **can** be called from Client Component event handlers as of Next.js 14+. This is an explicitly supported and documented pattern.\n- **D** — Absent error handling is a code quality and reliability concern, not a security vulnerability. The authorization gap is the critical security flaw."
     },
     {
-      "id": "nx-q0015",
+      "id": "nx--q0015",
       "level": "L3",
       "levelLabel": "Advanced (Senior)",
       "topic": "Advanced Server Rendering",
@@ -573,7 +574,7 @@
       "explanation": "In the App Router, `error.tsx` wraps the `page.tsx` (and its entire child subtree) of the same route segment in a React Error Boundary. However, the error boundary is rendered _inside_ the `layout.tsx` of the same segment. Because a component cannot catch its own render errors via an error boundary, `layout.tsx` errors propagate upward to the **parent segment\\'s** `error.tsx` (or to `global-error.tsx` for the root).\n**Why the distractors are wrong:**\n- **A** — `error.tsx` does not wrap `layout.tsx` at the same level. It sits inside it.\n- **C** — `reset()` calls the React Error Boundary\\'s reset mechanism, which re-renders the boundary\\'s children (re-attempts the failing segment). It is a React-level reset, not a full browser reload.\n- **D** — `error.tsx` **must** be a Client Component. React Error Boundaries rely on `componentDidCatch` / `getDerivedStateFromError` lifecycle semantics, which are inherently client-side features unavailable in Server Components."
     },
     {
-      "id": "nx-q0016",
+      "id": "nx--q0016",
       "level": "L4",
       "levelLabel": "Expert (Architect)",
       "topic": "Architecture & Runtime",
@@ -606,7 +607,7 @@
       "explanation": "Next.js Multi-Zones documentation describes two complementary strategies. Option A uses `basePath: '/dashboard'` so all internal `<Link>` hrefs and static asset paths are prefixed automatically, with a reverse proxy routing `/dashboard/*` traffic to this app\\'s server. Option C uses `rewrites` in the host app to proxy `/dashboard/*` to the dashboard app\\'s origin URL — the dashboard app does not need `basePath` in this configuration.\n**Why the distractors are wrong:**\n- **A alone** — Correct pattern, but incomplete answer because C is also valid.\n- **B** — `assetPrefix` affects only the CDN path for static assets (JS, CSS bundles) but does not redirect page routing. It cannot create a multi-zone setup on its own, and a reverse proxy is always required.\n- **C alone** — Correct pattern, but incomplete answer because A is also valid."
     },
     {
-      "id": "nx-q0017",
+      "id": "nx--q0017",
       "level": "L4",
       "levelLabel": "Expert (Architect)",
       "topic": "Architecture & Runtime",
@@ -640,7 +641,7 @@
       "explanation": "The `unstable_cache` API signature is `unstable_cache(fn, keyParts, options)` where `options` accepts `{ tags: string[], revalidate: number }`. The `tags` field must be an **array of strings**. This enables `revalidateTag('user')` to purge all cache entries sharing that tag.\n**Why the distractors are wrong:**\n- **B** — The option key is `tags` (plural, array), not `tag` (singular string). Using `tag` instead of `tags` means no cache tag is registered, so `revalidateTag` will have no effect on this entry.\n- **C** — Making an internal `fetch` call to `/api/users/:id` adds an unnecessary HTTP round-trip to the same server. `unstable_cache` with a direct database call is the correct, efficient approach for caching non-`fetch` data sources.\n- **D** — `react.cache` provides **per-request deduplication** (memoizing calls within a single render pass). It does not persist data across requests, does not support cache tags, and does not accept a revalidation TTL. It solves a different problem (avoiding duplicate DB queries in the same render tree)."
     },
     {
-      "id": "nx-q0018",
+      "id": "nx--q0018",
       "level": "L4",
       "levelLabel": "Expert (Architect)",
       "topic": "Architecture & Runtime",
@@ -680,7 +681,7 @@
       "explanation": "`revalidateTag` is the precise API for on-demand, tag-based cache invalidation. It marks all cache entries — both `fetch()` calls and `unstable_cache` results — that were registered with the specified tag as stale. On the next incoming request for those resources, they will be regenerated from the source.\n**Why the distractors are wrong:**\n- **B** — `revalidatePath` invalidates caches associated with a specific URL path, not all resources that share a semantic label. It is a coarser tool and does not invalidate all product-related data across different paths.\n- **C** — The claim that `unstable_cache` is unaffected by `revalidateTag` is **incorrect**. `revalidateTag` invalidates both `fetch()` cache entries and `unstable_cache` results that share the tag.\n- **D** — `revalidateTag` does not trigger a full static rebuild. It marks tagged entries as stale and Next.js regenerates them lazily on the next request, identical to how on-demand ISR works."
     },
     {
-      "id": "nx-q0019",
+      "id": "nx--q0019",
       "level": "L4",
       "levelLabel": "Expert (Architect)",
       "topic": "Architecture & Runtime",
@@ -710,7 +711,7 @@
       "explanation": "The `@module-federation/nextjs-mf` package bridges Webpack\\'s Module Federation runtime with Next.js\\'s custom bundler pipeline. Remote federated modules are loaded asynchronously from an external origin at runtime, so they must be consumed with `next/dynamic` to prevent issues during the SSR pass. Setting `ssr: false` is the safe default unless both the host and remote are explicitly configured to support SSR, which requires coordinating chunk loading between two separate Webpack builds.\n**Why the distractors are wrong:**\n- **A** — Next.js does not natively support Module Federation. It requires the `@module-federation/nextjs-mf` plugin to handle the integration. Standard dynamic imports cannot load from a remote Webpack container\\'s `remoteEntry.js`.\n- **C** — While App Router integration has historically been more complex, the `@module-federation/nextjs-mf` package supports consuming federated modules as Client Components in the App Router. It is not restricted to the Pages Router.\n- **D** — There is no need for an API route proxy. The federated module\\'s `remoteEntry.js` is fetched directly by the Webpack runtime in the browser. Routing through an API proxy would add latency and defeat the purpose of Module Federation."
     },
     {
-      "id": "nx-q0020",
+      "id": "nx--q0020",
       "level": "L4",
       "levelLabel": "Expert (Architect)",
       "topic": "Architecture & Runtime",
@@ -744,6 +745,1254 @@
       ],
       "correctOptionId": "C",
       "explanation": "The Edge Runtime executes in a V8 isolate with a restricted API surface inherited from Cloudflare Workers / Vercel Edge: (1) **No TCP connections** — PostgreSQL drivers (pg, Prisma, Drizzle ORM) require TCP, making them incompatible; only HTTP-based edge-compatible drivers work. (2) **4 MB request body limit** — File uploads exceeding 4 MB are rejected. (3) **No Node.js built-in modules** — `node:crypto` is not available; only the Web Crypto API (`globalThis.crypto`) is accessible. The Node.js runtime (the default) supports all three requirements.\n**Why the distractors are wrong:**\n- **A** — Edge Runtime is not universally faster. For I/O-bound workloads with database connections, it is incompatible. Its speed advantage comes from geographic distribution and cold-start performance, not raw throughput.\n- **B** — Edge Runtime does **not** support TCP connections, has a body size limit, and does not include `node:crypto`. All three stated facts in option B are incorrect.\n- **D** — Edge Runtime **is** available for Route Handlers via `export const runtime = 'edge'`. It is not restricted to Middleware only."
+    },
+    {
+      "id": "nx--q0021",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "Which command scaffolds a new Next.js project with the latest version?",
+      "prompt": "Which command scaffolds a new Next.js project with the latest version?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`npx create-react-app --template next`"
+        },
+        {
+          "id": "B",
+          "text": "`npx create-next-app@latest`"
+        },
+        {
+          "id": "C",
+          "text": "`npm init next-app`"
+        },
+        {
+          "id": "D",
+          "text": "`npx next init`"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The official scaffold tool is `create-next-app`. Running `npx create-next-app@latest` interactively prompts for TypeScript, ESLint, Tailwind CSS, the `src/` directory structure, and whether to use the App Router."
+    },
+    {
+      "id": "nx--q0022",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "In the Next.js Pages Router, a component exported from `pages/blog/index.js` maps to which URL path?",
+      "prompt": "In the Next.js Pages Router, a component exported from `pages/blog/index.js` maps to which URL path?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`/pages/blog`"
+        },
+        {
+          "id": "B",
+          "text": "`/blog/index`"
+        },
+        {
+          "id": "C",
+          "text": "`/blog`"
+        },
+        {
+          "id": "D",
+          "text": "`/blog/index.js`"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Next.js uses file-based routing. An `index.js` file maps to the root of its directory segment, so `pages/blog/index.js` resolves to `/blog`. This mirrors standard web server conventions for index files."
+    },
+    {
+      "id": "nx--q0023",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "Which Next.js built-in component should be used for client-side navigation to avoid a full page reload?",
+      "prompt": "Which Next.js built-in component should be used for client-side navigation to avoid a full page reload?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`<a href=\"/about\">`"
+        },
+        {
+          "id": "B",
+          "text": "`<Router to=\"/about\">`"
+        },
+        {
+          "id": "C",
+          "text": "`<Link href=\"/about\">` from `next/link`"
+        },
+        {
+          "id": "D",
+          "text": "`<Navigate to=\"/about\">`"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "The `<Link>` component from `next/link` intercepts clicks and performs client-side route transitions using the browser History API. It also prefetches linked pages in the background in production, delivering near-instant navigation — unlike a plain `<a>` tag which triggers a full page reload."
+    },
+    {
+      "id": "nx--q0024",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "What advantage does `next/image` offer over a plain HTML `<img>` tag?",
+      "prompt": "What advantage does `next/image` offer over a plain HTML `<img>` tag?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Support for SVG animations"
+        },
+        {
+          "id": "B",
+          "text": "Automatic image optimization, lazy loading by default, and responsive `srcset` generation"
+        },
+        {
+          "id": "C",
+          "text": "Built-in CSS filter effects"
+        },
+        {
+          "id": "D",
+          "text": "Client-side image cropping and editing"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`next/image` passes images through Next.js\\'s built-in optimization pipeline: it converts to modern formats (WebP/AVIF), resizes on demand, lazy-loads by default, and prevents cumulative layout shift (CLS) by requiring explicit `width` and `height` props. This significantly improves Core Web Vitals scores."
+    },
+    {
+      "id": "nx--q0025",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "What is the key difference between `getStaticProps` and `getServerSideProps` in the Next.js Pages Router?",
+      "prompt": "What is the key difference between `getStaticProps` and `getServerSideProps` in the Next.js Pages Router?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Both run on the server and produce identical output"
+        },
+        {
+          "id": "B",
+          "text": "`getStaticProps` runs at build time (SSG); `getServerSideProps` runs on every incoming request (SSR)"
+        },
+        {
+          "id": "C",
+          "text": "`getStaticProps` is only for API routes"
+        },
+        {
+          "id": "D",
+          "text": "`getServerSideProps` permanently caches its result"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`getStaticProps` pre-renders pages at build time, producing static HTML that can be cached at a CDN edge — ideal for content that rarely changes. `getServerSideProps` generates fresh HTML per request, granting access to real-time data, request cookies, and headers, but at the cost of higher server latency."
+    },
+    {
+      "id": "nx--q0026",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer needs a dynamic route for individual product pages at `/products/[id]`. Which file path in the Pages Router is correct?",
+      "prompt": "A developer needs a dynamic route for individual product pages at `/products/[id]`. Which file path in the Pages Router is correct?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`pages/products/:id.js`"
+        },
+        {
+          "id": "B",
+          "text": "`pages/products/{id}.js`"
+        },
+        {
+          "id": "C",
+          "text": "`pages/products/[id].js`"
+        },
+        {
+          "id": "D",
+          "text": "`pages/products/$id.js`"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Next.js uses square-bracket notation for dynamic route segments. `pages/products/[id].js` matches `/products/42`, `/products/abc`, etc. The dynamic value is accessible as `router.query.id` or via the `params` argument in `getStaticProps` / `getServerSideProps`."
+    },
+    {
+      "id": "nx--q0027",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer creates `pages/api/orders.js`. What does this file expose?",
+      "prompt": "A developer creates `pages/api/orders.js`. What does this file expose?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A React page component rendered at `/api/orders`"
+        },
+        {
+          "id": "B",
+          "text": "A serverless API endpoint that handles HTTP requests at `/api/orders`"
+        },
+        {
+          "id": "C",
+          "text": "A static JSON file served at `/api/orders`"
+        },
+        {
+          "id": "D",
+          "text": "A WebSocket connection endpoint"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Files inside `pages/api/` are API routes that run exclusively on the server. They receive Node.js-style `req` and `res` objects, are never sent to the browser, and keep server-only logic (database queries, secret keys) completely isolated from the client bundle."
+    },
+    {
+      "id": "nx--q0028",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A Next.js developer needs an environment variable to be accessible in client-side JavaScript. What naming convention is required?",
+      "prompt": "A Next.js developer needs an environment variable to be accessible in client-side JavaScript. What naming convention is required?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "`REACT_APP_API_KEY`"
+        },
+        {
+          "id": "B",
+          "text": "`NEXT_PUBLIC_API_KEY`"
+        },
+        {
+          "id": "C",
+          "text": "`PUBLIC_API_KEY`"
+        },
+        {
+          "id": "D",
+          "text": "`CLIENT_API_KEY`"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Next.js only inlines environment variables into the browser bundle when they are prefixed with `NEXT_PUBLIC_`. All other env variables remain server-side only and are never included in client code, protecting secrets like database passwords and API tokens from exposure."
+    },
+    {
+      "id": "nx--q0029",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer wants a statically generated page to automatically refresh stale content every 10 minutes without a full rebuild. What is the correct approach?",
+      "prompt": "A developer wants a statically generated page to automatically refresh stale content every 10 minutes without a full rebuild. What is the correct approach?",
+      "content": [
+        {
+          "type": "code",
+          "language": "js",
+          "value": "export async function getStaticProps() {\n  const data = await fetchProducts();\n  return { props: { data }, revalidate: 600 };\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "This is incorrect; use `getServerSideProps` instead for refreshing content"
+        },
+        {
+          "id": "B",
+          "text": "This uses Incremental Static Regeneration (ISR) — after 600 seconds, the next request triggers background regeneration while the stale page is served"
+        },
+        {
+          "id": "C",
+          "text": "The page is rebuilt every 600 seconds automatically regardless of traffic"
+        },
+        {
+          "id": "D",
+          "text": "`revalidate` is not a valid key in the `getStaticProps` return object"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "ISR combines the performance of static pages with the freshness of server rendering. Once the revalidation window expires, the next visitor gets the stale page immediately while Next.js regenerates it in the background. The freshly generated page replaces the old one for subsequent visitors."
+    },
+    {
+      "id": "nx--q0030",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "In Next.js App Router (`app/` directory), what is the role of a `layout.tsx` file?",
+      "prompt": "In Next.js App Router (`app/` directory), what is the role of a `layout.tsx` file?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It defines page-level `<head>` metadata like `<title>` and Open Graph tags"
+        },
+        {
+          "id": "B",
+          "text": "It is a persistent UI shell that wraps the current segment and all nested segments, preserving state across route changes"
+        },
+        {
+          "id": "C",
+          "text": "It replaces `getServerSideProps` for server-side data fetching"
+        },
+        {
+          "id": "D",
+          "text": "It is used only for CSS-in-JS scope isolation"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`layout.tsx` defines shared UI (nav, sidebar, providers) that persists across navigations within its segment. React preserves the layout component\\'s state and DOM — it is not unmounted when a child route changes. Every segment can have its own `layout.tsx`, and they nest automatically for granular control."
+    },
+    {
+      "id": "nx--q0031",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "In Next.js App Router, what does adding `\"use client\"` at the top of a file declare?",
+      "prompt": "In Next.js App Router, what does adding `\"use client\"` at the top of a file declare?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The file should only be included in the development bundle"
+        },
+        {
+          "id": "B",
+          "text": "The component is a Client Component — it is hydrated in the browser and can use hooks, state, and browser APIs"
+        },
+        {
+          "id": "C",
+          "text": "The file handles client authentication logic only"
+        },
+        {
+          "id": "D",
+          "text": "All exports from the file are server-only utilities"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "By default, all App Router components are React Server Components that render only on the server with zero JavaScript shipped to the client. Adding `\"use client\"` marks a boundary: that file and its imports become part of the client bundle, enabling interactivity via `useState`, `useEffect`, and event handlers. Server Components cannot use these APIs."
+    },
+    {
+      "id": "nx--q0032",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer uses `getStaticPaths` with `fallback: 'blocking'`. What happens when a visitor requests a path that was not pre-generated at build time?",
+      "prompt": "A developer uses `getStaticPaths` with `fallback: 'blocking'`. What happens when a visitor requests a path that was not pre-generated at build time?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A 404 page is returned immediately"
+        },
+        {
+          "id": "B",
+          "text": "A loading skeleton from `router.isFallback` is shown while the page generates"
+        },
+        {
+          "id": "C",
+          "text": "The page is server-rendered on the first request, the response is cached as static HTML, and subsequent visitors get the static file"
+        },
+        {
+          "id": "D",
+          "text": "The Next.js build is triggered again to include the new path"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "`fallback: 'blocking'` generates unbuilt pages on-demand via SSR (the request blocks until rendering is complete), then stores the result as static HTML. Unlike `fallback: true`, no intermediate loading state is shown. Use it when you want on-demand generation without a loading flash."
+    },
+    {
+      "id": "nx--q0033",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "Where does Next.js Middleware execute, and what is it primarily used for?",
+      "prompt": "Where does Next.js Middleware execute, and what is it primarily used for?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "In the browser after the page loads, to modify the DOM"
+        },
+        {
+          "id": "B",
+          "text": "In the Node.js API runtime to validate request bodies"
+        },
+        {
+          "id": "C",
+          "text": "At the Edge runtime, before a request is matched to a route — for redirects, rewrites, auth checks, and header manipulation"
+        },
+        {
+          "id": "D",
+          "text": "Inside React Server Components as an async data-fetching wrapper"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Next.js Middleware runs in the lightweight Edge Runtime (V8-based) and executes before route resolution. It is ideal for authentication redirects, A/B testing, geo-targeting, and request/response header manipulation with near-zero added latency since it runs at the network edge close to the user."
+    },
+    {
+      "id": "nx--q0034",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "In the Next.js App Router, what is the purpose of `generateStaticParams`?",
+      "prompt": "In the Next.js App Router, what is the purpose of `generateStaticParams`?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "// app/products/[id]/page.tsx\nexport async function generateStaticParams() {\n  const products = await fetchProducts();\n  return products.map((p) => ({ id: String(p.id) }));\n}"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "It validates the params passed to a dynamic route at runtime"
+        },
+        {
+          "id": "B",
+          "text": "It is the App Router equivalent of `getStaticPaths` — it returns param objects to pre-render at build time"
+        },
+        {
+          "id": "C",
+          "text": "It generates TypeScript types for dynamic route parameters"
+        },
+        {
+          "id": "D",
+          "text": "It runs on every request to fetch the latest parameters from the database"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`generateStaticParams` replaces `getStaticPaths` from the Pages Router. It is exported from a dynamic segment\\'s `page.tsx` and returns an array of param objects that Next.js uses to determine which paths to pre-render during `next build`."
+    },
+    {
+      "id": "nx--q0035",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "In the Next.js App Router, how do React Server Components (RSC) fetch data differently from client components?",
+      "prompt": "In the Next.js App Router, how do React Server Components (RSC) fetch data differently from client components?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "RSC use `useEffect` with `fetch` in the component body"
+        },
+        {
+          "id": "B",
+          "text": "RSC use a special `getData()` hook provided by Next.js"
+        },
+        {
+          "id": "C",
+          "text": "RSC can be declared as `async` functions and `await` data directly in the component body — no hooks required"
+        },
+        {
+          "id": "D",
+          "text": "RSC require Redux Toolkit for all server-side data fetching"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "React Server Components run exclusively on the server and are never hydrated in the browser. Because they do not participate in the React hook lifecycle, they can be `async` functions that `await` database queries, file reads, or API calls directly in the component body, eliminating the need for `useEffect`-based data fetching patterns."
+    },
+    {
+      "id": "nx--q0036",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer wraps a slow data-fetching Server Component with `<Suspense>` in the Next.js App Router. What is the performance benefit?",
+      "prompt": "A developer wraps a slow data-fetching Server Component with `<Suspense>` in the Next.js App Router. What is the performance benefit?",
+      "content": [
+        {
+          "type": "code",
+          "language": "tsx",
+          "value": "<Suspense fallback={<Skeleton />}>\n  <SlowDataComponent />\n</Suspense>"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "It moves `SlowDataComponent` to client-side rendering automatically"
+        },
+        {
+          "id": "B",
+          "text": "It enables HTML streaming — the server sends the outer shell (including the fallback) immediately and streams the component\\'s HTML when its data resolves"
+        },
+        {
+          "id": "C",
+          "text": "It caches the component\\'s output in a Redis store"
+        },
+        {
+          "id": "D",
+          "text": "It prevents `SlowDataComponent` from receiving any props until data is ready"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Next.js App Router supports HTTP streaming via React Suspense. The server flushes the page shell and Suspense fallback to the browser immediately (improving TTFB), then streams the resolved component HTML as a small `<script>` injection once the awaited data is ready — without a full page reload or client-side fetch."
+    },
+    {
+      "id": "nx--q0037",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "Which file makes a route segment publicly accessible in the App Router?",
+      "prompt": "Which file makes a route segment publicly accessible in the App Router?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "layout.tsx"
+        },
+        {
+          "id": "B",
+          "text": "page.tsx"
+        },
+        {
+          "id": "C",
+          "text": "route.ts"
+        },
+        {
+          "id": "D",
+          "text": "template.tsx"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Only page.tsx renders UI at its URL; layouts wrap children but never create a route on their own."
+    },
+    {
+      "id": "nx--q0038",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "Where does `loading.tsx` render?",
+      "prompt": "Where does `loading.tsx` render?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Only in the root"
+        },
+        {
+          "id": "B",
+          "text": "As the Suspense fallback for its segment while nested content streams in"
+        },
+        {
+          "id": "C",
+          "text": "In the browser console"
+        },
+        {
+          "id": "D",
+          "text": "On the error page"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "loading.tsx wraps the segment in Suspense automatically, giving instant skeletons during streaming."
+    },
+    {
+      "id": "nx--q0039",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "EASY",
+      "title": "What does a `layout.tsx` file do?",
+      "prompt": "What does a `layout.tsx` file do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Renders one page only"
+        },
+        {
+          "id": "B",
+          "text": "Wraps its segment and all children with shared UI that preserves state across navigations"
+        },
+        {
+          "id": "C",
+          "text": "Fetches data only"
+        },
+        {
+          "id": "D",
+          "text": "Handles errors"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Layouts mount once and persist while child segments swap — ideal for navbars, sidebars and providers."
+    },
+    {
+      "id": "nx--q0040",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "Where should data fetching happen in a Server Component?",
+      "prompt": "Where should data fetching happen in a Server Component?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "In useEffect"
+        },
+        {
+          "id": "B",
+          "text": "Directly in the component body with await — Server Components can be async"
+        },
+        {
+          "id": "C",
+          "text": "In getStaticProps"
+        },
+        {
+          "id": "D",
+          "text": "In the browser only"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Server Components run on the server, so awaiting fetch inline is idiomatic; useEffect does not exist there."
+    },
+    {
+      "id": "nx--q0041",
+      "level": "L1",
+      "levelLabel": "Fundamental (Junior / Associate)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "EASY",
+      "title": "How do you opt a Server Component into dynamic rendering?",
+      "prompt": "How do you opt a Server Component into dynamic rendering?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Add \"use client\""
+        },
+        {
+          "id": "B",
+          "text": "Read request-time data (headers, cookies, searchParams) or set dynamic = 'force-dynamic'"
+        },
+        {
+          "id": "C",
+          "text": "Rename it to page.client.tsx"
+        },
+        {
+          "id": "D",
+          "text": "Use useState"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Request-time APIs and the force-dynamic segment option pull the route out of static prerendering."
+    },
+    {
+      "id": "nx--q0042",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "MEDIUM",
+      "title": "What does a `route.ts` file export to handle HTTP?",
+      "prompt": "What does a `route.ts` file export to handle HTTP?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Components"
+        },
+        {
+          "id": "B",
+          "text": "Named HTTP-method functions (GET, POST, …) returning Response objects"
+        },
+        {
+          "id": "C",
+          "text": "CSS"
+        },
+        {
+          "id": "D",
+          "text": "Middleware config"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Route Handlers are Web-standard endpoints: export async function GET(request) { return Response.json(...) }."
+    },
+    {
+      "id": "nx--q0043",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "MEDIUM",
+      "title": "What does `cache: 'no-store'` do on a fetch call?",
+      "prompt": "What does `cache: 'no-store'` do on a fetch call?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Caches forever"
+        },
+        {
+          "id": "B",
+          "text": "Bypasses the Data Cache so every request hits the origin"
+        },
+        {
+          "id": "C",
+          "text": "Disables the component cache"
+        },
+        {
+          "id": "D",
+          "text": "Enables ISR"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "no-store marks the fetch dynamic, opting the route out of static rendering for that data."
+    },
+    {
+      "id": "nx--q0044",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "MEDIUM",
+      "title": "How do you revalidate cached data after a mutation?",
+      "prompt": "How do you revalidate cached data after a mutation?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Reload the page"
+        },
+        {
+          "id": "B",
+          "text": "Call revalidatePath or revalidateTag inside the Server Action"
+        },
+        {
+          "id": "C",
+          "text": "Delete the cache folder"
+        },
+        {
+          "id": "D",
+          "text": "Change the URL"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "On-demand revalidation purges specific paths/tags so the next request rebuilds fresh HTML."
+    },
+    {
+      "id": "nx--q0045",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "What does `generateMetadata` return?",
+      "prompt": "What does `generateMetadata` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "JSX"
+        },
+        {
+          "id": "B",
+          "text": "A Metadata object (title, description, openGraph…) rendered into <head>"
+        },
+        {
+          "id": "C",
+          "text": "A JSON API response"
+        },
+        {
+          "id": "D",
+          "text": "CSS variables"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "generateMetadata runs on the server per route and feeds the document head — the App Router replacement for next/head."
+    },
+    {
+      "id": "nx--q0046",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "Where does `error.tsx` catch failures?",
+      "prompt": "Where does `error.tsx` catch failures?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The whole app"
+        },
+        {
+          "id": "B",
+          "text": "Its own segment boundary and below — sibling/parent segments keep rendering"
+        },
+        {
+          "id": "C",
+          "text": "Only API routes"
+        },
+        {
+          "id": "D",
+          "text": "Only the root layout"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "error.tsx is a nested boundary: it resets its segment independently, which is why layouts above it survive."
+    },
+    {
+      "id": "nx--q0047",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "MEDIUM",
+      "title": "What is Partial Prerendering (PPR)?",
+      "prompt": "What is Partial Prerendering (PPR)?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Prerendering half the routes"
+        },
+        {
+          "id": "B",
+          "text": "Serving a static shell instantly while dynamic holes stream in, within the same route"
+        },
+        {
+          "id": "C",
+          "text": "A build optimisation only"
+        },
+        {
+          "id": "D",
+          "text": "Client-side rendering renamed"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "PPR blends static and dynamic in one response: the shell ships from the edge cache and Suspense boundaries fill in."
+    },
+    {
+      "id": "nx--q0048",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "MEDIUM",
+      "title": "Why must Server Action arguments be serializable?",
+      "prompt": "Why must Server Action arguments be serializable?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They must fit in a cookie"
+        },
+        {
+          "id": "B",
+          "text": "Actions cross the client/server boundary, so args travel as JSON"
+        },
+        {
+          "id": "C",
+          "text": "For TypeScript only"
+        },
+        {
+          "id": "D",
+          "text": "To enable caching"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The client sends arguments over the wire; functions, class instances and symbols cannot cross that boundary."
+    },
+    {
+      "id": "nx--q0049",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "MEDIUM",
+      "title": "When should you choose the Edge runtime over Node.js?",
+      "prompt": "When should you choose the Edge runtime over Node.js?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Always — it is faster everywhere"
+        },
+        {
+          "id": "B",
+          "text": "For latency-sensitive, dependency-light middleware and personalisation at the edge"
+        },
+        {
+          "id": "C",
+          "text": "For heavy image processing"
+        },
+        {
+          "id": "D",
+          "text": "For database drivers"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Edge runs V8 isolates near users with limited Node APIs; heavy compute and native modules still belong on Node runtimes."
+    },
+    {
+      "id": "nx--q0050",
+      "level": "L2",
+      "levelLabel": "Intermediate (Mid-Level)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "MEDIUM",
+      "title": "What does a `template.tsx` file do differently from `layout.tsx`?",
+      "prompt": "What does a `template.tsx` file do differently from `layout.tsx`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "Templates remount on every navigation (fresh state) while layouts preserve state"
+        },
+        {
+          "id": "C",
+          "text": "Templates are for APIs"
+        },
+        {
+          "id": "D",
+          "text": "Layouts cannot nest"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Template remounts its children per segment — useful for enter animations or per-page state resets."
+    },
+    {
+      "id": "nx--q0051",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "HARD",
+      "title": "What is the purpose of `unstable_cache`?",
+      "prompt": "What is the purpose of `unstable_cache`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Caching static assets"
+        },
+        {
+          "id": "B",
+          "text": "Memoizing expensive work outside the request lifecycle with tag-based invalidation"
+        },
+        {
+          "id": "C",
+          "text": "Caching client state"
+        },
+        {
+          "id": "D",
+          "text": "Disabling ISR"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "unstable_cache wraps arbitrary async work (DB calls, SDKs) in the Data Cache, keyed and revalidatable by tags."
+    },
+    {
+      "id": "nx--q0052",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "HARD",
+      "title": "How does `revalidateTag` differ from `revalidatePath`?",
+      "prompt": "How does `revalidateTag` differ from `revalidatePath`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are identical"
+        },
+        {
+          "id": "B",
+          "text": "revalidateTag purges every cached entry labelled with a tag across paths; revalidatePath targets one URL"
+        },
+        {
+          "id": "C",
+          "text": "Tags are slower"
+        },
+        {
+          "id": "D",
+          "text": "Paths cannot be revalidated"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Tags decouple invalidation from URLs: one tag (e.g. 'products') can clear listings, search and detail caches together."
+    },
+    {
+      "id": "nx--q0053",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "HARD",
+      "title": "Where does Middleware execute and what can it do?",
+      "prompt": "Where does Middleware execute and what can it do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "On the client after hydration"
+        },
+        {
+          "id": "B",
+          "text": "At the edge before routing — rewrites, redirects, auth checks and header injection"
+        },
+        {
+          "id": "C",
+          "text": "Only in dev mode"
+        },
+        {
+          "id": "D",
+          "text": "Inside Server Components"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Middleware intercepts requests pre-route with a Web-standard API, ideal for auth gates, A/B splits and locale routing."
+    },
+    {
+      "id": "nx--q0054",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "HARD",
+      "title": "What is a multi-zone Next.js deployment?",
+      "prompt": "What is a multi-zone Next.js deployment?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Multiple databases"
+        },
+        {
+          "id": "B",
+          "text": "Several Next.js apps served under one domain via rewrites, each owning its routes"
+        },
+        {
+          "id": "C",
+          "text": "Multi-region only"
+        },
+        {
+          "id": "D",
+          "text": "A monorepo"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Zones split a large site into independently deployable apps (docs., blog., app.) unified behind one hostname."
+    },
+    {
+      "id": "nx--q0055",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "HARD",
+      "title": "Why can `fetch` in a Server Component be deduped automatically?",
+      "prompt": "Why can `fetch` in a Server Component be deduped automatically?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It cannot"
+        },
+        {
+          "id": "B",
+          "text": "Next.js memoizes identical fetch calls per request (request memoization), so repeated component fetches hit once"
+        },
+        {
+          "id": "C",
+          "text": "Because of the browser cache"
+        },
+        {
+          "id": "D",
+          "text": "Only with SWR"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Request memoization dedupes GET fetches within one render pass — the tree can fetch the same resource freely."
+    },
+    {
+      "id": "nx--q0056",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "HARD",
+      "title": "What makes a Server Action idempotent-safe to retry?",
+      "prompt": "What makes a Server Action idempotent-safe to retry?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing — retries are banned"
+        },
+        {
+          "id": "B",
+          "text": "Designing the mutation around stable keys/versions so duplicate submissions converge instead of duplicating effects"
+        },
+        {
+          "id": "C",
+          "text": "Using GET instead of POST"
+        },
+        {
+          "id": "D",
+          "text": "Disabling cookies"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Network retries and double-clicks happen; idempotency keys or conditional writes make the second execution a no-op."
+    },
+    {
+      "id": "nx--q0057",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "App Router Fundamentals",
+      "difficulty": "HARD",
+      "title": "What do `parallel routes` (`@slot`) solve?",
+      "prompt": "What do `parallel routes` (`@slot`) solve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Parallel builds"
+        },
+        {
+          "id": "B",
+          "text": "Rendering multiple independent views in one layout (modal + page) with independent loading/error states"
+        },
+        {
+          "id": "C",
+          "text": "Faster hydration"
+        },
+        {
+          "id": "D",
+          "text": "Multi-tenancy"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Named slots let a layout compose several subtrees that navigate, stream and fail independently."
+    },
+    {
+      "id": "nx--q0058",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "HARD",
+      "title": "When do you reach for `generateStaticParams`?",
+      "prompt": "When do you reach for `generateStaticParams`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "For client components"
+        },
+        {
+          "id": "B",
+          "text": "To pre-render known dynamic segments (blog slugs, product ids) at build time, optionally with dynamicParams fallback"
+        },
+        {
+          "id": "C",
+          "text": "To skip builds"
+        },
+        {
+          "id": "D",
+          "text": "For API routes"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "generateStaticParams enumerates params for static generation; unknown params then 404 or render on demand per dynamicParams."
+    },
+    {
+      "id": "nx--q0059",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Advanced Server Rendering",
+      "difficulty": "HARD",
+      "title": "What does the `connection()` API do?",
+      "prompt": "What does the `connection()` API do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Opens a DB pool"
+        },
+        {
+          "id": "B",
+          "text": "Explicitly marks rendering as dynamic by touching request-time data, replacing ad-hoc headers()/cookies() reads"
+        },
+        {
+          "id": "C",
+          "text": "Connects to Redis"
+        },
+        {
+          "id": "D",
+          "text": "Enables websockets"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "connection() is the deliberate dynamic opt-in: calling it tells Next.js the route needs per-request data."
+    },
+    {
+      "id": "nx--q0060",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Data Fetching & Server Actions",
+      "difficulty": "HARD",
+      "title": "Why must secrets never be read in a Client Component bundle?",
+      "prompt": "Why must secrets never be read in a Client Component bundle?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They cannot be read at all"
+        },
+        {
+          "id": "B",
+          "text": "Client code ships to the browser — any secret referenced there is exposed; keep them in Server Components/Actions"
+        },
+        {
+          "id": "C",
+          "text": "TypeScript forbids it"
+        },
+        {
+          "id": "D",
+          "text": "It breaks hydration"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Anything imported by client code is downloadable. Secrets belong server-side, passed to clients only as derived, safe values."
+    },
+    {
+      "id": "nx--q0061",
+      "level": "L3",
+      "levelLabel": "Advanced (Senior)",
+      "topic": "Architecture & Runtime",
+      "difficulty": "HARD",
+      "title": "What does `output: 'export'` change about a Next.js app?",
+      "prompt": "What does `output: 'export'` change about a Next.js app?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "It disables all server features and emits a fully static site servable from any CDN"
+        },
+        {
+          "id": "C",
+          "text": "It enables SSR"
+        },
+        {
+          "id": "D",
+          "text": "It adds API routes"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Static export removes Route Handlers, Server Actions, ISR and middleware needs — pure HTML/CSS/JS output."
     }
   ]
 }

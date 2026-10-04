@@ -1,0 +1,1631 @@
+{
+  "technology": "devops",
+  "label": "DevOps",
+  "description": "Delivery-stack MCQ: Docker & Kubernetes, MongoDB, PostgreSQL, Redis and the CI/CD pipelines that glue them together.",
+  "source": "Authored for SkillGauge",
+  "generatedAt": "2026-10-03T17:35:44.963Z",
+  "questionCount": 53,
+  "levels": [
+    {
+      "id": "L1",
+      "label": "Fundamental"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced"
+    }
+  ],
+  "topics": [
+    "Docker",
+    "Kubernetes",
+    "MongoDB",
+    "PostgreSQL",
+    "Redis"
+  ],
+  "difficultyCounts": {
+    "EASY": 19,
+    "MEDIUM": 21,
+    "HARD": 13
+  },
+  "levelCounts": {
+    "L1": 19,
+    "L2": 21,
+    "L3": 13
+  },
+  "questions": [
+    {
+      "id": "dv-q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Docker",
+      "difficulty": "EASY",
+      "title": "What does `docker run -d nginx` do differently from `docker run nginx`?",
+      "prompt": "What does `docker run -d nginx` do differently from `docker run nginx`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It runs nginx with an interactive terminal attached"
+        },
+        {
+          "id": "B",
+          "text": "It runs nginx detached in the background so the shell returns immediately"
+        },
+        {
+          "id": "C",
+          "text": "It disables nginx networking"
+        },
+        {
+          "id": "D",
+          "text": "It rebuilds the image before running"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The `-d` flag runs the container detached. Without it the container's logs stream into the terminal and the shell stays attached until the container exits."
+    },
+    {
+      "id": "dv-q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Docker",
+      "difficulty": "EASY",
+      "title": "A Dockerfile line reads `COPY package.json ./`. When does that layer rebuild?",
+      "prompt": "A Dockerfile line reads `COPY package.json ./`. When does that layer rebuild?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "On every docker build, unconditionally"
+        },
+        {
+          "id": "B",
+          "text": "Only when package.json or the build context changes — otherwise the cached layer is reused"
+        },
+        {
+          "id": "C",
+          "text": "Only when the image tag changes"
+        },
+        {
+          "id": "D",
+          "text": "Whenever the base image is pulled"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Docker caches layers in order, so copying the manifest before the source keeps the expensive install layer valid while only application code changes."
+    },
+    {
+      "id": "dv-q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Docker",
+      "difficulty": "EASY",
+      "title": "Which command shows only the containers currently running?",
+      "prompt": "Which command shows only the containers currently running?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "docker ps"
+        },
+        {
+          "id": "B",
+          "text": "docker ps -a"
+        },
+        {
+          "id": "C",
+          "text": "docker images"
+        },
+        {
+          "id": "D",
+          "text": "docker top"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`docker ps` lists running containers; `docker ps -a` also includes stopped ones. `docker images` lists images, not containers."
+    },
+    {
+      "id": "dv-q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Docker",
+      "difficulty": "EASY",
+      "title": "In a Dockerfile, what is the difference between `CMD` and `ENTRYPOINT`?",
+      "prompt": "In a Dockerfile, what is the difference between `CMD` and `ENTRYPOINT`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are identical aliases"
+        },
+        {
+          "id": "B",
+          "text": "ENTRYPOINT defines the executable while CMD supplies default arguments that can be overridden at run time"
+        },
+        {
+          "id": "C",
+          "text": "CMD runs at build time and ENTRYPOINT at run time"
+        },
+        {
+          "id": "D",
+          "text": "ENTRYPOINT only works on Windows images"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`ENTRYPOINT` pins the executable; `CMD` provides defaults that `docker run <image> <args>` can override on the command line."
+    },
+    {
+      "id": "dv-q0005",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Docker",
+      "difficulty": "EASY",
+      "title": "What problem does `docker compose up` solve?",
+      "prompt": "What problem does `docker compose up` solve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It compiles Go binaries for containers"
+        },
+        {
+          "id": "B",
+          "text": "It starts every service in a compose file (app, database, cache) with one command"
+        },
+        {
+          "id": "C",
+          "text": "It scans images for vulnerabilities"
+        },
+        {
+          "id": "D",
+          "text": "It rotates container log files"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Compose reads a declarative compose.yaml and brings the whole multi-container stack up together with shared networking."
+    },
+    {
+      "id": "dv-q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "An image is 1.4 GB and CI bandwidth is the bottleneck. Which change shrinks it most?",
+      "prompt": "An image is 1.4 GB and CI bandwidth is the bottleneck. Which change shrinks it most?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Switch the final stage to a slim/distroless base and use a multi-stage build"
+        },
+        {
+          "id": "B",
+          "text": "Add more COPY layers"
+        },
+        {
+          "id": "C",
+          "text": "Run apt-get upgrade in the final stage"
+        },
+        {
+          "id": "D",
+          "text": "Disable layer caching"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "Most bytes come from the base image and build-only tooling. A multi-stage build copies just the artifact into a minimal runtime image."
+    },
+    {
+      "id": "dv-q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "A container must reach another service in the same compose file. How does it address it?",
+      "prompt": "A container must reach another service in the same compose file. How does it address it?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "By its container ID"
+        },
+        {
+          "id": "B",
+          "text": "By the service name from compose.yaml, which Compose registers as a DNS name"
+        },
+        {
+          "id": "C",
+          "text": "By localhost of the host machine"
+        },
+        {
+          "id": "D",
+          "text": "By a hardcoded IP address"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Compose creates a user-defined network and registers each service under its service name, so `postgres:5432` just works."
+    },
+    {
+      "id": "dv-q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "Why does a `RUN rm -rf /var/cache` line NOT shrink the final image?",
+      "prompt": "Why does a `RUN rm -rf /var/cache` line NOT shrink the final image?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "rm is unavailable during docker build"
+        },
+        {
+          "id": "B",
+          "text": "Docker ignores deletions"
+        },
+        {
+          "id": "C",
+          "text": "Each instruction is a layer — the deleted bytes remain in the earlier layer"
+        },
+        {
+          "id": "D",
+          "text": "The cache is recreated automatically"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Layers are additive; deleting later only hides the bytes. Clean up inside the same RUN, or discard the whole layer with a multi-stage build."
+    },
+    {
+      "id": "dv-q0009",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "What does the `HEALTHCHECK` instruction do for a container?",
+      "prompt": "What does the `HEALTHCHECK` instruction do for a container?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Reports build status to Docker Hub"
+        },
+        {
+          "id": "B",
+          "text": "Runs a periodic command and marks the container healthy or unhealthy so orchestrators can route around failures"
+        },
+        {
+          "id": "C",
+          "text": "Auto-restarts the container when it exits"
+        },
+        {
+          "id": "D",
+          "text": "Encrypts the container filesystem"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "HEALTHCHECK lets the runtime probe the process. Compose uses it for `service_healthy` dependencies, and Kubernetes covers the same ground with its own probes."
+    },
+    {
+      "id": "dv-q0010",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "Which build flag forces every Dockerfile instruction to re-run?",
+      "prompt": "Which build flag forces every Dockerfile instruction to re-run?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "--no-cache"
+        },
+        {
+          "id": "B",
+          "text": "--fresh"
+        },
+        {
+          "id": "C",
+          "text": "--force"
+        },
+        {
+          "id": "D",
+          "text": "--rebuild"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`docker build --no-cache` bypasses the layer cache, the standard fix when a stale cache produces a broken image."
+    },
+    {
+      "id": "dv-q0011",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Docker",
+      "difficulty": "MEDIUM",
+      "title": "Where should a production API key live so it never bakes into an image layer?",
+      "prompt": "Where should a production API key live so it never bakes into an image layer?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "As an ARG in the Dockerfile"
+        },
+        {
+          "id": "B",
+          "text": "As an ENV set at build time"
+        },
+        {
+          "id": "C",
+          "text": "Injected at run time via a secret, env var or the orchestrator's secret store"
+        },
+        {
+          "id": "D",
+          "text": "In a COPY'd .env file"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Anything written at build time (ARG, ENV, COPY) persists in image history. Secrets belong to the run-time environment."
+    },
+    {
+      "id": "dv-q0012",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Docker",
+      "difficulty": "HARD",
+      "title": "Which construct most reliably waits for postgres before starting the app in compose?",
+      "prompt": "Which construct most reliably waits for postgres before starting the app in compose?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "depends_on without conditions"
+        },
+        {
+          "id": "B",
+          "text": "A healthcheck plus depends_on: condition: service_healthy"
+        },
+        {
+          "id": "C",
+          "text": "sleep 30 in the app entrypoint"
+        },
+        {
+          "id": "D",
+          "text": "Restarting the app every 10 seconds"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Plain depends_on only orders container creation, not readiness. The healthcheck condition waits until postgres actually accepts connections."
+    },
+    {
+      "id": "dv-q0013",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Docker",
+      "difficulty": "HARD",
+      "title": "In CI the npm dependency layer rebuilds although package.json is unchanged. Most likely cause?",
+      "prompt": "In CI the npm dependency layer rebuilds although package.json is unchanged. Most likely cause?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "npm ci is inherently uncached"
+        },
+        {
+          "id": "B",
+          "text": "The base image was re-pulled"
+        },
+        {
+          "id": "C",
+          "text": "package-lock.json is copied later than package.json, so the cache invalidates at that instruction"
+        },
+        {
+          "id": "D",
+          "text": "Docker cache is disabled for node images"
+        }
+      ],
+      "correctOptionId": "C",
+      "explanation": "Cache invalidates at the first changed instruction. Copy both manifest files (and nothing else) before running the install so the layer stays hot."
+    },
+    {
+      "id": "dv-q0014",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Docker",
+      "difficulty": "HARD",
+      "title": "What does `docker compose up --scale api=3` actually give you?",
+      "prompt": "What does `docker compose up --scale api=3` actually give you?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Three separate networks, one per replica"
+        },
+        {
+          "id": "B",
+          "text": "Three replicas sharing the service DNS name so queries round-robin across them"
+        },
+        {
+          "id": "C",
+          "text": "A Kubernetes deployment"
+        },
+        {
+          "id": "D",
+          "text": "Three hosts instead of one"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Scaling in Compose creates more containers for the service; they all register under the same DNS name, giving simple load balancing."
+    },
+    {
+      "id": "dv-q0015",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Kubernetes",
+      "difficulty": "EASY",
+      "title": "What is the smallest deployable unit in Kubernetes?",
+      "prompt": "What is the smallest deployable unit in Kubernetes?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A node"
+        },
+        {
+          "id": "B",
+          "text": "A pod"
+        },
+        {
+          "id": "C",
+          "text": "A deployment"
+        },
+        {
+          "id": "D",
+          "text": "A namespace"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A pod wraps one or more containers that share a network namespace and volumes; deployments and services operate *on* pods."
+    },
+    {
+      "id": "dv-q0016",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Kubernetes",
+      "difficulty": "EASY",
+      "title": "Which resource exposes a set of pods to traffic inside the cluster?",
+      "prompt": "Which resource exposes a set of pods to traffic inside the cluster?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "ConfigMap"
+        },
+        {
+          "id": "B",
+          "text": "Service"
+        },
+        {
+          "id": "C",
+          "text": "Secret"
+        },
+        {
+          "id": "D",
+          "text": "PersistentVolumeClaim"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A Service provides a stable virtual IP and DNS name in front of pods, which are ephemeral and get new IPs whenever they restart."
+    },
+    {
+      "id": "dv-q0017",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Kubernetes",
+      "difficulty": "EASY",
+      "title": "What does `kubectl rollout undo deployment/api` do?",
+      "prompt": "What does `kubectl rollout undo deployment/api` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Deletes the deployment"
+        },
+        {
+          "id": "B",
+          "text": "Rolls the deployment back to its previous revision"
+        },
+        {
+          "id": "C",
+          "text": "Pauses all traffic"
+        },
+        {
+          "id": "D",
+          "text": "Upgrades kubectl"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Rollout undo reverts to the last recorded ReplicaSet revision — the fastest recovery from a bad release."
+    },
+    {
+      "id": "dv-q0018",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Kubernetes",
+      "difficulty": "MEDIUM",
+      "title": "A pod's liveness probe fails ~40 seconds after start. What should be configured?",
+      "prompt": "A pod's liveness probe fails ~40 seconds after start. What should be configured?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A higher CPU limit"
+        },
+        {
+          "id": "B",
+          "text": "initialDelaySeconds so the probe waits until the application finishes booting"
+        },
+        {
+          "id": "C",
+          "text": "A readiness probe instead"
+        },
+        {
+          "id": "D",
+          "text": "A nodeSelector"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Liveness probes firing before boot completes cause restart loops. initialDelaySeconds (or a startupProbe) covers slow starts; readiness decides when traffic is sent."
+    },
+    {
+      "id": "dv-q0019",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Kubernetes",
+      "difficulty": "MEDIUM",
+      "title": "Which object holds non-sensitive configuration the pod reads as environment variables?",
+      "prompt": "Which object holds non-sensitive configuration the pod reads as environment variables?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Secret"
+        },
+        {
+          "id": "B",
+          "text": "ConfigMap"
+        },
+        {
+          "id": "C",
+          "text": "PersistentVolumeClaim"
+        },
+        {
+          "id": "D",
+          "text": "Ingress"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "ConfigMaps carry configuration, mounted as files or injected via envFrom. Secrets are the counterpart for credentials."
+    },
+    {
+      "id": "dv-q0020",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Kubernetes",
+      "difficulty": "MEDIUM",
+      "title": "How do you keep three replicas off the same node?",
+      "prompt": "How do you keep three replicas off the same node?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Node labels only"
+        },
+        {
+          "id": "B",
+          "text": "podAntiAffinity rules"
+        },
+        {
+          "id": "C",
+          "text": "A ConfigMap flag"
+        },
+        {
+          "id": "D",
+          "text": "Increasing maxSurge"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Anti-affinity makes the scheduler spread replicas across nodes — required or preferred depending on how strictly the HA policy must hold."
+    },
+    {
+      "id": "dv-q0021",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Kubernetes",
+      "difficulty": "MEDIUM",
+      "title": "What does a `readinessProbe` control?",
+      "prompt": "What does a `readinessProbe` control?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "How long the container may run"
+        },
+        {
+          "id": "B",
+          "text": "Whether the pod is added to the Service endpoints and receives traffic"
+        },
+        {
+          "id": "C",
+          "text": "How often logs are flushed"
+        },
+        {
+          "id": "D",
+          "text": "Which image version is pulled"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Readiness gates traffic: failing pods are removed from Service endpoints while the container keeps running and the liveness probe keeps it alive."
+    },
+    {
+      "id": "dv-q0022",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Kubernetes",
+      "difficulty": "HARD",
+      "title": "A Deployment sets maxUnavailable=0, maxSurge=100%. What happens on a bad release?",
+      "prompt": "A Deployment sets maxUnavailable=0, maxSurge=100%. What happens on a bad release?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Capacity drops to zero"
+        },
+        {
+          "id": "B",
+          "text": "A replacement pod starts before any old pod is removed, so capacity is preserved while the rollout proceeds"
+        },
+        {
+          "id": "C",
+          "text": "The API server rejects the rollout"
+        },
+        {
+          "id": "D",
+          "text": "Pods restart in place"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "maxSurge starts the new pod first and maxUnavailable=0 keeps old replicas serving; the swap happens only when the new pod is ready."
+    },
+    {
+      "id": "dv-q0023",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Kubernetes",
+      "difficulty": "HARD",
+      "title": "On what does a Horizontal Pod Autoscaler base its decisions by default?",
+      "prompt": "On what does a Horizontal Pod Autoscaler base its decisions by default?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Node CPU"
+        },
+        {
+          "id": "B",
+          "text": "Average pod CPU utilisation against a configured target"
+        },
+        {
+          "id": "C",
+          "text": "Disk I/O"
+        },
+        {
+          "id": "D",
+          "text": "Network throughput"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "HPA computes average pod CPU (other metrics require the custom-metrics adapter) and adjusts replicas to hit the target utilisation."
+    },
+    {
+      "id": "dv-q0024",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Kubernetes",
+      "difficulty": "HARD",
+      "title": "Why is a hostPath volume usually discouraged for shared application data?",
+      "prompt": "Why is a hostPath volume usually discouraged for shared application data?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It breaks NFS"
+        },
+        {
+          "id": "B",
+          "text": "Data is tied to one node — it disappears if the pod is rescheduled elsewhere and exposes the node's files"
+        },
+        {
+          "id": "C",
+          "text": "It requires root only"
+        },
+        {
+          "id": "D",
+          "text": "It disables probes"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "hostPath is node-local and leaks host paths into containers. A PVC backed by a proper StorageClass is the portable, durable answer."
+    },
+    {
+      "id": "dv-q0025",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "MongoDB",
+      "difficulty": "EASY",
+      "title": "What is the closest MongoDB analogue of a SQL table?",
+      "prompt": "What is the closest MongoDB analogue of a SQL table?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A document"
+        },
+        {
+          "id": "B",
+          "text": "A collection"
+        },
+        {
+          "id": "C",
+          "text": "An index"
+        },
+        {
+          "id": "D",
+          "text": "A shard"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Collections group documents; a single BSON document plays the role a row plays in SQL."
+    },
+    {
+      "id": "dv-q0026",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "MongoDB",
+      "difficulty": "EASY",
+      "title": "Which field is indexed automatically on every collection?",
+      "prompt": "Which field is indexed automatically on every collection?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "_id"
+        },
+        {
+          "id": "B",
+          "text": "createdAt"
+        },
+        {
+          "id": "C",
+          "text": "All fields"
+        },
+        {
+          "id": "D",
+          "text": "None — indexes are always created manually"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "MongoDB auto-creates a unique index on `_id`, guaranteeing a fast primary lookup for every document."
+    },
+    {
+      "id": "dv-q0027",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "MongoDB",
+      "difficulty": "EASY",
+      "title": "By default, what happens when you iterate a large `find()` cursor?",
+      "prompt": "By default, what happens when you iterate a large `find()` cursor?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Every match is loaded into memory immediately"
+        },
+        {
+          "id": "B",
+          "text": "Documents stream in batches, so huge result sets can be processed without buffering them"
+        },
+        {
+          "id": "C",
+          "text": "Only the first document is returned"
+        },
+        {
+          "id": "D",
+          "text": "The query blocks until it times out"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Cursors fetch batches (101 documents by default), which keeps memory bounded while you iterate."
+    },
+    {
+      "id": "dv-q0028",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "MongoDB",
+      "difficulty": "MEDIUM",
+      "title": "Orders must be grouped by status and summed by amount. Which aggregation pair does that?",
+      "prompt": "Orders must be grouped by status and summed by amount. Which aggregation pair does that?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "$match then $group"
+        },
+        {
+          "id": "B",
+          "text": "$find then $sort"
+        },
+        {
+          "id": "C",
+          "text": "$lookup only"
+        },
+        {
+          "id": "D",
+          "text": "$project only"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`$match` filters early so indexes apply, and `$group` performs the grouping and summation — `$group` is the aggregating stage."
+    },
+    {
+      "id": "dv-q0029",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "MongoDB",
+      "difficulty": "MEDIUM",
+      "title": "Why does `db.users.updateOne({ _id: 1 }, { name: \"Ann\" })` fail?",
+      "prompt": "Why does `db.users.updateOne({ _id: 1 }, { name: \"Ann\" })` fail?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "updateOne needs a query filter"
+        },
+        {
+          "id": "B",
+          "text": "The update document must use operators such as $set — a bare document is treated as a replacement"
+        },
+        {
+          "id": "C",
+          "text": "Users cannot be updated"
+        },
+        {
+          "id": "D",
+          "text": "_id must be a string"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Replacement documents are only valid with `replaceOne`. `updateOne` requires update operators like `$set` or `$inc`."
+    },
+    {
+      "id": "dv-q0030",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "MongoDB",
+      "difficulty": "MEDIUM",
+      "title": "Which index best supports `find({ status: 1 }).sort({ createdAt: -1 })`?",
+      "prompt": "Which index best supports `find({ status: 1 }).sort({ createdAt: -1 })`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "An index on createdAt alone"
+        },
+        {
+          "id": "B",
+          "text": "A compound index { status: 1, createdAt: -1 }"
+        },
+        {
+          "id": "C",
+          "text": "Two single-field indexes"
+        },
+        {
+          "id": "D",
+          "text": "No index is needed"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The equality prefix plus descending sort index returns results already in order, avoiding MongoDB's 32 MB in-memory sort limit."
+    },
+    {
+      "id": "dv-q0031",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "MongoDB",
+      "difficulty": "MEDIUM",
+      "title": "How do `primaryPreferred` and `secondary` read preferences differ?",
+      "prompt": "How do `primaryPreferred` and `secondary` read preferences differ?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are identical"
+        },
+        {
+          "id": "B",
+          "text": "secondary always reads replicas (possibly stale); primaryPreferred prefers the primary and falls back to replicas"
+        },
+        {
+          "id": "C",
+          "text": "primaryPreferred ignores the primary"
+        },
+        {
+          "id": "D",
+          "text": "Both forbid replica reads"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "secondary spreads read load but may serve stale data; primaryPreferred only touches replicas when the primary is unavailable."
+    },
+    {
+      "id": "dv-q0032",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "MongoDB",
+      "difficulty": "HARD",
+      "title": "What does write concern `w: majority` guarantee?",
+      "prompt": "What does write concern `w: majority` guarantee?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Writes skip the journal"
+        },
+        {
+          "id": "B",
+          "text": "The write is acknowledged after a majority of voting nodes have persisted it, so it survives a later failover"
+        },
+        {
+          "id": "C",
+          "text": "Every replica acks synchronously"
+        },
+        {
+          "id": "D",
+          "text": "Writes fail on the primary"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "majority waits until more than half the voting set has the write — a deliberate durability-over-latency trade."
+    },
+    {
+      "id": "dv-q0033",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "MongoDB",
+      "difficulty": "HARD",
+      "title": "A single document hits the 16 MB cap because every order item is embedded. What is the fix?",
+      "prompt": "A single document hits the 16 MB cap because every order item is embedded. What is the fix?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Raise the limit with a config flag"
+        },
+        {
+          "id": "B",
+          "text": "Move items into a child collection and reference them from the parent"
+        },
+        {
+          "id": "C",
+          "text": "Store overflow in GridFS"
+        },
+        {
+          "id": "D",
+          "text": "Compress the document"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "16 MB is a hard BSON limit; unbounded one-to-many data belongs in its own collection keyed by the parent id."
+    },
+    {
+      "id": "dv-q0034",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "MongoDB",
+      "difficulty": "HARD",
+      "title": "Why do inserts skew onto one shard after sharding on a monotonically increasing _id?",
+      "prompt": "Why do inserts skew onto one shard after sharding on a monotonically increasing _id?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Sharding disables _id indexes"
+        },
+        {
+          "id": "B",
+          "text": "New keys always land in the last chunk, concentrating writes instead of spreading them"
+        },
+        {
+          "id": "C",
+          "text": "ObjectIds cannot be hashed"
+        },
+        {
+          "id": "D",
+          "text": "Replicas absorb the writes"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Rising keys funnel every insert into the newest chunk; a hashed or otherwise randomised shard key spreads the load."
+    },
+    {
+      "id": "dv-q0035",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "PostgreSQL",
+      "difficulty": "EASY",
+      "title": "Which clause filters rows *before* GROUP BY runs?",
+      "prompt": "Which clause filters rows *before* GROUP BY runs?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "HAVING"
+        },
+        {
+          "id": "B",
+          "text": "WHERE"
+        },
+        {
+          "id": "C",
+          "text": "ORDER BY"
+        },
+        {
+          "id": "D",
+          "text": "DISTINCT"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`WHERE` filters individual rows before aggregation; `HAVING` filters the aggregated groups afterwards."
+    },
+    {
+      "id": "dv-q0036",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "PostgreSQL",
+      "difficulty": "EASY",
+      "title": "What does `a INNER JOIN b ON a.id = b.id` return?",
+      "prompt": "What does `a INNER JOIN b ON a.id = b.id` return?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Every row from both tables"
+        },
+        {
+          "id": "B",
+          "text": "Only rows where the condition matches on both sides"
+        },
+        {
+          "id": "C",
+          "text": "Only rows from a"
+        },
+        {
+          "id": "D",
+          "text": "All rows including unmatched"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "An inner join keeps matching pairs only; unmatched rows from either side are dropped (a FULL OUTER JOIN would keep them)."
+    },
+    {
+      "id": "dv-q0037",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "PostgreSQL",
+      "difficulty": "EASY",
+      "title": "Which keyword locks the rows a SELECT reads until the transaction ends?",
+      "prompt": "Which keyword locks the rows a SELECT reads until the transaction ends?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "UNIQUE"
+        },
+        {
+          "id": "B",
+          "text": "FOR UPDATE"
+        },
+        {
+          "id": "C",
+          "text": "CHECK"
+        },
+        {
+          "id": "D",
+          "text": "REFERENCES"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`SELECT ... FOR UPDATE` row-locks the result so concurrent writers wait — the standard defence against lost updates."
+    },
+    {
+      "id": "dv-q0038",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "PostgreSQL",
+      "difficulty": "EASY",
+      "title": "What is the difference between CHAR(n) and VARCHAR(n) for a name column?",
+      "prompt": "What is the difference between CHAR(n) and VARCHAR(n) for a name column?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "None"
+        },
+        {
+          "id": "B",
+          "text": "CHAR pads with spaces to the fixed length, VARCHAR stores only the actual characters"
+        },
+        {
+          "id": "C",
+          "text": "VARCHAR is always faster"
+        },
+        {
+          "id": "D",
+          "text": "CHAR supports Unicode, VARCHAR does not"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "CHAR(n) space-pads to exactly n characters, which surprises equality checks; VARCHAR(n) stores only what you insert."
+    },
+    {
+      "id": "dv-q0039",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "PostgreSQL",
+      "difficulty": "MEDIUM",
+      "title": "Why can `WHERE lower(email) = 'ann@x.com'` skip a plain index on email?",
+      "prompt": "Why can `WHERE lower(email) = 'ann@x.com'` skip a plain index on email?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Function calls are banned in WHERE"
+        },
+        {
+          "id": "B",
+          "text": "The predicate is an expression while the index covers the raw column — index lower(email) instead"
+        },
+        {
+          "id": "C",
+          "text": "PostgreSQL cannot index functions at all"
+        },
+        {
+          "id": "D",
+          "text": "email cannot be indexed"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "An index scan must match the expression: `CREATE INDEX ON users (lower(email))` lets the planner use it."
+    },
+    {
+      "id": "dv-q0040",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "PostgreSQL",
+      "difficulty": "MEDIUM",
+      "title": "What does VACUUM accomplish that DELETE alone does not?",
+      "prompt": "What does VACUUM accomplish that DELETE alone does not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Truncates the table"
+        },
+        {
+          "id": "B",
+          "text": "Reclaims dead tuples, refreshes visibility maps and prevents transaction ID wraparound"
+        },
+        {
+          "id": "C",
+          "text": "Rebuilds every index"
+        },
+        {
+          "id": "D",
+          "text": "Commits the transaction"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "DELETE only marks rows dead; vacuum reclaims space, updates statistics and enables index-only scans via the visibility map."
+    },
+    {
+      "id": "dv-q0041",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "PostgreSQL",
+      "difficulty": "MEDIUM",
+      "title": "Which tool reveals that a correlated subquery runs once per outer row?",
+      "prompt": "Which tool reveals that a correlated subquery runs once per outer row?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "EXPLAIN ANALYZE"
+        },
+        {
+          "id": "B",
+          "text": "SHOW ALL"
+        },
+        {
+          "id": "C",
+          "text": "VACUUM VERBOSE"
+        },
+        {
+          "id": "D",
+          "text": "pg_stat_reset()"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`EXPLAIN ANALYZE` executes the query and reports loops per plan node, exposing a nested loop whose inner query executes N times."
+    },
+    {
+      "id": "dv-q0042",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "PostgreSQL",
+      "difficulty": "MEDIUM",
+      "title": "A query returns rows in a different order on each run. Which clause makes it deterministic?",
+      "prompt": "A query returns rows in a different order on each run. Which clause makes it deterministic?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "DISTINCT"
+        },
+        {
+          "id": "B",
+          "text": "ORDER BY"
+        },
+        {
+          "id": "C",
+          "text": "GROUP BY"
+        },
+        {
+          "id": "D",
+          "text": "HAVING"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Without ORDER BY the plan is free to return parallel or hash order; ORDER BY pins the sequence."
+    },
+    {
+      "id": "dv-q0043",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "PostgreSQL",
+      "difficulty": "HARD",
+      "title": "A yearly DELETE on a 200M-row table runs for minutes and bloats the table. Best fix?",
+      "prompt": "A yearly DELETE on a 200M-row table runs for minutes and bloats the table. Best fix?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Add LIMIT 1000"
+        },
+        {
+          "id": "B",
+          "text": "Delete in small batches so locks stay short and autovacuum can reclaim incrementally"
+        },
+        {
+          "id": "C",
+          "text": "Wrap it in one long transaction"
+        },
+        {
+          "id": "D",
+          "text": "Disable autovacuum"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Batched deletes keep lock times and WAL bursts small and let vacuum keep up instead of producing one giant dead-tuple spike."
+    },
+    {
+      "id": "dv-q0044",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "PostgreSQL",
+      "difficulty": "HARD",
+      "title": "Which index type suits append-ordered time-series ranges and stays tiny?",
+      "prompt": "Which index type suits append-ordered time-series ranges and stays tiny?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "GIN"
+        },
+        {
+          "id": "B",
+          "text": "BRIN"
+        },
+        {
+          "id": "C",
+          "text": "Partial B-tree"
+        },
+        {
+          "id": "D",
+          "text": "Expression index"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "BRIN stores min/max per block range, so for naturally ordered data like timestamps it is orders of magnitude smaller than a B-tree."
+    },
+    {
+      "id": "dv-q0045",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Redis",
+      "difficulty": "EASY",
+      "title": "Why is Redis usually faster than a relational database?",
+      "prompt": "Why is Redis usually faster than a relational database?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It executes SQL"
+        },
+        {
+          "id": "B",
+          "text": "The dataset lives in memory and commands run in a single event loop without lock contention"
+        },
+        {
+          "id": "C",
+          "text": "It stores data on SSD only"
+        },
+        {
+          "id": "D",
+          "text": "It uses columnar storage"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "In-memory storage plus a single-threaded command loop means no lock contention between clients — the source of Redis's latency."
+    },
+    {
+      "id": "dv-q0046",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Redis",
+      "difficulty": "EASY",
+      "title": "Which structure fits a leaderboard ordered by score?",
+      "prompt": "Which structure fits a leaderboard ordered by score?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "List"
+        },
+        {
+          "id": "B",
+          "text": "Sorted set (ZSET)"
+        },
+        {
+          "id": "C",
+          "text": "Bitmap"
+        },
+        {
+          "id": "D",
+          "text": "String"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Sorted sets keep members ordered by score, giving O(log N) rank and range queries — exactly what a leaderboard needs."
+    },
+    {
+      "id": "dv-q0047",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Redis",
+      "difficulty": "EASY",
+      "title": "Which command performs an atomic increment?",
+      "prompt": "Which command performs an atomic increment?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "INCR key"
+        },
+        {
+          "id": "B",
+          "text": "SET key key+1"
+        },
+        {
+          "id": "C",
+          "text": "APPEND key 1"
+        },
+        {
+          "id": "D",
+          "text": "LPUSH key 1"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`INCR` is atomic, creates the key when missing, and is the building block for counters and rate limits."
+    },
+    {
+      "id": "dv-q0048",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Redis",
+      "difficulty": "EASY",
+      "title": "How do you give a key a 60-second lifetime?",
+      "prompt": "How do you give a key a 60-second lifetime?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "EXPIRE key 60"
+        },
+        {
+          "id": "B",
+          "text": "SET key 60"
+        },
+        {
+          "id": "C",
+          "text": "TTL key 60"
+        },
+        {
+          "id": "D",
+          "text": "PERSIST key 60"
+        }
+      ],
+      "correctOptionId": "A",
+      "explanation": "`EXPIRE key 60` sets a TTL in seconds; `SET key v EX 60` does it in one atomic command."
+    },
+    {
+      "id": "dv-q0049",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Redis",
+      "difficulty": "MEDIUM",
+      "title": "What is the difference between RDB and AOF persistence?",
+      "prompt": "What is the difference between RDB and AOF persistence?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "RDB appends writes, AOF snapshots"
+        },
+        {
+          "id": "B",
+          "text": "RDB takes periodic snapshots while AOF appends writes — AOF loses less data but grows larger"
+        },
+        {
+          "id": "C",
+          "text": "They are the same format"
+        },
+        {
+          "id": "D",
+          "text": "RDB requires a replica"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "RDB gives compact point-in-time snapshots; AOF replays an append log (fsync everysec by default) trading size for durability."
+    },
+    {
+      "id": "dv-q0050",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Redis",
+      "difficulty": "MEDIUM",
+      "title": "How does Redis Cluster route a key?",
+      "prompt": "How does Redis Cluster route a key?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Hash modulo the node count"
+        },
+        {
+          "id": "B",
+          "text": "CRC16(key) mod 16384 mapped through hash-slot ownership"
+        },
+        {
+          "id": "C",
+          "text": "Random assignment"
+        },
+        {
+          "id": "D",
+          "text": "By key prefix"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "CRC16(key) % 16384 picks one of 16384 hash slots, and each slot lives on exactly one primary — node moves keep slots stable."
+    },
+    {
+      "id": "dv-q0051",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Redis",
+      "difficulty": "MEDIUM",
+      "title": "What problem does `SET mylock <token> NX PX 5000` solve?",
+      "prompt": "What problem does `SET mylock <token> NX PX 5000` solve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It caches five keys at once"
+        },
+        {
+          "id": "B",
+          "text": "It creates a lock that expires after 5 seconds if the holder crashes"
+        },
+        {
+          "id": "C",
+          "text": "It replicates the key to five nodes"
+        },
+        {
+          "id": "D",
+          "text": "It sets a bulk TTL"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "NX makes the set only-if-absent (one winner) and PX bounds the lock so a dead holder can never block others forever."
+    },
+    {
+      "id": "dv-q0052",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Redis",
+      "difficulty": "HARD",
+      "title": "Which distributed-lock release pattern is safe?",
+      "prompt": "Which distributed-lock release pattern is safe?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "DEL mylock from any client"
+        },
+        {
+          "id": "B",
+          "text": "Read the token, then release only when it still matches (compare-and-delete, ideally as a Lua script)"
+        },
+        {
+          "id": "C",
+          "text": "Never delete the key"
+        },
+        {
+          "id": "D",
+          "text": "EXPIRE mylock 0"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Between an owner's check and delete, the lock may have expired and been re-acquired; the token check (atomically in Lua) prevents deleting someone else's lock."
+    },
+    {
+      "id": "dv-q0053",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Redis",
+      "difficulty": "HARD",
+      "title": "maxmemory is reached with `maxmemory-policy noeviction`. What happens on the next write?",
+      "prompt": "maxmemory is reached with `maxmemory-policy noeviction`. What happens on the next write?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Writes silently overwrite old keys"
+        },
+        {
+          "id": "B",
+          "text": "Writes fail with OOM errors until memory is freed or a policy is configured"
+        },
+        {
+          "id": "C",
+          "text": "Redis automatically flushes everything"
+        },
+        {
+          "id": "D",
+          "text": "Only reads fail"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "noeviction keeps every key and refuses new writes once full — an outage unless you configure an LRU/LFU policy or add capacity."
+    }
+  ]
+}

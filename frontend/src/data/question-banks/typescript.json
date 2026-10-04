@@ -3,187 +3,1360 @@
   "label": "TypeScript",
   "description": "Type-system MCQ: inference, unions and narrowing, generics, utility types, strict mode and conditional types.",
   "source": "Authored for SkillGauge",
-  "questionCount": 12,
+  "questionCount": 42,
   "levels": [
-    { "id": "L1", "label": "Fundamental" },
-    { "id": "L2", "label": "Intermediate" },
-    { "id": "L3", "label": "Advanced" }
+    {
+      "id": "L1",
+      "label": "Fundamental"
+    },
+    {
+      "id": "L2",
+      "label": "Intermediate"
+    },
+    {
+      "id": "L3",
+      "label": "Advanced"
+    }
   ],
   "topics": [
-    "Types vs Interfaces", "Type Inference", "unknown vs any", "Utility Types",
-    "Generics", "Unions & Narrowing", "Assertions & Literals", "Strict Mode",
-    "Function Types", "keyof & Indexed Access", "Conditional Types", "Structural Typing"
+    "Types vs Interfaces",
+    "Type Inference",
+    "unknown vs any",
+    "Utility Types",
+    "Generics",
+    "Unions & Narrowing",
+    "Assertions & Literals",
+    "Strict Mode",
+    "Function Types",
+    "keyof & Indexed Access",
+    "Conditional Types",
+    "Structural Typing"
   ],
-  "difficultyCounts": { "EASY": 4, "MEDIUM": 5, "HARD": 3 },
-  "levelCounts": { "L1": 4, "L2": 5, "L3": 3 },
+  "difficultyCounts": {
+    "EASY": 14,
+    "MEDIUM": 15,
+    "HARD": 13
+  },
+  "levelCounts": {
+    "L1": 14,
+    "L2": 15,
+    "L3": 13
+  },
   "questions": [
     {
-      "id": "ts-q0001", "level": "L1", "levelLabel": "Fundamental", "topic": "Types vs Interfaces", "difficulty": "EASY",
+      "id": "ts---q0001",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Types vs Interfaces",
+      "difficulty": "EASY",
       "title": "Which statement about `interface` and `type` is correct?",
       "prompt": "Which statement about `interface` and `type` is correct?",
       "content": [],
       "options": [
-        { "id": "A", "text": "Only `interface` supports declaration merging; a second `type` alias with the same name is a duplicate identifier" },
-        { "id": "B", "text": "Only `type` supports declaration merging; a second `interface` with the same name is an error" },
-        { "id": "C", "text": "Both merge automatically, in declaration order" },
-        { "id": "D", "text": "Neither can be extended or combined" }
+        {
+          "id": "A",
+          "text": "Only `interface` supports declaration merging; a second `type` alias with the same name is a duplicate identifier"
+        },
+        {
+          "id": "B",
+          "text": "Only `type` supports declaration merging; a second `interface` with the same name is an error"
+        },
+        {
+          "id": "C",
+          "text": "Both merge automatically, in declaration order"
+        },
+        {
+          "id": "D",
+          "text": "Neither can be extended or combined"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "Interfaces are open: declaring `interface User` twice merges the members. A type alias is a closed declaration, so a second `type User` is a duplicate identifier. Unions, tuples and primitives require `type` anyway."
     },
     {
-      "id": "ts-q0002", "level": "L1", "levelLabel": "Fundamental", "topic": "Type Inference", "difficulty": "EASY",
+      "id": "ts---q0002",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Type Inference",
+      "difficulty": "EASY",
       "title": "What does the compiler report for this code?",
       "prompt": "What does the compiler report for this code?",
-      "content": [ { "type": "code", "language": "typescript", "value": "let count = 0;\ncount = \"three\";" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "let count = 0;\ncount = \"three\";"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "Nothing — `count` becomes `any` and accepts the string" },
-        { "id": "B", "text": "Error TS2322: Type 'string' is not assignable to type 'number'" },
-        { "id": "C", "text": "Error TS2339: Property 'three' does not exist" },
-        { "id": "D", "text": "Nothing — `count` silently becomes `number | string`" }
+        {
+          "id": "A",
+          "text": "Nothing — `count` becomes `any` and accepts the string"
+        },
+        {
+          "id": "B",
+          "text": "Error TS2322: Type 'string' is not assignable to type 'number'"
+        },
+        {
+          "id": "C",
+          "text": "Error TS2339: Property 'three' does not exist"
+        },
+        {
+          "id": "D",
+          "text": "Nothing — `count` silently becomes `number | string`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`let count = 0` infers the widened type `number`, so assigning a string is a type error. `const` would infer the literal type `0` instead."
     },
     {
-      "id": "ts-q0003", "level": "L1", "levelLabel": "Fundamental", "topic": "unknown vs any", "difficulty": "EASY",
+      "id": "ts---q0003",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "unknown vs any",
+      "difficulty": "EASY",
       "title": "A function receives JSON from the network. Why is `unknown` preferred over `any`?",
       "prompt": "A function receives JSON from the network. Why is `unknown` preferred over `any`?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`unknown` is faster at runtime because it skips type erasure" },
-        { "id": "B", "text": "`unknown` accepts every value, but reading a property on it is a compile error until the type is narrowed" },
-        { "id": "C", "text": "`any` cannot be used when `strict` is enabled" },
-        { "id": "D", "text": "`unknown` can only hold primitives, never objects" }
+        {
+          "id": "A",
+          "text": "`unknown` is faster at runtime because it skips type erasure"
+        },
+        {
+          "id": "B",
+          "text": "`unknown` accepts every value, but reading a property on it is a compile error until the type is narrowed"
+        },
+        {
+          "id": "C",
+          "text": "`any` cannot be used when `strict` is enabled"
+        },
+        {
+          "id": "D",
+          "text": "`unknown` can only hold primitives, never objects"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "Both accept any value, but `any` switches type checking off for that value. `unknown` is the safe top type: narrow it with `typeof`, `in` or a type guard before use."
     },
     {
-      "id": "ts-q0004", "level": "L1", "levelLabel": "Fundamental", "topic": "Utility Types", "difficulty": "EASY",
+      "id": "ts---q0004",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Utility Types",
+      "difficulty": "EASY",
       "title": "Given `interface User { id: string; name: string }`, which type makes both properties optional?",
       "prompt": "Given `interface User { id: string; name: string }`, which type makes both properties optional?",
       "content": [],
       "options": [
-        { "id": "A", "text": "`Readonly<User>`" },
-        { "id": "B", "text": "`Required<User>`" },
-        { "id": "C", "text": "`Partial<User>`" },
-        { "id": "D", "text": "`Record<User, string>`" }
+        {
+          "id": "A",
+          "text": "`Readonly<User>`"
+        },
+        {
+          "id": "B",
+          "text": "`Required<User>`"
+        },
+        {
+          "id": "C",
+          "text": "`Partial<User>`"
+        },
+        {
+          "id": "D",
+          "text": "`Record<User, string>`"
+        }
       ],
       "correctOptionId": "C",
       "explanation": "`Partial<T>` maps every property to `T[K] | undefined`. `Required<T>` is the inverse, `Readonly<T>` blocks reassignment and `Record<K, V>` builds an object type from a key set."
     },
     {
-      "id": "ts-q0005", "level": "L2", "levelLabel": "Intermediate", "topic": "Generics", "difficulty": "MEDIUM",
+      "id": "ts---q0005",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Generics",
+      "difficulty": "MEDIUM",
       "title": "A generic helper must accept anything with a length. Which change makes this compile?",
       "prompt": "A generic helper must accept anything with a length. Which change makes this compile?",
-      "content": [ { "type": "code", "language": "typescript", "value": "function longest<T>(a: T, b: T) {\n  return a.length > b.length ? a : b;\n}" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "function longest<T>(a: T, b: T) {\n  return a.length > b.length ? a : b;\n}"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`function longest<T extends { length: number }>(a: T, b: T)`" },
-        { "id": "B", "text": "`function longest<T>(a: T, b: T): T`" },
-        { "id": "C", "text": "`function longest(a: any, b: any)` is the only fix" },
-        { "id": "D", "text": "Add `// @ts-ignore` above the comparison" }
+        {
+          "id": "A",
+          "text": "`function longest<T extends { length: number }>(a: T, b: T)`"
+        },
+        {
+          "id": "B",
+          "text": "`function longest<T>(a: T, b: T): T`"
+        },
+        {
+          "id": "C",
+          "text": "`function longest(a: any, b: any)` is the only fix"
+        },
+        {
+          "id": "D",
+          "text": "Add `// @ts-ignore` above the comparison"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "An unconstrained `T` could be `number`, which has no `length`, so TS reports \"Property 'length' does not exist on type 'T'\". A constraint documents the requirement and keeps the return type generic."
     },
     {
-      "id": "ts-q0006", "level": "L2", "levelLabel": "Intermediate", "topic": "Unions & Narrowing", "difficulty": "MEDIUM",
+      "id": "ts---q0006",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Unions & Narrowing",
+      "difficulty": "MEDIUM",
       "title": "Which property access is safe inside these branches?",
       "prompt": "Which property access is safe inside these branches?",
-      "content": [ { "type": "code", "language": "typescript", "value": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; side: number };\n\nfunction area(shape: Shape) {\n  if (shape.kind === \"circle\") return Math.PI * shape.radius ** 2;\n  return shape.side ** 2;\n}" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "type Shape =\n  | { kind: \"circle\"; radius: number }\n  | { kind: \"square\"; side: number };\n\nfunction area(shape: Shape) {\n  if (shape.kind === \"circle\") return Math.PI * shape.radius ** 2;\n  return shape.side ** 2;\n}"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "Both are errors unless the properties are optional" },
-        { "id": "B", "text": "Both are safe: the `kind` discriminant narrows the union in each branch" },
-        { "id": "C", "text": "Only the first branch is safe; the second needs a cast" },
-        { "id": "D", "text": "Neither is safe — a discriminated union must be checked with `in`" }
+        {
+          "id": "A",
+          "text": "Both are errors unless the properties are optional"
+        },
+        {
+          "id": "B",
+          "text": "Both are safe: the `kind` discriminant narrows the union in each branch"
+        },
+        {
+          "id": "C",
+          "text": "Only the first branch is safe; the second needs a cast"
+        },
+        {
+          "id": "D",
+          "text": "Neither is safe — a discriminated union must be checked with `in`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "A shared literal field (`kind`) is a discriminant. Comparing it narrows the union, so `radius` is valid in the `circle` branch and `side` in the remaining `square` branch."
     },
     {
-      "id": "ts-q0007", "level": "L2", "levelLabel": "Intermediate", "topic": "Assertions & Literals", "difficulty": "MEDIUM",
+      "id": "ts---q0007",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Assertions & Literals",
+      "difficulty": "MEDIUM",
       "title": "What is the inferred type of `config`, and what happens on the last line?",
       "prompt": "What is the inferred type of `config`, and what happens on the last line?",
-      "content": [ { "type": "code", "language": "typescript", "value": "const config = {\n  mode: \"dark\",\n  retries: 3,\n} as const;\n\nconfig.retries = 5;" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "const config = {\n  mode: \"dark\",\n  retries: 3,\n} as const;\n\nconfig.retries = 5;"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "No error — `as const` only affects string values" },
-        { "id": "B", "text": "`as const` makes the object deeply readonly with literal types (`\"dark\"`, `3`), so the assignment is a compile error" },
-        { "id": "C", "text": "`as const` converts both values to `any`" },
-        { "id": "D", "text": "The assignment throws a TypeError at runtime" }
+        {
+          "id": "A",
+          "text": "No error — `as const` only affects string values"
+        },
+        {
+          "id": "B",
+          "text": "`as const` makes the object deeply readonly with literal types (`\"dark\"`, `3`), so the assignment is a compile error"
+        },
+        {
+          "id": "C",
+          "text": "`as const` converts both values to `any`"
+        },
+        {
+          "id": "D",
+          "text": "The assignment throws a TypeError at runtime"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "`as const` produces a readonly object whose properties are literal types — useful for config objects and for deriving unions such as `typeof config.mode`."
     },
     {
-      "id": "ts-q0008", "level": "L2", "levelLabel": "Intermediate", "topic": "Strict Mode", "difficulty": "MEDIUM",
+      "id": "ts---q0008",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Strict Mode",
+      "difficulty": "MEDIUM",
       "title": "`strict: true` is enabled. What does the compiler require here?",
       "prompt": "`strict: true` is enabled. What does the compiler require here?",
-      "content": [ { "type": "code", "language": "typescript", "value": "function initials(name?: string) {\n  return name.slice(0, 2).toUpperCase();\n}" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "function initials(name?: string) {\n  return name.slice(0, 2).toUpperCase();\n}"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "Nothing — optional parameters behave like `any`" },
-        { "id": "B", "text": "A runtime coercion such as `String(name)`" },
-        { "id": "C", "text": "The `undefined` case must be handled before calling `.slice`, because `strictNullChecks` makes `name` of type `string | undefined`" },
-        { "id": "D", "text": "The parameter must get a default value; narrowing is never enough" }
+        {
+          "id": "A",
+          "text": "Nothing — optional parameters behave like `any`"
+        },
+        {
+          "id": "B",
+          "text": "A runtime coercion such as `String(name)`"
+        },
+        {
+          "id": "C",
+          "text": "The `undefined` case must be handled before calling `.slice`, because `strictNullChecks` makes `name` of type `string | undefined`"
+        },
+        {
+          "id": "D",
+          "text": "The parameter must get a default value; narrowing is never enough"
+        }
       ],
       "correctOptionId": "C",
       "explanation": "Under `strictNullChecks`, an optional parameter is `string | undefined`, so it must be narrowed (`if (!name) return \"\"`, `name ?? \"\"`, or a justified `name!`) before member access."
     },
     {
-      "id": "ts-q0009", "level": "L2", "levelLabel": "Intermediate", "topic": "Function Types", "difficulty": "MEDIUM",
+      "id": "ts---q0009",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Function Types",
+      "difficulty": "MEDIUM",
       "title": "Which annotation types this callback without implicit `any`?",
       "prompt": "Which annotation types this callback without implicit `any`?",
-      "content": [ { "type": "code", "language": "typescript", "value": "const parse: ______ = (raw) => Number.parseInt(raw, 10);" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "const parse: ______ = (raw) => Number.parseInt(raw, 10);"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`Function`" },
-        { "id": "B", "text": "`(value: string) => number`" },
-        { "id": "C", "text": "`(value: string): void`" },
-        { "id": "D", "text": "`CallableFunction<string, number>`" }
+        {
+          "id": "A",
+          "text": "`Function`"
+        },
+        {
+          "id": "B",
+          "text": "`(value: string) => number`"
+        },
+        {
+          "id": "C",
+          "text": "`(value: string): void`"
+        },
+        {
+          "id": "D",
+          "text": "`CallableFunction<string, number>`"
+        }
       ],
       "correctOptionId": "B",
       "explanation": "A function type declares parameter and return types and gives the parameters contextual types, so they are not implicit `any`. `Function` is effectively untyped and `void` discards the returned number."
     },
     {
-      "id": "ts-q0010", "level": "L3", "levelLabel": "Advanced", "topic": "keyof & Indexed Access", "difficulty": "HARD",
+      "id": "ts---q0010",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "keyof & Indexed Access",
+      "difficulty": "HARD",
       "title": "What is the return type of this accessor, and why does it compile?",
       "prompt": "What is the return type of this accessor, and why does it compile?",
-      "content": [ { "type": "code", "language": "typescript", "value": "function get<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "function get<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`T[K]` — the indexed access type follows the requested key, and `K extends keyof T` keeps it within the object" },
-        { "id": "B", "text": "`any` — indexed access always erases to `any`" },
-        { "id": "C", "text": "`keyof T` — the key union is returned" },
-        { "id": "D", "text": "`T` — generics always return the generic parameter" }
+        {
+          "id": "A",
+          "text": "`T[K]` — the indexed access type follows the requested key, and `K extends keyof T` keeps it within the object"
+        },
+        {
+          "id": "B",
+          "text": "`any` — indexed access always erases to `any`"
+        },
+        {
+          "id": "C",
+          "text": "`keyof T` — the key union is returned"
+        },
+        {
+          "id": "D",
+          "text": "`T` — generics always return the generic parameter"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "`T[K]` is a lookup type: it resolves to the property type of the key actually passed. Constraining `K` with `keyof T` rejects unknown keys, so no cast is needed inside."
     },
     {
-      "id": "ts-q0011", "level": "L3", "levelLabel": "Advanced", "topic": "Conditional Types", "difficulty": "HARD",
+      "id": "ts---q0011",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Conditional Types",
+      "difficulty": "HARD",
       "title": "What is the type of `Available`, and how does `Exclude` produce it?",
       "prompt": "What is the type of `Available`, and how does `Exclude` produce it?",
-      "content": [ { "type": "code", "language": "typescript", "value": "type Status = \"draft\" | \"active\" | \"archived\";\ntype Available = Exclude<Status, \"archived\">;" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "type Status = \"draft\" | \"active\" | \"archived\";\ntype Available = Exclude<Status, \"archived\">;"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "`Status` — `Exclude` is a no-op on unions" },
-        { "id": "B", "text": "`\"archived\"` — `Exclude` keeps what you list" },
-        { "id": "C", "text": "`\"draft\" | \"active\"` — `Exclude` is `T extends U ? never : T`, so matching members are filtered out" },
-        { "id": "D", "text": "`never` — every union member is removed" }
+        {
+          "id": "A",
+          "text": "`Status` — `Exclude` is a no-op on unions"
+        },
+        {
+          "id": "B",
+          "text": "`\"archived\"` — `Exclude` keeps what you list"
+        },
+        {
+          "id": "C",
+          "text": "`\"draft\" | \"active\"` — `Exclude` is `T extends U ? never : T`, so matching members are filtered out"
+        },
+        {
+          "id": "D",
+          "text": "`never` — every union member is removed"
+        }
       ],
       "correctOptionId": "C",
       "explanation": "`Exclude<T, U>` is a conditional type that distributes over the union: members assignable to `U` become `never` and drop out, leaving `\"draft\" | \"active\"`."
     },
     {
-      "id": "ts-q0012", "level": "L3", "levelLabel": "Advanced", "topic": "Structural Typing", "difficulty": "HARD",
+      "id": "ts---q0012",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Structural Typing",
+      "difficulty": "HARD",
       "title": "Why does the second assignment fail while the first is fine?",
       "prompt": "Why does the second assignment fail while the first is fine?",
-      "content": [ { "type": "code", "language": "typescript", "value": "interface Account {\n  id: string;\n}\n\nconst ACCOUNT = { id: \"a1\", balance: 100 };\nconst a: Account = ACCOUNT;                     // OK\nconst b: Account = { id: \"a2\", balance: 100 };  // Error" } ],
+      "content": [
+        {
+          "type": "code",
+          "language": "typescript",
+          "value": "interface Account {\n  id: string;\n}\n\nconst ACCOUNT = { id: \"a1\", balance: 100 };\nconst a: Account = ACCOUNT;                     // OK\nconst b: Account = { id: \"a2\", balance: 100 };  // Error"
+        }
+      ],
       "options": [
-        { "id": "A", "text": "Fresh object literals get excess property checks, so unknown keys are rejected; assigning a pre-existing variable only needs structural compatibility" },
-        { "id": "B", "text": "`const` objects are readonly and can never be assigned to an interface" },
-        { "id": "C", "text": "Interfaces are nominally typed and require a `class` implementation" },
-        { "id": "D", "text": "The error is about the missing `balance` declaration, not the literal" }
+        {
+          "id": "A",
+          "text": "Fresh object literals get excess property checks, so unknown keys are rejected; assigning a pre-existing variable only needs structural compatibility"
+        },
+        {
+          "id": "B",
+          "text": "`const` objects are readonly and can never be assigned to an interface"
+        },
+        {
+          "id": "C",
+          "text": "Interfaces are nominally typed and require a `class` implementation"
+        },
+        {
+          "id": "D",
+          "text": "The error is about the missing `balance` declaration, not the literal"
+        }
       ],
       "correctOptionId": "A",
       "explanation": "TypeScript is structural: `ACCOUNT` is assignable because it has `id`. Excess property checking is an extra guard applied to fresh literal expressions, which is why the inline literal with `balance` is rejected unless widened through a variable or assertion."
+    },
+    {
+      "id": "ts---q0013",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Types vs Interfaces",
+      "difficulty": "EASY",
+      "title": "Which can declare an array or function type?",
+      "prompt": "Which can declare an array or function type?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Only interface"
+        },
+        {
+          "id": "B",
+          "text": "Both type and interface can describe object shapes, arrays and function types"
+        },
+        {
+          "id": "C",
+          "text": "Only a type alias"
+        },
+        {
+          "id": "D",
+          "text": "Neither"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Both work: `type Fn = () => void` as well as `interface Fn { (): void }`. They mainly differ in declaration merging and extends syntax."
+    },
+    {
+      "id": "ts---q0014",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Type Inference",
+      "difficulty": "EASY",
+      "title": "What happens to `(v) => v` under strict mode when v has no annotation?",
+      "prompt": "What happens to `(v) => v` under strict mode when v has no annotation?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "v is any"
+        },
+        {
+          "id": "B",
+          "text": "A compile error — implicit any is disallowed"
+        },
+        {
+          "id": "C",
+          "text": "v is unknown"
+        },
+        {
+          "id": "D",
+          "text": "v is void"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "noImplicitAny (enabled by strict) flags untyped parameters instead of silently widening them to `any`."
+    },
+    {
+      "id": "ts---q0015",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Generics",
+      "difficulty": "EASY",
+      "title": "What does `function echo<T>(v: T): T` guarantee?",
+      "prompt": "What does `function echo<T>(v: T): T` guarantee?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "T is always string"
+        },
+        {
+          "id": "B",
+          "text": "The returned type matches the argument type for each call"
+        },
+        {
+          "id": "C",
+          "text": "T is unknown"
+        },
+        {
+          "id": "D",
+          "text": "Nothing"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The type parameter links input to output: echo(5) infers T = number, so the result is typed number."
+    },
+    {
+      "id": "ts---q0016",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Strict Mode",
+      "difficulty": "EASY",
+      "title": "What does strictNullChecks change for `string | null`?",
+      "prompt": "What does strictNullChecks change for `string | null`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "null is a distinct type — accessing members without narrowing is an error"
+        },
+        {
+          "id": "C",
+          "text": "null is banned"
+        },
+        {
+          "id": "D",
+          "text": "null becomes undefined"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "You must guard (null checks, optional chaining) before treating the value as a string."
+    },
+    {
+      "id": "ts---q0017",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Utility Types",
+      "difficulty": "EASY",
+      "title": "What does `Partial<T>` produce?",
+      "prompt": "What does `Partial<T>` produce?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A readonly T"
+        },
+        {
+          "id": "B",
+          "text": "T with every property optional"
+        },
+        {
+          "id": "C",
+          "text": "T without nulls"
+        },
+        {
+          "id": "D",
+          "text": "T with index signatures"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Partial maps every key to optional — ideal for PATCH payloads where any subset of fields may be present."
+    },
+    {
+      "id": "ts---q0018",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Unions & Narrowing",
+      "difficulty": "EASY",
+      "title": "How does `typeof x === \"string\"` narrow `x: string | number`?",
+      "prompt": "How does `typeof x === \"string\"` narrow `x: string | number`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It does not"
+        },
+        {
+          "id": "B",
+          "text": "The true-branch treats x as string automatically"
+        },
+        {
+          "id": "C",
+          "text": "It needs a cast first"
+        },
+        {
+          "id": "D",
+          "text": "Only with decorators"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "typeof is a built-in type guard; no assertion is required inside the guarded branch."
+    },
+    {
+      "id": "ts---q0019",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Function Types",
+      "difficulty": "EASY",
+      "title": "What does `() => void` mean as a parameter type?",
+      "prompt": "What does `() => void` mean as a parameter type?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The function must return void exactly"
+        },
+        {
+          "id": "B",
+          "text": "Any function callable with no arguments whose result is ignored"
+        },
+        {
+          "id": "C",
+          "text": "An async function"
+        },
+        {
+          "id": "D",
+          "text": "A required return of null"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A void-returning function type accepts functions that do return something — the caller simply ignores the value."
+    },
+    {
+      "id": "ts---q0020",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Assertions & Literals",
+      "difficulty": "EASY",
+      "title": "What is a string literal type?",
+      "prompt": "What is a string literal type?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Any string"
+        },
+        {
+          "id": "B",
+          "text": "A type restricted to one exact string such as \"on\" | \"off\""
+        },
+        {
+          "id": "C",
+          "text": "A const variable"
+        },
+        {
+          "id": "D",
+          "text": "A template string"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Literal types pin exact values, giving autocomplete and exhaustiveness checks for small unions."
+    },
+    {
+      "id": "ts---q0021",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Structural Typing",
+      "difficulty": "EASY",
+      "title": "Does TypeScript use nominal or structural typing?",
+      "prompt": "Does TypeScript use nominal or structural typing?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nominal (by class name)"
+        },
+        {
+          "id": "B",
+          "text": "Structural (by shape)"
+        },
+        {
+          "id": "C",
+          "text": "Both"
+        },
+        {
+          "id": "D",
+          "text": "Neither"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Compatibility depends on members, not declared identity — two unrelated types with matching members are interchangeable."
+    },
+    {
+      "id": "ts---q0022",
+      "level": "L1",
+      "levelLabel": "Fundamental",
+      "topic": "Type Inference",
+      "difficulty": "EASY",
+      "title": "What does `as const` do?",
+      "prompt": "What does `as const` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Casts to a reference"
+        },
+        {
+          "id": "B",
+          "text": "Bakes in literal types and readonly-ness instead of widening"
+        },
+        {
+          "id": "C",
+          "text": "Marks the value immutable at runtime"
+        },
+        {
+          "id": "D",
+          "text": "Nothing on variables"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Without it `[\"a\",\"b\"]` widens to string[]; with it the literal stays readonly [\"a\", \"b\"]."
+    },
+    {
+      "id": "ts---q0023",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Utility Types",
+      "difficulty": "MEDIUM",
+      "title": "What is the difference between `Omit<T, K>` and `Pick<T, K>`?",
+      "prompt": "What is the difference between `Omit<T, K>` and `Pick<T, K>`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "None"
+        },
+        {
+          "id": "B",
+          "text": "Pick keeps only the listed keys; Omit keeps everything except them"
+        },
+        {
+          "id": "C",
+          "text": "Pick only works on interfaces"
+        },
+        {
+          "id": "D",
+          "text": "Omit is generic-only"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`Pick<T, \"a\">` selects \"a\", while `Omit<T, \"a\">` is `Pick<T, Exclude<keyof T, \"a\">>` — the same machinery, opposite direction."
+    },
+    {
+      "id": "ts---q0024",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Unions & Narrowing",
+      "difficulty": "MEDIUM",
+      "title": "Why is `typeof x === \"object\"` an imperfect narrowing check?",
+      "prompt": "Why is `typeof x === \"object\"` an imperfect narrowing check?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It narrows perfectly"
+        },
+        {
+          "id": "B",
+          "text": "typeof null is \"object\" and arrays are objects too, so both survive"
+        },
+        {
+          "id": "C",
+          "text": "typeof arrays returns \"array\""
+        },
+        {
+          "id": "D",
+          "text": "It is not allowed in TS"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Add `x !== null` and `Array.isArray(x)` to separate those cases — otherwise the union still contains them."
+    },
+    {
+      "id": "ts---q0025",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Generics",
+      "difficulty": "MEDIUM",
+      "title": "What does `keyof T` produce?",
+      "prompt": "What does `keyof T` produce?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A single string"
+        },
+        {
+          "id": "B",
+          "text": "A union of T's property names"
+        },
+        {
+          "id": "C",
+          "text": "A map of T's values"
+        },
+        {
+          "id": "D",
+          "text": "The key count"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`keyof T` is a union of keys, enabling `T[K]`, `Record<keyof T, ...>` and `<K extends keyof T>` constraints."
+    },
+    {
+      "id": "ts---q0026",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Conditional Types",
+      "difficulty": "MEDIUM",
+      "title": "What does `T extends U ? X : Y` do inside a generic type?",
+      "prompt": "What does `T extends U ? X : Y` do inside a generic type?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A runtime ternary"
+        },
+        {
+          "id": "B",
+          "text": "It resolves once T is instantiated, choosing X or Y based on the actual argument"
+        },
+        {
+          "id": "C",
+          "text": "It casts X to Y"
+        },
+        {
+          "id": "D",
+          "text": "Creates a union of T and U"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Conditional types defer resolution until the type argument is known — the foundation of utility types like Exclude and NonNullable."
+    },
+    {
+      "id": "ts---q0027",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Strict Mode",
+      "difficulty": "MEDIUM",
+      "title": "What does `noUncheckedIndexedAccess` change?",
+      "prompt": "What does `noUncheckedIndexedAccess` change?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It bans index signatures"
+        },
+        {
+          "id": "B",
+          "text": "Indexed access now includes | undefined, forcing a missing-key check"
+        },
+        {
+          "id": "C",
+          "text": "It flags unused variables"
+        },
+        {
+          "id": "D",
+          "text": "It forbids destructuring"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Object/array indexes aren't guaranteed to exist at runtime; the flag surfaces that reality in the types."
+    },
+    {
+      "id": "ts---q0028",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Assertions & Literals",
+      "difficulty": "MEDIUM",
+      "title": "When is `x as T` appropriate?",
+      "prompt": "When is `x as T` appropriate?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Whenever an error appears"
+        },
+        {
+          "id": "B",
+          "text": "When you can guarantee the fact the compiler cannot — e.g. after your own validation of a union"
+        },
+        {
+          "id": "C",
+          "text": "To convert between primitives"
+        },
+        {
+          "id": "D",
+          "text": "In place of generics"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Assertions that state something verifiable are fine; using them to bypass real type errors just hides bugs."
+    },
+    {
+      "id": "ts---q0029",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Types vs Interfaces",
+      "difficulty": "MEDIUM",
+      "title": "When is `interface` the better choice?",
+      "prompt": "When is `interface` the better choice?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Always"
+        },
+        {
+          "id": "B",
+          "text": "When you want declaration merging or cleaner messages for object shapes"
+        },
+        {
+          "id": "C",
+          "text": "Interfaces compile faster"
+        },
+        {
+          "id": "D",
+          "text": "When you need unions"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Interfaces merge across declarations (useful for extending library types); type is required for unions, tuples and mapped types."
+    },
+    {
+      "id": "ts---q0030",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Function Types",
+      "difficulty": "MEDIUM",
+      "title": "Is a required parameter allowed after an optional one?",
+      "prompt": "Is a required parameter allowed after an optional one?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Yes, always"
+        },
+        {
+          "id": "B",
+          "text": "No — TypeScript rejects a required parameter following an optional one"
+        },
+        {
+          "id": "C",
+          "text": "Only with strict off"
+        },
+        {
+          "id": "D",
+          "text": "Only in interfaces"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The call signature would be ambiguous, so TS errors; reorder the parameters or make the later one optional."
+    },
+    {
+      "id": "ts---q0031",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "keyof & Indexed Access",
+      "difficulty": "MEDIUM",
+      "title": "What does `T[\"name\"]` mean?",
+      "prompt": "What does `T[\"name\"]` mean?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The string \"name\""
+        },
+        {
+          "id": "B",
+          "text": "The type of T's `name` property"
+        },
+        {
+          "id": "C",
+          "text": "An error unless declared twice"
+        },
+        {
+          "id": "D",
+          "text": "A property key value"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Indexed access types extract a member's type from a type — the building block for derived utility types."
+    },
+    {
+      "id": "ts---q0032",
+      "level": "L2",
+      "levelLabel": "Intermediate",
+      "topic": "Structural Typing",
+      "difficulty": "MEDIUM",
+      "title": "Why do fresh object literals with extra keys error if typing is structural?",
+      "prompt": "Why do fresh object literals with extra keys error if typing is structural?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They do not error"
+        },
+        {
+          "id": "B",
+          "text": "Excess property checking applies only to fresh literals, catching typos before they ship"
+        },
+        {
+          "id": "C",
+          "text": "Interfaces disallow them"
+        },
+        {
+          "id": "D",
+          "text": "Only under strict"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Assigning a broader variable is allowed, but a literal with unknown properties is a classic typo risk, so TS flags it."
+    },
+    {
+      "id": "ts---q0033",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Generics",
+      "difficulty": "HARD",
+      "title": "What is the difference between `<T extends object>` and `<T>` with no constraint?",
+      "prompt": "What is the difference between `<T extends object>` and `<T>` with no constraint?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are identical"
+        },
+        {
+          "id": "B",
+          "text": "The constraint lets you safely index T and warns callers before instantiation rather than erroring inside the body"
+        },
+        {
+          "id": "C",
+          "text": "The unconstrained version is stricter"
+        },
+        {
+          "id": "D",
+          "text": "Only the first supports default parameters"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Deferring the check to the call site gives callers a precise error and keeps generic bodies usable — the constraint moves from body to boundary."
+    },
+    {
+      "id": "ts---q0034",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Conditional Types",
+      "difficulty": "HARD",
+      "title": "Why do you need `infer` in a conditional type?",
+      "prompt": "Why do you need `infer` in a conditional type?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "To infer at runtime"
+        },
+        {
+          "id": "B",
+          "text": "To capture a matched sub-type as a new type parameter inside the true branch"
+        },
+        {
+          "id": "C",
+          "text": "To widen a union"
+        },
+        {
+          "id": "D",
+          "text": "To assert non-null"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`T extends Promise<infer V> ? V : never` captures the inner type — the basis of ReturnType, Awaited and similar helpers."
+    },
+    {
+      "id": "ts---q0035",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Utility Types",
+      "difficulty": "HARD",
+      "title": "How does `Record<Union, T>` differ from indexing a mapped type with optional keys?",
+      "prompt": "How does `Record<Union, T>` differ from indexing a mapped type with optional keys?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "Record guarantees every union member is a required key — making it ideal for exhaustive maps with lookup by literal"
+        },
+        {
+          "id": "C",
+          "text": "Record allows missing keys"
+        },
+        {
+          "id": "D",
+          "text": "Record only works with string unions"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Combined with a switch or a lookup table it prevents silently missing cases: the type demands an entry for each member."
+    },
+    {
+      "id": "ts---q0036",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Strict Mode",
+      "difficulty": "HARD",
+      "title": "What does `exactOptionalPropertyTypes` change?",
+      "prompt": "What does `exactOptionalPropertyTypes` change?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It forbids optional properties"
+        },
+        {
+          "id": "B",
+          "text": "It separates 'absent' from 'present but undefined' — `{ a: undefined }` no longer satisfies `a?: string`"
+        },
+        {
+          "id": "C",
+          "text": "It removes undefined from unions"
+        },
+        {
+          "id": "D",
+          "text": "It affects only interfaces"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "By default undefined is assignable to optional keys; the flag makes absence explicit, which matters for APIs distinguishing null vs missing."
+    },
+    {
+      "id": "ts---q0037",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Unions & Narrowing",
+      "difficulty": "HARD",
+      "title": "What does a discriminated union rely on?",
+      "prompt": "What does a discriminated union rely on?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "A common literal field (like `type: \"loading\"`) shared across members"
+        },
+        {
+          "id": "B",
+          "text": "A base class"
+        },
+        {
+          "id": "C",
+          "text": "Decorators"
+        },
+        {
+          "id": "D",
+          "text": "Index signatures"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Switching on the discriminant narrows the whole union — the standard pattern for state machines and event reducers."
+    },
+    {
+      "id": "ts---q0038",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Types vs Interfaces",
+      "difficulty": "HARD",
+      "title": "What does `interface User extends Required<Partial<User>>`-style self-extension risk?",
+      "prompt": "What does `interface User extends Required<Partial<User>>`-style self-extension risk?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Nothing"
+        },
+        {
+          "id": "B",
+          "text": "Circular or infinitely recursive type expansion can error during declaration merging"
+        },
+        {
+          "id": "C",
+          "text": "A runtime error"
+        },
+        {
+          "id": "D",
+          "text": "It erases nullability"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Interfaces are resolved eagerly when merged/extended; self-referential constructions can exceed the compiler's depth limits."
+    },
+    {
+      "id": "ts---q0039",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Assertions & Literals",
+      "difficulty": "HARD",
+      "title": "What is `satisfies` useful for that `as` is not?",
+      "prompt": "What is `satisfies` useful for that `as` is not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It is purely stylistic"
+        },
+        {
+          "id": "B",
+          "text": "It checks the expression against a type without widening its inferred literal/shape, preserving precise types"
+        },
+        {
+          "id": "C",
+          "text": "It bypasses errors"
+        },
+        {
+          "id": "D",
+          "text": "It converts types"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`const routes = {...} satisfies RouteConfig` validates the object yet keeps its exact literal keys for later narrowing — `as` would erase that precision."
+    },
+    {
+      "id": "ts---q0040",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "keyof & Indexed Access",
+      "difficulty": "HARD",
+      "title": "What does `T extends Record<keyof T, unknown>` achieve as a constraint?",
+      "prompt": "What does `T extends Record<keyof T, unknown>` achieve as a constraint?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It forces T to be a map"
+        },
+        {
+          "id": "B",
+          "text": "It requires T to declare all of its own keys — a self-referential shape check without needing an interface"
+        },
+        {
+          "id": "C",
+          "text": "It erases types"
+        },
+        {
+          "id": "D",
+          "text": "It has no effect"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The constraint pins T to its own key set (a 'no extra keys' check) while still letting callers pass any compatible literal."
+    },
+    {
+      "id": "ts---q0041",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Function Types",
+      "difficulty": "HARD",
+      "title": "Why can a callback with fewer parameters be passed where more are expected?",
+      "prompt": "Why can a callback with fewer parameters be passed where more are expected?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It cannot"
+        },
+        {
+          "id": "B",
+          "text": "Parameter bivariance lets a function ignore extra arguments — providing fewer is safe"
+        },
+        {
+          "id": "C",
+          "text": "Due to any inference"
+        },
+        {
+          "id": "D",
+          "text": "Only with strictFunctionTypes off"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "A function of arity 1 can legally stand in for an arity-3 callback because JS ignores extra arguments; TS mirrors that."
+    },
+    {
+      "id": "ts---q0042",
+      "level": "L3",
+      "levelLabel": "Advanced",
+      "topic": "Structural Typing",
+      "difficulty": "HARD",
+      "title": "Why are `type User = { name: string }` and a class with the same members interchangeable, and how do you opt out?",
+      "prompt": "Why are `type User = { name: string }` and a class with the same members interchangeable, and how do you opt out?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They are not"
+        },
+        {
+          "id": "B",
+          "text": "Structural typing allows it; nominal intent requires a private brand field or unique symbol"
+        },
+        {
+          "id": "C",
+          "text": "By enabling strict"
+        },
+        {
+          "id": "D",
+          "text": "Using interfaces"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "TS is structural, so to prevent accidental compatibility you add a private property (only the declaring class can make one) or a unique symbol brand."
     }
-  ]
+  ],
+  "generatedAt": "2026-10-04T07:39:52.114Z"
 }

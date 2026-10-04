@@ -80,7 +80,6 @@ export default function ExamAttemptPage({ params }: AttemptPageProps) {
     <ExamPlayer
       technology={technology as TechnologyId}
       attempt={attempt}
-      bank={bank}
       paper={paper}
     />
   );

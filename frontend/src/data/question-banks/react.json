@@ -3,8 +3,8 @@
   "label": "React",
   "description": "Scenario-based MCQ across five levels: JSX and component fundamentals, hooks and state, performance and error boundaries, state management and testing.",
   "source": "https://github.com/Shihab2022/interview-question/blob/main/react/react-mcq.md",
-  "generatedAt": "2026-09-17T16:37:41.376Z",
-  "questionCount": 100,
+  "generatedAt": "2026-10-04T07:39:52.115Z",
+  "questionCount": 111,
   "levels": [
     {
       "id": "L1",
@@ -41,25 +41,23 @@
     "Forms & Controlled Components",
     "Jest - Unit Testing",
     "React Testing Library",
-    "MISCELLANEOUS",
-    "Next.js",
     "React Router"
   ],
   "difficultyCounts": {
-    "EASY": 37,
-    "MEDIUM": 38,
-    "HARD": 25
+    "EASY": 42,
+    "MEDIUM": 48,
+    "HARD": 21
   },
   "levelCounts": {
-    "L1": 19,
+    "L1": 24,
     "L2": 18,
     "L4": 25,
-    "L3": 13,
-    "L5": 25
+    "L3": 23,
+    "L5": 21
   },
   "questions": [
     {
-      "id": "rc-q0001",
+      "id": "rc--q0001",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -94,7 +92,7 @@
       "explanation": "Both options remove the React unique key warning — React only requires a key prop to be present. Using the array **index** as a key is acceptable for static, non-reordered lists. Using `Math.random()` also removes the warning by supplying a key, but it is an anti-pattern: it generates a new key on every render, causing React to unmount and remount every list item, destroying component state and hurting performance. The question asks what _removes the warning_, not what is best practice — so both are technically correct."
     },
     {
-      "id": "rc-q0002",
+      "id": "rc--q0002",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -124,7 +122,7 @@
       "explanation": "For dynamic component loading, module bundling and optimization (such as code splitting and lazy loading via `React.lazy`) is the right approach. These techniques allow components to be loaded on demand, reducing initial bundle size and improving build and runtime performance."
     },
     {
-      "id": "rc-q0003",
+      "id": "rc--q0003",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -160,7 +158,7 @@
       "explanation": "React components must return JSX (or `null`), not plain JavaScript objects. Returning a plain object causes a runtime error: _\"Objects are not valid as a React child.\"_ To render the data, you would need to map it into JSX elements."
     },
     {
-      "id": "rc-q0004",
+      "id": "rc--q0004",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -196,7 +194,7 @@
       "explanation": "A React component can only return a single root element. Returning two adjacent `<div>` elements without a wrapper causes a compile-time error: _\"Adjacent JSX elements must be wrapped in an enclosing tag.\"_ The fix is to wrap them in a fragment `<>...</>` or a container element."
     },
     {
-      "id": "rc-q0005",
+      "id": "rc--q0005",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -226,7 +224,7 @@
       "explanation": "`npm run build` triggers the production build script (e.g., via Create React App or Vite), which bundles and minifies the application for deployment. `npm start` runs the development server, `npm run dev` is a common dev-server alias, and `npm run prod` is not a standard script."
     },
     {
-      "id": "rc-q0006",
+      "id": "rc--q0006",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -262,7 +260,7 @@
       "explanation": "When `name` prop is not provided it is `undefined`, which is falsy. The `||` operator falls back to `\"World\"`, so the output is `Hello, World!`."
     },
     {
-      "id": "rc-q0007",
+      "id": "rc--q0007",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -298,7 +296,7 @@
       "explanation": "React uses `key` to identify which items changed, were added, or removed. Without keys, React falls back to index-based diffing, which can cause incorrect state association and performance issues."
     },
     {
-      "id": "rc-q0008",
+      "id": "rc--q0008",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -334,7 +332,7 @@
       "explanation": "State updates in React are batched. Both calls close over the same `count` value. Use the functional updater `setCount(prev => prev + 1)` to guarantee sequential increments."
     },
     {
-      "id": "rc-q0009",
+      "id": "rc--q0009",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -370,7 +368,7 @@
       "explanation": "`React.memo` uses shallow comparison. A new object literal `{}` creates a new reference on every render, defeating memoization. Hoist the object outside the component or use `useMemo`."
     },
     {
-      "id": "rc-q0010",
+      "id": "rc--q0010",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -406,7 +404,7 @@
       "explanation": "JSX is syntactic sugar. Babel (or the React transform) compiles JSX into `React.createElement(type, props, ...children)` calls that produce React element descriptor objects."
     },
     {
-      "id": "rc-q0011",
+      "id": "rc--q0011",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -436,7 +434,7 @@
       "explanation": "A Higher-Order Component (HOC) is a function with the signature `(WrappedComponent) => EnhancedComponent`. It adds cross-cutting concerns (auth guards, logging, theming) without modifying the original component. In modern React, custom hooks have largely replaced HOCs for logic reuse, but HOCs remain common in legacy codebases and libraries."
     },
     {
-      "id": "rc-q0012",
+      "id": "rc--q0012",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -466,7 +464,7 @@
       "explanation": "`ReactDOM.createPortal(children, domNode)` renders children into any DOM node outside the component\\'s parent hierarchy. Despite the separate DOM placement, React event bubbling still follows the React component tree — making portals ideal for modals, tooltips, and dropdown menus that must escape CSS overflow or z-index constraints."
     },
     {
-      "id": "rc-q0013",
+      "id": "rc--q0013",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "React Fundamentals",
@@ -496,7 +494,7 @@
       "explanation": "`React.PureComponent` performs a shallow comparison of props and state for class components. `React.memo` does the same for function components. Both prevent re-renders when props are shallowly unchanged — a lightweight optimization for \"leaf\" display components that receive only primitives or stable references."
     },
     {
-      "id": "rc-q0014",
+      "id": "rc--q0014",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -526,7 +524,7 @@
       "explanation": "`useRef` gives you a direct reference to the underlying DOM element. By attaching the ref to the input (`<input ref={inputRef} />`), you can imperatively call `inputRef.current.blur()` from any other event handler to programmatically trigger the blur event."
     },
     {
-      "id": "rc-q0015",
+      "id": "rc--q0015",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -556,7 +554,7 @@
       "explanation": "`useId` is a React hook that generates a stable, unique ID that is consistent between server and client renders. It is ideal for associating form elements with labels or any scenario requiring a guaranteed unique identifier per component instance."
     },
     {
-      "id": "rc-q0016",
+      "id": "rc--q0016",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -592,7 +590,7 @@
       "explanation": "Option C correctly lists `userId` as the only dependency. Option D is also valid if `fetchUser` is unstable, but Option C is the minimal correct answer for this scenario."
     },
     {
-      "id": "rc-q0017",
+      "id": "rc--q0017",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -628,7 +626,7 @@
       "explanation": "Because `count` is a dependency, the callback is recreated on each count change, producing a new reference. Use `setCount(prev => prev + 1)` and remove `count` from the dependency array to keep a stable reference."
     },
     {
-      "id": "rc-q0018",
+      "id": "rc--q0018",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -664,7 +662,7 @@
       "explanation": "`useMemo` caches the result of the computation and only recomputes when a listed dependency changes. This avoids an expensive sort on every render."
     },
     {
-      "id": "rc-q0019",
+      "id": "rc--q0019",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -700,7 +698,7 @@
       "explanation": "`useRef` returns a mutable container whose `.current` property survives re-renders without triggering them - ideal for storing timers, previous values, or DOM nodes."
     },
     {
-      "id": "rc-q0020",
+      "id": "rc--q0020",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -736,7 +734,7 @@
       "explanation": "`useReducer` centralizes complex state transitions into a pure reducer function, making state logic easier to test and reason about compared to multiple independent `useState` calls."
     },
     {
-      "id": "rc-q0021",
+      "id": "rc--q0021",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -772,7 +770,7 @@
       "explanation": "Custom hooks are plain JavaScript functions whose name begins with `use`. The `use` prefix signals to React\\'s linter (eslint-plugin-react-hooks) that the function must follow the Rules of Hooks. They allow stateful logic to be shared across components without changing the component hierarchy or introducing HOC/render-prop complexity."
     },
     {
-      "id": "rc-q0022",
+      "id": "rc--q0022",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -808,7 +806,7 @@
       "explanation": "React tracks each hook\\'s state by its call order. Placing a hook inside an `if` block means it may or may not execute depending on the condition, corrupting React\\'s internal state tracking. The fix is to call the hook unconditionally and use the condition inside it: `const [role, setRole] = useState(isAdmin ? \"admin\" : \"\")`."
     },
     {
-      "id": "rc-q0023",
+      "id": "rc--q0023",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "React Hooks",
@@ -838,7 +836,7 @@
       "explanation": "`useContext` subscribes the component to context updates. React re-renders the consumer whenever the `value` reference on the matching Provider changes. To prevent unnecessary re-renders, memoize the context value with `useMemo` so it only changes when the underlying data changes."
     },
     {
-      "id": "rc-q0024",
+      "id": "rc--q0024",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -874,7 +872,7 @@
       "explanation": "React calls the cleanup function before re-running the effect due to a dependency change, and also when the component unmounts. This prevents stale subscriptions and memory leaks."
     },
     {
-      "id": "rc-q0025",
+      "id": "rc--q0025",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -910,7 +908,7 @@
       "explanation": "Listing `id` in the dependency array replicates the `prevProps.id !== this.props.id` guard - the effect only re-runs when `id` changes."
     },
     {
-      "id": "rc-q0026",
+      "id": "rc--q0026",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -940,7 +938,7 @@
       "explanation": "`useLayoutEffect` fires synchronously after all DOM mutations but before the browser paints, allowing DOM measurements and mutations without a visible flash."
     },
     {
-      "id": "rc-q0027",
+      "id": "rc--q0027",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -976,7 +974,7 @@
       "explanation": "`useEffect` with an empty dependency array `[]` runs exactly once after the component\\'s first render, mirroring `componentDidMount`. Option A runs after every render (no equivalent lifecycle); Option C also re-runs if `fetchInitialData` reference changes, which is not the same as `componentDidMount`."
     },
     {
-      "id": "rc-q0028",
+      "id": "rc--q0028",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -1012,7 +1010,7 @@
       "explanation": "When a component unmounts before an async operation completes, calling `setState` on it causes the warning and a memory leak. The fix is to track whether the component is still mounted or use `AbortController` to cancel the fetch in the cleanup:\n```jsx\nuseEffect(() => {\n  const controller = new AbortController();\n  fetchUser(userId, { signal: controller.signal }).then((user) =>\n    setUser(user),\n  );\n  return () => controller.abort();\n}, [userId]);\n```"
     },
     {
-      "id": "rc-q0029",
+      "id": "rc--q0029",
       "level": "L1",
       "levelLabel": "Fundamental (Entry-Level / Junior)",
       "topic": "Component Lifecycle",
@@ -1048,7 +1046,7 @@
       "explanation": "`React.memo(Component, arePropsEqual)` accepts an optional second argument — a function that receives previous and next props and returns `true` to skip the re-render (same semantics as `shouldComponentUpdate` returning `false`). Without the second argument, `React.memo` performs a default shallow comparison.\n```jsx\nconst MyComponent = React.memo(\n  ({ value }) => <div>{value}</div>,\n  (prevProps, nextProps) => prevProps.value === nextProps.value,\n);\n```"
     },
     {
-      "id": "rc-q0030",
+      "id": "rc--q0030",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React 19 Features",
@@ -1084,7 +1082,7 @@
       "explanation": "`use()` is a new React 19 hook that can be called conditionally (unlike other hooks). It integrates with Suspense - the component suspends while the Promise is pending and resumes with the resolved value."
     },
     {
-      "id": "rc-q0031",
+      "id": "rc--q0031",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React 19 Features",
@@ -1120,7 +1118,7 @@
       "explanation": "`useFormStatus` (react-dom) gives child components access to the form\\'s submission state. `pending` is `true` while the form action is executing, enabling progressive-enhancement UX patterns."
     },
     {
-      "id": "rc-q0032",
+      "id": "rc--q0032",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React 19 Features",
@@ -1156,7 +1154,7 @@
       "explanation": "`useOptimistic` lets you speculatively update the UI before the server confirms the action. Once the action settles, React replaces the optimistic state with the real server state."
     },
     {
-      "id": "rc-q0033",
+      "id": "rc--q0033",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React 19 Features",
@@ -1192,7 +1190,7 @@
       "explanation": "React 19 Server Actions allow async functions marked `\"use server\"` to be passed directly to `<form action>`. The form works even without JavaScript, and React manages serialization automatically."
     },
     {
-      "id": "rc-q0034",
+      "id": "rc--q0034",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React 19 Features",
@@ -1222,7 +1220,7 @@
       "explanation": "React 19 deprecates `forwardRef`. Function components can receive `ref` directly in their props, simplifying ref forwarding patterns significantly."
     },
     {
-      "id": "rc-q0035",
+      "id": "rc--q0035",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux & State Management",
@@ -1258,7 +1256,7 @@
       "explanation": "Redux reducers must be pure functions that return a new state object. Mutating and returning the same reference means React-Redux\\'s shallow equality check sees no change and skips re-rendering. Return `{ ...state, items: [...state.items, action.payload] }` instead."
     },
     {
-      "id": "rc-q0036",
+      "id": "rc--q0036",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux & State Management",
@@ -1294,7 +1292,7 @@
       "explanation": "Plain Redux only handles synchronous plain-object actions. `redux-thunk` intercepts function actions and calls them with `dispatch` and `getState`, enabling async workflows."
     },
     {
-      "id": "rc-q0037",
+      "id": "rc--q0037",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux & State Management",
@@ -1330,7 +1328,7 @@
       "explanation": "`useSelector` uses reference equality by default. Returning a new object `{}` each time always fails the equality check. Use separate `useSelector` calls, `shallowEqual` as the second argument, or `createSelector` from Reselect."
     },
     {
-      "id": "rc-q0038",
+      "id": "rc--q0038",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux & State Management",
@@ -1366,7 +1364,7 @@
       "explanation": "`combineReducers` delegates different parts of the state to separate reducer functions. Each reducer only receives and manages its own slice of the state (`state.auth`, `state.cart`, etc.)."
     },
     {
-      "id": "rc-q0039",
+      "id": "rc--q0039",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1402,7 +1400,7 @@
       "explanation": "`createSlice` uses Immer under the hood (enabling safe mutation syntax) and auto-generates action creators whose `type` matches `\"sliceName/reducerName\"` - e.g., `\"counter/increment\"`."
     },
     {
-      "id": "rc-q0040",
+      "id": "rc--q0040",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1438,7 +1436,7 @@
       "explanation": "`createAsyncThunk` automatically dispatches `pending` before the Promise starts, `fulfilled` on resolution, and `rejected` on rejection - matching the FSA lifecycle convention."
     },
     {
-      "id": "rc-q0041",
+      "id": "rc--q0041",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1474,7 +1472,7 @@
       "explanation": "RTK Query auto-generates hooks that manage fetching, caching, and re-fetching. The hook re-fetches whenever `userId` changes and handles deduplication and cache invalidation automatically."
     },
     {
-      "id": "rc-q0042",
+      "id": "rc--q0042",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1510,7 +1508,7 @@
       "explanation": "RTK Query stores its normalized cache in the Redux state tree under `api.reducerPath`. Without the reducer, there is nowhere to persist data and the cache/invalidation system will not function."
     },
     {
-      "id": "rc-q0043",
+      "id": "rc--q0043",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1546,7 +1544,7 @@
       "explanation": "`extraReducers` is the correct location to handle actions that were generated outside the slice — such as thunk lifecycle actions from `createAsyncThunk`. The builder API provides type-safe methods (`addCase`, `addMatcher`, `addDefaultCase`) to react to `pending`, `fulfilled`, and `rejected` states."
     },
     {
-      "id": "rc-q0044",
+      "id": "rc--q0044",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Redux Toolkit",
@@ -1582,7 +1580,7 @@
       "explanation": "Without memoization, a selector computing derived data (filtered lists, sorted arrays, aggregates) runs on every render. `createSelector` caches the last result and skips recomputation when its input selectors return the same references, improving both CPU usage and render performance when used with `useSelector`."
     },
     {
-      "id": "rc-q0045",
+      "id": "rc--q0045",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Performance Optimization",
@@ -1612,7 +1610,7 @@
       "explanation": "Debouncing limits how often a high-frequency event handler fires by delaying execution until a burst of events has stopped. This directly reduces performance bottlenecks for events like scroll, resize, or keypress. A Global Event Bus adds coupling, the Observer pattern addresses subscriptions not rate-limiting, and Redux middleware handles async side effects rather than event frequency."
     },
     {
-      "id": "rc-q0046",
+      "id": "rc--q0046",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Performance Optimization",
@@ -1642,7 +1640,7 @@
       "explanation": "`useDeferredValue` is the right choice when you do not control the state (e.g., it comes from a prop or an external source). It creates a deferred copy of the value so React can prioritize urgent UI updates and render the deferred value when the browser is idle. `useTransition` is similar but requires you to own the state update."
     },
     {
-      "id": "rc-q0047",
+      "id": "rc--q0047",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Performance Optimization",
@@ -1678,7 +1676,7 @@
       "explanation": "`React.memo` is a higher-order component that memoizes the rendered output. If the next props shallowly equal the previous props, React reuses the last render and skips the child\\'s reconciliation."
     },
     {
-      "id": "rc-q0048",
+      "id": "rc--q0048",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Performance Optimization",
@@ -1714,7 +1712,7 @@
       "explanation": "`useMemo(() => transactions.reduce(...), [transactions])` ensures the expensive reduction only runs when `transactions` changes, not on every render."
     },
     {
-      "id": "rc-q0049",
+      "id": "rc--q0049",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Performance Optimization",
@@ -1750,7 +1748,7 @@
       "explanation": "`useTransition` marks an update as non-urgent. `isPending` is `true` while React is rendering the deferred update, allowing you to show a loading indicator without blocking the input."
     },
     {
-      "id": "rc-q0050",
+      "id": "rc--q0050",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Context API",
@@ -1780,7 +1778,7 @@
       "explanation": "The React Context API is designed exactly for this scenario — passing data through a component tree without having to thread props through every intermediate level (prop drilling). Create a context with `React.createContext`, wrap the tree in a `Provider`, and any descendant can consume the value with `useContext`."
     },
     {
-      "id": "rc-q0051",
+      "id": "rc--q0051",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Context API",
@@ -1816,7 +1814,7 @@
       "explanation": "React re-renders every component that called `useContext(ThemeContext)` whenever the `value` reference changes. Components that do not consume the context are not affected."
     },
     {
-      "id": "rc-q0052",
+      "id": "rc--q0052",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Context API",
@@ -1852,7 +1850,7 @@
       "explanation": "A new `theme` object is created on every render, causing all consumers to re-render. `const theme = useMemo(() => ({ color: \"blue\" }), [])` produces a stable reference and prevents unnecessary consumer updates."
     },
     {
-      "id": "rc-q0053",
+      "id": "rc--q0053",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Error Boundaries",
@@ -1882,7 +1880,7 @@
       "explanation": "`window.addEventListener('unhandledrejection', handler)` is the standard browser API for globally capturing unhandled promise rejections. The event object provides the rejected `reason`, enabling comprehensive logging. Error Boundaries do not catch async/promise errors, and `try-catch` only works when applied locally around each async call."
     },
     {
-      "id": "rc-q0054",
+      "id": "rc--q0054",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Error Boundaries",
@@ -1918,7 +1916,7 @@
       "explanation": "Error Boundaries catch errors during React\\'s render phase and lifecycle methods. They do NOT catch errors in event handlers (use `try/catch` there), async code, or server-side rendering."
     },
     {
-      "id": "rc-q0055",
+      "id": "rc--q0055",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Error Boundaries",
@@ -1948,7 +1946,7 @@
       "explanation": "`getDerivedStateFromError` runs during rendering so it can update state to show a fallback. `componentDidCatch` runs after the tree has re-rendered and is the right place to call error reporting services."
     },
     {
-      "id": "rc-q0056",
+      "id": "rc--q0056",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Code Splitting & Lazy Loading",
@@ -1978,7 +1976,7 @@
       "explanation": "Code splitting with `React.lazy()` and dynamic `import()` allows the dashboard to load only the code needed for the initial view, deferring heavier modules until they are required. This reduces the initial bundle size and improves load time without removing features or limiting data."
     },
     {
-      "id": "rc-q0057",
+      "id": "rc--q0057",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Code Splitting & Lazy Loading",
@@ -2008,7 +2006,7 @@
       "explanation": "`startTransition` (from `useTransition` or `React.startTransition`) marks a state update as a non-urgent transition, allowing React to keep the current UI responsive while preparing the new page in the background. This is the correct way to achieve smooth page-to-page transitions with the Transition API."
     },
     {
-      "id": "rc-q0058",
+      "id": "rc--q0058",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Code Splitting & Lazy Loading",
@@ -2038,7 +2036,7 @@
       "explanation": "Suspense requires components that perform asynchronous data fetching to be wrapped inside a `<Suspense>` boundary with a `fallback` prop. Without proper wrapping, the component will not know to show a fallback UI while data loads, resulting in unexpected rendering behavior."
     },
     {
-      "id": "rc-q0059",
+      "id": "rc--q0059",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Code Splitting & Lazy Loading",
@@ -2074,7 +2072,7 @@
       "explanation": "`React.lazy` throws a Promise while the module is loading. A `Suspense` boundary catches that Promise and renders its `fallback` prop until the Promise resolves and the component is ready."
     },
     {
-      "id": "rc-q0060",
+      "id": "rc--q0060",
       "level": "L3",
       "levelLabel": "Advanced (Mid-Senior / Lead)",
       "topic": "Code Splitting & Lazy Loading",
@@ -2110,7 +2108,7 @@
       "explanation": "Dynamic `import()` must be wrapped in `React.lazy()` and the resulting component must be rendered inside a `Suspense` boundary. Option B creates a Promise, not a React component."
     },
     {
-      "id": "rc-q0061",
+      "id": "rc--q0061",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Forms & Controlled Components",
@@ -2146,7 +2144,7 @@
       "explanation": "In a controlled component, React drives the input value via the `value` prop. Without `onChange` calling `setQuery`, user keystrokes are ignored and the input appears frozen."
     },
     {
-      "id": "rc-q0062",
+      "id": "rc--q0062",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Forms & Controlled Components",
@@ -2182,7 +2180,7 @@
       "explanation": "React Hook Form avoids re-rendering on each keystroke by managing values through DOM refs instead of React state, significantly improving performance for complex forms."
     },
     {
-      "id": "rc-q0063",
+      "id": "rc--q0063",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Forms & Controlled Components",
@@ -2218,7 +2216,7 @@
       "explanation": "`[e.target.name]` is a computed property key that dynamically targets the right field. The spread `...form` ensures the rest of the state is preserved immutably. Option B mutates the existing state object directly and passes the same reference, so React may not detect the change and re-render."
     },
     {
-      "id": "rc-q0064",
+      "id": "rc--q0064",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Forms & Controlled Components",
@@ -2254,7 +2252,7 @@
       "explanation": "Controlled components keep the input value in React state, making it the single source of truth. Uncontrolled components let the DOM manage the value — you read it imperatively via `ref.current.value` (e.g., on submit). Controlled inputs are preferred when you need immediate validation or conditional rendering based on input value."
     },
     {
-      "id": "rc-q0065",
+      "id": "rc--q0065",
       "level": "L2",
       "levelLabel": "Intermediate (Junior-Mid / Developer)",
       "topic": "Forms & Controlled Components",
@@ -2290,7 +2288,7 @@
       "explanation": "In React, a controlled `<select>` requires `value={color}` on the element and `onChange={e => setColor(e.target.value)}` to keep the state in sync with the selected option — the same pattern as a controlled `<input>`. Without `value`, the browser manages the selection independently of React state."
     },
     {
-      "id": "rc-q0066",
+      "id": "rc--q0066",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Jest - Unit Testing",
@@ -2326,7 +2324,7 @@
       "explanation": "`jest.fn()` creates a mock function. `mock.calls` is an array where each element is an array of arguments from a single invocation. Useful for asserting what arguments the mock received."
     },
     {
-      "id": "rc-q0067",
+      "id": "rc--q0067",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Jest - Unit Testing",
@@ -2362,7 +2360,7 @@
       "explanation": "Jest completes the test when the synchronous function returns. The `.then()` callback runs asynchronously after Jest has already marked the test as passed. Use `async/await` or return the Promise to fix this."
     },
     {
-      "id": "rc-q0068",
+      "id": "rc--q0068",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Jest - Unit Testing",
@@ -2398,7 +2396,7 @@
       "explanation": "Snapshot tests serialize the rendered output. If the output changes unexpectedly, the test fails. Run `jest --updateSnapshot` to intentionally update the saved snapshot after a deliberate change."
     },
     {
-      "id": "rc-q0069",
+      "id": "rc--q0069",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Jest - Unit Testing",
@@ -2434,7 +2432,7 @@
       "explanation": "`jest.mock` is hoisted before imports by Babel, replacing all exports with `jest.fn()`. `mockResolvedValue` configures the mock to resolve with the given value, simulating a successful async API call."
     },
     {
-      "id": "rc-q0070",
+      "id": "rc--q0070",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "Jest - Unit Testing",
@@ -2470,7 +2468,7 @@
       "explanation": "`beforeEach`/`afterEach` are test lifecycle hooks that set up and tear down state around each individual test, preventing state leakage between tests. Use `beforeAll`/`afterAll` for once-per-suite setup."
     },
     {
-      "id": "rc-q0071",
+      "id": "rc--q0071",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React Testing Library",
@@ -2506,7 +2504,7 @@
       "explanation": "The Testing Library philosophy is to test from a user\\'s perspective. `getByRole` mirrors how screen readers navigate the DOM, and tests that break only when real user-visible behavior changes."
     },
     {
-      "id": "rc-q0072",
+      "id": "rc--q0072",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React Testing Library",
@@ -2542,7 +2540,7 @@
       "explanation": "`@testing-library/user-event` simulates realistic user interactions including all intermediate events, making tests closer to real browser behavior. `fireEvent` dispatches a single synthetic event."
     },
     {
-      "id": "rc-q0073",
+      "id": "rc--q0073",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React Testing Library",
@@ -2578,7 +2576,7 @@
       "explanation": "`findBy*` queries combine `waitFor` and `getBy*`. They poll the DOM at intervals until the element appears or the timeout (default 1000 ms) expires, making them ideal for testing async rendering."
     },
     {
-      "id": "rc-q0074",
+      "id": "rc--q0074",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React Testing Library",
@@ -2614,7 +2612,7 @@
       "explanation": "`getBy*` throws an error when an element is not found. `queryBy*` returns `null` instead, which is the correct variant when you need to assert the element is absent."
     },
     {
-      "id": "rc-q0075",
+      "id": "rc--q0075",
       "level": "L4",
       "levelLabel": "Expert (Senior / Architect)",
       "topic": "React Testing Library",
@@ -2650,649 +2648,7 @@
       "explanation": "Using a real store with `preloadedState` keeps tests realistic and avoids brittle mocks. Redux Toolkit\\'s `configureStore` is lightweight enough to spin up per test. This is the pattern recommended by the Redux and RTL maintainers."
     },
     {
-      "id": "rc-q0076",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "MISCELLANEOUS",
-      "difficulty": "HARD",
-      "title": "Alex created a component, Rxjs.js, and imported an observable from the RxJS library, like this:",
-      "prompt": "Alex created a component, Rxjs.js, and imported an observable from the RxJS library, like this:",
-      "content": [
-        {
-          "type": "code",
-          "language": "jsx",
-          "value": "import { Observables } from \"Rxjs\";\nfunction Rxjs() {\n  const observable = new Observable((subscribe) => {\n    subscriber.next(1);\n    subscriber.next(2);\n    subscriber.next(3);\n    setTimeout(() => {\n      subscriber.next(4);\n      subscriber.complete();\n    }, 1000);\n  });\n}\nexport default Rxjs;"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "Use import Observable from 'Rxjs'"
-        },
-        {
-          "id": "B",
-          "text": "Use the Observable without adding the new keyword before it: const observable = Observable ((subscriber)=> {...})"
-        },
-        {
-          "id": "C",
-          "text": "Change the Observable name to something else to make it work"
-        },
-        {
-          "id": "D",
-          "text": "Change the file name to something else to make the RxJS work"
-        }
-      ],
-      "correctOptionId": "A",
-      "explanation": "The code uses `import {Observables} from 'Rxjs'` which has two problems: the named import is misspelled as `Observables` (should be `Observable`), and the package name `'Rxjs'` should be lowercase `'rxjs'`. The correct import is `import { Observable } from 'rxjs'`. The `new` keyword is also required when constructing an Observable, so option B is incorrect."
-    },
-    {
-      "id": "rc-q0077",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "MISCELLANEOUS",
-      "difficulty": "HARD",
-      "title": "What is the purpose of `React.StrictMode`?",
-      "prompt": "What is the purpose of `React.StrictMode`?",
-      "content": [
-        {
-          "type": "code",
-          "language": "jsx",
-          "value": "<React.StrictMode>\n  <App />\n</React.StrictMode>"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "It enables server-side rendering for the wrapped components"
-        },
-        {
-          "id": "B",
-          "text": "It renders components twice in development to detect side effects, and warns about deprecated APIs"
-        },
-        {
-          "id": "C",
-          "text": "It prevents any mutations to props or state at runtime"
-        },
-        {
-          "id": "D",
-          "text": "It activates performance optimizations similar to production mode"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`React.StrictMode` is a development-only tool with no visible UI. It intentionally double-invokes render functions, state initializers, and `useEffect` cleanup/setup pairs to surface components with impure side effects. It also warns when deprecated lifecycle methods or APIs are used. It has no effect in production."
-    },
-    {
-      "id": "rc-q0078",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "MISCELLANEOUS",
-      "difficulty": "HARD",
-      "title": "A developer wraps siblings in `<React.Fragment>` instead of a `<div>`. What is the benefit?",
-      "prompt": "A developer wraps siblings in `<React.Fragment>` instead of a `<div>`. What is the benefit?",
-      "content": [
-        {
-          "type": "code",
-          "language": "jsx",
-          "value": "return (\n  <React.Fragment>\n    <dt>Term</dt>\n    <dd>Definition</dd>\n  </React.Fragment>\n);"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "`React.Fragment` improves performance by skipping reconciliation"
-        },
-        {
-          "id": "B",
-          "text": "It groups elements without adding an extra DOM node, preserving valid HTML structure"
-        },
-        {
-          "id": "C",
-          "text": "It is required when returning more than two elements"
-        },
-        {
-          "id": "D",
-          "text": "`React.Fragment` enables CSS Grid layout for its children"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`<React.Fragment>` (or the shorthand `<>...</>`) allows a component to return multiple elements without a wrapper `<div>`. This is critical for cases like `<dt>`/`<dd>` pairs inside a `<dl>`, or `<tr>`/`<td>` in a table, where an extra `<div>` would break valid HTML semantics. The fragment itself is not rendered to the DOM."
-    },
-    {
-      "id": "rc-q0079",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "MISCELLANEOUS",
-      "difficulty": "HARD",
-      "title": "A developer uses the `key` prop on a component outside of a list to reset its state. What does this achieve?",
-      "prompt": "A developer uses the `key` prop on a component outside of a list to reset its state. What does this achieve?",
-      "content": [
-        {
-          "type": "code",
-          "language": "jsx",
-          "value": "<ProfileForm key={userId} userId={userId} />"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "It adds the component to an internal React registry"
-        },
-        {
-          "id": "B",
-          "text": "Changing `key` causes React to unmount the old component instance and mount a fresh one, fully resetting all internal state"
-        },
-        {
-          "id": "C",
-          "text": "The `key` prop only affects performance, not component identity"
-        },
-        {
-          "id": "D",
-          "text": "This is invalid — `key` may only be used on list items"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "React uses `key` to identify component instances across renders. When `key` changes, React treats it as a completely different component — it unmounts the old tree and mounts a new one. This is a deliberate pattern to reset a component\\'s state when switching context (e.g., navigating between user profiles) without lifting state up or adding `useEffect` reset logic."
-    },
-    {
-      "id": "rc-q0080",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "Which command scaffolds a new Next.js project with the latest version?",
-      "prompt": "Which command scaffolds a new Next.js project with the latest version?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "`npx create-react-app --template next`"
-        },
-        {
-          "id": "B",
-          "text": "`npx create-next-app@latest`"
-        },
-        {
-          "id": "C",
-          "text": "`npm init next-app`"
-        },
-        {
-          "id": "D",
-          "text": "`npx next init`"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "The official scaffold tool is `create-next-app`. Running `npx create-next-app@latest` interactively prompts for TypeScript, ESLint, Tailwind CSS, the `src/` directory structure, and whether to use the App Router."
-    },
-    {
-      "id": "rc-q0081",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "In the Next.js Pages Router, a component exported from `pages/blog/index.js` maps to which URL path?",
-      "prompt": "In the Next.js Pages Router, a component exported from `pages/blog/index.js` maps to which URL path?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "`/pages/blog`"
-        },
-        {
-          "id": "B",
-          "text": "`/blog/index`"
-        },
-        {
-          "id": "C",
-          "text": "`/blog`"
-        },
-        {
-          "id": "D",
-          "text": "`/blog/index.js`"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Next.js uses file-based routing. An `index.js` file maps to the root of its directory segment, so `pages/blog/index.js` resolves to `/blog`. This mirrors standard web server conventions for index files."
-    },
-    {
-      "id": "rc-q0082",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "Which Next.js built-in component should be used for client-side navigation to avoid a full page reload?",
-      "prompt": "Which Next.js built-in component should be used for client-side navigation to avoid a full page reload?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "`<a href=\"/about\">`"
-        },
-        {
-          "id": "B",
-          "text": "`<Router to=\"/about\">`"
-        },
-        {
-          "id": "C",
-          "text": "`<Link href=\"/about\">` from `next/link`"
-        },
-        {
-          "id": "D",
-          "text": "`<Navigate to=\"/about\">`"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "The `<Link>` component from `next/link` intercepts clicks and performs client-side route transitions using the browser History API. It also prefetches linked pages in the background in production, delivering near-instant navigation — unlike a plain `<a>` tag which triggers a full page reload."
-    },
-    {
-      "id": "rc-q0083",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "What advantage does `next/image` offer over a plain HTML `<img>` tag?",
-      "prompt": "What advantage does `next/image` offer over a plain HTML `<img>` tag?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "Support for SVG animations"
-        },
-        {
-          "id": "B",
-          "text": "Automatic image optimization, lazy loading by default, and responsive `srcset` generation"
-        },
-        {
-          "id": "C",
-          "text": "Built-in CSS filter effects"
-        },
-        {
-          "id": "D",
-          "text": "Client-side image cropping and editing"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`next/image` passes images through Next.js\\'s built-in optimization pipeline: it converts to modern formats (WebP/AVIF), resizes on demand, lazy-loads by default, and prevents cumulative layout shift (CLS) by requiring explicit `width` and `height` props. This significantly improves Core Web Vitals scores."
-    },
-    {
-      "id": "rc-q0084",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "What is the key difference between `getStaticProps` and `getServerSideProps` in the Next.js Pages Router?",
-      "prompt": "What is the key difference between `getStaticProps` and `getServerSideProps` in the Next.js Pages Router?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "Both run on the server and produce identical output"
-        },
-        {
-          "id": "B",
-          "text": "`getStaticProps` runs at build time (SSG); `getServerSideProps` runs on every incoming request (SSR)"
-        },
-        {
-          "id": "C",
-          "text": "`getStaticProps` is only for API routes"
-        },
-        {
-          "id": "D",
-          "text": "`getServerSideProps` permanently caches its result"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`getStaticProps` pre-renders pages at build time, producing static HTML that can be cached at a CDN edge — ideal for content that rarely changes. `getServerSideProps` generates fresh HTML per request, granting access to real-time data, request cookies, and headers, but at the cost of higher server latency."
-    },
-    {
-      "id": "rc-q0085",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A developer needs a dynamic route for individual product pages at `/products/[id]`. Which file path in the Pages Router is correct?",
-      "prompt": "A developer needs a dynamic route for individual product pages at `/products/[id]`. Which file path in the Pages Router is correct?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "`pages/products/:id.js`"
-        },
-        {
-          "id": "B",
-          "text": "`pages/products/{id}.js`"
-        },
-        {
-          "id": "C",
-          "text": "`pages/products/[id].js`"
-        },
-        {
-          "id": "D",
-          "text": "`pages/products/$id.js`"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Next.js uses square-bracket notation for dynamic route segments. `pages/products/[id].js` matches `/products/42`, `/products/abc`, etc. The dynamic value is accessible as `router.query.id` or via the `params` argument in `getStaticProps` / `getServerSideProps`."
-    },
-    {
-      "id": "rc-q0086",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A developer creates `pages/api/orders.js`. What does this file expose?",
-      "prompt": "A developer creates `pages/api/orders.js`. What does this file expose?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "A React page component rendered at `/api/orders`"
-        },
-        {
-          "id": "B",
-          "text": "A serverless API endpoint that handles HTTP requests at `/api/orders`"
-        },
-        {
-          "id": "C",
-          "text": "A static JSON file served at `/api/orders`"
-        },
-        {
-          "id": "D",
-          "text": "A WebSocket connection endpoint"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Files inside `pages/api/` are API routes that run exclusively on the server. They receive Node.js-style `req` and `res` objects, are never sent to the browser, and keep server-only logic (database queries, secret keys) completely isolated from the client bundle."
-    },
-    {
-      "id": "rc-q0087",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A Next.js developer needs an environment variable to be accessible in client-side JavaScript. What naming convention is required?",
-      "prompt": "A Next.js developer needs an environment variable to be accessible in client-side JavaScript. What naming convention is required?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "`REACT_APP_API_KEY`"
-        },
-        {
-          "id": "B",
-          "text": "`NEXT_PUBLIC_API_KEY`"
-        },
-        {
-          "id": "C",
-          "text": "`PUBLIC_API_KEY`"
-        },
-        {
-          "id": "D",
-          "text": "`CLIENT_API_KEY`"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Next.js only inlines environment variables into the browser bundle when they are prefixed with `NEXT_PUBLIC_`. All other env variables remain server-side only and are never included in client code, protecting secrets like database passwords and API tokens from exposure."
-    },
-    {
-      "id": "rc-q0088",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A developer wants a statically generated page to automatically refresh stale content every 10 minutes without a full rebuild. What is the correct approach?",
-      "prompt": "A developer wants a statically generated page to automatically refresh stale content every 10 minutes without a full rebuild. What is the correct approach?",
-      "content": [
-        {
-          "type": "code",
-          "language": "js",
-          "value": "export async function getStaticProps() {\n  const data = await fetchProducts();\n  return { props: { data }, revalidate: 600 };\n}"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "This is incorrect; use `getServerSideProps` instead for refreshing content"
-        },
-        {
-          "id": "B",
-          "text": "This uses Incremental Static Regeneration (ISR) — after 600 seconds, the next request triggers background regeneration while the stale page is served"
-        },
-        {
-          "id": "C",
-          "text": "The page is rebuilt every 600 seconds automatically regardless of traffic"
-        },
-        {
-          "id": "D",
-          "text": "`revalidate` is not a valid key in the `getStaticProps` return object"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "ISR combines the performance of static pages with the freshness of server rendering. Once the revalidation window expires, the next visitor gets the stale page immediately while Next.js regenerates it in the background. The freshly generated page replaces the old one for subsequent visitors."
-    },
-    {
-      "id": "rc-q0089",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "In Next.js App Router (`app/` directory), what is the role of a `layout.tsx` file?",
-      "prompt": "In Next.js App Router (`app/` directory), what is the role of a `layout.tsx` file?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "It defines page-level `<head>` metadata like `<title>` and Open Graph tags"
-        },
-        {
-          "id": "B",
-          "text": "It is a persistent UI shell that wraps the current segment and all nested segments, preserving state across route changes"
-        },
-        {
-          "id": "C",
-          "text": "It replaces `getServerSideProps` for server-side data fetching"
-        },
-        {
-          "id": "D",
-          "text": "It is used only for CSS-in-JS scope isolation"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`layout.tsx` defines shared UI (nav, sidebar, providers) that persists across navigations within its segment. React preserves the layout component\\'s state and DOM — it is not unmounted when a child route changes. Every segment can have its own `layout.tsx`, and they nest automatically for granular control."
-    },
-    {
-      "id": "rc-q0090",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "In Next.js App Router, what does adding `\"use client\"` at the top of a file declare?",
-      "prompt": "In Next.js App Router, what does adding `\"use client\"` at the top of a file declare?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "The file should only be included in the development bundle"
-        },
-        {
-          "id": "B",
-          "text": "The component is a Client Component — it is hydrated in the browser and can use hooks, state, and browser APIs"
-        },
-        {
-          "id": "C",
-          "text": "The file handles client authentication logic only"
-        },
-        {
-          "id": "D",
-          "text": "All exports from the file are server-only utilities"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "By default, all App Router components are React Server Components that render only on the server with zero JavaScript shipped to the client. Adding `\"use client\"` marks a boundary: that file and its imports become part of the client bundle, enabling interactivity via `useState`, `useEffect`, and event handlers. Server Components cannot use these APIs."
-    },
-    {
-      "id": "rc-q0091",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A developer uses `getStaticPaths` with `fallback: 'blocking'`. What happens when a visitor requests a path that was not pre-generated at build time?",
-      "prompt": "A developer uses `getStaticPaths` with `fallback: 'blocking'`. What happens when a visitor requests a path that was not pre-generated at build time?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "A 404 page is returned immediately"
-        },
-        {
-          "id": "B",
-          "text": "A loading skeleton from `router.isFallback` is shown while the page generates"
-        },
-        {
-          "id": "C",
-          "text": "The page is server-rendered on the first request, the response is cached as static HTML, and subsequent visitors get the static file"
-        },
-        {
-          "id": "D",
-          "text": "The Next.js build is triggered again to include the new path"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "`fallback: 'blocking'` generates unbuilt pages on-demand via SSR (the request blocks until rendering is complete), then stores the result as static HTML. Unlike `fallback: true`, no intermediate loading state is shown. Use it when you want on-demand generation without a loading flash."
-    },
-    {
-      "id": "rc-q0092",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "Where does Next.js Middleware execute, and what is it primarily used for?",
-      "prompt": "Where does Next.js Middleware execute, and what is it primarily used for?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "In the browser after the page loads, to modify the DOM"
-        },
-        {
-          "id": "B",
-          "text": "In the Node.js API runtime to validate request bodies"
-        },
-        {
-          "id": "C",
-          "text": "At the Edge runtime, before a request is matched to a route — for redirects, rewrites, auth checks, and header manipulation"
-        },
-        {
-          "id": "D",
-          "text": "Inside React Server Components as an async data-fetching wrapper"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "Next.js Middleware runs in the lightweight Edge Runtime (V8-based) and executes before route resolution. It is ideal for authentication redirects, A/B testing, geo-targeting, and request/response header manipulation with near-zero added latency since it runs at the network edge close to the user."
-    },
-    {
-      "id": "rc-q0093",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "In the Next.js App Router, what is the purpose of `generateStaticParams`?",
-      "prompt": "In the Next.js App Router, what is the purpose of `generateStaticParams`?",
-      "content": [
-        {
-          "type": "code",
-          "language": "tsx",
-          "value": "// app/products/[id]/page.tsx\nexport async function generateStaticParams() {\n  const products = await fetchProducts();\n  return products.map((p) => ({ id: String(p.id) }));\n}"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "It validates the params passed to a dynamic route at runtime"
-        },
-        {
-          "id": "B",
-          "text": "It is the App Router equivalent of `getStaticPaths` — it returns param objects to pre-render at build time"
-        },
-        {
-          "id": "C",
-          "text": "It generates TypeScript types for dynamic route parameters"
-        },
-        {
-          "id": "D",
-          "text": "It runs on every request to fetch the latest parameters from the database"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "`generateStaticParams` replaces `getStaticPaths` from the Pages Router. It is exported from a dynamic segment\\'s `page.tsx` and returns an array of param objects that Next.js uses to determine which paths to pre-render during `next build`."
-    },
-    {
-      "id": "rc-q0094",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "In the Next.js App Router, how do React Server Components (RSC) fetch data differently from client components?",
-      "prompt": "In the Next.js App Router, how do React Server Components (RSC) fetch data differently from client components?",
-      "content": [],
-      "options": [
-        {
-          "id": "A",
-          "text": "RSC use `useEffect` with `fetch` in the component body"
-        },
-        {
-          "id": "B",
-          "text": "RSC use a special `getData()` hook provided by Next.js"
-        },
-        {
-          "id": "C",
-          "text": "RSC can be declared as `async` functions and `await` data directly in the component body — no hooks required"
-        },
-        {
-          "id": "D",
-          "text": "RSC require Redux Toolkit for all server-side data fetching"
-        }
-      ],
-      "correctOptionId": "C",
-      "explanation": "React Server Components run exclusively on the server and are never hydrated in the browser. Because they do not participate in the React hook lifecycle, they can be `async` functions that `await` database queries, file reads, or API calls directly in the component body, eliminating the need for `useEffect`-based data fetching patterns."
-    },
-    {
-      "id": "rc-q0095",
-      "level": "L5",
-      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
-      "topic": "Next.js",
-      "difficulty": "HARD",
-      "title": "A developer wraps a slow data-fetching Server Component with `<Suspense>` in the Next.js App Router. What is the performance benefit?",
-      "prompt": "A developer wraps a slow data-fetching Server Component with `<Suspense>` in the Next.js App Router. What is the performance benefit?",
-      "content": [
-        {
-          "type": "code",
-          "language": "tsx",
-          "value": "<Suspense fallback={<Skeleton />}>\n  <SlowDataComponent />\n</Suspense>"
-        }
-      ],
-      "options": [
-        {
-          "id": "A",
-          "text": "It moves `SlowDataComponent` to client-side rendering automatically"
-        },
-        {
-          "id": "B",
-          "text": "It enables HTML streaming — the server sends the outer shell (including the fallback) immediately and streams the component\\'s HTML when its data resolves"
-        },
-        {
-          "id": "C",
-          "text": "It caches the component\\'s output in a Redis store"
-        },
-        {
-          "id": "D",
-          "text": "It prevents `SlowDataComponent` from receiving any props until data is ready"
-        }
-      ],
-      "correctOptionId": "B",
-      "explanation": "Next.js App Router supports HTTP streaming via React Suspense. The server flushes the page shell and Suspense fallback to the browser immediately (improving TTFB), then streams the resolved component HTML as a small `<script>` injection once the awaited data is ready — without a full page reload or client-side fetch."
-    },
-    {
-      "id": "rc-q0096",
+      "id": "rc--q0076",
       "level": "L5",
       "levelLabel": "Framework & Ecosystem (Senior / Lead)",
       "topic": "React Router",
@@ -3328,7 +2684,7 @@
       "explanation": "`<BrowserRouter>` provides the routing context to the component tree using the browser\\'s History API. `<Routes>` selects the best-matching `<Route>` for the current URL. `<Switch>` was the v5 equivalent of `<Routes>` and does not exist in v6."
     },
     {
-      "id": "rc-q0097",
+      "id": "rc--q0077",
       "level": "L5",
       "levelLabel": "Framework & Ecosystem (Senior / Lead)",
       "topic": "React Router",
@@ -3358,7 +2714,7 @@
       "explanation": "`useParams()` returns an object of the matched URL parameters. For a route defined as `/users/:id`, calling `const { id } = useParams()` gives `\"42\"`. `useHistory` was the v5 API replaced by `useNavigate` in v6. `useLocation` provides the current location object (pathname, search, hash) without URL params."
     },
     {
-      "id": "rc-q0098",
+      "id": "rc--q0078",
       "level": "L5",
       "levelLabel": "Framework & Ecosystem (Senior / Lead)",
       "topic": "React Router",
@@ -3388,7 +2744,7 @@
       "explanation": "In React Router v6, `useNavigate()` returns a `navigate` function for imperative navigation: `const navigate = useNavigate(); navigate(\"/dashboard\")`. `useHistory()` was its v5 predecessor and was removed in v6. `useLocation()` only reads the current URL without navigating."
     },
     {
-      "id": "rc-q0099",
+      "id": "rc--q0079",
       "level": "L5",
       "levelLabel": "Framework & Ecosystem (Senior / Lead)",
       "topic": "React Router",
@@ -3424,7 +2780,7 @@
       "explanation": "`<Navigate>` is the declarative redirect component in React Router v6. When rendered, it immediately triggers a navigation to the specified route. The `replace` prop replaces the current history entry so the user cannot navigate back to the protected page with the browser back button."
     },
     {
-      "id": "rc-q0100",
+      "id": "rc--q0080",
       "level": "L5",
       "levelLabel": "Framework & Ecosystem (Senior / Lead)",
       "topic": "React Router",
@@ -3458,6 +2814,954 @@
       ],
       "correctOptionId": "B",
       "explanation": "`<Outlet>` is a placeholder inside a parent route\\'s element component. It renders the matched child route\\'s element at that position. Without `<Outlet>`, child routes match in the URL but their elements never appear in the DOM."
+    },
+    {
+      "id": "rc--q0081",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React Fundamentals",
+      "difficulty": "HARD",
+      "title": "What is the purpose of `React.StrictMode`?",
+      "prompt": "What is the purpose of `React.StrictMode`?",
+      "content": [
+        {
+          "type": "code",
+          "language": "jsx",
+          "value": "<React.StrictMode>\n  <App />\n</React.StrictMode>"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "It enables server-side rendering for the wrapped components"
+        },
+        {
+          "id": "B",
+          "text": "It renders components twice in development to detect side effects, and warns about deprecated APIs"
+        },
+        {
+          "id": "C",
+          "text": "It prevents any mutations to props or state at runtime"
+        },
+        {
+          "id": "D",
+          "text": "It activates performance optimizations similar to production mode"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`React.StrictMode` is a development-only tool with no visible UI. It intentionally double-invokes render functions, state initializers, and `useEffect` cleanup/setup pairs to surface components with impure side effects. It also warns when deprecated lifecycle methods or APIs are used. It has no effect in production."
+    },
+    {
+      "id": "rc--q0082",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer wraps siblings in `<React.Fragment>` instead of a `<div>`. What is the benefit?",
+      "prompt": "A developer wraps siblings in `<React.Fragment>` instead of a `<div>`. What is the benefit?",
+      "content": [
+        {
+          "type": "code",
+          "language": "jsx",
+          "value": "return (\n  <React.Fragment>\n    <dt>Term</dt>\n    <dd>Definition</dd>\n  </React.Fragment>\n);"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "`React.Fragment` improves performance by skipping reconciliation"
+        },
+        {
+          "id": "B",
+          "text": "It groups elements without adding an extra DOM node, preserving valid HTML structure"
+        },
+        {
+          "id": "C",
+          "text": "It is required when returning more than two elements"
+        },
+        {
+          "id": "D",
+          "text": "`React.Fragment` enables CSS Grid layout for its children"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`<React.Fragment>` (or the shorthand `<>...</>`) allows a component to return multiple elements without a wrapper `<div>`. This is critical for cases like `<dt>`/`<dd>` pairs inside a `<dl>`, or `<tr>`/`<td>` in a table, where an extra `<div>` would break valid HTML semantics. The fragment itself is not rendered to the DOM."
+    },
+    {
+      "id": "rc--q0083",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React Fundamentals",
+      "difficulty": "HARD",
+      "title": "A developer uses the `key` prop on a component outside of a list to reset its state. What does this achieve?",
+      "prompt": "A developer uses the `key` prop on a component outside of a list to reset its state. What does this achieve?",
+      "content": [
+        {
+          "type": "code",
+          "language": "jsx",
+          "value": "<ProfileForm key={userId} userId={userId} />"
+        }
+      ],
+      "options": [
+        {
+          "id": "A",
+          "text": "It adds the component to an internal React registry"
+        },
+        {
+          "id": "B",
+          "text": "Changing `key` causes React to unmount the old component instance and mount a fresh one, fully resetting all internal state"
+        },
+        {
+          "id": "C",
+          "text": "The `key` prop only affects performance, not component identity"
+        },
+        {
+          "id": "D",
+          "text": "This is invalid — `key` may only be used on list items"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "React uses `key` to identify component instances across renders. When `key` changes, React treats it as a completely different component — it unmounts the old tree and mounts a new one. This is a deliberate pattern to reset a component\\'s state when switching context (e.g., navigating between user profiles) without lifting state up or adding `useEffect` reset logic."
+    },
+    {
+      "id": "rc--q0084",
+      "level": "L1",
+      "levelLabel": "Fundamental (Entry-Level / Junior)",
+      "topic": "React Hooks",
+      "difficulty": "EASY",
+      "title": "What happens if you read state immediately after calling setState?",
+      "prompt": "What happens if you read state immediately after calling setState?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It returns the new value synchronously"
+        },
+        {
+          "id": "B",
+          "text": "You may still see the old value — state updates are scheduled, not applied instantly"
+        },
+        {
+          "id": "C",
+          "text": "It throws an error"
+        },
+        {
+          "id": "D",
+          "text": "The component re-renders twice every time"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "setState schedules a re-render; the current render's state variable keeps its old value until React commits the update."
+    },
+    {
+      "id": "rc--q0085",
+      "level": "L1",
+      "levelLabel": "Fundamental (Entry-Level / Junior)",
+      "topic": "React Fundamentals",
+      "difficulty": "EASY",
+      "title": "What does JSX compile down to?",
+      "prompt": "What does JSX compile down to?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "HTML strings"
+        },
+        {
+          "id": "B",
+          "text": "React.createElement calls (or the automatic runtime equivalent)"
+        },
+        {
+          "id": "C",
+          "text": "CSS classes"
+        },
+        {
+          "id": "D",
+          "text": "Template literals"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "JSX is syntax sugar for nested element-creation calls; both runtimes produce element objects, never HTML strings."
+    },
+    {
+      "id": "rc--q0086",
+      "level": "L1",
+      "levelLabel": "Fundamental (Entry-Level / Junior)",
+      "topic": "Context API",
+      "difficulty": "EASY",
+      "title": "What problem does React Context solve?",
+      "prompt": "What problem does React Context solve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It renders portals"
+        },
+        {
+          "id": "B",
+          "text": "It passes values through the tree without threading props through every intermediate component"
+        },
+        {
+          "id": "C",
+          "text": "It replaces Redux entirely"
+        },
+        {
+          "id": "D",
+          "text": "It lazy-loads routes"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Context broadcasts one value to all descendants; providers set it and useContext consumes it, skipping prop drilling."
+    },
+    {
+      "id": "rc--q0087",
+      "level": "L1",
+      "levelLabel": "Fundamental (Entry-Level / Junior)",
+      "topic": "Forms & Controlled Components",
+      "difficulty": "EASY",
+      "title": "What makes a form input 'controlled'?",
+      "prompt": "What makes a form input 'controlled'?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It has a ref"
+        },
+        {
+          "id": "B",
+          "text": "Its value comes from state and every keystroke flows through an onChange handler back into state"
+        },
+        {
+          "id": "C",
+          "text": "It is disabled"
+        },
+        {
+          "id": "D",
+          "text": "It uses defaultValue"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Controlled means React owns the value: `value={state}` plus `onChange` keeps the DOM and state in lockstep."
+    },
+    {
+      "id": "rc--q0088",
+      "level": "L1",
+      "levelLabel": "Fundamental (Entry-Level / Junior)",
+      "topic": "React Fundamentals",
+      "difficulty": "EASY",
+      "title": "Why does React need the `key` prop in a list?",
+      "prompt": "Why does React need the `key` prop in a list?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "For CSS styling"
+        },
+        {
+          "id": "B",
+          "text": "So the reconciler can match items across renders and preserve state/order correctly"
+        },
+        {
+          "id": "C",
+          "text": "It is required by TypeScript"
+        },
+        {
+          "id": "D",
+          "text": "Keys enable animations"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Keys give React stable identities; without them, reorders or inserts can shuffle state onto the wrong DOM nodes."
+    },
+    {
+      "id": "rc--q0089",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "MEDIUM",
+      "title": "What does an empty `useEffect(() => {...}, [])` dependency array mean?",
+      "prompt": "What does an empty `useEffect(() => {...}, [])` dependency array mean?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The effect runs on every render"
+        },
+        {
+          "id": "B",
+          "text": "The effect runs once after mount (and cleans up on unmount) because its inputs never change"
+        },
+        {
+          "id": "C",
+          "text": "The effect never runs"
+        },
+        {
+          "id": "D",
+          "text": "The component is memoized"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "No dependencies means nothing can change, so React runs setup once; the returned cleanup runs on unmount."
+    },
+    {
+      "id": "rc--q0090",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "MEDIUM",
+      "title": "When should you prefer `useRef` over `useState`?",
+      "prompt": "When should you prefer `useRef` over `useState`?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "When the value must trigger a render"
+        },
+        {
+          "id": "B",
+          "text": "When you need a mutable value that survives renders without scheduling one — timers, DOM nodes, previous values"
+        },
+        {
+          "id": "C",
+          "text": "For API data"
+        },
+        {
+          "id": "D",
+          "text": "For form values"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Refs mutate silently; state schedules a render. Choose refs for anything that should not paint again."
+    },
+    {
+      "id": "rc--q0091",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "Component Lifecycle",
+      "difficulty": "MEDIUM",
+      "title": "What replaces `componentDidMount`'s data-fetching role in function components?",
+      "prompt": "What replaces `componentDidMount`'s data-fetching role in function components?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "useMemo"
+        },
+        {
+          "id": "B",
+          "text": "useEffect with the fetch trigger in its dependency array"
+        },
+        {
+          "id": "C",
+          "text": "useRef"
+        },
+        {
+          "id": "D",
+          "text": "React.Fragment"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Effects are the lifecycle surface: mount fetch on `[]`, refetch when dependencies change, cancel in the cleanup."
+    },
+    {
+      "id": "rc--q0092",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "MEDIUM",
+      "title": "What does `useCallback` actually memoize?",
+      "prompt": "What does `useCallback` actually memoize?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "The return value of a function"
+        },
+        {
+          "id": "B",
+          "text": "The function identity itself, so it stays referentially stable between renders (when deps are unchanged)"
+        },
+        {
+          "id": "C",
+          "text": "Component output"
+        },
+        {
+          "id": "D",
+          "text": "Event payloads"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "useCallback keeps the same function reference; useMemo keeps a computed value. The first stabilises props passed to memoized children."
+    },
+    {
+      "id": "rc--q0093",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "Performance Optimization",
+      "difficulty": "MEDIUM",
+      "title": "What does `React.memo` do?",
+      "prompt": "What does `React.memo` do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Memoizes state"
+        },
+        {
+          "id": "B",
+          "text": "Skips re-rendering a component when its props are shallowly unchanged"
+        },
+        {
+          "id": "C",
+          "text": "Caches API responses"
+        },
+        {
+          "id": "D",
+          "text": "Freezes the DOM"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "memo is a props gate, not magic — new object/array literals each render still invalidate it, which is why callbacks need stabilising too."
+    },
+    {
+      "id": "rc--q0094",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "Error Boundaries",
+      "difficulty": "MEDIUM",
+      "title": "What errors can an error boundary catch?",
+      "prompt": "What errors can an error boundary catch?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Event handler errors"
+        },
+        {
+          "id": "B",
+          "text": "Render, lifecycle and constructor errors in its subtree — but not in event handlers, async code or itself"
+        },
+        {
+          "id": "C",
+          "text": "Server 500s"
+        },
+        {
+          "id": "D",
+          "text": "Network timeouts"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Boundaries catch declarative-tree failures; imperative code (handlers, timers, async callbacks) must use try/catch instead."
+    },
+    {
+      "id": "rc--q0095",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "MEDIUM",
+      "title": "What is the `useEffect` cleanup function for?",
+      "prompt": "What is the `useEffect` cleanup function for?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Rendering fallback UI"
+        },
+        {
+          "id": "B",
+          "text": "Cancelling subscriptions, timers and in-flight work from the previous effect run"
+        },
+        {
+          "id": "C",
+          "text": "Logging analytics once"
+        },
+        {
+          "id": "D",
+          "text": "Fetching faster"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Cleanup unsubscribes / aborts / clears before the next effect or unmount; StrictMode deliberately double-invokes it to surface leaks."
+    },
+    {
+      "id": "rc--q0096",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "Code Splitting & Lazy Loading",
+      "difficulty": "MEDIUM",
+      "title": "How does `React.lazy` + `Suspense` reduce initial load?",
+      "prompt": "How does `React.lazy` + `Suspense` reduce initial load?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "By compressing the bundle"
+        },
+        {
+          "id": "B",
+          "text": "By splitting a route/component into a separate chunk loaded on demand, showing a fallback meanwhile"
+        },
+        {
+          "id": "C",
+          "text": "By caching props"
+        },
+        {
+          "id": "D",
+          "text": "By deferring CSS"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "lazy turns the import into a code-split boundary; Suspense handles the loading state while the chunk streams in."
+    },
+    {
+      "id": "rc--q0097",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "MEDIUM",
+      "title": "What is the difference between `useMemo` and `useRef` as caches?",
+      "prompt": "What is the difference between `useMemo` and `useRef` as caches?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "None"
+        },
+        {
+          "id": "B",
+          "text": "useMemo caches a computed value tied to dependencies; useRef holds arbitrary mutable state that never triggers renders"
+        },
+        {
+          "id": "C",
+          "text": "useRef caches functions"
+        },
+        {
+          "id": "D",
+          "text": "useMemo replaces context"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Memoized values recompute when deps change and may be discarded under memory pressure; refs are explicit, long-lived storage."
+    },
+    {
+      "id": "rc--q0098",
+      "level": "L3",
+      "levelLabel": "Advanced (Mid-Senior / Lead)",
+      "topic": "Component Lifecycle",
+      "difficulty": "MEDIUM",
+      "title": "Why does StrictMode double-invoke effects in development?",
+      "prompt": "Why does StrictMode double-invoke effects in development?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "To slow tests"
+        },
+        {
+          "id": "B",
+          "text": "To surface effects that are not idempotent — mount, cleanup, remount in dev exposes missing cleanups"
+        },
+        {
+          "id": "C",
+          "text": "To warm the cache"
+        },
+        {
+          "id": "D",
+          "text": "A bug in React 18"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "The double mount is a dev-only stress test; production never double-mounts, but cleanup-missing effects break under the probe."
+    },
+    {
+      "id": "rc--q0099",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React 19 Features",
+      "difficulty": "HARD",
+      "title": "What does the `use` hook allow that earlier hooks did not?",
+      "prompt": "What does the `use` hook allow that earlier hooks did not?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Conditional calls in loops"
+        },
+        {
+          "id": "B",
+          "text": "Reading a promise or context conditionally during render (it can be called in conditionals and loops)"
+        },
+        {
+          "id": "C",
+          "text": "Accessing the DOM directly"
+        },
+        {
+          "id": "D",
+          "text": "Skipping renders"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "`use` may be called conditionally because React resolves the resource by identity rather than call order — but it still suspends on pending promises."
+    },
+    {
+      "id": "rc--q0100",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React 19 Features",
+      "difficulty": "HARD",
+      "title": "What does `useOptimistic` add on top of normal state?",
+      "prompt": "What does `useOptimistic` add on top of normal state?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Persistence"
+        },
+        {
+          "id": "B",
+          "text": "A temporary optimistic value shown while an async action completes, rolling back automatically on failure"
+        },
+        {
+          "id": "C",
+          "text": "Server caching"
+        },
+        {
+          "id": "D",
+          "text": "Form validation"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "useOptimistic overlays a provisional UI during a transition and reconciles to the real result when it lands, including the rollback path."
+    },
+    {
+      "id": "rc--q0101",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React 19 Features",
+      "difficulty": "HARD",
+      "title": "What is a React Server Component's key constraint?",
+      "prompt": "What is a React Server Component's key constraint?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It cannot use props"
+        },
+        {
+          "id": "B",
+          "text": "No state, effects, browser APIs or event handlers — it renders on the server to static output"
+        },
+        {
+          "id": "C",
+          "text": "It must be async"
+        },
+        {
+          "id": "D",
+          "text": "It cannot import modules"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Server Components serialise to the client; interactivity lives in Client Components, which is why hooks and listeners are forbidden there."
+    },
+    {
+      "id": "rc--q0102",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Redux & State Management",
+      "difficulty": "HARD",
+      "title": "Why must Redux reducers be pure functions?",
+      "prompt": "Why must Redux reducers be pure functions?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "For TypeScript"
+        },
+        {
+          "id": "B",
+          "text": "Purity makes state transitions predictable, time-travel debugging possible, and change detection reliable"
+        },
+        {
+          "id": "C",
+          "text": "It is a style preference"
+        },
+        {
+          "id": "D",
+          "text": "Purity speeds up JSON"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Mutating state breaks reference comparison (same object) and replays; pure reducers keep every transition a deterministic old → new mapping."
+    },
+    {
+      "id": "rc--q0103",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Redux Toolkit",
+      "difficulty": "HARD",
+      "title": "What does `createAsyncThunk` manage automatically?",
+      "prompt": "What does `createAsyncThunk` manage automatically?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "HTTP retries"
+        },
+        {
+          "id": "B",
+          "text": "The pending/fulfilled/rejected action lifecycle around a promise payload"
+        },
+        {
+          "id": "C",
+          "text": "Cache invalidation"
+        },
+        {
+          "id": "D",
+          "text": "Optimistic UI"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "createAsyncThunk dispatches three standard actions around your async function, giving reducers a uniform place to track loading and errors."
+    },
+    {
+      "id": "rc--q0104",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Performance Optimization",
+      "difficulty": "HARD",
+      "title": "What does `useDeferredValue` solve?",
+      "prompt": "What does `useDeferredValue` solve?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Memory leaks"
+        },
+        {
+          "id": "B",
+          "text": "Expensive re-renders blocking typing — the deferred value lags one render behind so input stays responsive while the list catches up"
+        },
+        {
+          "id": "C",
+          "text": "Bundle size"
+        },
+        {
+          "id": "D",
+          "text": "Server latency"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Deferred values let urgent updates (keystrokes) commit first while the heavy list re-renders against a slightly stale value."
+    },
+    {
+      "id": "rc--q0105",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React 19 Features",
+      "difficulty": "HARD",
+      "title": "How do Server Actions differ from a classic API route call?",
+      "prompt": "How do Server Actions differ from a classic API route call?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "They run in the browser"
+        },
+        {
+          "id": "B",
+          "text": "They are async functions executed on the server, callable directly from components/forms with progressive enhancement"
+        },
+        {
+          "id": "C",
+          "text": "They skip validation"
+        },
+        {
+          "id": "D",
+          "text": "They only return JSON"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Server Actions collapse the fetch/route layer: the function address is bound server-side and invoked from the client, even without JS."
+    },
+    {
+      "id": "rc--q0106",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Redux Toolkit",
+      "difficulty": "HARD",
+      "title": "What does RTK Query's `providesTags` / `invalidatesTags` pair do?",
+      "prompt": "What does RTK Query's `providesTags` / `invalidatesTags` pair do?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Authentication"
+        },
+        {
+          "id": "B",
+          "text": "Declares which cached data a query serves and which mutations expire it, driving automatic refetches"
+        },
+        {
+          "id": "C",
+          "text": "Rate limiting"
+        },
+        {
+          "id": "D",
+          "text": "Code splitting"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Tags are the cache graph: reads tag their data, writes invalidate tags, and RTK Query refetches exactly the affected queries."
+    },
+    {
+      "id": "rc--q0107",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "React Hooks",
+      "difficulty": "HARD",
+      "title": "What is `useSyncExternalStore` for?",
+      "prompt": "What is `useSyncExternalStore` for?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Syncing props"
+        },
+        {
+          "id": "B",
+          "text": "Subscribing components to external (non-React) stores with tearing-free concurrent reads"
+        },
+        {
+          "id": "C",
+          "text": "Server rendering only"
+        },
+        {
+          "id": "D",
+          "text": "Replacing context"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "It gives concurrent React a getSnapshot/subscribe contract so store reads stay consistent across interrupted renders."
+    },
+    {
+      "id": "rc--q0108",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Performance Optimization",
+      "difficulty": "HARD",
+      "title": "When does `useTransition` actually help?",
+      "prompt": "When does `useTransition` actually help?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "For faster mounts"
+        },
+        {
+          "id": "B",
+          "text": "When a state update triggers a heavy re-render you want to mark non-urgent, keeping the UI (and a pending indicator) responsive"
+        },
+        {
+          "id": "C",
+          "text": "For code splitting"
+        },
+        {
+          "id": "D",
+          "text": "For prefetching"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Transitions deprioritise the update so urgent events win; `isPending` flags the in-flight state so skeletons can cover the stale UI."
+    },
+    {
+      "id": "rc--q0109",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Redux & State Management",
+      "difficulty": "HARD",
+      "title": "Why is normalising Redux state (entities by id) recommended at scale?",
+      "prompt": "Why is normalising Redux state (entities by id) recommended at scale?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It encrypts the state"
+        },
+        {
+          "id": "B",
+          "text": "Flat, id-keyed entities make updates O(1), avoid deep-nesting change-detection bugs, and simplify selectors"
+        },
+        {
+          "id": "C",
+          "text": "It reduces action types"
+        },
+        {
+          "id": "D",
+          "text": "It removes reducers"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Denormalised trees force deep copies on every edit; normalised slices update one leaf and selectors re-join what views need."
+    },
+    {
+      "id": "rc--q0110",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Context API",
+      "difficulty": "HARD",
+      "title": "Why does a single Context holding a big object re-render the whole tree often?",
+      "prompt": "Why does a single Context holding a big object re-render the whole tree often?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "Context never updates"
+        },
+        {
+          "id": "B",
+          "text": "Every provider value change (a new object identity each render) notifies all consumers — Context has no selector mechanism"
+        },
+        {
+          "id": "C",
+          "text": "Consumers are memoized"
+        },
+        {
+          "id": "D",
+          "text": "Only the provider re-renders"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "Any value change wakes every consumer. Split contexts, memoize the value, or lift state into a store to scope updates."
+    },
+    {
+      "id": "rc--q0111",
+      "level": "L5",
+      "levelLabel": "Framework & Ecosystem (Senior / Lead)",
+      "topic": "Jest - Unit Testing",
+      "difficulty": "HARD",
+      "title": "Why prefer user-event over fireEvent in component tests?",
+      "prompt": "Why prefer user-event over fireEvent in component tests?",
+      "content": [],
+      "options": [
+        {
+          "id": "A",
+          "text": "It runs faster"
+        },
+        {
+          "id": "B",
+          "text": "user-event replays the full browser event sequence (keydown, keypress, input…) so tests match real interaction"
+        },
+        {
+          "id": "C",
+          "text": "fireEvent is deprecated"
+        },
+        {
+          "id": "D",
+          "text": "user-event needs no setup"
+        }
+      ],
+      "correctOptionId": "B",
+      "explanation": "fireEvent dispatches one synthetic event; user-event replays what the browser does, catching handlers wired to the wrong phase."
     }
   ]
 }

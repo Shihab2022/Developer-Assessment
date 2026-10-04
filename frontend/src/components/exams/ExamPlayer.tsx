@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Clock, Flag, Send, SkipForward } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
@@ -10,11 +10,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup";
 import { QuestionContent } from "@/components/exams/QuestionContent";
 import { useExamTimer } from "@/hooks/useExamTimer";
 import { useExamsStore } from "@/store/exams";
-import type { QuestionBank, TechnologyId } from "@/lib/question-banks/types";
+import type { TechnologyId } from "@/lib/question-banks/types";
 import { type PaperQuestion } from "@/lib/question-banks/sample";
 import type { ExamAttempt } from "@/store/exams";
 import { cn } from "@/lib/utils";
 import { DIFFICULTY_LABELS } from "@/lib/constants";
+import {
+  DEFAULT_QUESTION_SECONDS,
+  formatClockFromSeconds,
+  secondsForDifficulty,
+} from "@/lib/question-banks/timing";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: "text-green-600",
@@ -134,18 +139,20 @@ function QuestionCard({
 export default function ExamPlayer({
   technology,
   attempt,
-  bank,
   paper,
 }: {
   technology: TechnologyId;
   attempt: ExamAttempt;
-  bank: QuestionBank;
   paper: PaperQuestion[];
 }) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [questionElapsed, setQuestionElapsed] = useState(0);
+  // `useExamTimer` ticks every second, so guard the expiry callback so the
+  // attempt is submitted/redirected exactly once.
+  const expiryHandled = useRef(false);
 
   const saveAnswer = useExamsStore((state) => state.saveAnswer);
   const toggleFlag = useExamsStore((state) => state.toggleFlag);
@@ -159,9 +166,26 @@ export default function ExamPlayer({
   const flaggedCount = attempt.flagged.length;
 
   const { label: clock } = useExamTimer(attempt.expiresAt, () => {
+    if (expiryHandled.current) return;
+    expiryHandled.current = true;
     submitAttempt(attempt.id, "EXPIRED");
     void router.replace(`/exams/${technology}/attempt/${attempt.id}/result`);
   });
+
+  // Per-question pacing: how long the user has been on the current question,
+  // measured against the allowance its difficulty carries (40s/50s/60s).
+  const currentQuestionId = paper[current]?.question?.id;
+  const currentDifficulty = paper[current]?.question?.difficulty;
+  const suggestedSeconds = currentDifficulty
+    ? secondsForDifficulty(currentDifficulty)
+    : DEFAULT_QUESTION_SECONDS;
+  const overSuggested = questionElapsed > suggestedSeconds;
+
+  useEffect(() => {
+    setQuestionElapsed(0);
+    const timer = window.setInterval(() => setQuestionElapsed((elapsed) => elapsed + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [current, currentQuestionId]);
 
   const selectedValue = attempt.answers[paper[current]?.question?.id ?? ""] ?? undefined;
   const onNext = () => setCurrent((c) => Math.min(c + 1, total - 1));
@@ -247,6 +271,30 @@ export default function ExamPlayer({
             </button>
           </div>
 
+          {/* Per-question pace: guidance only — the overall clock is the real limit. */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">This question</span>
+              <span
+                className={cn(
+                  "font-mono",
+                  overSuggested ? "font-medium text-amber-600" : "text-muted-foreground",
+                )}
+              >
+                {formatClockFromSeconds(questionElapsed)} / ~{suggestedSeconds}s suggested
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-all duration-500",
+                  overSuggested ? "bg-amber-500" : "bg-primary-500",
+                )}
+                style={{ width: `${Math.min(100, (questionElapsed / suggestedSeconds) * 100)}%` }}
+              />
+            </div>
+          </div>
+
           {paper[current] && (
             <QuestionCard
               paperQuestion={paper[current]}
@@ -300,7 +348,7 @@ export default function ExamPlayer({
             <ModalTitle>Submit exam?</ModalTitle>
           </ModalHeader>
           <p className="text-sm text-muted-foreground">
-            You've answered {answeredCount} of {total} questions. Once you submit,
+            You&rsquo;ve answered {answeredCount} of {total} questions. Once you submit,
             you cannot change your answers.
           </p>
           <ModalFooter>
