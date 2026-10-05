@@ -22,13 +22,10 @@ export default function NewInterviewPage() {
   const create = useCreateInterview();
 
   const [title, setTitle] = useState("");
+  const [step, setStep] = useState(0);
   const [jobRole, setJobRole] = useState("");
   const [description, setDescription] = useState("");
-  /**
-   * Requirement 4 — one or more technologies. The first entry is the primary
-   * (displayed on the interview) but the random question set is drawn across
-   * every selected technology.
-   */
+  /** The selected question bank for this interview. */
   const [technologyIds, setTechnologyIds] = useState<string[]>(["javascript"]);
   const [seniority, setSeniority] = useState<string>(DEFAULT_INTERVIEW_SETTINGS.seniority);
   const [questionCount, setQuestionCount] = useState(DEFAULT_INTERVIEW_SETTINGS.questionCount);
@@ -47,13 +44,6 @@ export default function NewInterviewPage() {
   const [showScoreToCandidate, setShowScore] = useState(
     DEFAULT_INTERVIEW_SETTINGS.showScoreToCandidate,
   );
-  /**
-   * Requirement 5 — when ON the candidate sees the score after submitting and
-   * also receives it by email; when OFF the candidate sees nothing and gets no
-   * email. Kept in step with `showScoreToCandidate` so the two behave as one
-   * "share the result" option.
-   */
-  const [sendResultToCandidate, setSendResult] = useState(true);
   const [useBankQuestions, setUseBank] = useState(DEFAULT_INTERVIEW_SETTINGS.useBankQuestions);
   /** Requirement 7 — both ends of the active window are mandatory. */
   const [startsAt, setStartsAt] = useState(() => toDateTimeInputValue(new Date()));
@@ -76,20 +66,10 @@ export default function NewInterviewPage() {
   );
   const canSubmit = title.trim().length >= 3 && technologyIds.length > 0 && windowValid;
 
-  const toggleTechnology = (id: string) => {
-    setTechnologyIds((prev) => {
-      if (prev.includes(id)) {
-        const next = prev.filter((item) => item !== id);
-        // Keep at least one technology — fall back to the first bank entry.
-        return next.length > 0 ? next : prev;
-      }
-      return [...prev, id];
-    });
-  };
+  const selectTechnology = (id: string) => setTechnologyIds([id]);
 
   const setShareResult = (checked: boolean) => {
     setShowScore(checked);
-    setSendResult(checked);
   };
 
   const handleSubmit = () => {
@@ -99,7 +79,6 @@ export default function NewInterviewPage() {
       description: description.trim() || undefined,
       jobRole: jobRole.trim() || undefined,
       technology: technologyIds[0] ?? "javascript",
-      technologies: technologyIds.length > 1 ? technologyIds : undefined,
       seniority: seniority as InterviewSeniority,
       questionCount,
       questionTimeSeconds,
@@ -114,7 +93,6 @@ export default function NewInterviewPage() {
       startsAt: new Date(startsAt).toISOString(),
       expiresAt: new Date(expiresAt).toISOString(),
       showScoreToCandidate,
-      sendResultToCandidate,
       useBankQuestions,
       customQuestions: [],
     };
@@ -126,7 +104,7 @@ export default function NewInterviewPage() {
     <>
       <PageHeader
         title="New AI video interview"
-        subtitle="Tick one or more technologies — 10 random questions are drawn across the selection"
+        subtitle="Create a timed, proctored interview in three guided steps"
         breadcrumbs={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/recruiter/interviews">
@@ -137,8 +115,31 @@ export default function NewInterviewPage() {
         }
       />
 
+      <div className="mb-6 grid grid-cols-3 gap-2" aria-label="Interview creation steps">
+        {[
+          ["Setup", "Role and question pool"],
+          ["Schedule", "When candidates can join"],
+          ["Rules", "Timing and review"],
+        ].map(([label, hint], index) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => setStep(index)}
+            className={`rounded-lg border p-3 text-left transition-colors ${
+              step === index
+                ? "border-primary-600 bg-primary-50 text-primary-800 dark:bg-primary-950/40 dark:text-primary-200"
+                : "border-border text-muted-foreground hover:bg-muted/50"
+            }`}
+          >
+            <span className="block text-xs font-semibold uppercase tracking-wide">Step {index + 1}</span>
+            <span className="mt-1 block text-sm font-medium">{label}</span>
+            <span className="mt-0.5 hidden text-xs sm:block">{hint}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
+        {step === 0 && <Card>
           <CardHeader title="Interview setup" />
           <CardBody className="space-y-4">
             <div>
@@ -166,13 +167,11 @@ export default function NewInterviewPage() {
               </div>
             </div>
 
-            {/* Requirement 4 — multiple technologies; the random question set is
-                drawn across every ticked bank. */}
             <div>
-              <Label>Technologies ({technologyIds.length} selected)</Label>
+              <Label>Technology</Label>
               <p className="-mt-0.5 mb-2 text-xs text-muted-foreground">
-                The exam draws {questionCount} random question{questionCount === 1 ? "" : "s"} across
-                the selected technologies ({bankTotal} questions in the pool).
+                The exam draws {questionCount} random question{questionCount === 1 ? "" : "s"} from this
+                technology&apos;s bank ({bankTotal} questions in the pool).
               </p>
               <div className="thin-scrollbar grid max-h-56 gap-1.5 overflow-y-auto rounded-lg border border-border p-3 sm:grid-cols-2">
                 {(options.length > 0 ? options : [{ id: "javascript", label: "JavaScript", questionCount: 0 }]).map(
@@ -181,7 +180,7 @@ export default function NewInterviewPage() {
                       key={option.id}
                       id={`technology-${option.id}`}
                       checked={technologyIds.includes(option.id)}
-                      onCheckedChange={() => toggleTechnology(option.id)}
+                      onCheckedChange={() => selectTechnology(option.id)}
                       label={`${option.label} (${option.questionCount} questions)`}
                     />
                   ),
@@ -228,9 +227,9 @@ export default function NewInterviewPage() {
               />
             </div>
           </CardBody>
-        </Card>
+        </Card>}
 
-        <Card>
+        {step === 1 && <Card>
           <CardHeader
             title="Schedule — when is this link active?"
             subtitle="Both fields are required. Candidates can only open the link inside this window."
@@ -270,9 +269,9 @@ export default function NewInterviewPage() {
               </p>
             )}
           </CardBody>
-        </Card>
+        </Card>}
 
-        <Card>
+        {step === 2 && <Card>
           <CardHeader
             title="Questions, timing & proctoring"
             subtitle={`${questionCount} questions · ${Math.round(questionTimeSeconds / 60)} minutes each`}
@@ -372,25 +371,36 @@ export default function NewInterviewPage() {
                 checked={showScoreToCandidate}
                 onCheckedChange={setShareResult}
                 label="Share the result with the candidate"
-                description={
-                  sendResultToCandidate
-                    ? "The candidate sees the score after submitting and also receives it by email."
-                    : "OFF — the candidate sees nothing and no result email is sent."
-                }
+                description="When enabled, the candidate can see their score after submitting."
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/recruiter/interviews">Cancel</Link>
-              </Button>
-              <Button onClick={handleSubmit} disabled={!canSubmit} loading={create.isPending}>
-                <Save className="size-4" />
-                Create interview
-              </Button>
-            </div>
           </CardBody>
-        </Card>
+        </Card>}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+        <Button variant="outline" asChild>
+          <Link href="/recruiter/interviews">Cancel</Link>
+        </Button>
+        <div className="flex gap-2">
+          {step > 0 && (
+            <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
+          )}
+          {step < 2 ? (
+            <Button
+              onClick={() => setStep(step + 1)}
+              disabled={step === 0 && (title.trim().length < 3 || technologyIds.length === 0)}
+            >
+              Continue
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={!canSubmit} loading={create.isPending}>
+              <Save className="size-4" />
+              Create interview
+            </Button>
+          )}
+        </div>
       </div>
     </>
   );

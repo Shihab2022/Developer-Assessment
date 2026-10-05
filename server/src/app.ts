@@ -15,9 +15,29 @@ const app = express();
 
 // ---------- Security ----------
 app.use(helmet());
+
+/**
+ * Credentialed browser requests must come from an explicit frontend origin.
+ * Include FRONTEND_URL so the CORS and invitation-link settings cannot drift.
+ * Requests without Origin are health checks or server-to-server callbacks.
+ */
+const corsOrigins = new Set(
+  [
+    ...(config.cors_origin?.split(",") ?? []),
+    config.frontend_url,
+  ]
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean),
+);
 app.use(
   cors({
-    origin: config.cors_origin ? config.cors_origin.split(",") : true,
+    origin: (origin, callback) => {
+      if (!origin || corsOrigins.size === 0 || corsOrigins.has(origin.replace(/\/+$/, ""))) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
   }),
 );
