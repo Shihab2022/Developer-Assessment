@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList, Users, Building2, Library,
   FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
   Coins, CreditCard, ShieldCheck, Lock, ScrollText, Menu,
-  LogOut, User as UserIcon, Video,
+  LogOut, User as UserIcon, Video, Home,
 } from "lucide-react";
 import { useLogout } from "@/hooks/useAuth";
 import { useRecruiterDashboard, useCandidateDashboard } from "@/hooks/useDashboard";
@@ -106,10 +106,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </>
           )}
         </nav>
-        <div className="border-t border-border p-2">
+        <div className="space-y-1 border-t border-border p-2">
+          <Link
+            href="/"
+            onClick={() => setSidebarOpen(false)}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Home className="size-4 shrink-0" />
+            <span>Home</span>
+          </Link>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            disabled={logout.isPending}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:pointer-events-none disabled:opacity-50"
           >
             <LogOut className="size-4 shrink-0" />
             <span>Sign out</span>
@@ -134,6 +143,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Badge>
             <NotificationBell />
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push("/")}
+              className="h-9 px-2 sm:px-3"
+              aria-label="Go to home page"
+              title="Home"
+            >
+              <Home className="size-4" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              disabled={logout.isPending}
+              className="h-9 px-2 sm:px-3"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <LogOut className="size-4" />
+              <span className="hidden sm:inline">Log out</span>
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => router.push(dashboardPathForRole(user.role))} className="h-9 w-9 rounded-full p-0" aria-label="Go to dashboard">
               {user.profileImageUrl ? (
                 <img src={user.profileImageUrl} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
