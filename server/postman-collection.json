@@ -1,75 +1,195 @@
 {
   "info": {
     "name": "SkillGauge API",
-    "description": "Backend REST API for the SkillGauge platform.\n\n## Base URL\n{{baseUrl}}/api/v1 (default: http://localhost:5000/api/v1)\n\n## Authentication\nMost endpoints require a Bearer JWT access token in the Authorization header:\n`Authorization: Bearer {{accessToken}}`\n\n## Roles\n- **CANDIDATE** - Register, login, take assessments, submit answers, view own results\n- **RECRUITER** - Manage company, create problems/assessments, invite candidates, evaluate submissions, view reports/analytics\n- **ADMIN** - Platform-wide management: users, companies, problems, payments, audit logs\n\n## Flow\n1. Register or Login → get accessToken + refreshToken\n2. Create a Company\n3. Create Problems (MCQ, Coding, Written)\n4. Create an Assessment\n5. Add Problems to Assessment\n6. Invite Candidates\n7. Candidates Start Attempt → Save Answers → Submit\n8. System evaluates (MCQ auto, Written manual, Coding sandbox)\n9. Generate Reports & Analytics\n\n## Payment Endpoints\nSSLCommerz payment callbacks (/success, /fail, /cancel, /ipn) are public - no Bearer auth needed.\nIn test/mock mode without SSLCommerz credentials, use the mock gateway URL returned by initiate.\n\n## Postman Variables\nSet these after login/register: accessToken, refreshToken, userId, companyId, problemId, assessmentId, invitationId, attemptId, mcqOptionId, answerId, submissionId, paymentId, transactionId, resultId.\n\n## Environment\n- baseUrl: http://localhost:5000/api/v1\n- Run `npm run db:seed` first — the collection is pre-wired to the seeded users and the seeded payment package (`00000000-0000-4000-8000-000000000005`, Starter Pack — 10 credits / BDT 2000).\n- Seed users: admin@skillgauge.local / Admin123! · recruiter@techcorp.dev / Recruit123! · candidate@skillgauge.local / Candid8te!.\n- Dynamic IDs (problems, assessments, attempts, answers, results, payments) are captured into collection variables by test scripts; run requests top-to-bottom within each folder.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "skillgauge-platform-api"
+    "description": "# SkillGauge API\n\nBackend REST API for the SkillGauge developer-assessment platform.\n\n## Base URL\n- `{{baseUrl}}` → `http://localhost:5000/api/v1` (all API requests).\n- `{{serverUrl}}` → `http://localhost:5000` (root-level Health & Swagger requests only).\n\n## Authentication\nMost endpoints require a Bearer JWT access token:\n`Authorization: Bearer {{accessToken}}`\n- Access token expires in 15 minutes, refresh token in 7 days (rotation on refresh).\n- Public requests (register, login, callbacks, invitation/interview links, health) override the collection auth with **noauth**.\n\n## Roles\n- **CANDIDATE** — register/login, accept invitations, take attempts, save answers, submit, view own results, sit video interviews.\n- **RECRUITER** — manage company & members, create problems/assessments, invite candidates, evaluate submissions, reports/analytics, video interviews, notes, dashboards.\n- **ADMIN** — platform-wide users, companies, problems, payments, audit logs.\n\n## Recommended flow\n1. Login (recruiter) → accessToken + refreshToken + userId.\n2. List/Create Company → companyId.\n3. Create Problems (MCQ, Coding, Written) → problemId.\n4. Create Assessment → assessmentId; Add Problem; Publish.\n5. Invite Candidates → invitationId; (candidate) Accept Invitation / Accept by Token.\n6. (candidate) Login → Start Attempt → Get Questions → Save Answers → Submit.\n7. Evaluate (MCQ auto, Written manual, Coding sandbox) → Submissions/Evaluations.\n8. Results → Reports & Analytics → Dashboard.\n\n## Collection variables & default values\nDynamic IDs are captured by test scripts when you run the requests. Seeded values (from `npm run db:seed`) are pre-filled so most requests work immediately:\n\n| Variable | Default | Purpose |\n|---|---|---|\n| `baseUrl` | `http://localhost:5000/api/v1` | API base URL |\n| `serverUrl` | `http://localhost:5000` | Server root (health/swagger) |\n| `adminEmail` / `adminPassword` | `admin@skillgauge.local` / `Admin123!` | Seeded admin login |\n| `recruiterEmail` / `recruiterPassword` | `recruiter@techcorp.dev` / `Recruit123!` | Seeded recruiter login |\n| `candidateEmail` / `candidatePassword` | `candidate@skillgauge.local` / `Candid8te!` | Seeded candidate login / invitee |\n| `accessToken`, `refreshToken`, `userId` | (empty) | Set by Register/Login |\n| `companyId` | (empty) | Set by Create Company — seeded company id available via List Companies |\n| `companyCode` | `TECHCOR-0001` | Seeded TechCorp join code |\n| `problemId` | `00000000-0000-4000-8000-000000000001` | Active problem (seeded MCQ; refreshed by Get Questions) |\n| `mcqProblemId` | `00000000-0000-4000-8000-000000000001` | Seeded MCQ problem |\n| `writtenProblemId` | `00000000-0000-4000-8000-000000000002` | Seeded WRITTEN problem |\n| `codingProblemId` | `00000000-0000-4000-8000-000000000003` | Seeded CODING problem |\n| `assessmentId` | `00000000-0000-4000-8000-000000000004` | Seeded assessment |\n| `packageId` | `00000000-0000-4000-8000-000000000005` | Seeded Starter Pack (10 credits / BDT 2000) |\n| `invitationToken` | `demo-candidate-token-0001` | Seeded candidate invitation token |\n| `invitationId`, `attemptId`, `answerId`, `mcqOptionId`, `submissionId`, `resultId`, `paymentId`, `transactionId`, `noteId`, `candidateId`, `notificationId`, `emailVerifyToken` | (empty) | Captured by test scripts |\n| `interviewId`, `interviewQuestionId`, `interviewSessionId`, `interviewToken` | (empty) | Video-interview IDs captured by test scripts |\n\n## Payments\nSSLCommerz callbacks (`/success`, `/fail`, `/cancel`, `/ipn`) are public — no Bearer auth. In test/mock mode without SSLCommerz credentials use the `mockUrl` returned by Initiate Payment (see also Get Mock Gateway).\n\n## Environment\n- Run `npm run db:seed` first — the collection is pre-wired to the seeded users, problems, assessment, payment package and invitation token.\n- Run requests top-to-bottom within each folder; cross-folder variables (accessToken, assessmentId, …) are shared at the collection level.\n\n## Folders\nAuthentication · Users · Companies · Problems · Assessments · Invitations · Attempts · Anti-Cheating · Submissions · Evaluations · Results · Reports & Analytics · Payments · Dashboard · Notes · Notifications · Video Interviews · Interview Sessions (Candidate) · Admin · Health & Docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5000/api/v1"
+      "value": "http://localhost:5000/api/v1",
+      "description": "API base URL. Change for a deployed environment."
+    },
+    {
+      "key": "serverUrl",
+      "value": "http://localhost:5000",
+      "description": "Server root URL — used by Health & Docs requests (outside /api/v1)."
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@skillgauge.local",
+      "description": "Seeded admin email (SEED_ADMIN_EMAIL)."
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin123!",
+      "description": "Seeded admin password (SEED_ADMIN_PASSWORD)."
+    },
+    {
+      "key": "recruiterEmail",
+      "value": "recruiter@techcorp.dev",
+      "description": "Seeded recruiter email (SEED_RECRUITER_EMAIL)."
+    },
+    {
+      "key": "recruiterPassword",
+      "value": "Recruit123!",
+      "description": "Seeded recruiter password (SEED_RECRUITER_PASSWORD)."
+    },
+    {
+      "key": "candidateEmail",
+      "value": "candidate@skillgauge.local",
+      "description": "Seeded candidate email (SEED_CANDIDATE_EMAIL) — also the default invitee."
+    },
+    {
+      "key": "candidatePassword",
+      "value": "Candid8te!",
+      "description": "Seeded candidate password (SEED_CANDIDATE_PASSWORD)."
     },
     {
       "key": "accessToken",
-      "value": ""
+      "value": "",
+      "description": "JWT access token (15 min). Auto-set by Register/Login/Refresh-Token."
     },
     {
       "key": "refreshToken",
-      "value": ""
-    },
-    {
-      "key": "assessmentId",
-      "value": ""
-    },
-    {
-      "key": "problemId",
-      "value": ""
-    },
-    {
-      "key": "attemptId",
-      "value": ""
-    },
-    {
-      "key": "mcqOptionId",
-      "value": ""
-    },
-    {
-      "key": "submissionId",
-      "value": ""
-    },
-    {
-      "key": "paymentId",
-      "value": ""
-    },
-    {
-      "key": "companyId",
-      "value": ""
-    },
-    {
-      "key": "invitationId",
-      "value": ""
+      "value": "",
+      "description": "JWT refresh token (7 d). Auto-set by Register/Login/Refresh-Token."
     },
     {
       "key": "userId",
-      "value": ""
+      "value": "",
+      "description": "Current user id. Auto-set by Register/Login."
+    },
+    {
+      "key": "companyId",
+      "value": "",
+      "description": "Company id. Auto-set by Create Company; the seeded TechCorp id is returned by List Companies."
+    },
+    {
+      "key": "companyCode",
+      "value": "TECHCOR-0001",
+      "description": "Seeded TechCorp join code — recruiters can pass it at registration to join the company."
+    },
+    {
+      "key": "mcqProblemId",
+      "value": "00000000-0000-4000-8000-000000000001",
+      "description": "Seeded MCQ problem id (JavaScript Event Loop Basics)."
+    },
+    {
+      "key": "writtenProblemId",
+      "value": "00000000-0000-4000-8000-000000000002",
+      "description": "Seeded WRITTEN problem id (Explain Database Indexing)."
+    },
+    {
+      "key": "codingProblemId",
+      "value": "00000000-0000-4000-8000-000000000003",
+      "description": "Seeded CODING problem id (Sum of Two Numbers)."
+    },
+    {
+      "key": "problemId",
+      "value": "00000000-0000-4000-8000-000000000001",
+      "description": "Active problem id. Defaults to the seeded MCQ; refreshed by Create Problem / Get Questions."
+    },
+    {
+      "key": "assessmentId",
+      "value": "00000000-0000-4000-8000-000000000004",
+      "description": "Seeded assessment id (Junior Node.js Developer Assessment). Overwritten by Create/Duplicate Assessment."
+    },
+    {
+      "key": "packageId",
+      "value": "00000000-0000-4000-8000-000000000005",
+      "description": "Seeded payment package (Starter Pack — 10 credits / BDT 2000)."
+    },
+    {
+      "key": "invitationToken",
+      "value": "demo-candidate-token-0001",
+      "description": "Seeded candidate invitation token for the public exam link."
+    },
+    {
+      "key": "invitationId",
+      "value": "",
+      "description": "Invitation id. Auto-set by Invite Candidates."
+    },
+    {
+      "key": "attemptId",
+      "value": "",
+      "description": "Attempt id. Auto-set by Start Attempt."
     },
     {
       "key": "answerId",
-      "value": ""
+      "value": "",
+      "description": "Saved answer id. Auto-set by Save Answer."
     },
     {
-      "key": "transactionId",
-      "value": ""
+      "key": "mcqOptionId",
+      "value": "",
+      "description": "MCQ option id. Auto-set by Get Questions."
+    },
+    {
+      "key": "submissionId",
+      "value": "",
+      "description": "Coding submission id. Auto-set by Create Submission."
     },
     {
       "key": "resultId",
-      "value": ""
+      "value": "",
+      "description": "Result id. Auto-set by My Results."
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "description": "Payment id. Auto-set by Initiate Payment."
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "description": "Gateway transaction id. Auto-set by Initiate Payment."
+    },
+    {
+      "key": "noteId",
+      "value": "",
+      "description": "Candidate note id. Auto-set by Create Note."
+    },
+    {
+      "key": "candidateId",
+      "value": "",
+      "description": "Candidate user id (notes, candidate comparison). Auto-set by Company Candidates / Login as candidate."
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "description": "Notification id. Auto-set by List Notifications."
+    },
+    {
+      "key": "emailVerifyToken",
+      "value": "",
+      "description": "Email verification token from the verification email (verify-email request)."
+    },
+    {
+      "key": "interviewId",
+      "value": "",
+      "description": "Video-interview id. Auto-set by Create Interview."
+    },
+    {
+      "key": "interviewQuestionId",
+      "value": "",
+      "description": "Video-interview question id. Auto-set by Add Question."
+    },
+    {
+      "key": "interviewSessionId",
+      "value": "",
+      "description": "Video-interview session id. Auto-set by Create Session Link."
+    },
+    {
+      "key": "interviewToken",
+      "value": "",
+      "description": "Public video-interview link token. Auto-set by Create Session Link / Get Interview."
     }
   ],
   "item": [
     {
       "name": "Authentication",
+      "description": "Register, login and token lifecycle. Register/Login/Refresh/Verify are public (noauth); Login defaults to the seeded recruiter credentials.",
       "item": [
         {
           "name": "Register (Candidate)",
@@ -82,13 +202,19 @@
               }
             ],
             "url": "{{baseUrl}}/auth/register",
+            "description": "Register a new CANDIDATE account. Public. Password rules: 8–72 chars with at least one letter and one number. Optional fields: `phone`, `companyName`, `companyCode`, `companyId` (deprecated).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"candidate@skillgauge.local\",\n  \"password\": \"Candid8te!\",\n  \"role\": \"CANDIDATE\",\n  \"phone\": \"+8801700000000\"\n}"
+              "raw": "{\n  \"name\": \"Cody Candidate\",\n  \"email\": \"{{candidateEmail}}\",\n  \"password\": \"{{candidatePassword}}\",\n  \"role\": \"CANDIDATE\",\n  \"phone\": \"+8801700000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
-          },
-          "auth": {
-            "type": "noauth"
           },
           "event": [
             {
@@ -96,12 +222,12 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Registered successfully\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "pm.test(\"Registered successfully\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "if (d.accessToken) pm.collectionVariables.set(\"accessToken\", d.accessToken);",
                   "if (d.refreshToken) pm.collectionVariables.set(\"refreshToken\", d.refreshToken);",
-                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user.id);"
+                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user && d.user.id);"
                 ]
               }
             }
@@ -118,13 +244,19 @@
               }
             ],
             "url": "{{baseUrl}}/auth/register",
+            "description": "Register a new RECRUITER account. Public. Send optional `companyCode` (default `{{companyCode}}`) to join an existing company, or `companyName` to found one.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Rina Recruiter\",\n  \"email\": \"recruiter@techcorp.dev\",\n  \"password\": \"Recruit123!\",\n  \"role\": \"RECRUITER\"\n}"
+              "raw": "{\n  \"name\": \"Rina Recruiter\",\n  \"email\": \"{{recruiterEmail}}\",\n  \"password\": \"{{recruiterPassword}}\",\n  \"role\": \"RECRUITER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
-          },
-          "auth": {
-            "type": "noauth"
           },
           "event": [
             {
@@ -132,12 +264,12 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Registered successfully\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "pm.test(\"Registered successfully\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "if (d.accessToken) pm.collectionVariables.set(\"accessToken\", d.accessToken);",
                   "if (d.refreshToken) pm.collectionVariables.set(\"refreshToken\", d.refreshToken);",
-                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user.id);"
+                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user && d.user.id);"
                 ]
               }
             }
@@ -154,13 +286,19 @@
               }
             ],
             "url": "{{baseUrl}}/auth/login",
+            "description": "Authenticate and receive tokens (accessToken 15 min, refreshToken 7 d). Rate-limited: 5 requests / 15 min. Defaults = seeded recruiter; swap to `{{adminEmail}}`/`{{adminPassword}}` or `{{candidateEmail}}`/`{{candidatePassword}}`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"recruiter@techcorp.dev\",\n  \"password\": \"Recruit123!\"\n}"
+              "raw": "{\n  \"email\": \"{{recruiterEmail}}\",\n  \"password\": \"{{recruiterPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
-          },
-          "auth": {
-            "type": "noauth"
           },
           "event": [
             {
@@ -168,12 +306,86 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Logged in successfully\", () => pm.expect(pm.response.code).to.equal(200));",
+                  "pm.test(\"Logged in successfully\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "if (d.accessToken) pm.collectionVariables.set(\"accessToken\", d.accessToken);",
                   "if (d.refreshToken) pm.collectionVariables.set(\"refreshToken\", d.refreshToken);",
-                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user.id);"
+                  "if (d.user && d.user.id) pm.collectionVariables.set(\"userId\", d.user && d.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/verify-email",
+            "description": "Verify an email address with the token from the verification email. Public. Fill `{{emailVerifyToken}}` first (seeded users are already verified).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{emailVerifyToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Email verified\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/resend-verification",
+            "description": "Re-send the verification email. Public. Rate-limited: 5 requests / 15 min.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{candidateEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verification email queued\", () => pm.expect(pm.response.code).to.be.oneOf([200,201,202]));"
                 ]
               }
             }
@@ -190,13 +402,19 @@
               }
             ],
             "url": "{{baseUrl}}/auth/refresh-token",
+            "description": "Exchange the refresh token for a new access token. Public. The old refresh token is revoked (rotation).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
-          },
-          "auth": {
-            "type": "noauth"
           },
           "event": [
             {
@@ -204,6 +422,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "pm.test(\"Token refreshed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "if (d.accessToken) pm.collectionVariables.set(\"accessToken\", d.accessToken);",
@@ -219,16 +438,37 @@
             "method": "POST",
             "header": [
               {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
                 "key": "Content-Type",
                 "value": "application/json"
               }
             ],
             "url": "{{baseUrl}}/auth/logout",
+            "description": "Revoke the refresh token. Requires a valid `{{refreshToken}}` in the body (access token optional).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Logged out\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Me",
@@ -240,13 +480,26 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/auth/me"
-          }
+            "url": "{{baseUrl}}/auth/me",
+            "description": "Get the current user profile from the access token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Profile retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Users",
+      "description": "Current-user profile management. All requests require `Authorization: Bearer {{accessToken}}`.",
       "item": [
         {
           "name": "Get Me",
@@ -258,8 +511,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/users/me"
-          }
+            "url": "{{baseUrl}}/users/me",
+            "description": "Get your profile (name, email, role, company, skills, …)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Profile retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Me",
@@ -276,11 +541,28 @@
               }
             ],
             "url": "{{baseUrl}}/users/me",
+            "description": "Update your profile (partial). Supported fields: `name`, `phone`, `bio`, `skills`, `experience`, `education`, `profileImageUrl`, `resumeUrl`, `jobTitle`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"bio\": \"Full-stack engineer focused on TypeScript, Node.js and PostgreSQL.\",\n  \"skills\": [\"typescript\", \"nodejs\", \"postgresql\"],\n  \"experience\": 3,\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"phone\": \"+8801711111111\"\n}"
+              "raw": "{\n  \"bio\": \"Full-stack engineer focused on TypeScript, Node.js and PostgreSQL.\",\n  \"skills\": [\n    \"typescript\",\n    \"nodejs\",\n    \"postgresql\"\n  ],\n  \"experience\": 3,\n  \"jobTitle\": \"Senior Software Engineer\",\n  \"phone\": \"+8801711111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Profile updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Change Password",
@@ -297,11 +579,28 @@
               }
             ],
             "url": "{{baseUrl}}/users/me/password",
+            "description": "Change your password. Rate-limited: 5 requests / 15 min. `newPassword`: 8–72 chars, ≥1 letter, ≥1 number. Defaults assume the seeded recruiter who has not changed their password yet.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"Recruit123!\",\n  \"newPassword\": \"Recruit1234!\"\n}"
+              "raw": "{\n  \"currentPassword\": \"{{recruiterPassword}}\",\n  \"newPassword\": \"Recruit1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Password changed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "My Activity",
@@ -313,14 +612,52 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/users/me/activity"
-          }
+            "url": "{{baseUrl}}/users/me/activity",
+            "description": "Recent audit-log entries for the current user."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Activity retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Companies",
+      "description": "Company profile, membership and candidate pipeline. Write operations require RECRUITER (owner/admin) or ADMIN.",
       "item": [
+        {
+          "name": "List Companies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/companies?page=1&limit=10",
+            "description": "List companies with pagination, search and filtering. Query: `page`, `limit`, `q`, `sortBy`, `sortOrder`. Use this to pick up the seeded TechCorp `companyId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Companies retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
         {
           "name": "Create Company",
           "request": {
@@ -336,9 +673,15 @@
               }
             ],
             "url": "{{baseUrl}}/companies",
+            "description": "Create a company (the recruiter becomes OWNER). **Role:** RECRUITER or ADMIN. Optional: `logo` (url), `description`, `website`, `industry`, `location`, `size`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"A software company hiring top developers.\",\n  \"website\": \"https://techcorp.example.com\",\n  \"industry\": \"Software Development\",\n  \"location\": \"Dhaka, Bangladesh\",\n  \"size\": \"50-100\"\n}"
+              "raw": "{\n  \"name\": \"TechCorp Solutions\",\n  \"description\": \"A software company hiring top developers.\",\n  \"website\": \"https://techcorp.example.com\",\n  \"industry\": \"Software Development\",\n  \"location\": \"Dhaka, Bangladesh\",\n  \"size\": \"50-100\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -347,8 +690,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Company created\", () => pm.expect(pm.response.code).to.equal(201));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Company created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"companyId\", d.id);"
                 ]
               }
@@ -365,8 +709,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/companies/{{companyId}}"
-          }
+            "url": "{{baseUrl}}/companies/{{companyId}}",
+            "description": "Get a company by id (includes credits balance and join code)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Company retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Company",
@@ -383,11 +739,53 @@
               }
             ],
             "url": "{{baseUrl}}/companies/{{companyId}}",
+            "description": "Update a company (partial). **Role:** RECRUITER (owner/admin) or ADMIN. Fields: `name`, `logo`, `description`, `website`, `industry`, `location`, `size`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"A software company hiring top Node.js and React developers.\",\n  \"industry\": \"Software Development\"\n}"
+              "raw": "{\n  \"description\": \"A software company hiring top Node.js and React developers.\",\n  \"industry\": \"Software Development\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Company updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Company",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}",
+            "description": "Soft-delete a company. **Role:** RECRUITER (owner/admin) or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Company deleted\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Members",
@@ -399,13 +797,220 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/companies/{{companyId}}/members"
-          }
+            "url": "{{baseUrl}}/companies/{{companyId}}/members",
+            "description": "List company members and their roles (OWNER / ADMIN / MEMBER)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Members retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}/members",
+            "description": "Add a member to the company by email. `role`: `OWNER` | `ADMIN` | `MEMBER` (default `MEMBER`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.member@techcorp.dev\",\n  \"name\": \"New Member\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Member added\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.userId || (d.user && d.user.id) || d.id) pm.collectionVariables.set(\"userId\", d.userId || (d.user && d.user.id) || d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Member Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}/members/{{userId}}",
+            "description": "Change a member's role. Body: role = OWNER | ADMIN | MEMBER.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Member role updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}/members/{{userId}}",
+            "description": "Remove a member from the company."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Member removed\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Company Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}/analytics",
+            "description": "Company-level analytics: assessments, invitations, completion/pass rates, average score, credits, payment totals. **Role:** RECRUITER (member) or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Analytics retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Company Candidates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/{{companyId}}/candidates?page=1&limit=10",
+            "description": "Candidates invited to the company's assessments (paginated). Query: `page`, `limit`, `status` (recruitment status), `assessmentId`. Captures `candidateId` for Notes/Compare."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Candidates retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data[0] && data[0].candidateId) pm.collectionVariables.set(\"candidateId\", data[0].candidateId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Candidate Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/companies/candidates/{{invitationId}}/status",
+            "description": "Update a candidate's recruitment status by invitation id. **Role:** RECRUITER or ADMIN. Pipeline: INVITED → STARTED → COMPLETED → SHORTLISTED → INTERVIEW → HIRED, or REJECTED.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recruitmentStatus\": \"SHORTLISTED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Candidate status updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Problems",
+      "description": "Question bank: MCQ, CODING and WRITTEN problems. **Role:** RECRUITER or ADMIN for all write operations.",
       "item": [
         {
           "name": "Create MCQ Problem",
@@ -422,9 +1027,15 @@
               }
             ],
             "url": "{{baseUrl}}/problems",
+            "description": "Create a multiple-choice problem. MCQ requires at least 2 `options` with exactly one `isCorrect: true`. Defaults: `difficulty: MEDIUM`, `points: 10`, `status: DRAFT`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"JavaScript Event Loop Basics\",\n  \"description\": \"Which statement best describes how the JavaScript event loop handles a Promise.then callback?\",\n  \"type\": \"MCQ\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"javascript\",\n  \"points\": 5,\n  \"options\": [\n    { \"text\": \"It runs immediately in the current tick\", \"isCorrect\": false, \"order\": 0 },\n    { \"text\": \"It is queued in the microtask queue\", \"isCorrect\": true, \"order\": 1 },\n    { \"text\": \"It is queued in the macrotask queue\", \"isCorrect\": false, \"order\": 2 },\n    { \"text\": \"It runs after the process exits\", \"isCorrect\": false, \"order\": 3 }\n  ]\n}"
+              "raw": "{\n  \"title\": \"JavaScript Event Loop Basics\",\n  \"description\": \"Which statement best describes how the JavaScript event loop handles a Promise.then callback?\",\n  \"type\": \"MCQ\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"javascript\",\n  \"points\": 5,\n  \"status\": \"ACTIVE\",\n  \"options\": [\n    {\n      \"text\": \"It runs immediately in the current tick\",\n      \"isCorrect\": false,\n      \"order\": 0\n    },\n    {\n      \"text\": \"It is queued in the microtask queue\",\n      \"isCorrect\": true,\n      \"order\": 1\n    },\n    {\n      \"text\": \"It is queued in the macrotask queue\",\n      \"isCorrect\": false,\n      \"order\": 2\n    },\n    {\n      \"text\": \"It runs after the process exits\",\n      \"isCorrect\": false,\n      \"order\": 3\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -433,8 +1044,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Problem created\", () => pm.expect(pm.response.code).to.equal(201));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Problem created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"problemId\", d.id);"
                 ]
               }
@@ -456,9 +1068,15 @@
               }
             ],
             "url": "{{baseUrl}}/problems",
+            "description": "Create a coding problem. CODING requires at least 1 `testCase`. `timeLimit` seconds, `memoryLimit` MB. `allowedLanguages`: javascript, python, java, cpp, typescript, go, rust.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Sum of Two Numbers\",\n  \"description\": \"Write a function `solve(a, b)` that returns the sum of a and b.\\n\\nThe sandbox calls your function with values read from the input and prints the result to stdout.\",\n  \"type\": \"CODING\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"algorithms\",\n  \"points\": 15,\n  \"timeLimit\": 15,\n  \"memoryLimit\": 256,\n  \"testCases\": [\n    { \"input\": \"1\\n2\", \"expectedOutput\": \"3\", \"isHidden\": false, \"order\": 0 },\n    { \"input\": \"10\\n20\", \"expectedOutput\": \"30\", \"isHidden\": true, \"order\": 1 },\n    { \"input\": \"-5\\n5\", \"expectedOutput\": \"0\", \"isHidden\": true, \"order\": 2 }\n  ]\n}"
+              "raw": "{\n  \"title\": \"Sum of Two Numbers\",\n  \"description\": \"Write a function `solve(a, b)` that returns the sum of a and b.\\n\\nThe sandbox calls your function with values read from the input and prints the result to stdout.\",\n  \"type\": \"CODING\",\n  \"difficulty\": \"EASY\",\n  \"category\": \"algorithms\",\n  \"points\": 15,\n  \"timeLimit\": 15,\n  \"memoryLimit\": 256,\n  \"status\": \"ACTIVE\",\n  \"testCases\": [\n    {\n      \"input\": \"1\\n2\",\n      \"expectedOutput\": \"3\",\n      \"isHidden\": false,\n      \"order\": 0\n    },\n    {\n      \"input\": \"10\\n20\",\n      \"expectedOutput\": \"30\",\n      \"isHidden\": true,\n      \"order\": 1\n    },\n    {\n      \"input\": \"-5\\n5\",\n      \"expectedOutput\": \"0\",\n      \"isHidden\": true,\n      \"order\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -467,8 +1085,50 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Problem created\", () => pm.expect(pm.response.code).to.equal(201));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Problem created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.id) pm.collectionVariables.set(\"problemId\", d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Written Problem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/problems",
+            "description": "Create a written (essay) problem. WRITTEN requires `expectedAnswer` — evaluation criteria such as keywords + guidance for the reviewer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Explain Database Indexing\",\n  \"description\": \"Explain what a database index is, when you should add one, and one trade-off of adding indexes.\",\n  \"type\": \"WRITTEN\",\n  \"difficulty\": \"MEDIUM\",\n  \"category\": \"databases\",\n  \"points\": 10,\n  \"status\": \"ACTIVE\",\n  \"expectedAnswer\": {\n    \"keywords\": [\n      \"index\",\n      \"b-tree\",\n      \"lookup\",\n      \"write penalty\",\n      \"storage\"\n    ],\n    \"guidance\": \"A good answer explains that an index accelerates lookups (B-tree), is chosen for frequently filtered/joined columns, and trades extra storage plus slower writes.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"problemId\", d.id);"
                 ]
               }
@@ -485,8 +1145,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/problems?page=1&limit=10&sortBy=createdAt&sortOrder=desc"
-          }
+            "url": "{{baseUrl}}/problems?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+            "description": "List problems. Query: `page`, `limit`, `q`, `type`, `difficulty`, `category`, `status`, `tags`, `sortBy`, `sortOrder`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problems retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Search Problems",
@@ -498,8 +1170,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/problems/search?q=javascript"
-          }
+            "url": "{{baseUrl}}/problems/search?q=javascript",
+            "description": "Keyword search across problem titles/descriptions. Query: `q`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Search executed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Problem",
@@ -511,8 +1195,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/problems/{{problemId}}"
-          }
+            "url": "{{baseUrl}}/problems/{{problemId}}",
+            "description": "Get a problem by id (hidden test cases are never exposed)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Problem",
@@ -529,11 +1225,28 @@
               }
             ],
             "url": "{{baseUrl}}/problems/{{problemId}}",
+            "description": "Update a problem (partial). **Role:** RECRUITER or ADMIN.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"points\": 10\n}"
+              "raw": "{\n  \"points\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Problem",
@@ -545,13 +1258,26 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/problems/{{problemId}}"
-          }
+            "url": "{{baseUrl}}/problems/{{problemId}}",
+            "description": "Soft-delete a problem. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem deleted\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Assessments",
+      "description": "Assessment lifecycle (DRAFT → PUBLISHED → ACTIVE → CLOSED → ARCHIVED) plus attached problems. **Role:** RECRUITER (owner/admin) or ADMIN. Creating/publishing consumes company credits.",
       "item": [
         {
           "name": "Create Assessment",
@@ -568,9 +1294,15 @@
               }
             ],
             "url": "{{baseUrl}}/assessments",
+            "description": "Create an assessment. **Role:** RECRUITER or ADMIN (company must have credits). Required: `title` (≥3), `durationMinutes` (5–1440). Defaults shown below: `passingScore: 0`, `maxAttempts: 1`, `shuffleProblems/Options: false`, `showResults: true`, `antiCheatingEnabled: true`, `showCandidateRanking: true`, `resultStrategy: LATEST_SCORE`, `accessLevel: INVITATION_ONLY`. Optional: `startDate`, `endDate`, `accessCode`, `templateId`, `companyId`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Junior Node.js Developer Assessment\",\n  \"description\": \"Baseline screening assessment for junior backend engineers.\",\n  \"instructions\": \"Answer all questions. The timer starts when you start the attempt and the server clock is the source of truth.\",\n  \"durationMinutes\": 45,\n  \"passingScore\": 15,\n  \"maxAttempts\": 1,\n  \"showResults\": true,\n  \"antiCheatingEnabled\": true\n}"
+              "raw": "{\n  \"title\": \"Junior Node.js Developer Assessment\",\n  \"description\": \"Baseline screening assessment for junior backend engineers.\",\n  \"instructions\": \"Answer all questions. The timer starts when you start the attempt and the server clock is the source of truth.\",\n  \"durationMinutes\": 45,\n  \"passingScore\": 15,\n  \"maxAttempts\": 1,\n  \"shuffleProblems\": false,\n  \"shuffleOptions\": false,\n  \"showResults\": true,\n  \"antiCheatingEnabled\": true,\n  \"showCandidateRanking\": true,\n  \"resultStrategy\": \"LATEST_SCORE\",\n  \"accessLevel\": \"INVITATION_ONLY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -579,8 +1311,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Assessment created\", () => pm.expect(pm.response.code).to.equal(201));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Assessment created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"assessmentId\", d.id);"
                 ]
               }
@@ -597,8 +1330,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments?page=1&limit=10&status=PUBLISHED"
-          }
+            "url": "{{baseUrl}}/assessments?page=1&limit=10&status=PUBLISHED",
+            "description": "List assessments. Query: `page`, `limit`, `q`, `status` (DRAFT/PUBLISHED/ACTIVE/CLOSED/ARCHIVED), `companyId`, `sortBy`, `sortOrder`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessments retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Assessment",
@@ -610,8 +1355,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}",
+            "description": "Get an assessment by id (includes settings, problems count, statistics)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Assessment",
@@ -628,11 +1385,53 @@
               }
             ],
             "url": "{{baseUrl}}/assessments/{{assessmentId}}",
+            "description": "Update an assessment (partial; only while DRAFT or PUBLISHED). **Role:** RECRUITER (owner/admin) or ADMIN. Same fields as create, all optional.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Updated instructions\"\n}"
+              "raw": "{\n  \"description\": \"Updated instructions\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Assessment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}",
+            "description": "Soft-delete an assessment. **Role:** RECRUITER (owner/admin) or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment deleted\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Publish Assessment",
@@ -644,8 +1443,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/publish"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/publish",
+            "description": "Transition DRAFT → PUBLISHED (consumes one company credit). Candidates can then be invited."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment published\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Close Assessment",
@@ -657,8 +1468,148 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/close"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/close",
+            "description": "Transition to CLOSED — stops accepting new attempts."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment closed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Duplicate Assessment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/duplicate",
+            "description": "Create a DRAFT copy including problems, sections and settings. Captures the new copy into `assessmentId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment duplicated\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.id) pm.collectionVariables.set(\"assessmentId\", d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive Assessment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/archive",
+            "description": "Archive (DRAFT/PUBLISHED/CLOSED → ARCHIVED)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment archived\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restore Assessment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/restore",
+            "description": "Restore an ARCHIVED assessment back to DRAFT."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment restored\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Recalculate Results",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/recalculate-results",
+            "description": "Recompute all results from saved attempt answers and evaluations (after manual/scoring fixes)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Results recalculated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compare Candidates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/candidates/compare?candidateIds={{candidateId}}",
+            "description": "Compare candidate performance. Query: `candidateIds` — comma-separated candidate user ids. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Comparison retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Assessment History",
@@ -670,8 +1621,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/history"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/history",
+            "description": "Status-change history (audit log) for the assessment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"History retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Add Problem",
@@ -688,11 +1651,28 @@
               }
             ],
             "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems",
+            "description": "Attach an existing problem to the assessment. Only `problemId` is required; optional: `points`, `isRequired`, `section`, `order`. Returns 201.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"points\": 10,\n  \"order\": 1\n}"
+              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"points\": 10,\n  \"isRequired\": true,\n  \"section\": \"Core\",\n  \"order\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem added to assessment\", () => pm.expect(pm.response.code).to.be.oneOf([201]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Problems",
@@ -704,8 +1684,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems?page=1&limit=10",
+            "description": "Problems attached to the assessment (ordered by `order`/`section`). Query: `page`, `limit`, `section`, `isRequired`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment problems retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Problem",
@@ -722,11 +1714,28 @@
               }
             ],
             "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems/{{problemId}}",
+            "description": "Update the assessment-problem link (`points`, `isRequired`, `section`, `order`). Only allowed while the assessment has no active attempts.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"points\": 12,\n  \"section\": \"Core\"\n}"
+              "raw": "{\n  \"points\": 12,\n  \"section\": \"Core\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment problem updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Remove Problem",
@@ -738,13 +1747,26 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems/{{problemId}}"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/problems/{{problemId}}",
+            "description": "Detach a problem from the assessment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problem removed\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Invitations",
+      "description": "Assessment invitations. Create/List/Resend = RECRUITER or ADMIN; Accept/Reject = CANDIDATE; token endpoints mirror the email link (lookup is public).",
       "item": [
         {
           "name": "Invite Candidates",
@@ -761,9 +1783,15 @@
               }
             ],
             "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations",
+            "description": "Invite candidates by email. **Role:** RECRUITER or ADMIN. Each candidate: `email` (required), `expiresAt` (optional ISO datetime). Rate-limited: 10 per hour. Max 500 per call.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"candidates\": [\n    { \"email\": \"candidate@skillgauge.local\" }\n  ]\n}"
+              "raw": "{\n  \"candidates\": [\n    {\n      \"email\": \"{{candidateEmail}}\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -772,11 +1800,11 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Invitations created\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "pm.test(\"Invitations created\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "const inv = Array.isArray(d) ? d[0] : (d.invitations && d.invitations[0]) || d;",
-                  "if (inv && inv.id) pm.collectionVariables.set(\"invitationId\", inv.id);"
+                  "if (inv && inv.id) pm.collectionVariables.set(\"invitationId\", inv && inv.id);"
                 ]
               }
             }
@@ -792,8 +1820,23 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/invitations?page=1&limit=10&status=PENDING",
+            "description": "List invitations for the assessment. Query: `page`, `limit`, `status` (PENDING/ACCEPTED/REJECTED/EXPIRED/COMPLETED). Captures `invitationId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitations retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const d = pm.response.json().data;",
+                  "const list = (d && d.invitations) || d;",
+                  "if (Array.isArray(list) && list[0] && list[0].id) pm.collectionVariables.set(\"invitationId\", list[0].id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Resend Invitation",
@@ -805,8 +1848,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/invitations/{{invitationId}}/resend"
-          }
+            "url": "{{baseUrl}}/invitations/{{invitationId}}/resend",
+            "description": "Re-send the invitation email. **Role:** RECRUITER or ADMIN. Rate-limited: 10 per hour."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitation resent\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Accept Invitation",
@@ -818,8 +1873,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/invitations/{{invitationId}}/accept"
-          }
+            "url": "{{baseUrl}}/invitations/{{invitationId}}/accept",
+            "description": "Accept an invitation. **Role:** CANDIDATE."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitation accepted\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Reject Invitation",
@@ -831,8 +1898,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/invitations/{{invitationId}}/reject"
-          }
+            "url": "{{baseUrl}}/invitations/{{invitationId}}/reject",
+            "description": "Reject an invitation. **Role:** CANDIDATE."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitation rejected\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "My Invitations",
@@ -844,13 +1923,81 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/candidates/invitations"
-          }
+            "url": "{{baseUrl}}/candidates/invitations?page=1&limit=10",
+            "description": "Invitations for the current candidate. Query: `page`, `limit`, `status`. **Role:** CANDIDATE. Captures `invitationId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"My invitations retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const d = pm.response.json().data;",
+                  "const list = (d && d.invitations) || d;",
+                  "if (Array.isArray(list) && list[0] && list[0].id) pm.collectionVariables.set(\"invitationId\", list[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Invitation by Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/token/{{invitationToken}}",
+            "description": "Public exam-link lookup used by the invitation email (seeded token: `demo-candidate-token-0001`). No auth. Query params may include `token` — here it is part of the path.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitation found\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Invitation by Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/invitations/token/{{invitationToken}}/accept",
+            "description": "Accept the personal exam link after signing in. **Role:** CANDIDATE. Captures `invitationId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invitation accepted\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "const inv = d.invitation || d;",
+                  "if (inv && inv.id) pm.collectionVariables.set(\"invitationId\", inv && inv.id);"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Attempts",
+      "description": "Timed assessment attempts. Start/answers/submit = CANDIDATE (owner). The server clock is the source of truth for the timer. Status flow: NOT_STARTED → IN_PROGRESS → SUBMITTED → EVALUATING → COMPLETED (expired: AUTO_SUBMITTED).",
       "item": [
         {
           "name": "Start Attempt",
@@ -862,7 +2009,8 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/attempts/start"
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/attempts/start",
+            "description": "Start a new timed attempt. **Role:** CANDIDATE with an ACCEPTED invitation (maxAttempts enforced). Returns `expiresAt` computed server-side."
           },
           "event": [
             {
@@ -870,8 +2018,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Attempt started\", () => pm.expect(pm.response.code).to.equal(201));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Attempt started\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"attemptId\", d.id);"
                 ]
               }
@@ -888,8 +2037,70 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}"
-          }
+            "url": "{{baseUrl}}/attempts/{{attemptId}}",
+            "description": "Attempt details: assessment, status, startedAt/expiresAt/submittedAt, saved answers, score, maxScore. Ownership enforced."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Attempt retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Remaining Time",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/time",
+            "description": "Server-authoritative remaining time for an in-progress attempt: `remainingTimeSeconds`, `serverTime`, `status`. Roles: owner CANDIDATE, company RECRUITER, ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Remaining time retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Anti-Cheating Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-report",
+            "description": "Anti-cheating summary: `riskScore`, `riskLevel` (LOW/MEDIUM/HIGH), event counts, unique IPs/devices, sessions and full timeline. Ownership enforced."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Report retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Questions",
@@ -901,7 +2112,8 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/questions"
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/questions",
+            "description": "All questions for the in-progress attempt (hidden test cases excluded). Captures `problemId` and `mcqOptionId` for Save Answer."
           },
           "event": [
             {
@@ -909,7 +2121,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Questions retrieved\", () => pm.expect(pm.response.code).to.equal(200));",
+                  "pm.test(\"Questions retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
                   "const data = pm.response.json().data;",
                   "if (!Array.isArray(data) || data.length === 0) return;",
                   "const mcq = data.find((q) => q.problem && Array.isArray(q.problem.options) && q.problem.options.length > 0);",
@@ -936,9 +2148,15 @@
               }
             ],
             "url": "{{baseUrl}}/attempts/{{attemptId}}/answers",
+            "description": "Save an answer (MCQ/written/coding). **Role:** CANDIDATE. MCQ: `{ answer: { selectedOptionId } }`. Written: `{ answer: { text } }`. Coding: `{ code, programmingLanguage }` (javascript/python/java/cpp/typescript/go/rust). Either `answer` or `code` is required.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"answer\": { \"selectedOptionId\": \"{{mcqOptionId}}\" }\n}"
+              "raw": "{\n  \"problemId\": \"{{problemId}}\",\n  \"answer\": {\n    \"selectedOptionId\": \"{{mcqOptionId}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -947,8 +2165,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Answer saved\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Answer saved\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"answerId\", d.id);"
                 ]
               }
@@ -970,11 +2189,28 @@
               }
             ],
             "url": "{{baseUrl}}/attempts/{{attemptId}}/answers/{{answerId}}",
+            "description": "Update a saved answer before submission. **Role:** CANDIDATE. Send `answer` and/or `code` + `programmingLanguage`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answer\": { \"selectedOptionId\": \"{{mcqOptionId}}\" }\n}"
+              "raw": "{\n  \"answer\": {\n    \"selectedOptionId\": \"{{mcqOptionId}}\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Answer updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Submit Attempt",
@@ -986,8 +2222,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/submit"
-          }
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/submit",
+            "description": "Submit the attempt — triggers automatic evaluation (MCQ auto, written pending manual score, coding in the sandbox) and result calculation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Attempt submitted\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "My Attempts",
@@ -999,13 +2247,97 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/candidates/me/attempts"
-          }
+            "url": "{{baseUrl}}/candidates/me/attempts?page=1&limit=10",
+            "description": "Current candidate's attempts. Query: `page`, `limit`, `status`. **Role:** CANDIDATE."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"My attempts retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set(\"attemptId\", data[0].id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Anti-Cheating",
+      "description": "Attempt integrity events (owner CANDIDATE). Event types: TAB_SWITCH, WINDOW_BLUR, WINDOW_FOCUS, FULLSCREEN_EXIT, COPY, PASTE, MULTIPLE_SESSION, SUSPICIOUS_ACTIVITY.",
+      "item": [
+        {
+          "name": "Record Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events",
+            "description": "Report an anti-cheating event. **Role:** CANDIDATE. IP and user-agent are stored server-side.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventType\": \"TAB_SWITCH\",\n  \"metadata\": {\n    \"detail\": \"user switched tab\",\n    \"tabUrl\": \"https://google.com\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Event recorded\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events",
+            "description": "List the event timeline for an attempt (type, timestamp, metadata, IP, user-agent)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Events retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Submissions",
+      "description": "Coding submissions evaluated in the sandbox. Statuses: PENDING → RUNNING → PASSED | FAILED | PARTIAL | ERROR | MANUAL_REVIEW. Rate-limited (60/min).",
       "item": [
         {
           "name": "Create Submission",
@@ -1022,9 +2354,15 @@
               }
             ],
             "url": "{{baseUrl}}/submissions",
+            "description": "Create a coding submission for formal evaluation. **Role:** CANDIDATE. Body: `attemptId`, `problemId`, `code`, `programmingLanguage` (javascript/python/java/cpp/typescript/go/rust). Rate-limited: 60/min.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"code\": \"const a = parseInt(gets(), 10);\\nconst b = parseInt(gets(), 10);\\nconsole.log(a + b);\",\n  \"programmingLanguage\": \"javascript\"\n}"
+              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"code\": \"const a = parseInt(gets(), 10);\\nconst b = parseInt(gets(), 10);\\nconsole.log(a + b);\",\n  \"programmingLanguage\": \"javascript\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -1033,8 +2371,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Submission created\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
-                  "const d = pm.response.json().data || {};",
+                  "pm.test(\"Submission created\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
                   "if (d.id) pm.collectionVariables.set(\"submissionId\", d.id);"
                 ]
               }
@@ -1051,8 +2390,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/submissions/{{submissionId}}"
-          }
+            "url": "{{baseUrl}}/submissions/{{submissionId}}",
+            "description": "Submission detail incl. execution status, metrics and test-case results. Ownership enforced."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Submission retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Evaluate Submission",
@@ -1064,8 +2415,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/submissions/{{submissionId}}/evaluate"
-          }
+            "url": "{{baseUrl}}/submissions/{{submissionId}}/evaluate",
+            "description": "(Re-)run the evaluation for a submission. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evaluation triggered\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Attempt Submissions",
@@ -1077,14 +2440,77 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/submissions"
-          }
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/submissions?page=1&limit=10",
+            "description": "All submissions for an attempt. Query: `page`, `limit`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Submissions retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Assessment Submissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/submissions?page=1&limit=10",
+            "description": "Submissions across all attempts of the assessment. Query: `page`, `limit`, `status`, `problemId`. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Submissions retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Evaluations",
+      "description": "Per-problem evaluations: MCQ auto-scored, written manually scored, coding from the sandbox. Manual scoring = RECRUITER or ADMIN.",
       "item": [
+        {
+          "name": "Pending Evaluations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/evaluations/pending?page=1&limit=10",
+            "description": "Written evaluations still awaiting manual scoring (includes attempt, candidate, problem and the saved answer). Query: `page`, `limit`. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pending evaluations retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
         {
           "name": "Evaluate Written",
           "request": {
@@ -1100,11 +2526,28 @@
               }
             ],
             "url": "{{baseUrl}}/evaluations/written",
+            "description": "Manually score a written answer. **Role:** RECRUITER or ADMIN. Body: `attemptId`, `problemId`, `score` (0–1000), optional `feedback`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"score\": 8,\n  \"feedback\": \"Good answer with minor gaps.\"\n}"
+              "raw": "{\n  \"attemptId\": \"{{attemptId}}\",\n  \"problemId\": \"{{problemId}}\",\n  \"score\": 8,\n  \"feedback\": \"Good answer with minor gaps.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Written evaluation saved\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Attempt Evaluations",
@@ -1116,13 +2559,51 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/evaluations"
-          }
+            "url": "{{baseUrl}}/attempts/{{attemptId}}/evaluations",
+            "description": "All evaluations for an attempt (score, max, feedback, source)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evaluations retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Assessment Evaluations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/evaluations?page=1&limit=10",
+            "description": "Evaluations across all attempts of the assessment. Query: `page`, `limit`, `status`. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Evaluations retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Results",
+      "description": "Final computed results. Candidates only see results once the assessment's `showResults`/release policy permits.",
       "item": [
         {
           "name": "Get Result",
@@ -1134,8 +2615,45 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/results/{{resultId}}"
-          }
+            "url": "{{baseUrl}}/results/{{resultId}}",
+            "description": "Result by id: totalPoints, earnedPoints, percentage, passed, timeTakenSeconds, per-question `items`, evaluationFeedback. Ownership enforced."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Result retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Result Skill Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/results/{{resultId}}/skills",
+            "description": "Per-skill scoring breakdown: skills[] with totalPoints, earnedPoints, questions, percentage, plus overallPercentage and passed."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Skill breakdown retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "My Results",
@@ -1147,7 +2665,8 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/candidates/me/results"
+            "url": "{{baseUrl}}/candidates/me/results?page=1&limit=10",
+            "description": "Current candidate's released results (paginated). Query: `page`, `limit`. Captures `resultId`."
           },
           "event": [
             {
@@ -1155,7 +2674,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"My results retrieved\", () => pm.expect(pm.response.code).to.equal(200));",
+                  "pm.test(\"My results retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
                   "const data = pm.response.json().data;",
                   "if (Array.isArray(data) && data.length > 0 && data[0].id) {",
                   "  pm.collectionVariables.set(\"resultId\", data[0].id);",
@@ -1175,13 +2694,26 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/results"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/results?page=1&limit=10",
+            "description": "Results for an assessment (ordered by earnedPoints desc; includes candidate + attempt). Query: `page`, `limit`. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessment results retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Reports & Analytics",
+      "description": "Recruiter/admin reporting. CSV export returns a text/csv attachment.",
       "item": [
         {
           "name": "Assessment Report",
@@ -1193,8 +2725,45 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/report"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/report",
+            "description": "Full report: candidate/completed counts, average/highest/lowest score, pass rate, average completion time, question performance, ranking. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Report generated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Export Report CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/report/export.csv",
+            "description": "Download the assessment report as CSV (`Content-Disposition: attachment`). **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"CSV generated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Assessment Analytics",
@@ -1206,8 +2775,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/assessments/{{assessmentId}}/analytics"
-          }
+            "url": "{{baseUrl}}/assessments/{{assessmentId}}/analytics",
+            "description": "Analytics: invitations, started/completed attempts, completion rate, average/median score, pass rate, average time, most failed questions, performance distribution. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Analytics retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Company Reports",
@@ -1219,37 +2800,23 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/companies/{{companyId}}/reports"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Anti-Cheating",
-      "item": [
-        {
-          "name": "Record Event",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            "url": "{{baseUrl}}/companies/{{companyId}}/reports",
+            "description": "List company-level reports. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Company reports retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
               }
-            ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"eventType\": \"TAB_SWITCH\",\n  \"metadata\": { \"detail\": \"user switched tab\" }\n}"
             }
-          }
+          ]
         },
         {
-          "name": "List Events",
+          "name": "Company Report Summary",
           "request": {
             "method": "GET",
             "header": [
@@ -1258,23 +2825,72 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/attempts/{{attemptId}}/anti-cheating-events"
-          }
+            "url": "{{baseUrl}}/companies/{{companyId}}/reports/summary",
+            "description": "Company report summary: candidate count, average score, pass rate, credits consumed, etc. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Summary retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Payments",
+      "description": "SSLCommerz credit packages. Callbacks (/success, /fail, /cancel, /ipn) and package listing are PUBLIC (noauth). Without gateway credentials use the mock gateway returned by Initiate Payment.",
       "item": [
         {
           "name": "List Packages",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/payments/packages"
+            "header": [],
+            "url": "{{baseUrl}}/payments/packages",
+            "description": "List purchasable credit packages (public). Seeded default: `{{packageId}}` = Starter Pack — 10 credits / BDT 2000.",
+            "auth": {
+              "type": "noauth"
+            }
           },
-          "auth": {
-            "type": "noauth"
-          }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Packages retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Mock Gateway",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/payments/mock",
+            "description": "Mock SSLCommerz gateway page used in test mode (no store credentials). Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Mock gateway reachable\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Initiate Payment",
@@ -1291,9 +2907,15 @@
               }
             ],
             "url": "{{baseUrl}}/payments/initiate",
+            "description": "Start a credit-package purchase. **Role:** authenticated. Rate-limited: 10/min. Body: `packageId` (uuid), optional `companyId`. Returns `gatewayUrl` or `mockUrl` in test mode, plus `payment.id` and `transactionId`.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"packageId\": \"00000000-0000-4000-8000-000000000005\",\n  \"companyId\": \"{{companyId}}\"\n}"
+              "raw": "{\n  \"packageId\": \"{{packageId}}\",\n  \"companyId\": \"{{companyId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           },
           "event": [
@@ -1302,13 +2924,13 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Payment initiated\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "pm.test(\"Payment initiated\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
                   "const body = pm.response.json();",
                   "const d = (body && body.data) || {};",
                   "const p = d.payment || d;",
                   "if (p.id) pm.collectionVariables.set(\"paymentId\", p.id);",
                   "if (p.transactionId) pm.collectionVariables.set(\"transactionId\", p.transactionId);",
-                  "if (d.gatewayUrl) console.log(\"Open gateway URL in browser:\", d.gatewayUrl);"
+                  "if (d.gatewayUrl || d.mockUrl) console.log(\"Open gateway URL in browser:\", d.gatewayUrl || d.mockUrl);"
                 ]
               }
             }
@@ -1325,14 +2947,31 @@
               }
             ],
             "url": "{{baseUrl}}/payments/success",
+            "description": "SSLCommerz success callback (public). Verifies the transaction with the gateway before marking the payment PAID. Body: `tran_id` (and gateway fields).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tran_id\": \"TX-...\"\n}"
+              "raw": "{\n  \"tran_id\": \"{{transactionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
-          "auth": {
-            "type": "noauth"
-          }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Success callback processed\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Fail Callback",
@@ -1345,14 +2984,31 @@
               }
             ],
             "url": "{{baseUrl}}/payments/fail",
+            "description": "SSLCommerz failure callback (public). Marks the payment FAILED.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tran_id\": \"TX-...\"\n}"
+              "raw": "{\n  \"tran_id\": \"{{transactionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
-          "auth": {
-            "type": "noauth"
-          }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Fail callback processed\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Cancel Callback",
@@ -1365,14 +3021,31 @@
               }
             ],
             "url": "{{baseUrl}}/payments/cancel",
+            "description": "SSLCommerz cancel callback (public). Marks the payment CANCELLED.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tran_id\": \"TX-...\"\n}"
+              "raw": "{\n  \"tran_id\": \"{{transactionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
-          "auth": {
-            "type": "noauth"
-          }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cancel callback processed\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "IPN Callback",
@@ -1385,14 +3058,100 @@
               }
             ],
             "url": "{{baseUrl}}/payments/ipn",
+            "description": "SSLCommerz Instant Payment Notification webhook (public, idempotent — safe to retry). `status`: VALID / FAILED / CANCELLED.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tran_id\": \"TX-...\",\n  \"status\": \"VALID\"\n}"
+              "raw": "{\n  \"tran_id\": \"{{transactionId}}\",\n  \"status\": \"VALID\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
-          "auth": {
-            "type": "noauth"
-          }
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"IPN processed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Success Redirect (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/payments/success?tran_id={{transactionId}}",
+            "description": "Browser-redirect variant of the success callback — SSLCommerz redirects the customer's browser with GET query params (`tran_id`, `val_id`, …). Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Success redirect handled\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fail Redirect (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/payments/fail?tran_id={{transactionId}}",
+            "description": "Browser-redirect variant of the fail callback (GET query params). Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Fail redirect handled\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Redirect (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/payments/cancel?tran_id={{transactionId}}",
+            "description": "Browser-redirect variant of the cancel callback (GET query params). Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cancel redirect handled\", () => pm.expect(pm.response.code).to.be.oneOf([200,302]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Payment",
@@ -1404,8 +3163,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/payments/{{paymentId}}"
-          }
+            "url": "{{baseUrl}}/payments/{{paymentId}}",
+            "description": "Payment by id: status, package, amounts, gateway metadata."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Payment retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Payments",
@@ -1417,13 +3188,1328 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/payments"
-          }
+            "url": "{{baseUrl}}/payments?page=1&limit=10&status=PAID",
+            "description": "List payments. Query: `page`, `limit`, `status` (PENDING/PAID/FAILED/CANCELLED/REFUNDED)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Payments retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Aggregated summaries, role-scoped.",
+      "item": [
+        {
+          "name": "Recruiter Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dashboard/recruiter",
+            "description": "Recruiter/ADMIN dashboard: summary (assessments, invitations, attempts, results, pass/completion rates, problems, pending evaluations), recentAssessments, recentResults. **Role:** RECRUITER or ADMIN."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Recruiter dashboard retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Candidate Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dashboard/candidate",
+            "description": "Candidate dashboard: summary (invitations, attempts, results, pass rate), upcomingAssessments, recentResults. **Role:** CANDIDATE."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Candidate dashboard retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notes",
+      "description": "Private recruiter notes attached to a candidate. **Role:** RECRUITER or ADMIN for writes. Visibility: recruiters see public notes + their own private notes; candidates see only their own; admins see all.",
+      "item": [
+        {
+          "name": "Create Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/notes",
+            "description": "Create a note on a candidate. **Role:** RECRUITER or ADMIN. Body: `candidateId` (uuid, required), `content` (1–5000), optional `assessmentId`, `companyId`, `isPrivate` (default false).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateId\": \"{{candidateId}}\",\n  \"assessmentId\": \"{{assessmentId}}\",\n  \"content\": \"Strong JS fundamentals, recommend for interview.\",\n  \"isPrivate\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Note created\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.id) pm.collectionVariables.set(\"noteId\", d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Candidate Notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notes/candidate/{{candidateId}}?page=1&limit=10",
+            "description": "Notes for a candidate. Query: `page`, `limit`, `assessmentId`. Captures `noteId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Notes retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set(\"noteId\", data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Note",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/notes/{{noteId}}",
+            "description": "Update a note (`content`, `isPrivate`). Author or ADMIN only; at least one field required.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated: strong fundamentals — progress to the technical round.\",\n  \"isPrivate\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Note updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Note",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notes/{{noteId}}",
+            "description": "Soft-delete a note. Author or ADMIN only."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Note deleted\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "Per-user in-app notifications, scoped to the current user. Types: ASSESSMENT_INVITATION, ASSESSMENT_COMPLETED, RESULT_AVAILABLE, PAYMENT_SUCCESS, PAYMENT_FAILED, ASSESSMENT_EXPIRING.",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications?page=1&limit=10&status=UNREAD",
+            "description": "My notifications. Query: `page`, `limit`, `status` (UNREAD/READ). Captures `notificationId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Notifications retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set(\"notificationId\", data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/unread-count",
+            "description": "Unread count: `{ \"unreadCount\": 3 }`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Unread count retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{notificationId}}/read",
+            "description": "Mark a single notification as read (owned by the current user)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Notification marked read\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/read-all",
+            "description": "Mark all of my notifications as read. Returns `{ \"updated\": 5 }`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"All notifications marked read\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Video Interviews",
+      "description": "Proctored AI video interviews (recruiter/admin side). Create → publish → invite/session links → review reports. Defaults: seniority MID, questionCount 10, questionTimeSeconds 300 (5 min), passScore 60, proctoring/AI review on, terminateOnCritical on, maxViolations 2.",
+      "item": [
+        {
+          "name": "Get Technologies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/technologies",
+            "description": "Question-bank metadata per technology (id, label, size) plus default settings."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Technologies retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Question Bank",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/bank?technology=javascript",
+            "description": "Browse built-in bank questions. Query: `technology` (required, e.g. javascript/nodejs/python/sql/react), `q` (optional keyword). Use the returned `key` values with Add Bank Questions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Bank retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Candidates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/candidates?q=cody&limit=10",
+            "description": "Search existing platform users to pre-fill invites. Query: `q`, `limit` (1–50)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Candidates searched\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Interview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews",
+            "description": "Create an interview. Required: `title`, `technology`, `startsAt`, `expiresAt` (window is mandatory; example below uses a 2030 window — adjust as needed). Draws `questionCount` random bank questions unless `useBankQuestions: false`. Optional `customQuestions[]` (prompt, hints, expectedKeywords, modelAnswer, timeSeconds, maxScore, topic, difficulty).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Node.js Backend Screening\",\n  \"description\": \"Proctored AI video interview for backend engineers.\",\n  \"jobRole\": \"Backend Engineer\",\n  \"technology\": \"nodejs\",\n  \"seniority\": \"MID\",\n  \"questionCount\": 5,\n  \"questionTimeSeconds\": 300,\n  \"shuffleQuestions\": true,\n  \"hintsEnabled\": true,\n  \"proctoringEnabled\": true,\n  \"terminateOnCritical\": true,\n  \"aiReviewEnabled\": true,\n  \"passScore\": 60,\n  \"maxViolations\": 2,\n  \"startsAt\": \"2030-01-01T00:00:00.000Z\",\n  \"expiresAt\": \"2030-12-31T23:59:59.000Z\",\n  \"showScoreToCandidate\": true,\n  \"sendResultToCandidate\": true,\n  \"useBankQuestions\": true,\n  \"customQuestions\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview created\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.id) pm.collectionVariables.set(\"interviewId\", d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Interviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews?page=1&limit=10&status=DRAFT",
+            "description": "List interviews. Query: `page`, `limit`, `q`, `status` (DRAFT/ACTIVE/CLOSED/ARCHIVED), `technology`, `companyId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interviews retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Interview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}",
+            "description": "Interview detail: full question set, public candidate link and session stats. Captures `interviewToken` from the candidate link."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "const link = d.candidateLink || d.link || d.publicLink || d.joinUrl || \"\";",
+                  "const m = String(link).match(/token=([A-Za-z0-9_-]+)/);",
+                  "if (m) pm.collectionVariables.set(\"interviewToken\", m[1]);",
+                  "else if (d.token) pm.collectionVariables.set(\"interviewToken\", d.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Interview",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}",
+            "description": "Update interview settings (partial): timings, pass mark, proctoring, AI review, shuffling, technologies, status, …",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"passScore\": 70,\n  \"questionTimeSeconds\": 240,\n  \"proctoringEnabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Interview",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}",
+            "description": "Archive the interview (soft delete)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview archived\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish Interview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/publish",
+            "description": "Publish — the public candidate link goes live within the startsAt/expiresAt window."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview published\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Close Interview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/close",
+            "description": "Stop accepting new candidates."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview closed\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reopen Interview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/reopen",
+            "description": "Re-open a closed interview. Optional body: new `expiresAt` (ISO datetime); when omitted an expired window is extended by a default window.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expiresAt\": \"2030-12-31T23:59:59.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview reopened\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Regenerate Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/regenerate-questions",
+            "description": "Redraw the random bank sample. `keepCustomQuestions` (default true) preserves organisation-authored questions in place.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"questionCount\": 5,\n  \"keepCustomQuestions\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Questions regenerated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/questions",
+            "description": "Add an organisation-authored question. Required: `prompt` (≥10 chars). Defaults: `hints: []`, `expectedKeywords: []`, `maxScore: 10`, `difficulty: MEDIUM`, `timeSeconds` inherits questionTimeSeconds. Captures `interviewQuestionId`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Explain the Node.js event loop and how microtasks differ from macrotasks.\",\n  \"hints\": [\n    \"Think about the phases: timers, poll, check\",\n    \"Promise callbacks are microtasks, setTimeout callbacks are macrotasks\"\n  ],\n  \"expectedKeywords\": [\n    \"event loop\",\n    \"microtask\",\n    \"macrotask\",\n    \"phases\"\n  ],\n  \"modelAnswer\": \"The event loop runs phases (timers, pending callbacks, poll, check, close) and after each phase drains the microtask queue (promise callbacks, process.nextTick) runs to completion before continuing.\",\n  \"timeSeconds\": 300,\n  \"maxScore\": 10,\n  \"topic\": \"nodejs\",\n  \"difficulty\": \"MEDIUM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Question added\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "if (d.id) pm.collectionVariables.set(\"interviewQuestionId\", d.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/questions/{{interviewQuestionId}}",
+            "description": "Edit a question (all fields optional/partial).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maxScore\": 15,\n  \"difficulty\": \"HARD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Question updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Question",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/questions/{{interviewQuestionId}}",
+            "description": "Remove a question from the interview."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Question removed\", () => pm.expect(pm.response.code).to.be.oneOf([200,204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Bank Questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/questions/from-bank",
+            "description": "Cherry-pick built-in bank questions by `key` (fetch keys from Search Question Bank). Example keys are valid for technology `nodejs`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keys\": [\n    \"node-event-loop\",\n    \"node-streams\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Bank questions added\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invite Interview Candidates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/invitations",
+            "description": "Email the secured interview link. Each candidate: `email` (required), optional `name`, `sendEmail` (default true). Max 500 per call.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidates\": [\n    {\n      \"email\": \"{{candidateEmail}}\",\n      \"name\": \"Cody Candidate\",\n      \"sendEmail\": true\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview invitations sent\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Session Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/sessions",
+            "description": "Create a per-candidate invite link. Body: `candidateName`, `candidateEmail`. Captures `interviewSessionId` and `interviewToken`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateName\": \"Cody Candidate\",\n  \"candidateEmail\": \"{{candidateEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session link created\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));",
+                  "const body = pm.response.json();",
+                  "const d = (body && body.data) || {};",
+                  "const s = d.session || d;",
+                  "if (s.id) pm.collectionVariables.set(\"interviewSessionId\", s.id);",
+                  "if (s.token || d.token || d.inviteToken) pm.collectionVariables.set(\"interviewToken\", s.token || d.token || d.inviteToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/sessions?page=1&limit=10",
+            "description": "Sessions with marks, integrity, violations and the AI decision. Query: `page`, `limit`, `status` (NOT_STARTED/IN_PROGRESS/PROCESSING/REVIEWED/TERMINATED), `decision` (STRONG_HIRE/HIRE/MAYBE/NO_HIRE)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Sessions retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "const list = (data && data.sessions) || data;",
+                  "if (Array.isArray(list) && list[0] && list[0].id) pm.collectionVariables.set(\"interviewSessionId\", list[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/sessions/{{interviewSessionId}}",
+            "description": "Full AI report: per-question transcript, evidence frames, marks, violations, integrity score and hiring recommendation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session report retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Session Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/sessions/{{interviewSessionId}}/resend",
+            "description": "Re-send the invite email for a session link."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invite resent\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Re-run AI Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/sessions/{{interviewSessionId}}/review",
+            "description": "Re-run the AI review (e.g. after enabling the LLM provider)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Review queued\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Interview Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/interviews/{{interviewId}}/report",
+            "description": "Aggregate report: averages, pass rate, per-question performance, violation breakdown."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Interview report retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Interview Sessions (Candidate)",
+      "description": "Public candidate flow at /api/v1/interview-sessions/:token — no login required. `{{interviewToken}}` is either the shared interview link token or a per-candidate invite token (capture it via Create Session Link / Get Interview). Proctoring: the browser reports signals; the server assigns severity, deducts integrity and decides termination (first CRITICAL violation ends the session with score 0 when terminateOnCritical is on).",
+      "item": [
+        {
+          "name": "Get Interview (Pre-flight)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}",
+            "description": "Pre-flight info: interview details, proctoring policy and the consent rules shown to the candidate. Public. Rate-limited.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Pre-flight info retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/start",
+            "description": "Start or resume a session. `consentGiven: true` is required (camera/microphone + recording acknowledgement). Optional: `candidateName`, `candidateEmail`, `deviceInfo`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consentGiven\": true,\n  \"candidateName\": \"Cody Candidate\",\n  \"candidateEmail\": \"{{candidateEmail}}\",\n  \"deviceInfo\": {\n    \"userAgent\": \"Postman\",\n    \"platform\": \"win32\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session started\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Request Verify Code",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/verify/request",
+            "description": "Email-ownership gate for personal invite links: send a one-time 6-digit code to the invited address. Public. Rate-limited.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Verification code requested\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm Verify Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/verify/confirm",
+            "description": "Submit the 6-digit code; on success the session is bound to the email owner. Rate-limited.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Code accepted\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session State",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/state",
+            "description": "Current proctoring state: status, integrity score, termination reason. Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"State retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Report Violation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/violations",
+            "description": "Report a proctoring signal. `type`: TAB_SWITCH, WINDOW_BLUR, FULLSCREEN_EXIT, MULTIPLE_FACES, DEVICE_DETECTED, NOISE_DETECTED, FACE_NOT_VISIBLE, CAMERA_BLOCKED, MICROPHONE_BLOCKED, LOOKING_AWAY, COPY, PASTE. Optional: `questionId`, `description`, `metadata`, `snapshot` (base64 image).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"TAB_SWITCH\",\n  \"description\": \"Candidate left the fullscreen exam window.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Violation reported\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save Answer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/answers/{{interviewQuestionId}}",
+            "description": "Store one recorded answer: `transcript`, optional `recordingUrl` (http(s) or inline base64 video), `recordingSeconds`, `audioLevelAvg`, `videoFrames`, `snapshots[]`, `hintsUsed`, `hintsRevealed[]`, `timeSpentSeconds`, `status` (SUBMITTED/SKIPPED/IN_PROGRESS).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transcript\": \"The event loop processes macrotasks like timers and I/O and drains microtasks such as promise callbacks after every step.\",\n  \"timeSpentSeconds\": 120,\n  \"hintsUsed\": 0,\n  \"hintsRevealed\": [],\n  \"status\": \"SUBMITTED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Answer stored\", () => pm.expect(pm.response.code).to.be.oneOf([200,201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/submit",
+            "description": "Finish the interview — runs the AI review and reports marks back to the organisation. `reason`: CANDIDATE_SUBMIT (default), TIME_EXPIRED, PROCTORING.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"CANDIDATE_SUBMIT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Session submitted\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session Result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/interview-sessions/{{interviewToken}}/result",
+            "description": "Candidate-visible outcome: score (hidden when the organisation turns it off), feedback, pass/fail, recommendation.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Result retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
       "name": "Admin",
+      "description": "Platform administration. **Role:** ADMIN for every request in this folder.",
       "item": [
         {
           "name": "Dashboard Stats",
@@ -1435,8 +4521,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/dashboard-stats"
-          }
+            "url": "{{baseUrl}}/admin/dashboard-stats",
+            "description": "Platform statistics: users, candidates, recruiters, companies, assessments, completed attempts, payments, revenue, active/suspended users."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Stats retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Users",
@@ -1448,8 +4546,22 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/users?page=1&limit=10"
-          }
+            "url": "{{baseUrl}}/admin/users?page=1&limit=10",
+            "description": "All users. Query: `page`, `limit`, `q`, `role`, `status`, `sortBy`, `sortOrder`. Captures `userId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Users retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const data = pm.response.json().data;",
+                  "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set(\"userId\", data[0].id);"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get User",
@@ -1461,8 +4573,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/users/{{userId}}"
-          }
+            "url": "{{baseUrl}}/admin/users/{{userId}}",
+            "description": "User details by id (profile, status, company, activity)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"User retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update User Status",
@@ -1479,11 +4603,28 @@
               }
             ],
             "url": "{{baseUrl}}/admin/users/{{userId}}/status",
+            "description": "Change user status: ACTIVE | SUSPENDED | DELETED. Suspended users cannot access protected resources.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
+              "raw": "{\n  \"status\": \"SUSPENDED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update User Role",
@@ -1500,11 +4641,28 @@
               }
             ],
             "url": "{{baseUrl}}/admin/users/{{userId}}/role",
+            "description": "Change user role: CANDIDATE | RECRUITER | ADMIN.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"role\": \"RECRUITER\"\n}"
+              "raw": "{\n  \"role\": \"RECRUITER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Role updated\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Companies",
@@ -1516,8 +4674,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/companies"
-          }
+            "url": "{{baseUrl}}/admin/companies?page=1&limit=10",
+            "description": "All companies, including soft-deleted. Query: `page`, `limit`, `q`, `sortBy`, `sortOrder`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Companies retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Assessments",
@@ -1529,8 +4699,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/assessments"
-          }
+            "url": "{{baseUrl}}/admin/assessments?page=1&limit=10",
+            "description": "All assessments across every company. Query: `page`, `limit`, `q`, `status`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Assessments retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Problems",
@@ -1542,8 +4724,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/problems"
-          }
+            "url": "{{baseUrl}}/admin/problems?page=1&limit=10",
+            "description": "All problems. Query: `page`, `limit`, `q`, `type`, `difficulty`, `status`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Problems retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "List Payments",
@@ -1555,8 +4749,20 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/payments"
-          }
+            "url": "{{baseUrl}}/admin/payments?page=1&limit=10",
+            "description": "All payments with filtering. Query: `page`, `limit`, `status`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Payments retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Audit Logs",
@@ -1568,8 +4774,95 @@
                 "value": "Bearer {{accessToken}}"
               }
             ],
-            "url": "{{baseUrl}}/admin/audit-logs?page=1&limit=20"
-          }
+            "url": "{{baseUrl}}/admin/audit-logs?page=1&limit=20",
+            "description": "Audit trail of critical operations. Query: `page`, `limit`, `action`, `entityType`, `actorId`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Audit logs retrieved\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Health & Docs",
+      "description": "Health, smoke test and API docs. Banner/health are root-level (public, `{{serverUrl}}`); Swagger lives under `{{baseUrl}}/docs`.",
+      "item": [
+        {
+          "name": "API Banner",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{serverUrl}}/",
+            "description": "Service banner / smoke test. Public. Returns a small JSON payload describing the API.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"API reachable\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{serverUrl}}/health",
+            "description": "Health check (available when enabled in `app.ts`). Public. Response: `{ \"success\": true, \"data\": { \"status\": \"ok\" } }`.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"API is healthy\", () => pm.expect(pm.response.code).to.be.oneOf([200,503]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/docs",
+            "description": "Interactive Swagger/OpenAPI documentation served by the API (`{{baseUrl}}/docs`). Public.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Swagger UI served\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
