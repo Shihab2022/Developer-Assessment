@@ -19,14 +19,15 @@ export default function EvaluationsPage() {
     <>
       <PageHeader
         title="Evaluations"
-        subtitle="Written answers waiting for manual scoring"
+        subtitle="Written answers waiting for manual scoring — coding submissions are scored automatically"
       />
       {isLoading ? (
         <Spinner className="mx-auto my-12" />
       ) : pending.length === 0 ? (
         <Card>
           <CardBody className="py-10 text-center text-sm text-muted-foreground">
-            Nothing waiting for evaluation. Coding submissions are scored automatically.
+            Nothing waiting for evaluation. Coding submissions are scored
+            automatically; written answers appear here once candidates submit.
           </CardBody>
         </Card>
       ) : (
@@ -41,7 +42,7 @@ export default function EvaluationsPage() {
                   <p className="text-sm text-muted-foreground">
                     {item.problem?.title ?? "Problem"} ·{" "}
                     {item.attempt?.assessment?.title ?? ""} ·{" "}
-                    {humanizeEnum(item.type)}
+                    {humanizeEnum(item.type)} · max {item.maxScore ?? item.problem?.points ?? "—"} pts
                   </p>
                 </div>
                 <Button size="sm" onClick={() => setScoring(item)}>

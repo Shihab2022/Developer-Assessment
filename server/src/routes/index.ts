@@ -16,10 +16,12 @@ import {
 import {
   SubmissionRouter,
   attemptSubmissionsRouter,
+  assessmentSubmissionsRouter,
 } from "../modules/submissions/submissions.routes";
 import {
   EvaluationRouter,
   attemptEvaluationRouter,
+  assessmentEvaluationRouter,
 } from "../modules/evaluations/evaluations.routes";
 import {
   ResultRouter,
@@ -33,7 +35,6 @@ import {
 import { assessmentAnalyticsRouter } from "../modules/analytics/analytics.routes";
 import { PaymentRouter } from "../modules/payments/payments.routes";
 import { AdminRouter } from "../modules/admin/admin.routes";
-import { AssessmentTemplateRouter } from "../modules/assessment-templates/assessment-templates.routes";
 import { NoteRouter } from "../modules/notes/notes.routes";
 import { NotificationRouter } from "../modules/notifications/notifications.routes";
 import { DashboardRouter } from "../modules/dashboard/dashboard.routes";
@@ -68,8 +69,8 @@ router.use("/assessments", AssessmentRouter);
 
 // Assessment sub-resources
 router.use("/assessments/:id/attempts", startAttemptRouter);
-router.use("/assessments/:id/submissions", attemptSubmissionsRouter);
-router.use("/assessments/:id/evaluations", attemptEvaluationRouter);
+router.use("/assessments/:id/submissions", assessmentSubmissionsRouter);
+router.use("/assessments/:id/evaluations", assessmentEvaluationRouter);
 router.use("/assessments/:id/results", assessmentResultRouter);
 router.use("/assessments/:id/report", assessmentReportRouter);
 router.use("/assessments/:id/analytics", assessmentAnalyticsRouter);
@@ -98,9 +99,6 @@ router.use("/payments", PaymentRouter);
 
 // Admin: /api/v1/admin
 router.use("/admin", AdminRouter);
-
-// Assessment Templates: /api/v1/assessment-templates
-router.use("/assessment-templates", AssessmentTemplateRouter);
 
 // Notes: /api/v1/notes
 router.use("/notes", NoteRouter);

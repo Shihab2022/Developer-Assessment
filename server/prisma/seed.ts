@@ -24,7 +24,7 @@ async function main() {
   console.log("Seeding database...");
 
   // ---------- Users ----------
-  const admin = await prisma.user.upsert({
+  const _admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {},
     create: {
@@ -177,6 +177,74 @@ async function main() {
       },
     },
   });
+
+  // ---------- Platform (global) question bank ----------
+  // `companyId: null` marks a question as shared platform content, so every
+  // recruiter sees it under “All questions” / “Platform library” in the bank.
+  const platformProblems = [
+    {
+      id: "00000000-0000-4000-8000-000000000006",
+      title: "Understanding Time Complexity",
+      description:
+        "Which notation describes the guaranteed upper bound on an algorithm's running time?",
+      type: "MCQ",
+      difficulty: "EASY",
+      category: "algorithms",
+      points: 5,
+      options: [
+        { text: "Big-O notation", isCorrect: true, order: 0 },
+        { text: "Big-Theta notation", isCorrect: false, order: 1 },
+        { text: "Big-Omega notation", isCorrect: false, order: 2 },
+        { text: "Little-o notation", isCorrect: false, order: 3 },
+      ],
+    },
+    {
+      id: "00000000-0000-4000-8000-000000000007",
+      title: "Reverse a String",
+      description:
+        "Write a function `solve(text)` that returns the characters of `text` in reverse order.",
+      type: "CODING",
+      difficulty: "EASY",
+      category: "strings",
+      points: 10,
+      testCases: [
+        { input: "abc", expectedOutput: "cba", isHidden: false, order: 0 },
+        { input: "hello", expectedOutput: "olleh", isHidden: true, order: 1 },
+      ],
+    },
+    {
+      id: "00000000-0000-4000-8000-000000000008",
+      title: "Design a Rate Limiter",
+      description:
+        "Describe how you would design a rate limiter for a public API. Cover the algorithm you would choose and how you would store counters.",
+      type: "WRITTEN",
+      difficulty: "MEDIUM",
+      category: "system-design",
+      points: 10,
+      expectedAnswer: {
+        keywords: ["token bucket", "fixed window", "sliding window", "redis", "per-key"],
+        guidance:
+          "A strong answer compares fixed/sliding window and token-bucket approaches, names a shared store such as Redis, and mentions per-key limits plus graceful 429 responses.",
+      },
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ] as any[];
+
+  for (const problem of platformProblems) {
+    const { options, testCases, ...scalar } = problem;
+    await prisma.problem.upsert({
+      where: { id: problem.id },
+      update: {},
+      create: {
+        ...scalar,
+        status: "ACTIVE",
+        createdBy: recruiter.id,
+        companyId: null,
+        options: options ? { create: options } : undefined,
+        testCases: testCases ? { create: testCases } : undefined,
+      },
+    });
+  }
 
   // ---------- Assessment ----------
   const assessment = await prisma.assessment.upsert({

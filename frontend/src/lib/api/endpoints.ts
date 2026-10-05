@@ -115,13 +115,6 @@ export const endpoints = {
     list: "/payments",
   },
 
-  templates: {
-    list: "/assessment-templates",
-    create: "/assessment-templates",
-    byId: (id: string) => `/assessment-templates/${id}`,
-    use: (id: string) => `/assessment-templates/${id}/use`,
-  },
-
   notes: {
     create: "/notes",
     byCandidate: (candidateId: string) => `/notes/candidate/${candidateId}`,

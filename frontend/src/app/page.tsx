@@ -10,7 +10,6 @@ import {
   Code2,
   Coins,
   FilePlus2,
-  LayoutTemplate,
   Library,
   ListOrdered,
   MailPlus,
@@ -77,7 +76,6 @@ const STEP_ICONS: Record<string, React.ElementType> = {
 const CAPABILITY_ICONS: Record<string, React.ElementType> = {
   Award,
   ListOrdered,
-  LayoutTemplate,
   Users,
   Coins,
   Bell,
@@ -578,7 +576,7 @@ export default function HomePage() {
                 <ul className="mt-5 space-y-3">
                   <FeatureItem>Attach visible and hidden test cases with expected output</FeatureItem>
                   <FeatureItem>Set allowed languages, points, time and memory limits</FeatureItem>
-                  <FeatureItem>Save a full paper as a template and duplicate it per round</FeatureItem>
+                  <FeatureItem>Duplicate an assessment into a fresh draft for every round</FeatureItem>
                   <FeatureItem>Keep everything in draft until the paper is ready to publish</FeatureItem>
                 </ul>
               </div>

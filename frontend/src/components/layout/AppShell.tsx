@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList, Users, Building2, Library,
   FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
   Coins, CreditCard, ShieldCheck, Lock, ScrollText, Menu,
-  LogOut, User as UserIcon, LayoutTemplate, Video,
+  LogOut, User as UserIcon, Video,
 } from "lucide-react";
 import { useLogout } from "@/hooks/useAuth";
 import { useRecruiterDashboard, useCandidateDashboard } from "@/hooks/useDashboard";
@@ -26,13 +26,11 @@ import {
   ROLE_TONES,
   type NavItem,
 } from "@/lib/constants";
-import type { Role } from "@/lib/types";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   LayoutDashboard, ClipboardList, Users, Building2, Library,
   FileText, BarChart3, Trophy, History, Mail, Terminal, PenLine,
-  Coins, CreditCard, ShieldCheck, Lock, ScrollText,
-  LayoutTemplate,
+  Coins, CreditCard, ShieldCheck, Lock, ScrollText, Video,
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -43,15 +41,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     (s) => ({ sidebarOpen: s.sidebarOpen, toggleSidebar: s.toggleSidebar, setSidebarOpen: s.setSidebarOpen }),
   );
   const logout = useLogout();
+  // Hooks must run before any early return so the hook order never changes.
+  const recruiterDash = useRecruiterDashboard();
+  const candidateDash = useCandidateDashboard();
 
   if (!user) return null;
 
   const nav = navForRole(user.role);
   const primaryNav = nav.filter((n) => !n.secondary);
   const secondaryNav = nav.filter((n) => n.secondary);
-
-  const recruiterDash = useRecruiterDashboard();
-  const candidateDash = useCandidateDashboard();
 
   const badgeFor = (badgeType?: string): number | undefined => {
     if (!badgeType) return undefined;

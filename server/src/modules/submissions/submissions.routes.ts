@@ -41,3 +41,15 @@ attemptSubmissionsRouter.get(
   validate(attemptSubmissionsQuerySchema),
   SubmissionController.listForAttempt,
 );
+
+/**
+ * Assessment-scoped router mounted at `/assessments/:id/submissions`.
+ * `:id` is an assessment id here, so it must not reuse the attempt handler.
+ */
+export const assessmentSubmissionsRouter = express.Router({ mergeParams: true });
+
+assessmentSubmissionsRouter.get(
+  "/",
+  auth("RECRUITER", "ADMIN"),
+  SubmissionController.listForAssessment,
+);

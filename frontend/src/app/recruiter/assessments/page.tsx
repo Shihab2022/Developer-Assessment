@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/Badge";
 import { SelectField } from "@/components/ui/Select";
-import { Trash2, Edit, RefreshCw, ExternalLink } from "lucide-react";
+import { Trash2, Edit, RefreshCw, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 import { ASSESSMENT_STATUSES, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
@@ -27,9 +27,14 @@ function AssessmentActions({ assessmentId, status }: { assessmentId: string; sta
 
   return (
     <>
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size="sm" asChild title="View details">
         <Link href={`/recruiter/assessments/${assessmentId}`}>
           <ExternalLink className="size-4" />
+        </Link>
+      </Button>
+      <Button variant="ghost" size="sm" asChild title="Add questions">
+        <Link href={`/recruiter/assessments/${assessmentId}?tab=Problems`}>
+          <Plus className="size-4" />
         </Link>
       </Button>
       <Button variant="ghost" size="sm" asChild>

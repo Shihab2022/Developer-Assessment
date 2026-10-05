@@ -451,6 +451,46 @@ const listForAttempt = async (user: IAuthUser, attemptId: string) => {
   return evaluations;
 };
 
+/**
+ * Assessment-scoped listing used by `GET /assessments/:id/evaluations`.
+ * The route param is an assessment id, so ownership is checked against the
+ * assessment rather than a single attempt.
+ */
+const listForAssessment = async (user: IAuthUser, assessmentId: string) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id: assessmentId, deletedAt: null },
+    select: { id: true, companyId: true, createdBy: true },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  if (user.role === "RECRUITER") {
+    if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "You do not have access to this assessment",
+      );
+    }
+  } else if (user.role === "CANDIDATE") {
+    throw new ApiError(httpStatus.FORBIDDEN, "Candidates cannot list evaluations");
+  }
+
+  return prisma.evaluation.findMany({
+    where: { attempt: { assessmentId } },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    include: {
+      problem: { select: { id: true, title: true, type: true } },
+      evaluator: { select: { id: true, name: true } },
+      attempt: {
+        select: {
+          id: true,
+          status: true,
+          candidate: { select: { id: true, name: true, email: true } },
+        },
+      },
+    },
+  });
+};
+
 const listPending = async (
   user: IAuthUser,
   query: { page?: number; limit?: number },
@@ -463,10 +503,16 @@ const listPending = async (
     type: "WRITTEN",
   };
 
-  // Recruiters only see pending evaluations for their own company's assessments.
+  // Recruiters only see pending evaluations for their own company's assessments
+  // (or assessments they personally created when they have no company).
   if (user.role === "RECRUITER") {
     const assessments = await prisma.assessment.findMany({
-      where: user.companyId ? { companyId: user.companyId } : {},
+      where: {
+        OR: [
+          ...(user.companyId ? [{ companyId: user.companyId }] : []),
+          { createdBy: user.id },
+        ],
+      },
       select: { id: true },
     });
     where.attempt = { assessmentId: { in: assessments.map((a) => a.id) } };
@@ -502,5 +548,6 @@ export const EvaluationServices = {
   evaluateCodingSubmission,
   recalculateResult,
   listForAttempt,
+  listForAssessment,
   listPending,
 };

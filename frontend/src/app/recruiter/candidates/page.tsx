@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useCompanies, useCompanyCandidates, useUpdateCandidateStatus } from "@/hooks/useCompanies";
-import { Card, CardBody, PageHeader } from "@/components/ui/Card";
+import { useCurrentUser } from "@/store/auth";
+import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { SelectField } from "@/components/ui/Select";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Primitives";
@@ -11,10 +12,37 @@ import { RECRUITMENT_STATUSES } from "@/lib/constants";
 import type { CompanyCandidateRow } from "@/lib/types";
 
 export default function CandidatesPage() {
-  const { data: companies } = useCompanies({ limit: 50 });
+  const me = useCurrentUser();
+  const isAdmin = me?.role === "ADMIN";
+  const ownCompanyId = me?.companyId ?? "";
+
+  // Admins may inspect any company; everyone else is locked to the company they
+  // belong to, so a recruiter can only ever see their own organisation's pipeline.
+  // Only administrators need the all-company directory to populate the filter.
+  // Recruiters use their authenticated company id directly and never fetch it.
+  const { data: companies } = useCompanies({ limit: 50 }, { enabled: Boolean(isAdmin) });
   const [companyId, setCompanyId] = useState("");
 
   const options = (companies?.data ?? []).map((c) => ({ value: c.id, label: c.name }));
+  const selectedCompanyId = isAdmin ? companyId : ownCompanyId;
+  const ownCompanyName = !isAdmin ? "Your company" : undefined;
+
+  if (!isAdmin && !ownCompanyId) {
+    return (
+      <>
+        <PageHeader
+          title="Candidates"
+          subtitle="Everyone your company has invited, and where they stand"
+        />
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            You are not part of a company yet — ask a company owner to add you to
+            their team before reviewing candidates.
+          </CardBody>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
@@ -22,21 +50,36 @@ export default function CandidatesPage() {
         title="Candidates"
         subtitle="Everyone your company has invited, and where they stand"
       />
+
       <Card className="mb-4">
+        <CardHeader
+          title={isAdmin ? "Filter by company" : ownCompanyName ?? "Your company"}
+          subtitle={
+            isAdmin
+              ? "Platform admins can review any company's candidate pipeline."
+              : "You only see candidates invited by your own organisation."
+          }
+        />
         <CardBody>
-          <SelectField
-            label="Company"
-            placeholder="Select a company"
-            value={companyId}
-            onValueChange={setCompanyId}
-            options={options}
-            className="max-w-md"
-          />
+          {isAdmin ? (
+            <SelectField
+              label="Company"
+              placeholder="Select a company"
+              value={companyId}
+              onValueChange={setCompanyId}
+              options={options}
+              className="max-w-md"
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Candidates are scoped to <b>{ownCompanyName ?? "your company"}</b>.
+            </p>
+          )}
         </CardBody>
       </Card>
 
-      {companyId ? (
-        <CandidateTable companyId={companyId} />
+      {selectedCompanyId ? (
+        <CandidateTable companyId={selectedCompanyId} />
       ) : (
         <Card>
           <CardBody className="py-10 text-center text-sm text-muted-foreground">

@@ -40,6 +40,19 @@ const listForAttempt = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+/** `GET /assessments/:id/submissions` — every submission for an assessment. */
+const listForAssessment = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await SubmissionServices.listForAssessment(
+    req.user!,
+    String(req.params.id),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Submissions retrieved successfully",
+    data: result,
+  });
+});
+
 const evaluate = catchAsync(async (req: AuthRequest, res: Response) => {
   const result = await SubmissionServices.evaluate(
     req.user!,
@@ -57,5 +70,6 @@ export const SubmissionController = {
   create,
   getById,
   listForAttempt,
+  listForAssessment,
   evaluate,
 };

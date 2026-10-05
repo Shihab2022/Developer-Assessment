@@ -305,6 +305,50 @@ export const useCompetitionsStore = create<CompetitionsState>()(
       name: "skillgauge-competitions",
       storage: createJSONStorage(() => localStorage),
       version: 1,
+      /**
+       * Normalise whatever was persisted: older builds (or a corrupted
+       * localStorage payload) can miss `items` / `tags` / answer maps, and the
+       * UI reads `.length` on them while rendering the share page — this merge
+       * guarantees every collection exists before React ever sees it.
+       */
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<CompetitionsState>;
+        const defaultRules: import("@/lib/competitions/types").CompetitionRules = {
+          durationMinutes: 60,
+          access: "LINK",
+          maxAttempts: 1,
+          passPercent: 60,
+          shuffleQuestions: true,
+          shuffleOptions: true,
+          showLeaderboard: true,
+          showExplanations: true,
+          antiCheat: true,
+        };
+        return {
+          ...current,
+          ...p,
+          competitions: (p.competitions ?? []).map((c) => ({
+            ...c,
+            tags: c?.tags ?? [],
+            items: c?.items ?? [],
+            rules: { ...defaultRules, ...(c?.rules ?? {}) },
+            description: c?.description ?? "",
+            inviteCode: c?.inviteCode ?? "",
+          })),
+          ownQuestions: p.ownQuestions ?? [],
+          entries: (p.entries ?? []).map((e) => ({
+            ...e,
+            answers: e?.answers ?? {},
+            coding: e?.coding ?? {},
+            manualScores: e?.manualScores ?? {},
+            optionOrders: e?.optionOrders ?? {},
+            questionOrder: e?.questionOrder ?? [],
+            proctorEvents: e?.proctorEvents ?? [],
+          })),
+          banks: p.banks ?? {},
+          banksReady: false,
+        } as CompetitionsState;
+      },
     },
   ),
 );
@@ -422,7 +466,7 @@ export async function loadCompetitionBanks(): Promise<void> {
       }
     }
     set({ banks, banksReady: ready });
-  } catch (error) {
+  } catch {
     set({ banks: {}, banksReady: false });
   }
 }

@@ -100,6 +100,8 @@ export const problemQuerySchema = z.object({
       difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
       category: z.string().optional(),
       status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]).optional(),
+      /** `all` (default): company + own + platform, `mine`: company + own, `platform`: shared bank. */
+      scope: z.enum(["all", "mine", "platform"]).optional(),
       tags: z.string().optional(),
       skills: z.string().optional(),
     })

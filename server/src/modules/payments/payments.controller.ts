@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import httpStatus from "http-status";
 import catchAsync from "../../helpers/catchAsync";
 import sendResponse from "../../helpers/sendResponse";
+import config from "../../config";
 import { AuthRequest } from "../../middlewares/auth";
 import { PaymentServices } from "./payments.service";
 import { paginate } from "../../helpers/utils";
@@ -60,6 +61,18 @@ const ipn = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const mock = catchAsync(async (req: Request, res: Response) => {
+  const transactionId = String(req.query.transactionId ?? "");
+  if (!transactionId) {
+    return res.status(400).json({ success: false, message: "Missing transactionId" });
+  }
+  // Completing the payment also credits the company — the redirect is all the
+  // buyer needs to see, so the payload itself is unused here.
+  await PaymentServices.completeMockPayment(transactionId);
+  const redirectTo = `${config.frontend_url}/recruiter/credits?payment=success`;
+  return res.redirect(302, redirectTo);
+});
+
 const getById = catchAsync(async (req: AuthRequest, res: Response) => {
   const result = await PaymentServices.getById(req.user!, String(req.params.id));
   sendResponse(res, {
@@ -95,6 +108,7 @@ const listPackages = catchAsync(async (_req: Request, res: Response) => {
 
 export const PaymentController = {
   initiate,
+  mock,
   success,
   fail,
   cancel,

@@ -9,6 +9,11 @@ const recruiterDashboard = async (user: IAuthUser) => {
   }
   const companyId = user.role === "RECRUITER" ? user.companyId ?? null : null;
   const companyFilter: Record<string, unknown> = companyId ? { companyId } : {};
+  // `Result` is only reachable through its assessment (the model has no
+  // companyId column), so results are scoped via the assessment relation.
+  const resultFilter: Record<string, unknown> = companyId
+    ? { assessment: { companyId } }
+    : {};
   const [
     totalAssessments, activeAssessments, draftAssessments, closedAssessments,
     totalInvitations, pendingInvitations, acceptedInvitations,
@@ -27,13 +32,18 @@ const recruiterDashboard = async (user: IAuthUser) => {
     prisma.attempt.count({ where: { ...companyFilter } }),
     prisma.attempt.count({ where: { ...companyFilter, status: { in: ["COMPLETED", "SUBMITTED", "AUTO_SUBMITTED"] } } }),
     prisma.attempt.count({ where: { ...companyFilter, status: "IN_PROGRESS" } }),
-    prisma.result.count({ where: { ...companyFilter } }),
-    prisma.result.count({ where: { ...companyFilter, passed: true } }),
+    prisma.result.count({ where: { ...resultFilter } }),
+    prisma.result.count({ where: { ...resultFilter, passed: true } }),
     prisma.problem.count({ where: { ...companyFilter, deletedAt: null } }),
     prisma.problem.count({ where: { ...companyFilter, status: "ACTIVE", deletedAt: null } }),
     prisma.assessment.findMany({ where: { ...companyFilter, deletedAt: null }, take: 5, orderBy: { createdAt: "desc" }, select: { id: true, title: true, status: true, createdAt: true } }),
-    prisma.result.findMany({ where: { ...companyFilter }, take: 5, orderBy: { createdAt: "desc" }, include: { candidate: { select: { id: true, name: true } }, assessment: { select: { id: true, title: true } } } }),
-    prisma.evaluation.count({ where: { status: "PENDING" } }),
+    prisma.result.findMany({ where: { ...resultFilter }, take: 5, orderBy: { createdAt: "desc" }, include: { candidate: { select: { id: true, name: true } }, assessment: { select: { id: true, title: true } } } }),
+    prisma.evaluation.count({
+      where: {
+        status: "PENDING",
+        ...(companyId ? { attempt: { assessment: { companyId } } } : {}),
+      },
+    }),
   ]);
   const passRate = totalResults > 0 ? Math.round((passedResults / totalResults) * 100) : 0;
   const completionRate = totalInvitations > 0 ? Math.round((acceptedInvitations / totalInvitations) * 100) : 0;

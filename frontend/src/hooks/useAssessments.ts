@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { assessmentsApi, getErrorMessage, reportsApi } from "@/lib/api";
+import { assessmentsApi, getErrorMessage, getErrorStatus, reportsApi } from "@/lib/api";
 import type {
   AssessmentListParams,
   AssessmentProblemPayload,
@@ -183,13 +184,30 @@ const LIFECYCLE_MESSAGE: Record<LifecycleAction, string> = {
 /** Single hook for the DRAFT → PUBLISHED → CLOSED → ARCHIVED lifecycle. */
 export function useAssessmentLifecycle(id: string) {
   const invalidate = useInvalidateAssessment();
+  const router = useRouter();
   return useMutation({
     mutationFn: (action: LifecycleAction) => LIFECYCLE_CALL[action](id),
     onSuccess: (_data, action) => {
       invalidate(id);
       toast.success(LIFECYCLE_MESSAGE[action]);
     },
-    onError: (error) => toast.error(getErrorMessage(error)),
+    onError: (error) => {
+      // 402 means the company ran out of assessment credits — point the hiring
+      // team to the purchase page instead of showing a dead-end message.
+      if (getErrorStatus(error) === 402) {
+        toast.error("Publishing needs one assessment credit", {
+          description:
+            "Your company credit balance is too low. Open Credits & billing to buy a package.",
+          action: {
+            label: "Buy credits",
+            onClick: () => router.push("/recruiter/credits"),
+          },
+          duration: 8000,
+        });
+        return;
+      }
+      toast.error(getErrorMessage(error));
+    },
   });
 }
 
@@ -269,14 +287,15 @@ export function useInviteCandidates(id: string) {
   return useMutation({
     mutationFn: (candidates: { email: string; expiresAt?: string }[]) =>
       assessmentsApi.invite(id, candidates),
-    onSuccess: (_data, candidates) => {
+    onSuccess: (result, candidates) => {
       invalidate(id);
       queryClient.invalidateQueries({ queryKey: qk.companies.all });
-      toast.success(
+      const skipped = (result as { skipped?: number } | undefined)?.skipped ?? 0;
+      const base =
         candidates.length === 1
           ? "Invitation sent"
-          : `${candidates.length} invitations processed`,
-      );
+          : `${candidates.length} invitations processed`;
+      toast.success(skipped > 0 ? `${base} — ${skipped} already invited` : base);
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   });

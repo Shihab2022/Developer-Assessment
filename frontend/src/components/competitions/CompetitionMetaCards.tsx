@@ -11,12 +11,12 @@ export function CompetitionMetaCards({ competition }: { competition: Competition
     {
       icon: Timer,
       label: "Duration",
-      value: `${competition.rules.durationMinutes} minutes`,
+      value: `${competition.rules?.durationMinutes ?? 60} minutes`,
     },
     {
       icon: ListOrdered,
       label: "Paper",
-      value: `${competition.items.length} ${pluralize(competition.items.length, "question")}`,
+      value: `${competition.items?.length ?? 0} ${pluralize(competition.items?.length ?? 0, "question")}`,
     },
     {
       icon: CalendarClock,

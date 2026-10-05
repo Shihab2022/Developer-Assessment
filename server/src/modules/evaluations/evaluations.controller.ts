@@ -35,6 +35,19 @@ const listForAttempt = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
+/** `GET /assessments/:id/evaluations` — every evaluation for an assessment. */
+const listForAssessment = catchAsync(async (req: AuthRequest, res: Response) => {
+  const result = await EvaluationServices.listForAssessment(
+    req.user!,
+    String(req.params.id),
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    message: "Evaluations retrieved successfully",
+    data: result,
+  });
+});
+
 const listPending = catchAsync(async (req: AuthRequest, res: Response) => {
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
@@ -50,5 +63,6 @@ const listPending = catchAsync(async (req: AuthRequest, res: Response) => {
 export const EvaluationController = {
   evaluateWritten,
   listForAttempt,
+  listForAssessment,
   listPending,
 };

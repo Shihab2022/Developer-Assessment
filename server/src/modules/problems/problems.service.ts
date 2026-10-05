@@ -135,6 +135,7 @@ const list = async (
     difficulty?: string;
     category?: string;
     status?: string;
+    scope?: "all" | "mine" | "platform";
     tags?: string;
     skills?: string;
   },
@@ -154,25 +155,47 @@ const list = async (
   if (query.skills) {
     where.skills = { hasSome: query.skills.split(",") };
   }
+  if (query.status) where.status = query.status;
+
+  // Search and row-level access are combined with AND so that a query never
+  // clobbers the ownership filter (or vice-versa).
+  const andFilters: Record<string, unknown>[] = [];
   if (query.q) {
-    where.OR = [
-      { title: { contains: query.q, mode: "insensitive" } },
-      { description: { contains: query.q, mode: "insensitive" } },
-      { category: { contains: query.q, mode: "insensitive" } },
-    ];
+    andFilters.push({
+      OR: [
+        { title: { contains: query.q, mode: "insensitive" } },
+        { description: { contains: query.q, mode: "insensitive" } },
+        { category: { contains: query.q, mode: "insensitive" } },
+      ],
+    });
   }
 
   if (user.role === "CANDIDATE") {
     where.status = ProblemStatus.ACTIVE;
   } else if (user.role === "RECRUITER") {
-    if (query.status) {
-      where.status = query.status;
+    // A recruiter sees their company's questions, the ones they authored and —
+    // unless they asked for `mine` — the shared platform bank, so the question
+    // bank is never empty for a newly onboarded hiring team.
+    const platform = { companyId: null, status: ProblemStatus.ACTIVE };
+    const scope = query.scope ?? "all";
+    if (scope === "platform") {
+      andFilters.push({ OR: [platform] });
+    } else if (scope === "mine") {
+      andFilters.push({
+        OR: [{ companyId: user.companyId ?? null }, { createdBy: user.id }],
+      });
     } else {
-      where.OR = [{ companyId: user.companyId ?? null }, { createdBy: user.id }];
+      andFilters.push({
+        OR: [
+          { companyId: user.companyId ?? null },
+          { createdBy: user.id },
+          platform,
+        ],
+      });
     }
-  } else {
-    if (query.status) where.status = query.status;
   }
+
+  if (andFilters.length > 0) where.AND = andFilters;
 
   const [total, data] = await Promise.all([
     prisma.problem.count({ where }),
@@ -406,10 +429,18 @@ const search = async (user: IAuthUser, q: string, page = 1, limit = 10) => {
   if (user.role === "CANDIDATE") {
     where.status = ProblemStatus.ACTIVE;
   } else if (user.role === "RECRUITER") {
-    where.OR = [
-      ...(where.OR as unknown[]),
-      { companyId: user.companyId ?? null },
-      { createdBy: user.id },
+    // Keep the keyword match AND the ownership scope independent.
+    const searchOr = where.OR;
+    delete where.OR;
+    where.AND = [
+      { OR: searchOr },
+      {
+        OR: [
+          { companyId: user.companyId ?? null },
+          { createdBy: user.id },
+          { companyId: null, status: ProblemStatus.ACTIVE },
+        ],
+      },
     ];
   }
 

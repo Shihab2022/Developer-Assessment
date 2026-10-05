@@ -1,4 +1,4 @@
-import type { AssessmentStatus, Role } from "./types";
+import type { Role } from "./types";
 
 /* ------------------------------------------------------------------ enums
  * These mirror `server/prisma/schema.prisma` exactly. They are the single
@@ -17,7 +17,6 @@ export const PROBLEM_STATUSES = ["DRAFT", "ACTIVE", "ARCHIVED"] as const;
 export const ASSESSMENT_STATUSES = ["DRAFT", "PUBLISHED", "ACTIVE", "CLOSED", "ARCHIVED"] as const;
 export const ASSESSMENT_ACCESS_LEVELS = ["PUBLIC", "PRIVATE", "INVITATION_ONLY", "ACCESS_CODE"] as const;
 export const RESULT_STRATEGIES = ["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"] as const;
-export const TEMPLATE_STATUSES = ["DRAFT", "ACTIVE", "ARCHIVED"] as const;
 
 export const COMPETITION_STATUSES = ["DRAFT", "OPEN", "CLOSED"] as const;
 
@@ -463,7 +462,6 @@ export const RECRUITER_NAV: NavItem[] = [
   { href: "/recruiter/interviews", label: "AI interviews", icon: "Video" },
   { href: "/recruiter/competitions", label: "Competitions", icon: "Trophy" },
   { href: "/recruiter/problems", label: "Question bank", icon: "Library" },
-  { href: "/recruiter/templates", label: "Templates", icon: "LayoutTemplate" },
   { href: "/recruiter/candidates", label: "Candidates", icon: "Users" },
   {
     href: "/recruiter/invitations",
@@ -480,6 +478,13 @@ export const RECRUITER_NAV: NavItem[] = [
   },
   { href: "/recruiter/results", label: "Results", icon: "Trophy" },
   { href: "/recruiter/reports", label: "Reports", icon: "BarChart3" },
+];
+
+/**
+ * Company management and billing are owner/admin concerns, so they are only
+ * appended for the COMPANY (owner) role — plain recruiters never see them.
+ */
+export const COMPANY_OWNER_EXTRA_NAV: NavItem[] = [
   { href: "/recruiter/company", label: "Company", icon: "Building2", secondary: true },
   { href: "/recruiter/credits", label: "Credits & billing", icon: "Coins", secondary: true },
 ];
@@ -512,10 +517,11 @@ export function navForRole(role: Role): NavItem[] {
   switch (role) {
     case "ADMIN":
       return ADMIN_NAV;
-    case "RECRUITER":
-    // Company owners share the recruiter workspace (extra team management is
-    // surfaced on the Company page).
     case "COMPANY":
+      // Company owner/admin: recruiter workspace + team & billing management.
+      return [...RECRUITER_NAV, ...COMPANY_OWNER_EXTRA_NAV];
+    case "RECRUITER":
+      // Plain recruiters get the workspace only — no company/billing pages.
       return RECRUITER_NAV;
     default:
       return CANDIDATE_NAV;

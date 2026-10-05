@@ -22,7 +22,6 @@ export const swaggerDocument = {
     { name: "Analytics" },
     { name: "Anti-Cheating" },
     { name: "Payments" },
-    { name: "AssessmentTemplates" },
     { name: "Notes" },
     { name: "Notifications" },
     { name: "Dashboard" },
@@ -1461,99 +1460,6 @@ Object.assign(swaggerDocument.paths, {
       },
     ],
     get: { tags: ["Payments"], summary: "Get payment details" },
-  },
-  "/assessment-templates": {
-    post: {
-      tags: ["AssessmentTemplates"],
-      summary: "Create a reusable assessment template (RECRUITER/ADMIN)",
-      requestBody: {
-        required: true,
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              required: ["title", "durationMinutes"],
-              properties: {
-                title: { type: "string" },
-                description: { type: "string" },
-                durationMinutes: { type: "integer", minimum: 5, maximum: 1440 },
-                passingScore: { type: "integer" },
-                maxAttempts: { type: "integer" },
-                shuffleProblems: { type: "boolean" },
-                shuffleOptions: { type: "boolean" },
-                showResults: { type: "boolean" },
-                antiCheatingEnabled: { type: "boolean" },
-                resultStrategy: {
-                  type: "string",
-                  enum: ["BEST_SCORE", "LATEST_SCORE", "FIRST_SCORE"],
-                },
-                accessLevel: {
-                  type: "string",
-                  enum: ["PUBLIC", "PRIVATE", "INVITATION_ONLY", "ACCESS_CODE"],
-                },
-                questionConfig: {},
-                skills: { type: "array", items: { type: "string" } },
-                difficultyDistribution: {},
-                antiCheatingSettings: {},
-                companyId: { type: "string", format: "uuid" },
-                status: { type: "string", enum: ["DRAFT", "ACTIVE", "ARCHIVED"] },
-              },
-            },
-          },
-        },
-      },
-    },
-    get: {
-      tags: ["AssessmentTemplates"],
-      summary: "List assessment templates",
-      parameters: [
-        { name: "page", in: "query", schema: { type: "integer" } },
-        { name: "limit", in: "query", schema: { type: "integer" } },
-        { name: "q", in: "query", schema: { type: "string" } },
-        { name: "status", in: "query", schema: { type: "string" } },
-        { name: "companyId", in: "query", schema: { type: "string", format: "uuid" } },
-      ],
-    },
-  },
-  "/assessment-templates/{id}": {
-    parameters: [
-      {
-        name: "id",
-        in: "path",
-        required: true,
-        schema: { type: "string", format: "uuid" },
-      },
-    ],
-    get: { tags: ["AssessmentTemplates"], summary: "Get a template" },
-    patch: { tags: ["AssessmentTemplates"], summary: "Update a template" },
-    delete: { tags: ["AssessmentTemplates"], summary: "Delete a template" },
-  },
-  "/assessment-templates/{id}/use": {
-    parameters: [
-      {
-        name: "id",
-        in: "path",
-        required: true,
-        schema: { type: "string", format: "uuid" },
-      },
-    ],
-    post: {
-      tags: ["AssessmentTemplates"],
-      summary: "Create an assessment from the template",
-      requestBody: {
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                title: { type: "string" },
-                companyId: { type: "string", format: "uuid" },
-              },
-            },
-          },
-        },
-      },
-    },
   },
   "/notes": {
     post: {

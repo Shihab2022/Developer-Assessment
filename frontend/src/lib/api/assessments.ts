@@ -16,7 +16,6 @@ import { endpoints } from "./endpoints";
 import type {
   AssessmentListParams,
   AssessmentProblemPayload,
-  AttemptListParams,
   CompareCandidatesParams,
   DuplicateAssessmentPayload,
   InvitationListParams,

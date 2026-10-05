@@ -23,10 +23,11 @@ export function useCompanies(params?: {
   q?: string;
   sortBy?: string;
   sortOrder?: string;
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: qk.companies.list(params),
     queryFn: () => companiesApi.list(params),
+    enabled: options?.enabled ?? true,
     placeholderData: (previous) => previous,
   });
 }

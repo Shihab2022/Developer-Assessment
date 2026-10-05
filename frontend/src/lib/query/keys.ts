@@ -71,11 +71,6 @@ export const qk = {
     list: (params?: unknown) => ["payments", "list", params ?? {}] as const,
     detail: (id: string) => ["payments", "detail", id] as const,
   },
-  templates: {
-    all: ["templates"] as const,
-    list: (params?: unknown) => ["templates", "list", params ?? {}] as const,
-    detail: (id: string) => ["templates", "detail", id] as const,
-  },
   notes: {
     byCandidate: (candidateId: string, params?: unknown) =>
       ["notes", candidateId, params ?? {}] as const,

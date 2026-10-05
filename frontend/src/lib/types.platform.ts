@@ -162,10 +162,14 @@ export interface QuestionPerformance {
   problem?: { id: string; title: string; type?: ProblemType } | null;
   title?: string;
   type?: ProblemType;
+  difficulty?: string;
+  category?: string | null;
   totalPoints?: number;
   averageScore?: number;
   averagePercentage?: number;
   correctCount?: number;
+  correct?: number;
+  attempts?: number;
   attemptedCount?: number;
   attemptsCount?: number;
   successRate?: number;
@@ -178,27 +182,39 @@ export interface CandidateRankingRow {
   candidateName?: string;
   name?: string;
   email?: string;
-  earnedPoints: number;
-  totalPoints: number;
+  earnedPoints?: number;
+  totalPoints?: number;
   percentage: number;
   passed?: boolean;
   rank?: number;
   timeTakenSeconds?: number | null;
 }
 
+export interface AssessmentReportSummary {
+  invitationCount: number;
+  uniqueCandidates: number;
+  startedAttempts: number;
+  completedAttempts: number;
+  completionRate: number;
+  averageScore: number;
+  highestScore: number;
+  lowestScore: number;
+  passRate: number;
+  averageCompletionTimeSeconds: number;
+}
+
 export interface AssessmentReport {
   assessmentId: string;
-  assessment?: { id: string; title: string; status?: string } | null;
-  totalCandidates?: number;
-  candidateCount?: number;
-  completedCount: number;
-  averageScore?: number;
-  highestScore?: number;
-  lowestScore?: number;
-  passRate: number;
-  averageCompletionTime?: number;
+  assessmentTitle?: string;
+  summary: AssessmentReportSummary;
   questionPerformance?: QuestionPerformance[];
-  ranking?: CandidateRankingRow[];
+  candidateRanking?: CandidateRankingRow[];
+  categoryPerformance?: {
+    category: string;
+    attempts: number;
+    accuracy: number;
+  }[];
+  generatedAt?: string;
 }
 
 export interface ScoreDistributionBucket {
@@ -300,59 +316,6 @@ export interface CreditTransaction {
 
 type CreditTransactionTypeValue = import("./types").CreditTransactionType;
 type CreditTransactionCategoryValue = import("./types").CreditTransactionCategory;
-
-// ---------------------------------------------------------------- templates
-
-export interface AssessmentTemplate {
-  id: string;
-  companyId?: string | null;
-  company?: { id: string; name: string } | null;
-  createdBy?: string | null;
-  createdByUser?: { id: string; name: string } | null;
-  title: string;
-  description?: string | null;
-  durationMinutes: number;
-  passingScore: number;
-  maxAttempts: number;
-  shuffleProblems: boolean;
-  shuffleOptions: boolean;
-  showResults: boolean;
-  antiCheatingEnabled: boolean;
-  resultStrategy: ResultStrategyValue;
-  accessLevel: AssessmentAccessLevelValue;
-  questionConfig?: Record<string, unknown> | null;
-  skills: string[];
-  difficultyDistribution?: Record<string, number> | null;
-  antiCheatingSettings?: Record<string, unknown> | null;
-  status: TemplateStatusValue;
-  createdAt?: string;
-  updatedAt?: string;
-  _count?: { assessments?: number; usedCount?: number };
-}
-
-type ResultStrategyValue = import("./types").ResultStrategy;
-type AssessmentAccessLevelValue = import("./types").AssessmentAccessLevel;
-type TemplateStatusValue = import("./types").TemplateStatus;
-
-export interface AssessmentTemplateInput {
-  title: string;
-  description?: string;
-  durationMinutes: number;
-  passingScore?: number;
-  maxAttempts?: number;
-  shuffleProblems?: boolean;
-  shuffleOptions?: boolean;
-  showResults?: boolean;
-  antiCheatingEnabled?: boolean;
-  resultStrategy?: ResultStrategyValue;
-  accessLevel?: AssessmentAccessLevelValue;
-  questionConfig?: Record<string, unknown>;
-  skills?: string[];
-  difficultyDistribution?: Record<string, number>;
-  antiCheatingSettings?: Record<string, unknown>;
-  status?: TemplateStatusValue;
-  companyId?: string;
-}
 
 // ---------------------------------------------------------------- notes
 

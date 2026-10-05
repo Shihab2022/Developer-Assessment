@@ -555,7 +555,26 @@ const companyAnalytics = async (user: IAuthUser, companyId: string) => {
   };
 };
 
-const list = async (q?: string, page = 1, limit = 10) => {
+const list = async (user: IAuthUser, q?: string, page = 1, limit = 10) => {
+  // The company directory is an administrative tool. Recruiters work with the
+  // company attached to their account and must not be able to enumerate other
+  // organisations by calling this endpoint directly.
+  if (user.role !== "ADMIN") {
+    if (!user.companyId) {
+      return { data: [], meta: { page, limit, total: 0, totalPages: 1 } };
+    }
+    const company = await prisma.company.findFirst({
+      where: { id: user.companyId, deletedAt: null },
+      select: {
+        id: true, name: true, slug: true, logo: true, description: true,
+        industry: true, location: true, size: true, createdAt: true,
+      },
+    });
+    return {
+      data: company ? [company] : [],
+      meta: { page: 1, limit, total: company ? 1 : 0, totalPages: 1 },
+    };
+  }
   const where = {
     deletedAt: null,
     ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),

@@ -64,7 +64,7 @@ export function gradeEntry(
 
     if (row.kind === "coding") {
       const progress = entry.coding[row.itemId];
-      const total = row.testCases.length;
+      const total = row.testCases?.length ?? 0;
       const passed = progress?.passed ?? 0;
       const ratio = total > 0 ? passed / total : 0;
       return {

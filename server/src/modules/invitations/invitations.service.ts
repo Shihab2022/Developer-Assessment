@@ -70,17 +70,18 @@ const create = async (
 
   const result = await prisma.$transaction(async (tx) => {
     const created: unknown[] = [];
+    const skipped: string[] = [];
     for (const candidate of payload.candidates) {
       const email = candidate.email.toLowerCase().trim();
 
+      // Bulk invites are forgiving: an address that is already invited is
+      // reported back to the caller instead of failing every other invite.
       const existingInvite = await tx.invitation.findUnique({
         where: { assessmentId_email: { assessmentId, email } },
       });
       if (existingInvite) {
-        throw new ApiError(
-          httpStatus.CONFLICT,
-          `Candidate ${email} is already invited to this assessment`,
-        );
+        skipped.push(email);
+        continue;
       }
 
       const candidateUser = await tx.user.findUnique({
@@ -102,7 +103,7 @@ const create = async (
       });
       created.push(invite);
     }
-    return created;
+    return { created, skipped };
   });
 
   await writeAuditLog({
@@ -110,13 +111,16 @@ const create = async (
     action: "invitation.create",
     entityType: "Invitation",
     entityId: assessmentId,
-    newValue: { count: payload.candidates.length },
+    newValue: {
+      count: result.created.length,
+      skipped: result.skipped.length,
+    },
     ipAddress: meta.ip,
     userAgent: meta.userAgent,
   });
 
   // Deliver the personal exam link to each invited candidate.
-  for (const invite of result as Array<{
+  for (const invite of result.created as Array<{
     assessmentId: string;
     email: string;
     token: string | null;
@@ -126,7 +130,12 @@ const create = async (
     await sendInvitationEmail(invite);
   }
 
-  return result;
+  return {
+    invited: result.created.length,
+    skipped: result.skipped.length,
+    skippedEmails: result.skipped,
+    invitations: result.created,
+  };
 };
 
 const listForAssessment = async (

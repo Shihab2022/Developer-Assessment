@@ -1,5 +1,7 @@
 "use client";
 
+import { useCompany } from "@/hooks/useCompanies";
+import { useCurrentUser } from "@/store/auth";
 import { usePayments, usePaymentPackages, useInitiatePayment } from "@/hooks/usePayments";
 import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -9,11 +11,35 @@ import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { CREDIT_USAGE_NOTE } from "@/lib/constants";
 
 export default function CreditsPage() {
+  const me = useCurrentUser();
+  const ownCompanyId = me?.companyId ?? undefined;
+  const company = useCompany(ownCompanyId);
+
   const packages = usePaymentPackages();
   const payments = usePayments({ limit: 20 });
   const initiate = useInitiatePayment();
 
   const history = payments.data?.data ?? [];
+  const balance = company.data?.credits ?? null;
+
+  // Credits & billing is exposed to company owners & admins only.
+  if (me && me.role === "RECRUITER") {
+    return (
+      <>
+        <PageHeader
+          title="Credits & billing"
+          subtitle="Top up your company credit balance to invite candidates"
+        />
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            Credits &amp; billing is only available to company owners and admins.
+            Publishing an exam uses one credit — ask your company owner to top up
+            the balance when it runs low.
+          </CardBody>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
@@ -22,6 +48,21 @@ export default function CreditsPage() {
         subtitle="Top up your company credit balance to invite candidates"
       />
       <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{CREDIT_USAGE_NOTE}</p>
+
+      <Card className="mb-4">
+        <CardBody className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Current company balance</p>
+            <p className="text-2xl font-bold text-foreground">
+              {company.isLoading ? "…" : balance != null ? `${balance} credits` : "—"}
+            </p>
+          </div>
+          <p className="max-w-md text-xs text-muted-foreground">
+            Publishing an exam consumes one credit from this balance. Once a package
+            is paid, the credits land here automatically.
+          </p>
+        </CardBody>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {packages.isLoading ? (

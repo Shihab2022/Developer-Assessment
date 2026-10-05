@@ -32,6 +32,7 @@ const list = catchAsync(async (req: AuthRequest, res: Response) => {
     difficulty: req.query.difficulty as string,
     category: req.query.category as string,
     status: req.query.status as string,
+    scope: req.query.scope as "all" | "mine" | "platform" | undefined,
     tags: req.query.tags as string,
     skills: req.query.skills as string,
   });

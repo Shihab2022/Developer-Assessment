@@ -27,15 +27,34 @@ const Stat = ({ label, value }: { label: string; value: string | number }) => (
 export default function CompanyPage() {
   const me = useCurrentUser();
   const companyId = me?.companyId ?? "";
-  const { data: company, isLoading } = useCompany(companyId || undefined);
-  const { data: analytics } = useCompanyAnalytics(companyId || undefined);
-  const { data: members } = useCompanyMembers(companyId || undefined);
+  const isRestricted = Boolean(me && me.role === "RECRUITER");
+  const { data: company, isLoading } = useCompany(isRestricted ? undefined : companyId || undefined);
+  const { data: analytics } = useCompanyAnalytics(isRestricted ? undefined : companyId || undefined);
+  const { data: members } = useCompanyMembers(isRestricted ? undefined : companyId || undefined);
   const update = useUpdateCompany(companyId);
   const invite = useInviteCompanyMember(companyId);
   const updateRole = useUpdateCompanyMemberRole(companyId);
   const removeMember = useRemoveCompanyMember(companyId);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<CompanyMemberRole>("MEMBER");
+
+  // Company management is exposed to company owners & admins only —
+  // plain recruiters see an explanation instead.
+  if (isRestricted) {
+    return (
+      <>
+        <PageHeader
+          title="Company"
+          subtitle="Your company's workspace"
+        />
+        <Card>
+          <CardBody className="py-10 text-center text-sm text-muted-foreground">
+            Company management is only available to company owners and admins.
+          </CardBody>
+        </Card>
+      </>
+    );
+  }
 
   const copyJoinCode = async () => {
     if (!company?.code) return;

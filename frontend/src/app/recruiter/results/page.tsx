@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useAssessments, useAssessmentResults } from "@/hooks/useAssessments";
 import { useExportAssessmentCsv } from "@/hooks/useReports";
 import { Card, CardBody, PageHeader } from "@/components/ui/Card";
@@ -13,8 +15,17 @@ import { formatPercent, humanizeEnum } from "@/lib/utils";
 import type { Result } from "@/lib/types.platform";
 
 export default function ResultsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResultsContent />
+    </Suspense>
+  );
+}
+
+function ResultsContent() {
+  const searchParams = useSearchParams();
   const { data: assessments } = useAssessments({ limit: 100 });
-  const [assessmentId, setAssessmentId] = useState("");
+  const [assessmentId, setAssessmentId] = useState(searchParams.get("assessment") ?? "");
   const { data, isLoading } = useAssessmentResults(
     assessmentId || undefined,
     { limit: 100 },
@@ -28,7 +39,7 @@ export default function ResultsPage() {
     <>
       <PageHeader
         title="Results"
-        subtitle="Candidate results across your assessments"
+        subtitle="Who finished which assessment, with scores, pass status and timing"
         actions={
           <div className="flex items-center gap-2">
             <SelectField
@@ -49,7 +60,8 @@ export default function ResultsPage() {
       {!assessmentId ? (
         <Card>
           <CardBody className="py-10 text-center text-sm text-muted-foreground">
-            Select an assessment to view its results.
+            Select an assessment to view its results. You can also open results
+            straight from an assessment&apos;s Results tab.
           </CardBody>
         </Card>
       ) : isLoading ? (
@@ -57,7 +69,8 @@ export default function ResultsPage() {
       ) : results.length === 0 ? (
         <Card>
           <CardBody className="py-10 text-center text-sm text-muted-foreground">
-            No results for this assessment yet.
+            No results for this assessment yet. Results are created when a
+            submitted attempt is evaluated — invite candidates to get going.
           </CardBody>
         </Card>
       ) : (

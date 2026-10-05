@@ -12,7 +12,6 @@ export { evaluationsApi } from "./evaluations";
 export { resultsApi } from "./results";
 export { reportsApi } from "./reports";
 export { paymentsApi } from "./payments";
-export { templatesApi } from "./templates";
 export { notesApi } from "./notes";
 export { notificationsApi } from "./notifications";
 export { dashboardApi } from "./dashboard";

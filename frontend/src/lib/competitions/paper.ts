@@ -117,11 +117,11 @@ export interface ResolveInput {
 
 /** Resolves paper rows against the loaded banks; unresolvable rows are reported. */
 export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; missing: string[] } {
-  const ownById = new Map(input.ownQuestions.map((question) => [question.id, question]));
+  const ownById = new Map((input.ownQuestions ?? []).map((question) => [question.id, question]));
   const rows: ResolvedRow[] = [];
   const missing: string[] = [];
 
-  for (const item of input.items) {
+  for (const item of input.items ?? []) {
     const base = { itemId: item.id, points: item.points };
 
     if (item.source === "own") {
@@ -161,7 +161,7 @@ export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; mi
             constraints: [],
             functionName: coding.functionName,
             starterCode: coding.starterCode,
-            testCases: coding.testCases.map((testCase) => ({
+            testCases: (coding.testCases ?? []).map((testCase) => ({
               args: testCase.args,
               expected: testCase.expected,
               isHidden: testCase.isHidden,
@@ -171,7 +171,7 @@ export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; mi
           language: coding.language,
           functionName: coding.functionName,
           starterCode: coding.starterCode,
-          testCases: coding.testCases,
+          testCases: coding.testCases ?? [],
         });
       } else {
         rows.push({
@@ -201,7 +201,7 @@ export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; mi
         language: "javascript",
         functionName: problem.functionName,
         starterCode: problem.starterCode,
-        testCases: problem.testCases.map((testCase) => ({
+        testCases: (problem.testCases ?? []).map((testCase) => ({
           args: testCase.args,
           expected: testCase.expected,
           isHidden: testCase.isHidden,
@@ -221,8 +221,8 @@ export function resolvePaperRows(input: ResolveInput): { rows: ResolvedRow[]; mi
       kind: "mcq",
       sourceLabel: `${bank.label} bank`,
       title: question.title,
-      blocks: question.content,
-      options: question.options.map((option) => ({ id: option.id, text: option.text })),
+      blocks: question.content ?? [],
+      options: (question.options ?? []).map((option) => ({ id: option.id, text: option.text })),
       correctOptionId: question.correctOptionId,
       explanation: question.explanation,
       topic: question.topic,

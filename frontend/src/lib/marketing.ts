@@ -196,7 +196,7 @@ export const LANDING_PILLARS: LandingPillar[] = [
       "Author coding, MCQ and written questions with points, difficulty, tags",
       "Attach test cases, sample I/O, allowed languages, time and memory limits",
       "Full-text search across your private bank and the shared library",
-      "Save complete papers as templates and duplicate them freely",
+      "Duplicate any assessment into a fresh draft and tweak it per round",
       "Draft privately, publish when the paper is ready — no accidental leaks",
     ],
     cta: { label: "Build your first paper", href: "/register" },
@@ -531,12 +531,6 @@ export const LANDING_CAPABILITIES: LandingCapability[] = [
     icon: "ListOrdered",
   },
   {
-    title: "Reusable paper templates",
-    description:
-      "Save a paper as a template once, then spin up a fresh assessment from it for every new round.",
-    icon: "LayoutTemplate",
-  },
-  {
     title: "Bulk invites & recruiter notes",
     description:
       "Invite a whole cohort in one action, then keep private notes against each candidate.",
@@ -593,7 +587,7 @@ export const LANDING_FAQ: LandingFaq[] = [
   {
     question: "Can a company bring its own questions, or must it use the shared bank?",
     answer:
-      "Both. Build a paper entirely from the curated bank, entirely from your private questions, or mix the two. Private questions and templates stay scoped to your company workspace.",
+      "Both. Build a paper entirely from the curated bank, entirely from your private questions, or mix the two. Private questions stay scoped to your company workspace.",
   },
   {
     question: "How does a competition work for an institute or a company?",

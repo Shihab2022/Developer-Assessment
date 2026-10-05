@@ -13,6 +13,10 @@ const router = express.Router();
 
 router.get("/packages", PaymentController.listPackages);
 
+// Mock (sandbox) checkout page — completes a payment without a gateway when
+// SSLCommerz credentials are not configured. `initiate` returns this URL.
+router.get("/mock", PaymentController.mock);
+
 router.post(
   "/initiate",
   paymentRateLimiter,

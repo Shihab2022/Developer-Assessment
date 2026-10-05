@@ -50,10 +50,12 @@ export function useCompetitionRun({ competition, identity, banks, banksReady }: 
   const startedRef = useRef<string | null>(null);
 
   const rows = useMemo(() => {
-    if (!banksReady) return [];
-    const ownQuestions = useCompetitionsStore.getState().ownQuestions;
-    return resolvePaperRows({ items: competition.items, banks, ownQuestions }).rows;
-  }, [banksReady, banks, competition.items]);
+    // The attempt page can render while the competition id is unknown (e.g. a
+    // stale share link) — bail out instead of dereferencing `undefined`.
+    if (!banksReady || !competition) return [];
+    const ownQuestions = useCompetitionsStore.getState().ownQuestions ?? [];
+    return resolvePaperRows({ items: competition.items ?? [], banks, ownQuestions }).rows;
+  }, [banksReady, banks, competition]);
 
   const participantKey = useMemo(() => {
     if (!identity) return null;
@@ -61,16 +63,16 @@ export function useCompetitionRun({ competition, identity, banks, banksReady }: 
   }, [identity]);
 
   const existing = useMemo(() => {
-    if (!identity) return undefined;
+    if (!identity || !competition) return undefined;
     return entryForParticipant(entries, competition.id, {
       participantName: identity.participantName,
       participantEmail: identity.participantEmail || undefined,
     });
-  }, [entries, competition.id, identity]);
+  }, [entries, competition, identity]);
 
   /* Start (or resume) the entry once the paper is resolved. */
   useEffect(() => {
-    if (!identity || !banksReady || rows.length === 0) return;
+    if (!identity || !banksReady || !competition || rows.length === 0) return;
     if (attemptsUsed(entries, competition, {
       participantName: identity.participantName,
       participantEmail: identity.participantEmail || undefined,
@@ -132,13 +134,13 @@ export function useCompetitionRun({ competition, identity, banks, banksReady }: 
 
   const proctor = useCallback(
     (type: string) => {
-      if (entry && competition.rules.antiCheat) recordProctorEvent(entry.id, type);
+      if (entry && competition?.rules?.antiCheat) recordProctorEvent(entry.id, type);
     },
-    [entry, competition.rules.antiCheat, recordProctorEvent],
+    [entry, competition, recordProctorEvent],
   );
 
   const submit = useCallback(() => {
-    if (!entry) return null;
+    if (!entry || !competition) return null;
     const summary = gradeEntry(rows, entry, competition.rules);
     submitEntry(entry.id, {
       score: summary.score,
@@ -150,7 +152,7 @@ export function useCompetitionRun({ competition, identity, banks, banksReady }: 
       needsReview: summary.needsReview,
     });
     return entry.id;
-  }, [entry, rows, competition.rules, submitEntry]);
+  }, [entry, rows, competition, submitEntry]);
 
   return {
     rows,

@@ -2,15 +2,12 @@ import type {
   Assessment,
   AssessmentAccessLevel,
   AssessmentProblem,
-  AssessmentTemplateInput,
   CompanyMemberRole,
   Difficulty,
-  ProblemStatus,
   ProblemType,
   RecruitmentStatus,
   ResultStrategy,
   Role,
-  TemplateStatus,
   UserStatus,
 } from "@/lib/types";
 
@@ -88,18 +85,6 @@ export interface DuplicateAssessmentPayload {
   companyId?: string;
 }
 
-export interface CreateAssessmentFromTemplatePayload {
-  title?: string;
-  companyId?: string;
-}
-
-/* ---------------------------------------------------------------- templates */
-
-export type CreateTemplatePayload = AssessmentTemplateInput;
-export type UpdateTemplatePayload = Partial<AssessmentTemplateInput> & {
-  status?: TemplateStatus;
-};
-
 /* ---------------------------------------------------------------- problems */
 
 export interface ProblemListParams extends ListParams {
@@ -107,6 +92,7 @@ export interface ProblemListParams extends ListParams {
   difficulty?: Difficulty;
   category?: string;
   tags?: string;
+  scope?: "all" | "mine" | "platform";
 }
 
 /* ---------------------------------------------------------------- admin */

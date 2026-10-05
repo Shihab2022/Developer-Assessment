@@ -239,6 +239,15 @@ const handleSuccess = async (query: Record<string, unknown>) => {
   return markPaid(transactionId);
 };
 
+/**
+ * Completes a mock (non-gateway) payment: the buyer opened the sandbox
+ * checkout page and confirmed, so the payment is final and credits land
+ * immediately. Reuses `markPaid` so crediting stays identical.
+ */
+const completeMockPayment = async (transactionId: string) => {
+  return markPaid(transactionId);
+};
+
 const handleFail = async (query: Record<string, unknown>) => {
   const transactionId = (query.tran_id ?? query.transactionId) as string;
   if (!transactionId)
@@ -353,6 +362,7 @@ const listPackages = async () => {
 
 export const PaymentServices = {
   initiate,
+  completeMockPayment,
   handleSuccess,
   handleFail,
   handleCancel,

@@ -160,6 +160,40 @@ const listForAttempt = async (user: IAuthUser, attemptId: string) => {
   return submissions;
 };
 
+/**
+ * Assessment-scoped listing used by `GET /assessments/:id/submissions`.
+ * Unlike `listForAttempt` the id is an assessment, so access is checked
+ * against the assessment instead of a single attempt.
+ */
+const listForAssessment = async (user: IAuthUser, assessmentId: string) => {
+  const assessment = await prisma.assessment.findFirst({
+    where: { id: assessmentId, deletedAt: null },
+    select: { id: true, companyId: true, createdBy: true },
+  });
+  if (!assessment) throw new ApiError(httpStatus.NOT_FOUND, "Assessment not found");
+  if (user.role === "RECRUITER") {
+    if (assessment.companyId !== user.companyId && assessment.createdBy !== user.id) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "You do not have access to this assessment",
+      );
+    }
+  } else if (user.role === "CANDIDATE") {
+    throw new ApiError(httpStatus.FORBIDDEN, "Candidates cannot list submissions");
+  }
+
+  return prisma.submission.findMany({
+    where: { assessmentId },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    include: {
+      problem: { select: { id: true, title: true, type: true } },
+      candidate: { select: { id: true, name: true, email: true } },
+      attempt: { select: { id: true, attemptNumber: true, status: true } },
+    },
+  });
+};
+
 const evaluate = async (
   user: IAuthUser,
   submissionId: string,
@@ -211,5 +245,6 @@ export const SubmissionServices = {
   create,
   getById,
   listForAttempt,
+  listForAssessment,
   evaluate,
 };

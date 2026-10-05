@@ -30,3 +30,15 @@ attemptEvaluationRouter.get(
   validate(attemptEvaluationsQuery),
   EvaluationController.listForAttempt,
 );
+
+/**
+ * Assessment-scoped router mounted at `/assessments/:id/evaluations`.
+ * `:id` is an assessment id here, so it must not reuse the attempt handler.
+ */
+export const assessmentEvaluationRouter = express.Router({ mergeParams: true });
+
+assessmentEvaluationRouter.get(
+  "/",
+  auth("RECRUITER", "ADMIN"),
+  EvaluationController.listForAssessment,
+);

@@ -61,7 +61,6 @@ export type ProblemStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
 export type AssessmentStatus = "DRAFT" | "PUBLISHED" | "ACTIVE" | "CLOSED" | "ARCHIVED";
 export type AssessmentAccessLevel = "PUBLIC" | "PRIVATE" | "INVITATION_ONLY" | "ACCESS_CODE";
 export type ResultStrategy = "BEST_SCORE" | "LATEST_SCORE" | "FIRST_SCORE";
-export type TemplateStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";
 
 export type InvitationStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED" | "COMPLETED";
 export type RecruitmentStatus =
