@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/Badge";
 import { AudienceTabs } from "@/components/marketing/AudienceTabs";
 import { CodePreviewPanel } from "@/components/marketing/CodePreviewPanel";
 import { FaqSection } from "@/components/marketing/FaqSection";
+import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { SectionHeading } from "@/components/marketing/SectionHeading";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
@@ -225,13 +226,21 @@ export default function HomePage() {
                       ))}
                     </ul>
 
-                    <Link
-                      href={`#${pillar.id}`}
-                      className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 transition-colors hover:underline dark:text-primary-400"
-                    >
-                      {pillar.cta.label}
-                      <ArrowRight className="size-3.5" />
-                    </Link>
+                    {pillar.id === "practice" || pillar.id === "question-bank" ? (
+                      <MarketingCta
+                        kind={pillar.id}
+                        label={pillar.cta.label}
+                        variant="link"
+                      />
+                    ) : (
+                      <Link
+                        href={`#${pillar.id}`}
+                        className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 transition-colors hover:underline dark:text-primary-400"
+                      >
+                        {pillar.cta.label}
+                        <ArrowRight className="size-3.5" />
+                      </Link>
+                    )}
                   </article>
                 );
               })}
@@ -369,12 +378,7 @@ export default function HomePage() {
                   ))}
                 </ul>
 
-                <Button asChild className="mt-8">
-                  <Link href={practice.cta.href}>
-                    {practice.cta.label}
-                    <ArrowRight />
-                  </Link>
-                </Button>
+                <MarketingCta kind="practice" label={practice.cta.label} />
               </div>
             </div>
           </div>
@@ -583,12 +587,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 flex justify-center">
-              <Button asChild>
-                <Link href={questionBank.cta.href}>
-                  {questionBank.cta.label}
-                  <ArrowRight />
-                </Link>
-              </Button>
+              <MarketingCta kind="question-bank" label={questionBank.cta.label} />
             </div>
           </div>
         </section>
