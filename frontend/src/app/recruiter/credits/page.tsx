@@ -1,17 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCompany } from "@/hooks/useCompanies";
 import { useCurrentUser } from "@/store/auth";
 import { usePayments, usePaymentPackages, useInitiatePayment } from "@/hooks/usePayments";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { Card, CardBody, CardHeader, PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Primitives";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { CREDIT_USAGE_NOTE } from "@/lib/constants";
+import { qk } from "@/lib/query/keys";
 
 export default function CreditsPage() {
   const me = useCurrentUser();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const ownCompanyId = me?.companyId ?? undefined;
   const company = useCompany(ownCompanyId);
 
@@ -22,24 +28,12 @@ export default function CreditsPage() {
   const history = payments.data?.data ?? [];
   const balance = company.data?.credits ?? null;
 
-  // Credits & billing is exposed to company owners & admins only.
-  if (me && me.role === "RECRUITER") {
-    return (
-      <>
-        <PageHeader
-          title="Credits & billing"
-          subtitle="Top up your company credit balance to invite candidates"
-        />
-        <Card>
-          <CardBody className="py-10 text-center text-sm text-muted-foreground">
-            Credits &amp; billing is only available to company owners and admins.
-            Publishing an exam uses one credit — ask your company owner to top up
-            the balance when it runs low.
-          </CardBody>
-        </Card>
-      </>
-    );
-  }
+  useEffect(() => {
+    if (searchParams.get("payment") === "success") {
+      void queryClient.invalidateQueries({ queryKey: qk.companies.detail(ownCompanyId ?? "") });
+      void queryClient.invalidateQueries({ queryKey: ["payments", "list"] });
+    }
+  }, [ownCompanyId, queryClient, searchParams]);
 
   return (
     <>

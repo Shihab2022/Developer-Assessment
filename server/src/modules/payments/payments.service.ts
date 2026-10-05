@@ -17,6 +17,9 @@ const isMockMode = () =>
   !config.sslcommerz.store_id ||
   !config.sslcommerz.store_password;
 
+const callbackUrl = (configured: string, path: string) =>
+  configured || `${config.api_url.replace(/\/+$/, "")}/api/v1/payments/${path}`;
+
 const initiate = async (
   user: IAuthUser,
   payload: { packageId: string; companyId?: string },
@@ -41,6 +44,13 @@ const initiate = async (
       "A company is required to purchase credits",
     );
   }
+  const membership = await prisma.companyMember.findUnique({
+    where: { companyId_userId: { companyId, userId: user.id } },
+    select: { companyId: true },
+  });
+  if (!membership && user.role !== "ADMIN") {
+    throw new ApiError(httpStatus.FORBIDDEN, "You do not have access to this company");
+  }
 
   const transactionId = generateTransactionId();
 
@@ -64,10 +74,10 @@ const initiate = async (
     total_amount: pkg.price,
     currency: "BDT",
     tran_id: transactionId,
-    success_url: `${config.app_url}/api/v1/payments/success`,
-    fail_url: `${config.app_url}/api/v1/payments/fail`,
-    cancel_url: `${config.app_url}/api/v1/payments/cancel`,
-    ipn_url: `${config.app_url}/api/v1/payments/ipn`,
+    success_url: callbackUrl(config.sslcommerz.success_url, "success"),
+    fail_url: callbackUrl(config.sslcommerz.fail_url, "fail"),
+    cancel_url: callbackUrl(config.sslcommerz.cancel_url, "cancel"),
+    ipn_url: callbackUrl("", "ipn"),
     cus_name: user.name,
     cus_email: user.email,
     cus_add1: "N/A",
@@ -86,7 +96,9 @@ const initiate = async (
     return {
       payment,
       gatewayUrl: `${config.app_url}/api/v1/payments/mock?transactionId=${transactionId}`,
+      mockUrl: `${config.app_url}/api/v1/payments/mock?transactionId=${transactionId}`,
       isMock: true,
+      transactionId,
     };
   }
 
@@ -137,7 +149,7 @@ const initiate = async (
     userAgent: meta.userAgent,
   });
 
-  return { payment, gatewayUrl };
+  return { payment, gatewayUrl, transactionId };
 }; // ------------------- Gateway callbacks (idempotent) -------------------
 
 /**

@@ -12,6 +12,12 @@ const getMeta = (req: Request) => ({
   userAgent: req.headers["user-agent"] ?? undefined,
 });
 
+const redirectToCredits = (res: Response, status: "success" | "failed" | "cancelled") => {
+  const url = new URL("/recruiter/credits", config.frontend_url);
+  url.searchParams.set("payment", status);
+  return res.redirect(303, url.toString());
+};
+
 const initiate = catchAsync(async (req: AuthRequest, res: Response) => {
   const result = await PaymentServices.initiate(req.user!, req.body, getMeta(req));
   sendResponse(res, {
@@ -23,32 +29,20 @@ const initiate = catchAsync(async (req: AuthRequest, res: Response) => {
 
 const success = catchAsync(async (req: Request, res: Response) => {
   const payload = { ...req.body, ...req.query };
-  const result = await PaymentServices.handleSuccess(payload as never);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    message: "Payment completed successfully",
-    data: result,
-  });
+  await PaymentServices.handleSuccess(payload as never);
+  return redirectToCredits(res, "success");
 });
 
 const fail = catchAsync(async (req: Request, res: Response) => {
   const payload = { ...req.body, ...req.query };
-  const result = await PaymentServices.handleFail(payload as never);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    message: "Payment failed",
-    data: result,
-  });
+  await PaymentServices.handleFail(payload as never);
+  return redirectToCredits(res, "failed");
 });
 
 const cancel = catchAsync(async (req: Request, res: Response) => {
   const payload = { ...req.body, ...req.query };
-  const result = await PaymentServices.handleCancel(payload as never);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    message: "Payment cancelled",
-    data: result,
-  });
+  await PaymentServices.handleCancel(payload as never);
+  return redirectToCredits(res, "cancelled");
 });
 
 const ipn = catchAsync(async (req: Request, res: Response) => {

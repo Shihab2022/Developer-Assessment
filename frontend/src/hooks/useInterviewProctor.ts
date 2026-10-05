@@ -221,6 +221,16 @@ export function useInterviewProctor(options: Options) {
     if (videoRef.current) videoRef.current.srcObject = null;
   }, []);
 
+  // The preflight and runner render different video elements. Reattach the
+  // same live stream after the runner mounts so the preview remains visible.
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!tracking || !video || !stream) return;
+    if (video.srcObject !== stream) video.srcObject = stream;
+    void video.play().catch(() => undefined);
+  }, [tracking]);
+
   /** Small JPEG of the current frame (used as per-question evidence). */
   const takeSnapshot = useCallback(
     (maxWidth = 480) => captureSnapshot(videoRef.current, maxWidth),
@@ -492,4 +502,3 @@ export function useInterviewProctor(options: Options) {
     getStream,
   };
 }
-

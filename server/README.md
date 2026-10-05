@@ -82,6 +82,8 @@ cp .env.example .env
 | `REDIS_URL` / `REDIS_ENABLED` | Optional Redis for caching |
 | `SSLCOMMERZ_STORE_ID` / `SSLCOMMERZ_STORE_PASSWORD` | SSLCommerz credentials |
 | `SSLCOMMERZ_IS_LIVE` | `false` for sandbox |
+| `SSLCOMMERZ_PAYMENT_API` / `SSLCOMMERZ_VALIDATION_API` | Sandbox or live gateway endpoints |
+| `SSLCOMMERZ_SUCCESS_URL` / `SSLCOMMERZ_FAIL_URL` / `SSLCOMMERZ_CANCEL_URL` | Optional public callback overrides; defaults are built from `API_URL` |
 | `CODE_RUNNER_URL` | Remote isolated code execution service (optional) |
 | `ALLOW_LOCAL_SANDBOX` | Enable local Node `vm` fallback for dev only (`true`/`false`) |
 | `AI_API_KEY` / `AI_BASE_URL` / `AI_MODEL` | Optional OpenAI-compatible provider used to mark interviews (falls back to the built-in rubric engine) |

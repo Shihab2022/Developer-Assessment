@@ -413,24 +413,20 @@ const publish = async (
 
   assertValidAssessmentTransition(assessment.status, AssessmentStatus.PUBLISHED);
 
-  if (user.role === "RECRUITER") {
-    const company = await prisma.company.findUnique({
-      where: { id: assessment.companyId },
-    });
-    if (!company || company.credits < 1) {
-      throw new ApiError(
-        httpStatus.PAYMENT_REQUIRED,
-        "Insufficient assessment credits. Please purchase a package first.",
-      );
-    }
-  }
-
   const result = await prisma.$transaction(async (tx) => {
     if (user.role === "RECRUITER") {
-      await tx.company.update({
-        where: { id: assessment.companyId },
+      // Debit only when a credit is available. This keeps concurrent publish
+      // requests from driving the balance below zero.
+      const debited = await tx.company.updateMany({
+        where: { id: assessment.companyId, credits: { gte: 1 } },
         data: { credits: { decrement: 1 } },
       });
+      if (debited.count !== 1) {
+        throw new ApiError(
+          httpStatus.PAYMENT_REQUIRED,
+          "Insufficient assessment credits. Please purchase a package first.",
+        );
+      }
       await tx.creditTransaction.create({
         data: {
           companyId: assessment.companyId,
